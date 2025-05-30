@@ -19,7 +19,6 @@ const Header = () => {
     about: [
       { name: 'Qui sommes-nous', path: '/about' },
       { name: 'Les Jésuites', path: '/about/jesuites' },
-      { name: 'Notre histoire', path: '/about/history' },
       { name: 'Ignace de Loyola', path: '/about/ignace' },
       { name: 'Saints et Bienheureux', path: '/about/saints' },
       { name: 'La Famille ignatienne', path: '/about/famille-ignatienne' },

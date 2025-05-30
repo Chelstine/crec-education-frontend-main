@@ -1,196 +1,398 @@
 import React from 'react';
-import PageWrapper from '@/components/common/PageWrapper';
-import SectionTitle from '@/components/common/SectionTitle';
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { FaClock, FaRulerCombined, FaCogs, FaInfoCircle } from "react-icons/fa";
-import { Card, CardContent } from "@/components/ui/card";
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Printer, Wrench, MapPin, Clock, Lightbulb, Users, BookOpen } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+// Define TypeScript interface
+interface Machine {
+  name: string;
+  code: string;
+  features: string[];
+  reference: string;
+  monthlyPrice: number;
+  yearlyPrice: number;
+}
 
 const ProgramsPage = () => {
+  const machines: Machine[] = [
+    {
+      name: 'Creality Ender-5 S1',
+      code: 'FAB IMP 01',
+      features: ['250mm/s Grande Vitesse', '300°C Haute Température', 'Détection de Filaments', 'CR Touch Auto-Nivellement', '220x220x280mm'],
+      reference: 'B0BQJCX9HC',
+      monthlyPrice: 10000,
+      yearlyPrice: 100000,
+    },
+    {
+      name: 'Creality Ender-3',
+      code: 'FAB IMP 02',
+      features: ['Protection de l’Alimentation', 'Impression de Reprise', '220x220x250mm'],
+      reference: 'B07BR3F9N6',
+      monthlyPrice: 8000,
+      yearlyPrice: 80000,
+    },
+    {
+      name: 'Creality Ender-3',
+      code: 'FAB IMP 03',
+      features: ['Protection de l’Alimentation', 'Impression de Reprise', '220x220x250mm'],
+      reference: 'B07BR3F9N6',
+      monthlyPrice: 7200,
+      yearlyPrice: 80000,
+    },
+    {
+      name: 'Anycubic Kobra',
+      code: 'FAB IMP 04',
+      features: ['500mm/s Grande Vitesse', 'Pro', 'Nivellement de Auto LeviQ 2.0', '220x220x250mm'],
+      reference: 'B0CDVX32X4',
+      monthlyPrice: 12500,
+      yearlyPrice: 120000,
+    },
+    {
+      name: 'Latilool F50 Laser Engraver',
+      code: 'FAB GRAV',
+      features: ['50W Puissance', 'Protection des Yeux', '400x400mm', 'Gravure sur Bois, Métal, Verre, Acrylique'],
+      reference: 'B0B6NG84VF',
+      monthlyPrice: 15000,
+      yearlyPrice: 150000,
+    },
+  ];
+
   return (
-    <PageWrapper>
+    <div className="min-h-screen flex flex-col font-sans text-[15pt] bg-gradient-to-b from-amber-50 to-white">
       {/* Hero Section */}
-      <section className="relative h-[60vh] bg-cover bg-center" style={{ backgroundImage: 'url(/images/fablab-atelier.jpg)' }}>
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-2">Le FabLab du CREC</h1>
-          <p className="text-md md:text-lg mb-4 max-w-2xl">
-            Un espace d’innovation numérique et de fabrication partagée ouvert à tous.
-          </p>
-          <div className="flex gap-4 flex-wrap justify-center">
-            <Link to="/reservation">
-              <Button className="bg-[#FCA311] hover:bg-[#fcb930] text-white rounded-full px-5 py-2">
-                Réserver une machine
+      <section className="relative w-full">
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/70" />
+        <div
+          className="min-h-[400px] flex flex-col items-center justify-center text-center relative text-white p-6"
+          style={{
+            backgroundImage: "url('/img/fablab-crec-bg.jpg')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
+          <motion.div
+            className="max-w-3xl mx-auto bg-black/60 p-10 rounded-2xl backdrop-blur-md shadow-2xl"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+          >
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">FabLab CREC</h1>
+            <p className="text-xl md:text-2xl mb-6 leading-relaxed">
+              Un espace jésuite d’innovation numérique pour créer, apprendre et collaborer au service du Bénin.
+            </p>
+            <motion.div
+              className="flex flex-col sm:flex-row justify-center items-center gap-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
+                <Button
+                  className="w-full sm:w-auto px-8 py-3 bg-[#e69500] hover:bg-[#f7b733] text-white rounded-full shadow-md hover:shadow-lg transition-all text-lg font-semibold"
+                  asChild
+                >
+                  <Link to="/souscription?redirect=reservation">Réserver une machine</Link>
+                </Button>
+              </motion.div>
+              <Button
+                className="w-full sm:w-auto px-6 py-3 border-white text-white hover:text-jesuit-dark hover:bg-white rounded-full text-lg font-semibold"
+                asChild
+              >
+                <Link to="/contact">Nous contacter</Link>
               </Button>
-            </Link>
-            <Link to="/projets">
-              <Button className="bg-transparent border-2 border-[#FCA311] text-[#FCA311] hover:bg-[#FCA311] hover:text-white rounded-full px-5 py-2 transition">
-                Participer à un projet
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* À propos */}
+      <section className="py-16 px-4">
+        <motion.div
+          className="max-w-5xl mx-auto space-y-8 text-justify"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-amber-800 mb-8">Le FabLab CREC : Un espace pour innover</h2>
+          <p className="text-jesuit-darkgray text-lg leading-relaxed">
+            Le FabLab du Centre de Recherche d’Étude et de Créativité (CREC) est un atelier collaboratif situé à Godomey, Bénin, inspiré par la mission jésuite de promouvoir l’excellence et le service. Ouvert à tous — étudiants, entrepreneurs, artisans — il offre un accès à des imprimantes 3D et un graveur laser pour transformer vos idées en prototypes.
+          </p>
+          <p className="text-jesuit-darkgray text-lg leading-relaxed">
+            Guidé par la <em>cura personalis</em> et le <em>magis</em>, le FabLab propose des formations, un accès autonome supervisé, et des services assistés pour concrétiser vos projets. Notre communauté dynamique favorise le partage de savoir-faire et l’innovation sociale, en soutenant le développement local et durable.
+          </p>
+        </motion.div>
+      </section>
+
+      {/* Nos valeurs */}
+      <section className="py-16 bg-jesuit-light">
+        <div className="max-w-5xl mx-auto px-4">
+          <motion.h2
+            className="text-3xl font-bold mb-12 text-center text-jesuit-dark"
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            Nos valeurs
+          </motion.h2>
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            {[
+              {
+                icon: Lightbulb,
+                title: 'Innovation',
+                description: 'Transformez vos idées en réalité avec des outils numériques de pointe.',
+              },
+              {
+                icon: Users,
+                title: 'Collaboration',
+                description: 'Participez à une communauté jésuite unie par la créativité et le partage.',
+              },
+              {
+                icon: BookOpen,
+                title: 'Apprentissage',
+                description: 'Développez vos compétences grâce à des formations pratiques et accessibles.',
+              },
+            ].map((value, i) => (
+              <Card key={i} className="bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg transition">
+                <CardContent className="p-6 flex flex-col items-center text-center">
+                  <value.icon className="w-12 h-12 text-jesuit-gold mb-4" />
+                  <h3 className="text-xl font-semibold text-jesuit-dark mb-2">{value.title}</h3>
+                  <p className="text-jesuit-darkgray text-base">{value.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Machines */}
+      <section className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-4">
+          <motion.h2
+            className="text-3xl font-bold mb-12 text-center text-jesuit-dark"
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            Nos équipements
+          </motion.h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {machines.map((machine, i) => (
+              <motion.div
+                key={machine.code}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.2 }}
+              >
+                <Card className="max-w-sm hover:shadow-lg transition">
+                  <CardContent className="p-6">
+                    <img
+                      src={`/img/machines/${machine.code.toLowerCase()}.jpg`}
+                      alt={machine.name}
+                      className="w-full h-48 object-cover rounded-md mb-6"
+                      onError={(e) => (e.currentTarget.src = '/img/placeholder-machine.jpg')}
+                    />
+                    <h3 className="text-xl font-bold mb-4 text-jesuit-dark">{machine.name} ({machine.code})</h3>
+                    <ul className="text-jesuit-darkgray text-base leading-relaxed mb-4 list-disc list-inside">
+                      {machine.features.map((feature, idx) => (
+                        <li key={idx}>{feature}</li>
+                      ))}
+                    </ul>
+                    <p className="text-jesuit-darkgray text-sm">
+                      <span className="font-medium text-jesuit-dark">Abonnement :</span> {machine.monthlyPrice.toLocaleString()} FCFA/mois ou {machine.yearlyPrice.toLocaleString()} FCFA/an
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Services et Tarifs */}
+      <section className="py-16 bg-jesuit-light">
+        <div className="max-w-5xl mx-auto px-4">
+          <motion.h2
+            className="text-3xl font-bold mb-12 text-center text-jesuit-dark"
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            Services et tarifs
+          </motion.h2>
+          <motion.div
+            className="space-y-12"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card className="bg-white/80 backdrop-blur-sm shadow-md">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-semibold text-jesuit-dark flex items-center gap-2 mb-4">
+                    <Wrench className="w-6 h-6 text-jesuit-gold" /> Utilisation autonome
+                  </h3>
+                  <ul className="text-jesuit-darkgray text-base list-disc list-inside">
+                    <li>Réservation en ligne</li>
+                    <li>Formation obligatoire (164,125 FCFA)</li>
+                    <li>Accès supervisé (25,210 FCFA/heure)</li>
+                  </ul>
+                </CardContent>
+              </Card>
+              <Card className="bg-white/80 backdrop-blur-sm shadow-md">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-semibold text-jesuit-dark flex items-center gap-2 mb-4">
+                    <Printer className="w-6 h-6 text-jesuit-gold" /> Service assisté
+                  </h3>
+                  <ul className="text-jesuit-darkgray text-base list-disc list-inside">
+                    <li>Envoyez votre fichier</li>
+                    <li>Devis personnalisé</li>
+                    <li>Fabrication et retrait (47,268 FCFA/heure)</li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full border border-amber-200 text-left bg-white/80 backdrop-blur-sm shadow-md rounded-lg">
+                <thead className="bg-amber-50">
+                  <tr>
+                    <th className="p-4 font-semibold text-jesuit-dark">Machine</th>
+                    <th className="p-4 font-semibold text-jesuit-dark">Mensuel</th>
+                    <th className="p-4 font-semibold text-jesuit-dark">Annuel</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {machines.map((machine) => (
+                    <tr key={machine.code} className="border-t border-amber-200">
+                      <td className="p-4">{machine.name} ({machine.code})</td>
+                      <td className="p-4 text-[#e69500] font-medium">{machine.monthlyPrice.toLocaleString()} FCFA</td>
+                      <td className="p-4 text-[#e69500] font-medium">{machine.yearlyPrice.toLocaleString()} FCFA</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-sm text-jesuit-darkgray">
+              Paiements via carte bancaire ou Mobile Money (MoovMoney, MTN, Celtiis).
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Infos pratiques */}
+      <section className="py-16 bg-white">
+        <div className="max-w-5xl mx-auto px-4">
+          <motion.h2
+            className="text-3xl font-bold mb-12 text-center text-jesuit-dark"
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            Infos pratiques
+          </motion.h2>
+          <motion.div
+            className="space-y-8"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-center text-jesuit-darkgray">
+              <Card className="bg-white/80 backdrop-blur-sm shadow-md">
+                <CardContent className="p-6">
+                  <Clock className="w-12 h-12 text-jesuit-gold mx-auto mb-4" />
+                  <p className="text-base">Ouvert de 8h à 17h</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-white/80 backdrop-blur-sm shadow-md">
+                <CardContent className="p-6">
+                  <MapPin className="w-12 h-12 text-jesuit-gold mx-auto mb-4" />
+                  <p className="text-base">Godomey, Bénin</p>
+                </CardContent>
+              </Card>
+            </div>
+            <iframe
+              title="Localisation CREC"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d26805.608272842124!2d2.305574410839845!3d6.383382500000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x102357caccf1e90d%3A0xbce64d9a20725bcc!2sCentre%20J%C3%A9suite%20De%20Recherche%20D%27Etude%20Et%20De%20Cr%C3%A9ativit%C3%A9!5e1!3m2!1sfr!2sbj!4v1748345292350!5m2!1sfr!2sbj"
+              className="w-full h-64 rounded-lg border border-amber-200"
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              aria-label="Carte de localisation du CREC à Godomey, Bénin"
+            />
+            <p className="text-center text-jesuit-darkgray">
+              <a
+                href="https://maps.app.goo.gl/6hS2iXvG5WjZ8KkD7"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#e69500] hover:underline"
+              >
+                CREC, Godomey, Bénin
+              </a>
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-20 bg-[#1A2526] text-gray-100">
+        <div className="max-w-3xl mx-auto text-center px-4">
+          <motion.h2
+            className="text-4xl font-bold mb-6 text-gray-100"
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            Rejoignez le FabLab CREC
+          </motion.h2>
+          <motion.p
+            className="text-xl md:text-2xl mb-8 text-gray-200 leading-relaxed"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            Créez, innovez et collaborez dans un espace dédié à l’excellence et au service.
+          </motion.p>
+          <motion.div
+            className="flex flex-col sm:flex-row justify-center items-center gap-4"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
+              <Button
+          className="w-full sm:w-auto px-8 py-3 bg-[#e69500] hover:bg-[#f7b733] text-white rounded-full shadow-md hover:shadow-lg transition-all text-lg font-semibold"
+          asChild
+              >
+          <Link to="/souscription?redirect=reservation">Réserver une machine</Link>
               </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Description détaillée du FabLab */}
-      <section className="py-12 px-4 md:px-16 bg-white text-gray-800">
-        <SectionTitle title="Un espace d’apprentissage, de créativité et d’innovation" />
-        <div className="max-w-5xl mx-auto text-lg leading-relaxed space-y-6">
-          <p>
-            Le FabLab du CREC est un atelier collaboratif ouvert au public, où vous pouvez concevoir et fabriquer des objets
-            à l’aide d’outils numériques professionnels. Que vous soyez étudiant, artisan, entrepreneur ou simplement curieux,
-            notre FabLab vous offre un environnement propice à la découverte, à l’expérimentation et au prototypage.
-          </p>
-          <p>
-            Vous y trouverez des équipements de pointe, une communauté bienveillante et des ressources pour apprendre à utiliser
-            les machines en toute autonomie. Des formations sont proposées pour vous initier à la découpe laser, à l’impression 3D
-            ou encore à la modélisation numérique.
-          </p>
-          <p>
-            Le FabLab vise à encourager l’innovation sociale et technologique à travers la fabrication locale, le partage de
-            savoir-faire et la participation à des projets collectifs.
-          </p>
-        </div>
-      </section>
-
-      {/* Services offerts */}
-      <section className="py-12 px-4 md:px-16 bg-gray-50">
-        <SectionTitle title="Nos services" />
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-xl font-semibold mb-4">Découpe en autonomie</h3>
-              <ul className="space-y-1 text-gray-700 list-disc pl-4">
-                <li>Réservation en ligne via le portail</li>
-                <li>Formation initiale obligatoire</li>
-                <li>Accès à la découpe laser / 3D sous supervision</li>
-              </ul>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-xl font-semibold mb-4">Prestation de découpe</h3>
-              <ul className="space-y-1 text-gray-700 list-disc pl-4">
-                <li>Fichier envoyé par le client</li>
-                <li>Devis selon matériau & temps machine</li>
-                <li>Fabrication et retrait au CREC</li>
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Liste des équipements disponibles */}
-      <section className="py-12 px-4 md:px-16 bg-white">
-        <SectionTitle title="Outils et machines disponibles au FabLab" />
-        <div className="grid md:grid-cols-2 gap-8 text-gray-800">
-          <div>
-            <h4 className="text-lg font-semibold mb-2">Découpe et gravure :</h4>
-            <ul className="list-disc pl-6 space-y-1">
-              <li>Découpeuse laser CO2 FL1390 - 150W</li>
-              <li>Gravure bois, cuir, acrylique, carton, etc.</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-lg font-semibold mb-2">Fabrication & design :</h4>
-            <ul className="list-disc pl-6 space-y-1">
-              <li>Imprimantes 3D FDM (PLA, PETG)</li>
-              <li>PC avec logiciels de CAO (Fusion 360, Illustrator)</li>
-              <li>Postes de montage et travail manuel</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* Tarification */}
-      <section className="py-12 px-4 md:px-16 bg-gray-50">
-        <SectionTitle title="Tarifs transparents" />
-        <div className="grid md:grid-cols-2 gap-6">
-          <table className="w-full border text-left bg-white">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-2 font-semibold">Autonomie</th>
-                <th className="p-2 font-semibold">Tarifs TTC</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="p-2">Formation machine</td>
-                <td className="p-2 text-[#FCA311] font-medium">250 €</td>
-              </tr>
-              <tr>
-                <td className="p-2">1h découpe autonome</td>
-                <td className="p-2 text-[#FCA311] font-medium">38,4 €</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <table className="w-full border text-left bg-white">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-2 font-semibold">Prestation</th>
-                <th className="p-2 font-semibold">Tarifs TTC</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="p-2">Découpe assistée (1h)</td>
-                <td className="p-2 text-blue-700 font-medium">72 €</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* Informations pratiques */}
-      <section className="py-12 px-4 md:px-16 bg-white">
-        <SectionTitle title="Infos utiles pour venir" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center text-gray-700">
-          <div>
-            <FaClock className="text-3xl mx-auto mb-2" />
-            <p>Ouvert de 8h à 17h</p>
-          </div>
-          <div>
-            <FaRulerCombined className="text-3xl mx-auto mb-2" />
-            <p>Zone de travail : 130 × 90 cm</p>
-          </div>
-          <div>
-            <FaCogs className="text-3xl mx-auto mb-2" />
-            <p>Modèle laser : FL1390 / 150W</p>
-          </div>
-          <div>
-            <FaInfoCircle className="text-3xl mx-auto mb-2" />
-            <p>Prestations sur devis</p>
-          </div>
-        </div>
-        <div className="mt-8">
-          <iframe
-            title="Localisation CREC"
-            src="https://www.google.com/maps/embed?pb=..." // Remplacer avec ton lien Google Maps
-            className="w-full h-64 rounded-lg border"
-            loading="lazy"
-          ></iframe>
-          <p className="mt-2 text-center text-gray-600">CREC, Godomey, Bénin</p>
-        </div>
-      </section>
-
-      {/* Appel à l’action final */}
-      <section className="bg-gray-50 py-12 px-4 text-center">
-        <h2 className="text-2xl font-bold mb-4">Prêt à créer avec nous ?</h2>
-        <p className="text-gray-700 mb-6">Réservez une machine ou rejoignez un projet en cours au FabLab.</p>
-        <div className="flex flex-col md:flex-row gap-4 justify-center">
-          <Link to="/reservation">
-            <Button className="bg-[#FCA311] hover:bg-[#fcb930] text-white rounded-full px-6 py-2">
-              Réserver un créneau
+            </motion.div>
+            <Button
+              className="w-full sm:w-auto px-6 py-3 border-white text-white hover:text-jesuit-dark hover:bg-white rounded-full text-lg font-semibold"
+              asChild
+            >
+              <Link to="/contact">Nous contacter</Link>
             </Button>
-          </Link>
-          <Link to="/projets">
-            <Button className="bg-white border-2 border-[#FCA311] text-[#FCA311] hover:bg-[#FCA311] hover:text-white rounded-full px-6 py-2 transition">
-              Participer à un projet
-            </Button>
-          </Link>
+          </motion.div>
         </div>
-      </section>
-    </PageWrapper>
+            </section>
+    </div>
   );
 };
 

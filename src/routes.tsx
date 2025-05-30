@@ -1,7 +1,8 @@
 import { createBrowserRouter, RouteObject } from 'react-router-dom';
 import MainLayout from '@/layouts/MainLayout';
+import ProtectedRoute from '@/components/common/ProtectedRoute';
 
-// Pages principales et pages légales
+// Pages principales
 import HomePage from '@/pages/HomePage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import LegalPage from '@/pages/LegalPage';
@@ -11,7 +12,6 @@ import ContactPage from '@/pages/ContactPage';
 // Pages À propos
 import AboutPage from '@/pages/about/AboutPage';
 import JesuitesPage from '@/pages/about/JesuitesPage';
-import HistoryPage from '@/pages/about/HistoryPage';
 import IgnacePage from '@/pages/about/IgnacePage';
 import SaintsPage from '@/pages/about/SaintsPage';
 import FamilleIgnatiennePage from '@/pages/about/FamilleIgnatiennePage';
@@ -22,7 +22,11 @@ import CommunautesPage from '@/pages/about/CommunautesPage';
 import FormationsPage from '@/pages/formations/FormationsPage';
 import ProgramsPage from '@/pages/formations/ProgramsPage';
 import UniversityPage from '@/pages/formations/UniversityPage';
-import AdmissionsPage from '@/pages/formations/AdmissionsPage';
+import InscriptionPage from '@/pages/formations/InscriptionPage';
+
+// Pages Réservation
+import ReservationPage from '@/pages/reservation/ReservationPage';
+import SubscriptionPage from '@/pages/reservation/SubscriptionPage';
 
 // Pages News
 import NewsPage from '@/pages/news/NewsPage';
@@ -37,9 +41,6 @@ import CalendarPage from '@/pages/events/CalendarPage';
 
 // Pages Dons
 import DonatePage from '@/pages/donate/DonatePage';
-import ScholarshipsPage from '@/pages/donate/ScholarshipsPage';
-import BenefactorPage from '@/pages/donate/BenefactorPage';
-import ProjectsPage from '@/pages/donate/ProjectsPage';
 
 // Pages Admin
 import AdminPage from '@/pages/admin/AdminPage';
@@ -54,54 +55,63 @@ const routes: RouteObject[] = [
     element: <MainLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      
+
       // À propos
       { path: 'about', element: <AboutPage /> },
       { path: 'about/jesuites', element: <JesuitesPage /> },
-      { path: 'about/history', element: <HistoryPage /> },
       { path: 'about/ignace', element: <IgnacePage /> },
       { path: 'about/saints', element: <SaintsPage /> },
       { path: 'about/famille-ignatienne', element: <FamilleIgnatiennePage /> },
       { path: 'about/equipe', element: <EquipePage /> },
       { path: 'about/communautes', element: <CommunautesPage /> },
-      
+
       // Formations
       { path: 'formations', element: <FormationsPage /> },
       { path: 'formations/programs', element: <ProgramsPage /> },
       { path: 'formations/university', element: <UniversityPage /> },
-      { path: 'formations/admissions', element: <AdmissionsPage /> },
-      
+      { path: 'inscription', element: <InscriptionPage /> },
+
+      // Souscription
+      { path: 'souscription', element: <SubscriptionPage /> },
+
+      // Réservation (protégée)
+      {
+        path: 'reservation',
+        element: (
+          <ProtectedRoute>
+            <ReservationPage />
+          </ProtectedRoute>
+        ),
+      },
+
       // News
       { path: 'news', element: <NewsPage /> },
       { path: 'news/:id', element: <ArticlePage /> },
       { path: 'news/campus-life', element: <CampusLifePage /> },
       { path: 'news/testimonials', element: <TestimonialsPage /> },
-      
+
       // Événements
       { path: 'events', element: <EventsPage /> },
       { path: 'events/:id', element: <EventDetailPage /> },
       { path: 'events/calendar', element: <CalendarPage /> },
-      
+
       // Dons
       { path: 'donate', element: <DonatePage /> },
-      { path: 'donate/scholarships', element: <ScholarshipsPage /> },
-      { path: 'donate/benefactor', element: <BenefactorPage /> },
-      { path: 'donate/projects', element: <ProjectsPage /> },
-      
+
       // Contact
       { path: 'contact', element: <ContactPage /> },
-      
+
       // Admin
       { path: 'admin', element: <AdminPage /> },
       { path: 'admin/content', element: <AdminContentPage /> },
       { path: 'admin/users', element: <AdminUsersPage /> },
       { path: 'admin/statistics', element: <AdminStatisticsPage /> },
       { path: 'admin/settings', element: <AdminSettingsPage /> },
-      
-      // Pages légales
+
+      // Légal
       { path: 'legal', element: <LegalPage /> },
       { path: 'privacy', element: <PrivacyPage /> },
-      
+
       // 404
       { path: '*', element: <NotFoundPage /> },
     ],

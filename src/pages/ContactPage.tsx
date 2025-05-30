@@ -140,8 +140,8 @@ const ContactPage = () => {
                   <h2 className="text-2xl font-bold mb-6">Notre localisation</h2>
                   <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden">
                     <iframe
-                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3963.9064579056136!2d2.3606814758273277!3d6.529995993443764!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1024ab29a4d7bdbf%3A0x9f7aa2dce76b5d5d!2sMaison%20des%20P%C3%A8res%20J%C3%A9suites%2C%20Godomey!5e0!3m2!1sfr!2sbj!4v1716200489159!5m2!1sfr!2sbj"
-                      width="100%"
+                     src="https://www.google.com/maps/embed?pb=!1m23!1m12!1m3!1d53611.21654568425!2d2.269525521679684!3d6.383382500000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m8!3e6!4m0!4m5!1s0x102357caccf1e90d%3A0xbce64d9a20725bcc!2s98MR%2B9MC%20Centre%20J%C3%A9suite%20De%20Recherche%20D&#39;Etude%20Et%20De%20Cr%C3%A9ativit%C3%A9%2C%20Unnamed%20Road%2C%20Cotonou!3m2!1d6.383447599999999!2d2.3416475!5e1!3m2!1sfr!2sbj!4v1747747530198!5m2!1sfr!2sbj"
+            width="100%"
                       height="100%"
                       style={{ border: 0 }}
                       allowFullScreen

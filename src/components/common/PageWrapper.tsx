@@ -3,7 +3,7 @@ import React from 'react';
 
 interface PageWrapperProps {
   children: React.ReactNode;
-  title: string;
+   title?: string;
   description?: string;
   bgColor?: string;
 }

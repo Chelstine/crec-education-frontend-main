@@ -17,7 +17,7 @@ const PrivacyPage = () => {
           
           <h2 className="text-xl font-semibold text-crec-darkblue">Collecte des données personnelles</h2>
           <p>
-            Nous collectons les données personnelles que vous nous fournissez volontairement lors de :
+            Nous collectons les donnée  s personnelles que vous nous fournissez volontairement lors de :
           </p>
           <ul className="list-disc pl-6 mb-6">
             <li>La création d'un compte sur notre site</li>

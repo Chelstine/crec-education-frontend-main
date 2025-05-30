@@ -36,7 +36,7 @@ const eventData = {
     },
     {
       name: "Marie Martin",
-      role: "Responsable Admissions",
+      role: "Responsable InscriptionUniversitaire",
       image: "/img/team/marie-martin.jpg"
     }
   ],

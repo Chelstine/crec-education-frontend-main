@@ -48,7 +48,7 @@ const articleData = {
 
     Les inscriptions pour la prochaine session sont ouvertes. Le nombre de places est limité à 30 étudiants pour garantir un accompagnement optimal.
 
-    Pour plus d'informations ou pour postuler, contactez notre service des admissions.
+    Pour plus d'informations ou pour postuler, contactez notre service des InscriptionUniversitaire.
   `,
   tags: ["IA", "Formation", "Innovation"],
   relatedArticles: [
