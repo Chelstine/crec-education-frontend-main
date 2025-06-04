@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Printer, Wrench, MapPin, Clock, Lightbulb, Users, BookOpen } from 'lucide-react';
+import { Printer, Wrench, MapPin, Clock, Lightbulb, Users, BookOpen, Cpu, Zap, Cog, Wifi } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 // Define TypeScript interface
@@ -13,9 +13,119 @@ interface Machine {
   reference: string;
   monthlyPrice: number;
   yearlyPrice: number;
+  image: string;
 }
 
-const ProgramsPage = () => {
+const FablabPage = () => {
+  // State pour le filtrage des projets
+  const [selectedFilter, setSelectedFilter] = useState<string>('all');
+
+  // Interface pour les projets réalisés
+  interface Project {
+    id: number;
+    title: string;
+    description: string;
+    image: string;
+    technologies: string[];
+    category: 'iot' | '3d' | 'electronics' | 'automation';
+  }
+
+  const projects: Project[] = [
+    {
+      id: 1,
+      title: "Système d'arrosage automatique Arduino",
+      description: "Système intelligent d'arrosage des plantes utilisant des capteurs d'humidité du sol et une pompe contrôlée par Arduino.",
+      image: "/img/projects/arduino-watering.jpg",
+      technologies: ["Arduino", "Capteurs d'humidité", "Pompe", "Relais"],
+      category: "automation"
+    },
+    {
+      id: 2,
+      title: "Station météo ESP32",
+      description: "Station météorologique connectée mesurant température, humidité et pression atmosphérique avec affichage en temps réel.",
+      image: "/img/projects/esp32-weather.jpg",
+      technologies: ["ESP32", "DHT22", "BMP280", "WiFi", "Web Server"],
+      category: "iot"
+    },
+    {
+      id: 3,
+      title: "Système de présence RFID",
+      description: "Système automatisé de gestion des présences utilisant des cartes RFID et une base de données en temps réel.",
+      image: "/img/projects/attendance-system.jpg",
+      technologies: ["RFID", "Arduino", "LCD", "Base de données", "Buzzer"],
+      category: "electronics"
+    },
+    {
+      id: 4,
+      title: "Robot éducatif programmable",
+      description: "Robot mobile programmable pour l'apprentissage de la robotique avec détection d'obstacles et contrôle à distance.",
+      image: "/img/projects/educational-robot.jpg",
+      technologies: ["Arduino", "Moteurs", "Capteurs ultrason", "Bluetooth"],
+      category: "electronics"
+    },
+    {
+      id: 5,
+      title: "Prothèse de main imprimée 3D",
+      description: "Prothèse de main fonctionnelle imprimée en 3D avec mécanisme de préhension assistée par servomoteurs.",
+      image: "/img/projects/prosthetic-hand.jpg",
+      technologies: ["Impression 3D", "Servomoteurs", "Arduino", "Capteurs de pression"],
+      category: "3d"
+    },
+    {
+      id: 6,
+      title: "Lampe IoT intelligente",
+      description: "Lampe connectée contrôlable via smartphone avec ajustement automatique de l'intensité selon l'heure.",
+      image: "/img/projects/iot-lamp.jpg",
+      technologies: ["ESP32", "LED RGB", "Photorésistance", "Application mobile"],
+      category: "iot"
+    },
+    {
+      id: 7,
+      title: "Système de sécurité Raspberry Pi",
+      description: "Système de surveillance avec détection de mouvement, capture vidéo et notifications push.",
+      image: "/img/projects/raspberry-security.jpg",
+      technologies: ["Raspberry Pi", "Caméra", "PIR", "Python", "Notifications"],
+      category: "electronics"
+    },
+    {
+      id: 8,
+      title: "Maquette d'ascenseur automatisé",
+      description: "Modèle réduit d'ascenseur avec système de contrôle d'étages et sécurités intégrées.",
+      image: "/img/projects/elevator-model.jpg",
+      technologies: ["Arduino", "Moteur pas-à-pas", "Capteurs de position", "LCD"],
+      category: "automation"
+    },
+    {
+      id: 9,
+      title: "Maison connectée intelligente",
+      description: "Système domotique complet avec contrôle de l'éclairage, température et sécurité via smartphone.",
+      image: "/img/projects/smart-home.jpg",
+      technologies: ["ESP32", "Relais", "Capteurs", "WiFi", "Application mobile"],
+      category: "iot"
+    },
+    {
+      id: 10,
+      title: "Installation artistique interactive",
+      description: "Œuvre d'art numérique réagissant aux mouvements des visiteurs avec effets lumineux et sonores.",
+      image: "/img/projects/interactive-art.jpg",
+      technologies: ["Arduino", "Capteurs de mouvement", "LED", "Haut-parleurs"],
+      category: "electronics"
+    },
+    {
+      id: 11,
+      title: "Porte-clés personnalisés gravés",
+      description: "Collection de porte-clés en bois gravés au laser avec des motifs personnalisés pour les étudiants.",
+      image: "/img/projects/wooden-keychains.jpg",
+      technologies: ["Gravure laser", "Bois", "Design vectoriel"],
+      category: "3d"
+    }
+  ];
+
+  // Fonction pour filtrer les projets selon la catégorie sélectionnée
+  const filteredProjects = selectedFilter === 'all' 
+    ? projects 
+    : projects.filter(project => project.category === selectedFilter);
+
   const machines: Machine[] = [
     {
       name: 'Creality Ender-5 S1',
@@ -24,6 +134,7 @@ const ProgramsPage = () => {
       reference: 'B0BQJCX9HC',
       monthlyPrice: 10000,
       yearlyPrice: 100000,
+      image: '/img/machines/creality-ender5-s1.jpg',
     },
     {
       name: 'Creality Ender-3',
@@ -32,6 +143,7 @@ const ProgramsPage = () => {
       reference: 'B07BR3F9N6',
       monthlyPrice: 8000,
       yearlyPrice: 80000,
+      image: '/img/machines/creality-ender3.jpg',
     },
     {
       name: 'Creality Ender-3',
@@ -40,6 +152,7 @@ const ProgramsPage = () => {
       reference: 'B07BR3F9N6',
       monthlyPrice: 7200,
       yearlyPrice: 80000,
+      image: '/img/machines/creality-ender3.jpg',
     },
     {
       name: 'Anycubic Kobra',
@@ -48,6 +161,7 @@ const ProgramsPage = () => {
       reference: 'B0CDVX32X4',
       monthlyPrice: 12500,
       yearlyPrice: 120000,
+      image: '/img/machines/anycubic-kobra.jpg',
     },
     {
       name: 'Latilool F50 Laser Engraver',
@@ -56,6 +170,7 @@ const ProgramsPage = () => {
       reference: 'B0B6NG84VF',
       monthlyPrice: 15000,
       yearlyPrice: 150000,
+      image: '/img/machines/latilool-f50.jpg',
     },
   ];
 
@@ -96,12 +211,14 @@ const ProgramsPage = () => {
                   <Link to="/souscription?redirect=reservation">Réserver une machine</Link>
                 </Button>
               </motion.div>
-              <Button
-                className="w-full sm:w-auto px-6 py-3 border-white text-white hover:text-jesuit-dark hover:bg-white rounded-full text-lg font-semibold"
-                asChild
-              >
-                <Link to="/contact">Nous contacter</Link>
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
+                <Button
+                  className="w-full sm:w-auto px-6 py-3 border-2 border-white text-white hover:text-amber-600 hover:bg-white rounded-full text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
+                  asChild
+                >
+                  <Link to="/contact">Nous contacter</Link>
+                </Button>
+              </motion.div>
             </motion.div>
           </motion.div>
         </div>
@@ -173,6 +290,169 @@ const ProgramsPage = () => {
         </div>
       </section>
 
+      {/* Projets réalisés */}
+      <section className="py-16 bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="max-w-7xl mx-auto px-4">
+          <motion.div
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-jesuit-dark mb-4">
+              Projets réalisés au CREC
+            </h2>
+            <p className="text-lg text-jesuit-darkgray max-w-3xl mx-auto">
+              Découvrez les créations innovantes de notre communauté : de l'IoT aux impressions 3D, 
+              nos membres transforment leurs idées en solutions concrètes.
+            </p>
+          </motion.div>
+
+          {/* Filtres par catégorie */}
+          <motion.div
+            className="flex flex-wrap justify-center gap-4 mb-12"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            {[
+              { key: 'all', label: 'Tous les projets', icon: Cog },
+              { key: 'iot', label: 'IoT & Connecté', icon: Wifi },
+              { key: '3d', label: 'Impression 3D', icon: Printer },
+              { key: 'electronics', label: 'Électronique', icon: Cpu },
+              { key: 'automation', label: 'Automatisation', icon: Zap }
+            ].map((filter) => (
+              <Button
+                key={filter.key}
+                onClick={() => setSelectedFilter(filter.key)}
+                className={`flex items-center gap-2 transition-all duration-300 border-2 ${
+                  selectedFilter === filter.key 
+                    ? 'bg-amber-500 text-white border-amber-500 shadow-lg transform scale-105' 
+                    : 'bg-white text-amber-600 border-amber-400 hover:bg-amber-500 hover:text-white hover:border-amber-500 hover:shadow-md hover:scale-102'
+                }`}
+              >
+                <filter.icon className="w-4 h-4" />
+                {filter.label}
+              </Button>
+            ))}
+          </motion.div>
+
+          {/* Compteur de projets */}
+          <motion.div
+            className="text-center mb-8"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+          >
+            <p className="text-jesuit-darkgray">
+              {filteredProjects.length} projet{filteredProjects.length > 1 ? 's' : ''} affiché{filteredProjects.length > 1 ? 's' : ''}
+              {selectedFilter !== 'all' && (
+                <span className="ml-2 text-jesuit-gold font-medium">
+                  dans la catégorie "{
+                    selectedFilter === 'iot' ? 'IoT & Connecté' :
+                    selectedFilter === '3d' ? 'Impression 3D' :
+                    selectedFilter === 'electronics' ? 'Électronique' :
+                    'Automatisation'
+                  }"
+                </span>
+              )}
+            </p>
+          </motion.div>
+
+          {/* Grille des projets */}
+          <motion.div
+            key={selectedFilter}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
+          >
+            {filteredProjects.map((project, index) => (
+              <motion.div
+                key={project.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ scale: 1.02 }}
+                className="group"
+              >
+                <Card className="h-full overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 bg-white/90 backdrop-blur-sm">
+                  <div className="relative overflow-hidden">
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                    <div className="absolute top-2 right-2">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium text-white ${
+                        project.category === 'iot' ? 'bg-blue-500' :
+                        project.category === '3d' ? 'bg-purple-500' :
+                        project.category === 'electronics' ? 'bg-green-500' :
+                        'bg-orange-500'
+                      }`}>
+                        {project.category === 'iot' ? 'IoT' :
+                         project.category === '3d' ? '3D' :
+                         project.category === 'electronics' ? 'Électronique' :
+                         'Automatisation'}
+                      </span>
+                    </div>
+                  </div>
+                  <CardContent className="p-4">
+                    <h3 className="font-bold text-lg text-jesuit-dark mb-2 line-clamp-2">
+                      {project.title}
+                    </h3>
+                    <p className="text-sm text-jesuit-darkgray mb-3 line-clamp-3">
+                      {project.description}
+                    </p>
+                    <div className="space-y-2">
+                      <h4 className="text-xs font-semibold text-jesuit-dark uppercase tracking-wide">
+                        Technologies utilisées
+                      </h4>
+                      <div className="flex flex-wrap gap-1">
+                        {project.technologies.map((tech, techIndex) => (
+                          <span
+                            key={techIndex}
+                            className="px-2 py-1 bg-jesuit-light text-jesuit-dark text-xs rounded-md font-medium"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Message d'état vide */}
+          {filteredProjects.length === 0 && (
+            <motion.div
+              className="text-center py-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="max-w-md mx-auto">
+                <div className="mb-4">
+                  <Lightbulb className="w-16 h-16 mx-auto text-jesuit-gold opacity-50" />
+                </div>
+                <h3 className="text-xl font-semibold text-jesuit-dark mb-2">
+                  Aucun projet trouvé
+                </h3>
+                <p className="text-jesuit-darkgray">
+                  Aucun projet ne correspond à cette catégorie pour le moment. 
+                  Revenez bientôt pour découvrir de nouvelles créations !
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </section>
+
       {/* Machines */}
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4">
@@ -193,22 +473,23 @@ const ProgramsPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.2 }}
+                className="h-full"
               >
-                <Card className="max-w-sm hover:shadow-lg transition">
-                  <CardContent className="p-6">
+                <Card className="h-full hover:shadow-lg transition-all duration-300 flex flex-col">
+                  <CardContent className="p-6 flex-1 flex flex-col">
                     <img
-                      src={`/img/machines/${machine.code.toLowerCase()}.jpg`}
+                      src={machine.image}
                       alt={machine.name}
                       className="w-full h-48 object-cover rounded-md mb-6"
                       onError={(e) => (e.currentTarget.src = '/img/placeholder-machine.jpg')}
                     />
                     <h3 className="text-xl font-bold mb-4 text-jesuit-dark">{machine.name} ({machine.code})</h3>
-                    <ul className="text-jesuit-darkgray text-base leading-relaxed mb-4 list-disc list-inside">
+                    <ul className="text-jesuit-darkgray text-base leading-relaxed mb-4 list-disc list-inside flex-1">
                       {machine.features.map((feature, idx) => (
                         <li key={idx}>{feature}</li>
                       ))}
                     </ul>
-                    <p className="text-jesuit-darkgray text-sm">
+                    <p className="text-jesuit-darkgray text-sm mt-auto">
                       <span className="font-medium text-jesuit-dark">Abonnement :</span> {machine.monthlyPrice.toLocaleString()} FCFA/mois ou {machine.yearlyPrice.toLocaleString()} FCFA/an
                     </p>
                   </CardContent>
@@ -264,29 +545,7 @@ const ProgramsPage = () => {
                 </CardContent>
               </Card>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full border border-amber-200 text-left bg-white/80 backdrop-blur-sm shadow-md rounded-lg">
-                <thead className="bg-amber-50">
-                  <tr>
-                    <th className="p-4 font-semibold text-jesuit-dark">Machine</th>
-                    <th className="p-4 font-semibold text-jesuit-dark">Mensuel</th>
-                    <th className="p-4 font-semibold text-jesuit-dark">Annuel</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {machines.map((machine) => (
-                    <tr key={machine.code} className="border-t border-amber-200">
-                      <td className="p-4">{machine.name} ({machine.code})</td>
-                      <td className="p-4 text-[#e69500] font-medium">{machine.monthlyPrice.toLocaleString()} FCFA</td>
-                      <td className="p-4 text-[#e69500] font-medium">{machine.yearlyPrice.toLocaleString()} FCFA</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="text-sm text-jesuit-darkgray">
-              Paiements via carte bancaire ou Mobile Money (MoovMoney, MTN, Celtiis).
-            </p>
+          
           </motion.div>
         </div>
       </section>
@@ -377,18 +636,20 @@ const ProgramsPage = () => {
           >
             <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
               <Button
-          className="w-full sm:w-auto px-8 py-3 bg-[#e69500] hover:bg-[#f7b733] text-white rounded-full shadow-md hover:shadow-lg transition-all text-lg font-semibold"
-          asChild
+                className="w-full sm:w-auto px-8 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all text-lg font-semibold"
+                asChild
               >
-          <Link to="/souscription?redirect=reservation">Réserver une machine</Link>
+                <Link to="/souscription?redirect=reservation">Réserver une machine</Link>
               </Button>
             </motion.div>
-            <Button
-              className="w-full sm:w-auto px-6 py-3 border-white text-white hover:text-jesuit-dark hover:bg-white rounded-full text-lg font-semibold"
-              asChild
-            >
-              <Link to="/contact">Nous contacter</Link>
-            </Button>
+            <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
+              <Button
+                className="w-full sm:w-auto px-6 py-3 border-2 border-white text-white hover:text-amber-600 hover:bg-white rounded-full text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
+                asChild
+              >
+                <Link to="/contact">Nous contacter</Link>
+              </Button>
+            </motion.div>
           </motion.div>
         </div>
             </section>
@@ -396,4 +657,4 @@ const ProgramsPage = () => {
   );
 };
 
-export default ProgramsPage;
+export default FablabPage;

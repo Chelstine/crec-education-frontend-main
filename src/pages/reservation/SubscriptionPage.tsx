@@ -243,46 +243,7 @@ const SubscriptionPage = () => {
         </div>
       </section>
 
-      {/* Machines Section */}
-      <section className="max-w-5xl mx-auto px-4 py-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="text-3xl font-bold text-jesuit-dark mb-8 text-center">Nos équipements de pointe</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {machines.map((machine, index) => (
-              <Card
-                key={index}
-                className="border-gray-300 bg-white/80 backdrop-blur-sm shadow-lg rounded-2xl"
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center mb-4">
-                    <Printer className="text-blue-600 mr-2" size={24} />
-                    <h3 className="text-xl font-semibold text-jesuit-dark">{machine.name}</h3>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-2">
-                    <strong>Code :</strong> {machine.code}
-                  </p>
-                  <ul className="text-sm text-gray-700 mb-4 space-y-1">
-                    {machine.features.map((feature, i) => (
-                      <li key={i} className="flex items-start">
-                        <Check className="text-green-500 mr-2 mt-1" size={14} />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="text-sm text-gray-500">
-                    <strong>Référence :</strong> {machine.reference}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </motion.div>
-      </section>
-
+    
       {/* Progress Stepper */}
       <section className="max-w-4xl mx-auto px-4 py-8">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">

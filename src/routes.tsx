@@ -1,6 +1,8 @@
 import { createBrowserRouter, RouteObject } from 'react-router-dom';
 import MainLayout from '@/layouts/MainLayout';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
+import { AdminAuthProvider } from '@/context/AdminAuthContext';
+import ProtectedAdminRoute from '@/components/common/ProtectedAdminRoute';
 
 // Pages principales
 import HomePage from '@/pages/HomePage';
@@ -19,9 +21,9 @@ import EquipePage from '@/pages/about/EquipePage';
 import CommunautesPage from '@/pages/about/CommunautesPage';
 
 // Pages Formations
-import FormationsPage from '@/pages/formations/FormationsPage';
-import ProgramsPage from '@/pages/formations/ProgramsPage';
+import OpenFormations from '@/pages/formations/OpenFormations';
 import UniversityPage from '@/pages/formations/UniversityPage';
+import FablabPage from '@/pages/formations/FablabPage';
 import InscriptionPage from '@/pages/formations/InscriptionPage';
 import InscriptionUniversitairePage from '@/pages/formations/InscriptionUniversitairePage';
 
@@ -33,7 +35,7 @@ import SubscriptionPage from '@/pages/reservation/SubscriptionPage';
 import NewsPage from '@/pages/news/NewsPage';
 import ArticlePage from '@/pages/news/ArticlePage';
 import CampusLifePage from '@/pages/news/CampusLifePage';
-import TestimonialsPage from '@/pages/news/TestimonialsPage';
+import StagesPage from '@/pages/news/StagesPage';
 
 // Pages Événements
 import EventsPage from '@/pages/events/EventsPage';
@@ -41,14 +43,20 @@ import EventDetailPage from '@/pages/events/EventDetailPage';
 import CalendarPage from '@/pages/events/CalendarPage';
 
 // Pages Dons
-import DonatePage from '@/pages/donate/DonatePage';
+import DonatePage from '@/pages/DonatePage';
 
 // Pages Admin
-import AdminPage from '@/pages/admin/AdminPage';
-import AdminContentPage from '@/pages/admin/AdminContentPage';
-import AdminUsersPage from '@/pages/admin/AdminUsersPage';
-import AdminStatisticsPage from '@/pages/admin/AdminStatisticsPage';
-import AdminSettingsPage from '@/pages/admin/AdminSettingsPage';
+import AdminLoginPage from '@/pages/admin/AdminLoginPage';
+import AdminDashboardPage from '@/pages/admin/AdminDashboardPage';
+// import AdminUsersPage from '@/pages/admin/AdminUsersPage';
+import AdminPagesPage from '@/pages/admin/AdminPagesPage';
+import AdminFormationsPage from '@/pages/admin/AdminFormationsPage';
+import AdminOpenFormationsPage from '@/pages/admin/AdminOpenFormationsPage';
+import AdminUniversityProgramsPage from '@/pages/admin/AdminUniversityProgramsPage';
+import AdminUniversityApplicationsPage from '@/pages/admin/AdminUniversityApplicationsPage';
+
+// Pages Témoignages
+import TestimonialsPage from '@/pages/TestimonialsPage';
 
 const routes: RouteObject[] = [
   {
@@ -66,13 +74,19 @@ const routes: RouteObject[] = [
       { path: 'about/equipe', element: <EquipePage /> },
       { path: 'about/communautes', element: <CommunautesPage /> },
 
-      // Formations
-      { path: 'formations', element: <FormationsPage /> },
-      { path: 'formations/programs', element: <ProgramsPage /> },
+      // Formations - Page principale
+      { path: 'formations', element: <OpenFormations /> },
+      
+      // Formations Universitaires
       { path: 'formations/university', element: <UniversityPage /> },
-      { path: 'inscription', element: <InscriptionPage /> },
-      {path : 'formations/InscriptionUniversitairePage', element:<InscriptionUniversitairePage/>},
-
+      { path: 'formations/university/inscription', element: <InscriptionUniversitairePage /> },
+      
+      // Formations FABLAB (FablabPage pour FabLab)
+      { path: 'formations/fablab', element: <FablabPage /> },
+      
+      // Formations ouvertes (InscriptionPage pour formations ouvertes)
+      { path: 'formations/open', element: <InscriptionPage /> },
+      
       // Souscription
       { path: 'souscription', element: <SubscriptionPage /> },
 
@@ -90,7 +104,10 @@ const routes: RouteObject[] = [
       { path: 'news', element: <NewsPage /> },
       { path: 'news/:id', element: <ArticlePage /> },
       { path: 'news/campus-life', element: <CampusLifePage /> },
-      { path: 'news/testimonials', element: <TestimonialsPage /> },
+      { path: 'news/stages', element: <StagesPage /> },
+
+      // Témoignages
+      { path: 'testimonials', element: <TestimonialsPage /> },
 
       // Événements
       { path: 'events', element: <EventsPage /> },
@@ -103,12 +120,21 @@ const routes: RouteObject[] = [
       // Contact
       { path: 'contact', element: <ContactPage /> },
 
-      // Admin
-      { path: 'admin', element: <AdminPage /> },
-      { path: 'admin/content', element: <AdminContentPage /> },
-      { path: 'admin/users', element: <AdminUsersPage /> },
-      { path: 'admin/statistics', element: <AdminStatisticsPage /> },
-      { path: 'admin/settings', element: <AdminSettingsPage /> },
+      // Admin sécurisé
+      { path: 'admin/login', element: <AdminLoginPage /> },
+      {
+        path: 'admin',
+        element: <ProtectedAdminRoute />,
+        children: [
+          { path: 'dashboard', element: <AdminDashboardPage /> },
+          // { path: 'users', element: <AdminUsersPage /> },
+          { path: 'pages', element: <AdminPagesPage /> },
+          { path: 'formations', element: <AdminFormationsPage /> },
+          { path: 'open-formations', element: <AdminOpenFormationsPage /> },
+          { path: 'university-programs', element: <AdminUniversityProgramsPage /> },
+          { path: 'university-applications', element: <AdminUniversityApplicationsPage /> },
+        ],
+      },
 
       // Légal
       { path: 'legal', element: <LegalPage /> },
@@ -120,4 +146,8 @@ const routes: RouteObject[] = [
   },
 ];
 
-export const router = createBrowserRouter(routes);
+export const router = createBrowserRouter(routes, {
+  future: {
+    v7_relativeSplatPath: true
+  }
+});

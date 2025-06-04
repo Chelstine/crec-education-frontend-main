@@ -94,9 +94,15 @@ const Banner: React.FC<BannerProps> = ({
             </p>
           )}
           {ctaText && ctaLink && (
-            <Button asChild variant="default" className="bg-crec-gold hover:bg-crec-lightgold text-white">
-              <Link to={ctaLink}>{ctaText}</Link>
-            </Button>
+            ctaLink.startsWith('#') ? (
+              <Button asChild variant="default" className="bg-crec-gold hover:bg-crec-lightgold text-white">
+                <a href={ctaLink}>{ctaText}</a>
+              </Button>
+            ) : (
+              <Button asChild variant="default" className="bg-crec-gold hover:bg-crec-lightgold text-white">
+                <Link to={ctaLink}>{ctaText}</Link>
+              </Button>
+            )
           )}
           {children}
         </div>

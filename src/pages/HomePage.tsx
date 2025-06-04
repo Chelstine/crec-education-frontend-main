@@ -18,21 +18,21 @@ const HomePage = () => {
       title: 'Université ISTMR',
       description: 'Nous formons une nouvelle génération de professionnels du numérique, compétents et responsables. À travers l\'ISTMR, nous proposons des formations universitaires de haut niveau en développement de logiciels, en création d\'applications web et mobiles, et en science des données — pour accompagner les mutations technologiques de notre continent.',
       image: '/img/universite.png',
-      link: '/formations/University'
+      link: '/formations/university'
     },
     {
       id: 2,
       title: 'Formations ouvertes',
       description: 'Nous croyons que l\'éducation ne doit exclure personne. C\'est pourquoi nous proposons des formations ouvertes à tous : cours d\'anglais, initiation à l\'informatique, et accompagnement scolaire. Que vous soyez en reconversion, sans diplôme ou simplement en quête de savoir, nous vous accompagnons avec des outils concrets et certifiants, adaptés à votre rythme et à vos besoins.',
       image: '/img/formation.png',
-      link: '/formations/Formations'
+      link: '/formations/open'
     },
     {
       id: 3,
       title: 'Fablab',
       description: 'Nous mettons à votre disposition des espaces d\'expérimentation concrets pour inventer, construire et apprendre autrement. Nos ateliers Fablab sont ouverts aux étudiants, passionnés et professionnels désireux de prototyper des idées, de manipuler des technologies, et d\'innover au service de leur communauté.Nos épiquements sont à votre disposition pour réaliser des projets incroyables.',
       image: '/img/fablab.png',
-      link: '/formations/Programs'
+      link: '/formations/fablab'
     }
   ];
 
@@ -56,10 +56,10 @@ const HomePage = () => {
 
   // Données pour les partenaires
   const partners = [
-    { name: "Institut de Recherche et de Formation en Informatique (IFRI)", logo: "https://ifri-uac.bj/=Logo+1" },
-    { name: "Fondation Éducative", logo: "https://via.placeholder.com/150x80?text=Logo+2" },
-    { name: "Association Écologique", logo: "https://via.placeholder.com/150x80?text=Logo+3" },
-    { name: "Institut de Recherche", logo: "https://via.placeholder.com/150x80?text=Logo+4" }
+    { name: "Institut de Recherche et de Formation en Informatique (IFRI)", logo: "/img/partner1.svg" },
+    { name: "Fondation Éducative", logo: "/img/partner2.svg" },
+    { name: "Association Écologique", logo: "/img/partner3.svg" },
+    { name: "Institut de Recherche", logo: "/img/partner4.svg" }
   ];
   return (
     <div className="min-h-screen">
@@ -127,7 +127,7 @@ tradition que le CREC (Centre de Recherche d'Étude et de Créativité) a été 
       </section>
 
    {/* Formations section */}
-<section className="py-16 bg-white">
+<section className="py-16 bg-white" id="formations">
   <div className="max-w-[100vw] px-4 sm:px-8 lg:px-16 xl:px-24 mx-auto">
     <SectionTitle 
       title=" 🎓 Nos formations"
@@ -142,12 +142,14 @@ tradition que le CREC (Centre de Recherche d'Étude et de Créativité) a été 
     
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
       {courses.map((course) => (
-        <Card
-          key={course.id}
-          title={course.title}
-          description={course.description}
-          image={course.image}
-        />
+        <Link key={course.id} to={course.link} className="block group">
+          <Card
+            title={course.title}
+            description={course.description}
+            image={course.image}
+            className="group-hover:shadow-lg transition"
+          />
+        </Link>
       ))}
     </div>
   </div>
@@ -303,8 +305,6 @@ tradition que le CREC (Centre de Recherche d'Étude et de Créativité) a été 
         title="Rejoignez notre communauté éducative"
         subtitle="Devenez acteur d'une éducation transformatrice fondée sur des valeurs."
         bgImages={[ "/img/com.png"]}
-        ctaText="Postuler"
-        ctaLink="/formations/admission"
         size="md"
       >
         <div className="flex gap-4 justify-center mt-4">

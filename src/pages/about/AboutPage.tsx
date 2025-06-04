@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
-import Banner from '@/components/common/Banner';
-import SectionTitle from '@/components/common/SectionTitle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import {
-  Users, Book, Heart, Globe, Target, Lightbulb, Star, UserCheck, MapPin, Calendar, Mail, Phone
-} from 'lucide-react';
+import { Users, Book, Heart, Globe, Target, Lightbulb, Star, UserCheck, MapPin, Calendar, Mail, Phone } from 'lucide-react';
 
 const AboutPage = () => {
   const valeurs = [
@@ -70,14 +66,22 @@ const AboutPage = () => {
   ];
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Banner - Updated style */}
-      <section className="relative bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white py-20 mb-12">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl font-bold mb-6">À propos du CREC</h1>
-            <p className="text-xl mb-8 opacity-90">
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      {/* Hero Banner */}
+      <section className="relative w-full">
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70" />
+        <div
+          className="min-h-[300px] flex flex-col items-center justify-center text-center relative text-white p-6"
+          style={{
+            backgroundImage: "url('/img/about-bg.jpg')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+          role="banner"
+        >
+          <div className="max-w-3xl mx-auto bg-black/50 p-8 rounded-lg backdrop-blur-sm">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">À propos du CREC</h1>
+            <p className="text-lg md:text-xl mb-8">
               Centre de Recherche, d'Étude et de Créativité - Une institution d'excellence au service de l'éducation
             </p>
             <div className="flex items-center justify-center space-x-4 text-sm">
@@ -93,13 +97,9 @@ const AboutPage = () => {
 
       {/* Mission */}
       <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <SectionTitle 
-            title="Notre Mission" 
-            subtitle="Une éducation intégrale au service de la société"
-            align="center"
-          />
-          <div className="max-w-4xl mx-auto mt-8 text-crec-darkgray space-y-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold mb-12 text-center text-crec-dark">Notre Mission</h2>
+          <div className="max-w-4xl mx-auto text-crec-dark space-y-6">
             <p>Le Centre de Recherche, d'Étude et de Créativité (CREC), fondé par la Compagnie de Jésus, se veut un lieu où se conjuguent excellence académique, innovation technologique et service du bien commun.</p>
             <p>Son projet-phare, l’Institut des Sciences et Technologies Matteo Ricci (ISTMR), rend hommage à un jésuite pionnier du dialogue entre les cultures par les sciences et l’amitié. Il propose des formations exigeantes et humaines, ancrées dans la tradition éducative ignatienne.</p>
           </div>
@@ -107,73 +107,65 @@ const AboutPage = () => {
       </section>
 
       {/* Histoire */}
-      <section className="py-16 bg-crec-offwhite">
-        <div className="container mx-auto px-4">
-          <SectionTitle
-            title="Notre Histoire"
-            subtitle="De la fondation à aujourd'hui"
-            align="center"
-          />
-          <div className="max-w-6xl mx-auto mt-12">
-            <div className="relative">
-              <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-crec-gold"></div>
-              {history.map((item, idx) => (
-                <div key={item.year} className={`relative mb-12 ${idx % 2 === 0 ? 'ml-auto' : 'mr-auto'} w-1/2`}>
-                  <div className={`p-6 bg-white rounded-lg shadow-md ${idx % 2 === 0 ? 'ml-8' : 'mr-8'}`}>
+      <section className="py-16 bg-crec-light">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold mb-12 text-center text-crec-dark">Notre Histoire</h2>
+          <div className="relative">
+            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-crec-gold"></div>
+            {history.map((item, idx) => (
+              <div key={item.year} className={`relative mb-12 ${idx % 2 === 0 ? 'ml-auto' : 'mr-auto'} w-full md:w-1/2`}>
+                <Card className={`hover:shadow-lg transition-shadow duration-300 ${idx % 2 === 0 ? 'ml-0 md:ml-8' : 'mr-0 md:mr-8'}`}>
+                  <CardContent className="p-6">
                     <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-crec-gold rounded-full border-4 border-white"></div>
                     <h3 className="text-2xl font-bold text-crec-gold mb-2">{item.year}</h3>
-                    <h4 className="text-xl font-semibold text-crec-darkblue mb-2">{item.title}</h4>
-                    <p className="text-crec-darkgray">{item.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                    <h4 className="text-xl font-semibold text-crec-dark mb-2">{item.title}</h4>
+                    <p className="text-gray-600">{item.description}</p>
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Valeurs pédagogiques */}
       <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <SectionTitle 
-            title="Valeurs pédagogiques ignatiennes" 
-            subtitle="Éduquer la personne dans toutes ses dimensions"
-            align="center"
-          />
-          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold mb-12 text-center text-crec-dark">Valeurs pédagogiques ignatiennes</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {valeurs.map((valeur, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
+              <Card key={index} className="hover:shadow-lg transition-shadow duration-300" role="region" aria-labelledby={`valeur-title-${index}`}>
                 <CardHeader>
                   <div className="flex items-center space-x-4">
-                    <valeur.icon className="w-8 h-8 text-blue-600" />
+                    <valeur.icon className="w-8 h-8 text-crec-gold" />
                     <div className="flex-1">
-                      <CardTitle className="text-xl">{valeur.title}</CardTitle>
+                      <CardTitle id={`valeur-title-${index}`} className="text-xl text-crec-dark">{valeur.title}</CardTitle>
                       <p className="text-gray-600 mt-1">{valeur.description}</p>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-700 italic">{valeur.detail}</p>
+                  <p className="text-gray-600 italic">{valeur.detail}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
         </div>
       </section>
-n
 
       {/* CTA Final */}
-      <section className="py-20 bg-crec-darkblue text-white">
-        <div className="max-w-3xl mx-auto text-center px-4">
-          <h2 className="text-4xl font-bold mb-4">Aimez vous notre centre?</h2>
-          <p className="text-lg md:text-xl mb-8">
-            Contactez nous si vous avez la moindre question, et nous y répondrons dans les délais les plus brefs.
+      <section className="bg-gray-50 py-12 px-4 text-center">
+        <div className="max-w-4xl mx-auto text-center px-4">
+          <h2 className="text-2xl font-bold mb-4">Aimez-vous notre centre ?</h2>
+          <p className="text-gray-700 mb-6">
+            Contactez notre équipe pour toute question concernant le CREC ou nos formations.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-            <Button className="border-white text-white hover:text-crec-darkblue hover:bg-white px-6 py-3 text-lg rounded-full w-full sm:w-64" asChild>
-              <Link to="/contact">Nous contacter</Link>
-            </Button>
-          </div>
+          <Button
+            className="bg-white border-2 border-[#FCA311] text-[#FCA311] hover:bg-[#FCA311] hover:text-white rounded-full px-6 py-2 transition duration-300"
+            asChild
+          >
+            <Link to="/contact" aria-label="Nous contacter">Nous contacter</Link>
+          </Button>
         </div>
       </section>
     </div>

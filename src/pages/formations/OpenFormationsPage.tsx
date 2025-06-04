@@ -1,21 +1,21 @@
 import { Button } from "../../components/ui/button";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, FileText, Users, GraduationCap, BookOpen, Code } from "lucide-react";
+import { Calendar, FileText, Users, GraduationCap, BookOpen, Globe, Code } from "lucide-react";
 
-const FormationsPage = () => {
+const OpenFormationsPage = () => {
   const formations = [
     {
       id: 1,
       title: "Formations Universitaires",
-      icon: <GraduationCap className="w-12 h-12 text-crec-gold mb-4" />,
+      icon: <GraduationCap className="w-12 h-12 text-amber-500 mb-4" />,
       description: "Programmes universitaires en développement logiciel, web et data science",
       link: "/formations/university"
     },
     {
       id: 2,
       title: "Formations Ouvertes",
-      icon: <BookOpen className="w-12 h-12 text-crec-gold mb-4" />,
+      icon: <BookOpen className="w-12 h-12 text-amber-500 mb-4" />,
       description: "Formations continues en langues, informatique et accompagnement scolaire",
       link: "/formations/open"
     },
@@ -43,9 +43,9 @@ const FormationsPage = () => {
           role="banner"
         >
           <div className="max-w-3xl mx-auto bg-black/50 p-8 rounded-lg backdrop-blur-sm">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Nos Formations</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Formations Continues</h1>
             <p className="text-xl md:text-2xl mb-8">
-              Découvrez nos trois types de formations adaptées à vos besoins et objectifs.
+              Développez vos compétences avec nos formations professionnelles adaptées à vos besoins.
             </p>
           </div>
         </div>
@@ -54,22 +54,31 @@ const FormationsPage = () => {
       {/* Formations List */}
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold mb-12 text-center text-crec-dark">Choisissez votre formation</h2>
+          <h2 className="text-3xl font-bold mb-12 text-center text-crec-dark">Nos Formations</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {formations.map((formation) => (
               <Card 
                 key={formation.id} 
-                className="hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1"
+                className="group hover:shadow-2xl transition-all duration-500 ease-in-out transform hover:-translate-y-2 hover:scale-102 border-0 shadow-lg bg-white/80 backdrop-blur-sm"
                 role="region"
                 aria-labelledby={`formation-title-${formation.id}`}
               >
-                <CardContent className="p-6 text-center">
-                  {formation.icon}
-                  <h3 id={`formation-title-${formation.id}`} className="text-xl font-bold mb-4">{formation.title}</h3>
-                  <p className="text-gray-600 mb-4">{formation.description}</p>
-                  <Button asChild variant="link" className="text-crec-gold p-0">
-                    <Link to={formation.link} aria-label={`En savoir plus sur ${formation.title}`}>En savoir plus</Link>
-                  </Button>
+                <CardContent className="p-8 text-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-orange-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="relative z-10">
+                    <div className="transform group-hover:scale-110 transition-transform duration-300">
+                      {formation.icon}
+                    </div>
+                    <h3 id={`formation-title-${formation.id}`} className="text-xl font-bold mb-4 text-gray-800 group-hover:text-amber-700 transition-colors duration-300">
+                      {formation.title}
+                    </h3>
+                    <p className="text-gray-600 mb-6 leading-relaxed">
+                      {formation.description}
+                    </p>
+                    <Button asChild className="text-amber-600 hover:text-amber-700 font-semibold transition-colors p-0">
+                      <Link to={formation.link} aria-label={`En savoir plus sur ${formation.title}`}>En savoir plus →</Link>
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -83,10 +92,10 @@ const FormationsPage = () => {
           <h2 className="text-3xl font-bold mb-12 text-center text-crec-dark">Comment s'inscrire ?</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { icon: FileText, title: "1. Choix", desc: "Sélectionnez le type de formation qui vous intéresse" },
-              { icon: Calendar, title: "2. Information", desc: "Consultez les détails et programmes disponibles" },
-              { icon: GraduationCap, title: "3. Inscription", desc: "Remplissez le formulaire d'inscription" },
-              { icon: Users, title: "4. Démarrage", desc: "Commencez votre parcours de formation" }
+              { icon: FileText, title: "1. Inscription", desc: "Créez votre compte et remplissez le formulaire" },
+              { icon: Calendar, title: "2. Choix", desc: "Sélectionnez votre formation" },
+              { icon: GraduationCap, title: "3. Paiement", desc: "Effectuez le paiement en ligne" },
+              { icon: Users, title: "4. Accès", desc: "Accédez à votre espace formation" }
             ].map((step, index) => (
               <div key={index} className="text-center">
                 <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
@@ -105,17 +114,17 @@ const FormationsPage = () => {
         <div className="max-w-4xl mx-auto text-center px-4">
           <h2 className="text-2xl font-bold mb-4">Prêt à commencer votre formation ?</h2>
           <p className="text-gray-700 mb-6">
-            Explorez nos différentes formations et trouvez celle qui correspond à vos objectifs.
+            Rejoignez notre communauté d'apprenants et développez vos compétences.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
-              className="bg-[#FCA311] hover:bg-[#fcb930] text-white rounded-full px-6 py-2 transition duration-300"
+              className="bg-amber-500 hover:bg-amber-600 text-white rounded-full px-8 py-3 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold"
               asChild
             >
-              <Link to="/formations/open" aria-label="Voir les formations ouvertes">Formations ouvertes</Link>
+              <Link to="/formations/open" aria-label="S'inscrire maintenant">S'inscrire maintenant</Link>
             </Button>
             <Button 
-              className="bg-white border-2 border-[#FCA311] text-[#FCA311] hover:bg-[#FCA311] hover:text-white rounded-full px-6 py-2 transition duration-300"
+              className="bg-white border-2 border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white rounded-full px-8 py-3 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg font-semibold"
               asChild
             >
               <Link to="/contact" aria-label="Nous contacter">Nous contacter</Link>
@@ -127,4 +136,4 @@ const FormationsPage = () => {
   );
 };
 
-export default FormationsPage;
+export default OpenFormationsPage;

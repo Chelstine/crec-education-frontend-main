@@ -1,9 +1,9 @@
-import { Button } from "../../components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, FileText, Users, GraduationCap, BookOpen, Code } from "lucide-react";
 
-const FormationsPage = () => {
+const OpenFormations = () => {
   const formations = [
     {
       id: 1,
@@ -127,4 +127,4 @@ const FormationsPage = () => {
   );
 };
 
-export default FormationsPage;
+export default OpenFormations;

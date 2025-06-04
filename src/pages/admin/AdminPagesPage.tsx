@@ -1,17 +1,17 @@
 import React from 'react';
 import { AdminService } from '@/services/api';
 import { useAdminAuth } from '@/context/AdminAuthContext';
-import { AdminUser } from '@/types';
+import { EditablePage } from '@/types';
 
-const AdminUsersPage: React.FC = () => {
+const AdminPagesPage: React.FC = () => {
   const { logout } = useAdminAuth();
-  const [users, setUsers] = React.useState<AdminUser[]>([]);
+  const [pages, setPages] = React.useState<EditablePage[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    AdminService.getAllUsers()
-      .then(setUsers)
+    AdminService.getAllPages()
+      .then(setPages)
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
@@ -19,7 +19,7 @@ const AdminUsersPage: React.FC = () => {
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">Gestion des utilisateurs</h1>
+        <h1 className="text-2xl font-bold">Pages éditables</h1>
         <button onClick={logout} className="bg-red-500 text-white px-4 py-2 rounded">Déconnexion</button>
       </div>
       {loading && <div>Chargement...</div>}
@@ -27,21 +27,21 @@ const AdminUsersPage: React.FC = () => {
       <table className="w-full bg-white rounded shadow">
         <thead>
           <tr>
-            <th className="p-2">ID</th>
-            <th className="p-2">Nom d'utilisateur</th>
-            <th className="p-2">Email</th>
-            <th className="p-2">Rôle</th>
-            <th className="p-2">Créé le</th>
+            <th className="p-2">Slug</th>
+            <th className="p-2">Titre</th>
+            <th className="p-2">Dernière modification</th>
+            <th className="p-2">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {users.map(user => (
-            <tr key={user.id} className="border-t">
-              <td className="p-2">{user.id}</td>
-              <td className="p-2">{user.username}</td>
-              <td className="p-2">{user.email}</td>
-              <td className="p-2">{user.role}</td>
-              <td className="p-2">{new Date(user.createdAt).toLocaleDateString()}</td>
+          {pages.map(page => (
+            <tr key={page.id} className="border-t">
+              <td className="p-2">{page.slug}</td>
+              <td className="p-2">{page.title}</td>
+              <td className="p-2">{new Date(page.lastModified).toLocaleString()}</td>
+              <td className="p-2">
+                <a href={`/admin/pages/${page.slug}`} className="text-blue-600 underline">Éditer</a>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -50,4 +50,4 @@ const AdminUsersPage: React.FC = () => {
   );
 };
 
-export default AdminUsersPage;
+export default AdminPagesPage;

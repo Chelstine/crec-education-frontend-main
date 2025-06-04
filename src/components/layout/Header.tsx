@@ -4,6 +4,7 @@ import { Menu, X, ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
 import LangSwitcher from '@/components/common/LangSwitcher';
+import ThemeToggle from '@/components/common/ThemeToggle';
 
 const Header = () => {
   const { t } = useLanguage();
@@ -27,8 +28,8 @@ const Header = () => {
     ],
     formations: [
       { name: 'ISTMR', path: '/formations/university' },
-      { name: 'Formations ouvertes', path: '/formations' },
-      { name: 'FABLAB', path: '/formations/programs' },
+      { name: 'Formations ouvertes', path: '/formations/open' },
+      { name: 'FABLAB', path: '/formations/fablab' },
     ],
     events: [
       { name: 'Calendrier', path: '/events/calendar' },
@@ -37,7 +38,7 @@ const Header = () => {
     news: [
       { name: 'Vie de Campus', path: '/news/campus-life' },
       { name: 'Articles', path: '/news/articles' },
-      { name: 'Témoignages', path: '/news/testimonials' },
+      { name: 'Stages & Emplois', path: '/news/stages' },
     ],
   };
 
@@ -119,6 +120,9 @@ const Header = () => {
             </div>
           ))}
 
+          {/* Remove direct Témoignages link from desktop nav */}
+          {/* <Link to="/testimonials" className="text-crec-darkblue hover:text-crec-gold px-2">Témoignages</Link> */}
+
           <Link to="/contact" className="text-crec-darkblue hover:text-crec-gold px-2">
             {t('nav.contact')}
           </Link>
@@ -129,6 +133,7 @@ const Header = () => {
           <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="hover:text-crec-gold">
             <Search size={20} className="text-crec-darkblue" />
           </button>
+          <ThemeToggle />
           <LangSwitcher />
           
           <Button asChild variant="default" className="bg-crec-gold hover:bg-crec-lightgold text-white hidden lg:flex">
@@ -194,6 +199,9 @@ const Header = () => {
                   )}
                 </div>
               ))}
+
+              {/* Remove direct Témoignages link from mobile nav */}
+              {/* <Link to="/testimonials" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 text-crec-darkblue hover:bg-gray-100">Témoignages</Link> */}
 
               <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 text-crec-darkblue hover:bg-gray-100">
                 {t('nav.contact')}
