@@ -304,7 +304,7 @@ const UniversityPage = () => {
                 className="w-full sm:w-auto px-8 py-3 bg-[#e69500] hover:bg-[#f7b733] text-white rounded-full shadow-md hover:shadow-lg transition-all text-lg font-semibold"
                 asChild
               >
-                <Link to="/formations/InscriptionUniversitaire">Déposer ma candidature</Link>
+                <Link to="/formations/InscriptionUniversitairePage">Déposer ma candidature</Link>
               </Button>
             </motion.div>
             <Button

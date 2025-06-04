@@ -117,7 +117,7 @@ tradition que le CREC (Centre de Recherche d'Étude et de Créativité) a été 
               </div>
               <div className="absolute bottom-6 right-6 bg-crec-gold p-4 rounded-lg shadow-lg w-40 h-40 flex items-center justify-center">
                 <p className="text-white text-center font-bold">
-                  <span className="block text-3xl">25</span>
+                  <span className="block text-3xl">10</span>
                   <span className="block text-sm mt-1">ans d'excellence</span>
                 </p>
               </div>
@@ -147,7 +147,6 @@ tradition que le CREC (Centre de Recherche d'Étude et de Créativité) a été 
           title={course.title}
           description={course.description}
           image={course.image}
-          link={course.link}
         />
       ))}
     </div>
@@ -253,8 +252,6 @@ tradition que le CREC (Centre de Recherche d'Étude et de Créativité) a été 
                 title={event.title}
                 description={event.date}
                 image={event.image}
-                link={event.link}
-                linkText="Plus de détails"
               />
             ))}
           </div>

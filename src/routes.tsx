@@ -23,6 +23,7 @@ import FormationsPage from '@/pages/formations/FormationsPage';
 import ProgramsPage from '@/pages/formations/ProgramsPage';
 import UniversityPage from '@/pages/formations/UniversityPage';
 import InscriptionPage from '@/pages/formations/InscriptionPage';
+import InscriptionUniversitairePage from '@/pages/formations/InscriptionUniversitairePage';
 
 // Pages Réservation
 import ReservationPage from '@/pages/reservation/ReservationPage';
@@ -70,6 +71,7 @@ const routes: RouteObject[] = [
       { path: 'formations/programs', element: <ProgramsPage /> },
       { path: 'formations/university', element: <UniversityPage /> },
       { path: 'inscription', element: <InscriptionPage /> },
+      {path : 'formations/InscriptionUniversitairePage', element:<InscriptionUniversitairePage/>},
 
       // Souscription
       { path: 'souscription', element: <SubscriptionPage /> },
