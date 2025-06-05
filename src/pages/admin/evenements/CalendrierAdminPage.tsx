@@ -62,6 +62,11 @@ const CalendrierAdminPage: React.FC = () => {
           date: evenementData.date!,
           couleur: evenementData.couleur!,
           type: evenementData.type as 'evenement' | 'conference',
+          heureDebut: '09:00', // Provide default or collect from form
+          heureFin: '17:00',   // Provide default or collect from form
+          lieu: 'Campus CREC',       // Provide default or collect from form
+          organisateur: 'CREC Education', // Provide default or collect from form
+          statut: 'planifie' as const, // Provide default or collect from form
         };
         await evenementService.create(createData);
       }

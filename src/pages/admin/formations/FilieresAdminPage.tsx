@@ -370,7 +370,7 @@ const FilieresAdminPage: React.FC = () => {
                       {filiere.duree}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {filiere.tarif.toLocaleString()} FCFA
+                      {(filiere.tarif || 0).toLocaleString()} FCFA
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-900 max-w-xs truncate">

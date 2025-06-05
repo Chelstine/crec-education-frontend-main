@@ -52,7 +52,20 @@ const ConferencesAdminPage: React.FC = () => {
       if (isEditing && selectedConference) {
         await evenementService.update(selectedConference.id, conferenceData);
       } else {
-        await evenementService.create({...conferenceData, type: 'conference'});
+        // Ensure all required fields are present for creation
+        const createData = {
+          titre: conferenceData.titre || '',
+          description: conferenceData.description || '',
+          date: conferenceData.date || new Date().toISOString().split('T')[0],
+          couleur: conferenceData.couleur || '#3B82F6',
+          type: 'conference' as const,
+          heureDebut: '09:00',
+          heureFin: '17:00',
+          lieu: 'Campus CREC',
+          organisateur: 'CREC Education',
+          statut: 'planifie' as const,
+        };
+        await evenementService.create(createData);
       }
       await loadConferences();
       closeModal();

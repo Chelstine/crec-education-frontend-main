@@ -39,7 +39,9 @@ const ProjetsAdminPage: React.FC = () => {
     if (searchTerm) {
       filtered = filtered.filter(projet => 
         projet.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        projet.description.toLowerCase().includes(searchTerm.toLowerCase())
+        projet.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        projet.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        projet.technologies?.some(tech => tech.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
@@ -117,7 +119,7 @@ const ProjetsAdminPage: React.FC = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
               <input
                 type="text"
-                placeholder="Rechercher par titre ou description..."
+                placeholder="Rechercher par titre, description, catégorie ou technologies..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -168,13 +170,16 @@ const ProjetsAdminPage: React.FC = () => {
                   Projet
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Catégorie
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Difficulté
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Coût/Durée
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Type
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Fichier
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date de création
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -188,6 +193,34 @@ const ProjetsAdminPage: React.FC = () => {
                     <div>
                       <div className="text-sm font-medium text-gray-900">{projet.titre}</div>
                       <div className="text-sm text-gray-500 truncate max-w-xs">{projet.description}</div>
+                      {projet.technologies && projet.technologies.length > 0 && (
+                        <div className="text-xs text-blue-600 mt-1">
+                          {projet.technologies.slice(0, 2).join(', ')}
+                          {projet.technologies.length > 2 && '...'}
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 capitalize">
+                      {projet.category}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full capitalize ${
+                      projet.difficulte === 'facile' ? 'bg-green-100 text-green-800' :
+                      projet.difficulte === 'moyen' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {projet.difficulte}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {projet.cout > 0 && <div>{projet.cout} €</div>}
+                      {projet.dureeRealisation && (
+                        <div className="text-xs text-gray-500">{projet.dureeRealisation}</div>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -199,23 +232,6 @@ const ProjetsAdminPage: React.FC = () => {
                       )}
                       <span className="text-sm text-gray-900 capitalize">{projet.type}</span>
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {projet.fichierUrl ? (
-                      <a 
-                        href={projet.fichierUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-900 text-sm"
-                      >
-                        Voir le fichier
-                      </a>
-                    ) : (
-                      <span className="text-gray-400 text-sm">Aucun fichier</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(projet.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">
@@ -278,11 +294,20 @@ const ProjetModal: React.FC<ProjetModalProps> = ({ projet, isEditing, onSave, on
     description: projet?.description || '',
     fichierUrl: projet?.fichierUrl || '',
     type: projet?.type || 'photo' as 'video' | 'photo',
+    technologies: projet?.technologies?.join('\n') || '',
+    category: projet?.category || 'iot' as 'iot' | '3d' | 'electronics' | 'automation',
+    difficulte: projet?.difficulte || 'moyen' as 'facile' | 'moyen' | 'difficile',
+    dureeRealisation: projet?.dureeRealisation || '',
+    cout: projet?.cout || 0,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    const submitData = {
+      ...formData,
+      technologies: formData.technologies.split('\n').filter(t => t.trim()),
+    };
+    onSave(submitData);
   };
 
   return (
@@ -320,6 +345,83 @@ const ProjetModal: React.FC<ProjetModalProps> = ({ projet, isEditing, onSave, on
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Décrivez le projet..."
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Catégorie *
+                </label>
+                <select
+                  required
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="iot">IoT (Internet des Objets)</option>
+                  <option value="3d">Impression 3D</option>
+                  <option value="electronics">Électronique</option>
+                  <option value="automation">Automatisation</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Difficulté *
+                </label>
+                <select
+                  required
+                  value={formData.difficulte}
+                  onChange={(e) => setFormData({ ...formData, difficulte: e.target.value as any })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="facile">Facile</option>
+                  <option value="moyen">Moyen</option>
+                  <option value="difficile">Difficile</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Technologies utilisées
+              </label>
+              <textarea
+                rows={3}
+                value={formData.technologies}
+                onChange={(e) => setFormData({ ...formData, technologies: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Une technologie par ligne (ex: Arduino, Raspberry Pi, Python...)"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Durée de réalisation
+                </label>
+                <input
+                  type="text"
+                  value={formData.dureeRealisation}
+                  onChange={(e) => setFormData({ ...formData, dureeRealisation: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Ex: 2 heures, 1 semaine..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Coût estimé (€)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.cout}
+                  onChange={(e) => setFormData({ ...formData, cout: parseFloat(e.target.value) || 0 })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

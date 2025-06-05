@@ -39,7 +39,9 @@ const EquipementsAdminPage: React.FC = () => {
     if (searchTerm) {
       filtered = filtered.filter(equipement => 
         equipement.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        equipement.description.toLowerCase().includes(searchTerm.toLowerCase())
+        equipement.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        equipement.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        equipement.category.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -59,8 +61,15 @@ const EquipementsAdminPage: React.FC = () => {
         // Ensure required fields are present for creation
         const createData = {
           nom: equipementData.nom!,
+          code: equipementData.code!,
           description: equipementData.description!,
           tarif: equipementData.tarif ?? 0,
+          features: equipementData.features ?? [],
+          reference: equipementData.reference ?? '',
+          prixMensuel: equipementData.prixMensuel ?? 0,
+          prixAnnuel: equipementData.prixAnnuel ?? 0,
+          image: equipementData.image ?? '',
+          category: equipementData.category!,
           disponible: equipementData.disponible ?? true,
         };
         await equipementFabLabService.create(createData);
@@ -125,7 +134,7 @@ const EquipementsAdminPage: React.FC = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
               <input
                 type="text"
-                placeholder="Rechercher par nom ou description..."
+                placeholder="Rechercher par nom, description, code ou catégorie..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -176,13 +185,16 @@ const EquipementsAdminPage: React.FC = () => {
                   Équipement
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tarif
+                  Code/Référence
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Catégorie
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Tarifs
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Disponibilité
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Créé le
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -199,7 +211,22 @@ const EquipementsAdminPage: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{equipement.tarif} €</div>
+                    <div className="text-sm text-gray-900">{equipement.code}</div>
+                    {equipement.reference && (
+                      <div className="text-xs text-gray-500">Réf: {equipement.reference}</div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900 capitalize">{equipement.category}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{equipement.tarif} €/h</div>
+                    {equipement.prixMensuel > 0 && (
+                      <div className="text-xs text-gray-500">{equipement.prixMensuel} €/mois</div>
+                    )}
+                    {equipement.prixAnnuel > 0 && (
+                      <div className="text-xs text-gray-500">{equipement.prixAnnuel} €/an</div>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -209,9 +236,6 @@ const EquipementsAdminPage: React.FC = () => {
                     }`}>
                       {equipement.disponible ? 'Disponible' : 'Indisponible'}
                     </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(equipement.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">
