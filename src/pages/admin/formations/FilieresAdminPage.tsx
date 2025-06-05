@@ -226,9 +226,19 @@ const FilieresAdminPage: React.FC = () => {
   const loadFilieres = async () => {
     try {
       const data = await filiereService.getAll();
-      setFilieres(data);
+      // Validation des données pour éviter les erreurs
+      const validatedData = data.map(filiere => ({
+        ...filiere,
+        tarif: filiere.tarif || 0,
+        nom: filiere.nom || 'Nom non défini',
+        description: filiere.description || 'Description non disponible',
+        duree: filiere.duree || 'Non défini',
+        niveauAdmission: filiere.niveauAdmission || 'Non défini'
+      }));
+      setFilieres(validatedData);
     } catch (error) {
       console.error('Erreur lors du chargement des filières:', error);
+      setFilieres([]); // Set empty array on error
     } finally {
       setIsLoading(false);
     }
@@ -359,26 +369,26 @@ const FilieresAdminPage: React.FC = () => {
                     <td className="px-6 py-4">
                       <div>
                         <div className="text-sm font-medium text-gray-900">
-                          {filiere.nom}
+                          {filiere.nom || 'Nom non défini'}
                         </div>
                         <div className="text-sm text-gray-500 mt-1">
-                          {filiere.description}
+                          {filiere.description || 'Description non disponible'}
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {filiere.duree}
+                      {filiere.duree || 'Non défini'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {(filiere.tarif || 0).toLocaleString()} FCFA
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-900 max-w-xs truncate">
-                        {filiere.niveauAdmission}
+                        {filiere.niveauAdmission || 'Non défini'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(filiere.createdAt).toLocaleDateString('fr-FR')}
+                      {filiere.createdAt ? new Date(filiere.createdAt).toLocaleDateString('fr-FR') : 'Date inconnue'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end space-x-2">
