@@ -12,7 +12,13 @@ const FiliereForm: React.FC<{
     nom: filiere?.nom || '',
     description: filiere?.description || '',
     duree: filiere?.duree || '',
-    prerequis: filiere?.prerequis || ''
+    prerequis: filiere?.prerequis || '',
+    competences: filiere?.competences || [],
+    debouches: filiere?.debouches || [],
+    profilIdeal: filiere?.profilIdeal || '',
+    image: filiere?.image || '',
+    tarif: filiere?.tarif || 0,
+    niveauAdmission: filiere?.niveauAdmission || ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -89,6 +95,89 @@ const FiliereForm: React.FC<{
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Prérequis nécessaires pour cette filière"
               required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Tarif (FCFA)
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={formData.tarif}
+                onChange={(e) => setFormData({ ...formData, tarif: parseInt(e.target.value) || 0 })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ex: 350000"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Niveau d'admission
+              </label>
+              <input
+                type="text"
+                value={formData.niveauAdmission}
+                onChange={(e) => setFormData({ ...formData, niveauAdmission: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ex: Baccalauréat scientifique"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Compétences acquises
+            </label>
+            <textarea
+              value={formData.competences.join('\n')}
+              onChange={(e) => setFormData({ ...formData, competences: e.target.value.split('\n').filter(c => c.trim()) })}
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Une compétence par ligne&#10;Ex: Programmation orientée objet&#10;Gestion de bases de données&#10;Administration réseau"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Débouchés professionnels
+            </label>
+            <textarea
+              value={formData.debouches.join('\n')}
+              onChange={(e) => setFormData({ ...formData, debouches: e.target.value.split('\n').filter(d => d.trim()) })}
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Un débouché par ligne&#10;Ex: Ingénieur logiciel&#10;Administrateur système&#10;Chef de projet IT"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Profil idéal du candidat
+            </label>
+            <textarea
+              value={formData.profilIdeal}
+              onChange={(e) => setFormData({ ...formData, profilIdeal: e.target.value })}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Décrivez le profil idéal pour cette filière"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Image (URL)
+            </label>
+            <input
+              type="url"
+              value={formData.image}
+              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="https://example.com/image.jpg"
             />
           </div>
 
@@ -251,7 +340,10 @@ const FilieresAdminPage: React.FC = () => {
                     Durée
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Prérequis
+                    Tarif
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Niveau d'admission
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date de création
@@ -277,9 +369,12 @@ const FilieresAdminPage: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {filiere.duree}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {filiere.tarif.toLocaleString()} FCFA
+                    </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-900 max-w-xs truncate">
-                        {filiere.prerequis}
+                        {filiere.niveauAdmission}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

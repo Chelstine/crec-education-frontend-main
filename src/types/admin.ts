@@ -10,6 +10,12 @@ export interface Filiere {
   description: string;
   duree: string;
   prerequis: string;
+  competences: string[];
+  debouches: string[];
+  profilIdeal: string;
+  image?: string;
+  tarif: number;
+  niveauAdmission: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -34,6 +40,12 @@ export interface FormationOuverte {
   description: string;
   duree: string;
   tarif: number;
+  features: string[];
+  niveau: string;
+  certificat: boolean;
+  category: string;
+  icon?: string;
+  image?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -56,6 +68,11 @@ export interface ProjetFabLab {
   description: string;
   fichierUrl: string;
   type: 'video' | 'photo';
+  technologies: string[];
+  category: 'iot' | '3d' | 'electronics' | 'automation';
+  difficulte: 'facile' | 'moyen' | 'difficile';
+  dureeRealisation: string;
+  cout: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -63,8 +80,15 @@ export interface ProjetFabLab {
 export interface EquipementFabLab {
   id: string;
   nom: string;
+  code: string;
   description: string;
   tarif: number;
+  features: string[];
+  reference: string;
+  prixMensuel: number;
+  prixAnnuel: number;
+  image?: string;
+  category: string;
   disponible: boolean;
   createdAt: string;
   updatedAt: string;
@@ -98,9 +122,16 @@ export interface Evenement {
   id: string;
   titre: string;
   date: string;
+  heureDebut: string;
+  heureFin: string;
+  lieu: string;
   description: string;
+  image?: string;
+  organisateur: string;
+  maxParticipants?: number;
   couleur: string;
   type: 'evenement' | 'conference';
+  statut: 'planifie' | 'en_cours' | 'termine' | 'annule';
   createdAt: string;
   updatedAt: string;
 }

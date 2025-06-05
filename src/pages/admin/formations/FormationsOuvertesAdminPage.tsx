@@ -12,7 +12,13 @@ const FormationOuverteForm: React.FC<{
     nom: formation?.nom || '',
     description: formation?.description || '',
     duree: formation?.duree || '',
-    tarif: formation?.tarif || 0
+    tarif: formation?.tarif || 0,
+    features: formation?.features || [],
+    niveau: formation?.niveau || '',
+    certificat: formation?.certificat || false,
+    category: formation?.category || '',
+    icon: formation?.icon || '',
+    image: formation?.image || ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -93,6 +99,94 @@ const FormationOuverteForm: React.FC<{
                 required
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Niveau
+              </label>
+              <select
+                value={formData.niveau}
+                onChange={(e) => setFormData({ ...formData, niveau: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">Sélectionner un niveau</option>
+                <option value="debutant">Débutant</option>
+                <option value="intermediaire">Intermédiaire</option>
+                <option value="avance">Avancé</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Catégorie
+              </label>
+              <input
+                type="text"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ex: Langues, Informatique, Communication"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Caractéristiques
+            </label>
+            <textarea
+              value={formData.features.join('\n')}
+              onChange={(e) => setFormData({ ...formData, features: e.target.value.split('\n').filter(f => f.trim()) })}
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Une caractéristique par ligne&#10;Ex: Formation en présentiel&#10;Support pédagogique inclus&#10;Certificat de fin de formation"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Image (URL)
+              </label>
+              <input
+                type="url"
+                value={formData.image}
+                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Icône (URL)
+              </label>
+              <input
+                type="url"
+                value={formData.icon}
+                onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="https://example.com/icon.svg"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={formData.certificat}
+                onChange={(e) => setFormData({ ...formData, certificat: e.target.checked })}
+                className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <span className="text-sm font-medium text-gray-700">
+                Délivre un certificat de fin de formation
+              </span>
+            </label>
           </div>
 
           <div className="flex justify-end space-x-3 pt-4">

@@ -265,14 +265,25 @@ interface EquipementModalProps {
 const EquipementModal: React.FC<EquipementModalProps> = ({ equipement, isEditing, onSave, onClose }) => {
   const [formData, setFormData] = useState({
     nom: equipement?.nom || '',
+    code: equipement?.code || '',
     description: equipement?.description || '',
     tarif: equipement?.tarif || 0,
+    features: equipement?.features?.join('\n') || '',
+    reference: equipement?.reference || '',
+    prixMensuel: equipement?.prixMensuel || 0,
+    prixAnnuel: equipement?.prixAnnuel || 0,
+    image: equipement?.image || '',
+    category: equipement?.category || '',
     disponible: equipement?.disponible ?? true,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    const submitData = {
+      ...formData,
+      features: formData.features.split('\n').filter(f => f.trim()),
+    };
+    onSave(submitData);
   };
 
   return (
@@ -284,17 +295,32 @@ const EquipementModal: React.FC<EquipementModalProps> = ({ equipement, isEditing
           </h2>
           
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nom de l'équipement *
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.nom}
-                onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nom de l'équipement *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.nom}
+                  onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Code équipement *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.code}
+                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
             </div>
 
             <div>
@@ -313,7 +339,55 @@ const EquipementModal: React.FC<EquipementModalProps> = ({ equipement, isEditing
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tarif (€) *
+                  Référence
+                </label>
+                <input
+                  type="text"
+                  value={formData.reference}
+                  onChange={(e) => setFormData({ ...formData, reference: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Catégorie *
+                </label>
+                <select
+                  required
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Choisir une catégorie</option>
+                  <option value="impression-3d">Impression 3D</option>
+                  <option value="electronique">Électronique</option>
+                  <option value="usinage">Usinage</option>
+                  <option value="prototypage">Prototypage</option>
+                  <option value="assemblage">Assemblage</option>
+                  <option value="mesure">Mesure</option>
+                  <option value="autre">Autre</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Fonctionnalités/Caractéristiques
+              </label>
+              <textarea
+                rows={4}
+                value={formData.features}
+                onChange={(e) => setFormData({ ...formData, features: e.target.value })}
+                placeholder="Une fonctionnalité par ligne..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Tarif horaire (€) *
                 </label>
                 <input
                   type="number"
@@ -322,6 +396,48 @@ const EquipementModal: React.FC<EquipementModalProps> = ({ equipement, isEditing
                   step="0.01"
                   value={formData.tarif}
                   onChange={(e) => setFormData({ ...formData, tarif: parseFloat(e.target.value) || 0 })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Prix mensuel (€)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.prixMensuel}
+                  onChange={(e) => setFormData({ ...formData, prixMensuel: parseFloat(e.target.value) || 0 })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Prix annuel (€)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.prixAnnuel}
+                  onChange={(e) => setFormData({ ...formData, prixAnnuel: parseFloat(e.target.value) || 0 })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  URL de l'image
+                </label>
+                <input
+                  type="url"
+                  value={formData.image}
+                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
