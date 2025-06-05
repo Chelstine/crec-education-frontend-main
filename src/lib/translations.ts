@@ -118,19 +118,6 @@ export const translations = {
       deadline: 'Date limite'
     },
 
-    // Admin
-    admin: {
-      dashboard: 'Tableau de bord',
-      manage: 'Gérer',
-      pending: 'En attente',
-      approved: 'Approuvé',
-      rejected: 'Rejeté',
-      total: 'Total',
-      stats: 'Statistiques',
-      recent: 'Récent',
-      actions: 'Actions rapides'
-    },
-
     // Contact
     contact: {
       title: 'Contactez-nous',
@@ -275,19 +262,6 @@ export const translations = {
       location: 'Location',
       type: 'Type',
       deadline: 'Deadline'
-    },
-
-    // Admin
-    admin: {
-      dashboard: 'Dashboard',
-      manage: 'Manage',
-      pending: 'Pending',
-      approved: 'Approved',
-      rejected: 'Rejected',
-      total: 'Total',
-      stats: 'Statistics',
-      recent: 'Recent',
-      actions: 'Quick actions'
     },
 
     // Contact

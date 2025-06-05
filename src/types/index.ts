@@ -1,6 +1,11 @@
 // Types pour l'application CREC Frontend
 // Préparation pour future connexion backend
 
+// ===== TYPES DE BASE =====
+export type ApplicationStatus = 'pending' | 'reviewing' | 'accepted' | 'rejected' | 'shortlisted' | 'waitlisted';
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
+export type PaymentMethod = 'bank_transfer' | 'mobile_money' | 'cash' | 'card';
+
 export interface Project {
   id: string;
   title: string;
@@ -51,7 +56,7 @@ export interface MachinePricing {
 
 export interface ApiResponse<T> {
   success: boolean;
-  data: T;
+  data?: T;
   message?: string;
   error?: string;
 }
@@ -99,15 +104,21 @@ export interface FormationSchedule {
 export interface FormationInscription {
   id: string;
   formationId: string;
-  userId: string;
-  studentName: string;
-  studentEmail: string;
-  studentPhone: string;
+  userId?: string;
+  studentName?: string;
+  participantName?: string;
+  studentEmail?: string;
+  participantEmail?: string;
+  studentPhone?: string;
+  participantPhone?: string;
   paymentReceiptUrl?: string;
-  paymentAmount: number;
-  status: 'pending' | 'paid' | 'validated' | 'rejected' | 'completed';
-  adminNotes?: string;
-  inscriptionDate: string;
+  paymentAmount?: number;
+  amount?: number;
+  status: 'pending' | 'paid' | 'validated' | 'rejected' | 'completed' | 'confirmed' | 'cancelled';
+  paymentStatus?: 'paid' | 'pending' | 'failed';
+  notes?: string;
+  inscriptionDate?: string;
+  registrationDate?: string;
   validatedAt?: string;
   validatedBy?: string;
 }
@@ -148,7 +159,7 @@ export interface InternshipApplication {
   motivationLetterUrl: string;
   status: 'pending' | 'reviewing' | 'accepted' | 'rejected' | 'shortlisted';
   applicationDate: string;
-  adminNotes?: string;
+  notes?: string;
   reviewedAt?: string;
   reviewedBy?: string;
 }
@@ -157,48 +168,180 @@ export interface InternshipApplication {
 export interface UniversityProgram {
   id: string;
   name: string;
+  title?: string; // Alias pour name
   degree: 'licence' | 'master' | 'doctorat';
+  level?: string; // Alias pour degree
   department: string;
   description: string;
-  duration: string;
+  longDescription?: string;
+  objectives: string[];
+  duration: string; // ex: "3 ans", "2 ans"
   requirements: string[];
   tuitionFee: number;
+  inscriptionFee: number; // Frais d'inscription séparés
   currency: 'FCFA';
   capacity: number;
   currentApplications: number;
   applicationDeadline: string;
   startDate: string;
+  endDate?: string;
+  
+  // Propriétés pour compatibilité
+  value?: string; // ID pour les sélecteurs
+  label?: string; // Nom pour affichage
+  price?: number; // Alias pour tuitionFee
+  documentsRequired?: DocumentType[]; // Alias pour documentTypes
+  
+  // Détails académiques
+  credits?: number;
+  schedule?: ProgramSchedule[];
+  courses?: Course[];
+  
+  // Débouchés et perspectives
+  careerOutlooks: string[];
+  partnerCompanies?: string[];
+  
+  // Configuration
   isActive: boolean;
+  isVisible: boolean;
+  allowOnlineApplication: boolean;
+  requiresDocuments: boolean;
+  documentTypes: DocumentType[];
+  
+  // Métadonnées
+  imageUrl?: string;
+  brochureUrl?: string;
   createdAt: string;
   updatedAt: string;
+  createdBy?: string;
+  updatedBy?: string;
+}
+
+export interface ProgramSchedule {
+  year: number; // 1ère année, 2ème année, etc.
+  semester: number; // 1er semestre, 2ème semestre
+  courses: string[];
+}
+
+export interface Course {
+  id: string;
+  code: string;
+  name: string;
+  credits: number;
+  isCore: boolean; // Cours obligatoire ou optionnel
+  year: number;
+  semester: number;
+}
+
+export interface DocumentType {
+  id: string;
+  name: string;
+  description: string;
+  isRequired: boolean;
+  acceptedFormats: string[]; // ['pdf', 'jpg', 'png']
+  allowedFormats: string[]; // Alias pour acceptedFormats
+  maxSizeBytes: number;
+  maxSizeInMB: number; // Taille en MB pour affichage
+  validationRules?: DocumentValidationRule;
 }
 
 export interface UniversityApplication {
   id: string;
   programId: string;
+  programName?: string; // Dénormalisé pour affichage
+  program?: UniversityProgram; // Référence complète au programme
+  
+  // Informations personnelles
   applicantName: string;
+  name?: string; // Alias pour applicantName
   applicantEmail: string;
+  email?: string; // Alias pour applicantEmail
   applicantPhone: string;
+  phone?: string; // Alias pour applicantPhone
   dateOfBirth: string;
   nationality: string;
   address: string;
+  city: string;
+  country: string;
+  gender?: 'M' | 'F';
   
-  // Documents
-  transcriptUrl?: string;
-  diplomaUrl?: string;
-  idCardUrl?: string;
-  photoUrl?: string;
-  
-  // Scores et évaluations
+  // Informations académiques
+  previousInstitution: string;
+  previousDegree: string;
   previousGPA?: number;
+  graduationYear: string;
   languageScore?: number;
-  aiRanking?: number; // Score IA pour classement automatique
   
-  status: 'draft' | 'submitted' | 'under_review' | 'ranked' | 'accepted' | 'rejected' | 'waitlisted';
+  // Documents soumis
+  documents: ApplicationDocument[];
+  
+  // Paiement frais d'inscription
+  inscriptionFeeStatus: 'pending' | 'paid' | 'failed' | 'waived';
+  inscriptionFeeAmount?: number;
+  paymentReceiptUrl?: string;
+  paymentDate?: string;
+  paymentMethod?: 'bank_transfer' | 'mobile_money' | 'cash' | 'card';
+  paymentReference?: string;
+  
+  // Évaluation et classement
+  aiRanking?: number; // Score IA pour classement automatique
+  manualRanking?: number; // Classement manuel
+  evaluationNotes?: EvaluationNote[];
+  
+  // Statut et suivi
+  status: 'draft' | 'submitted' | 'documents_pending' | 'payment_pending' | 'under_review' | 'ranked' | 'accepted' | 'rejected' | 'waitlisted' | 'enrolled';
   applicationDate: string;
-  adminNotes?: string;
+  submittedAt?: string;
   reviewedAt?: string;
   reviewedBy?: string;
+  decisionDate?: string;
+  
+  // Notes internes
+  notes?: string;
+  rejectionReason?: string;
+  
+  // Communication
+  emailsSent: EmailLog[];
+  lastContactDate?: string;
+  
+  // Métadonnées
+  createdAt: string;
+  updatedAt: string;
+  ipAddress?: string;
+  userAgent?: string;
+}
+
+export interface ApplicationDocument {
+  id: string;
+  documentTypeId: string;
+  documentTypeName: string;
+  fileName: string;
+  fileUrl: string;
+  fileSize: number;
+  uploadedAt: string;
+  status: 'uploaded' | 'verified' | 'rejected';
+  rejectionReason?: string;
+  verifiedBy?: string;
+  verifiedAt?: string;
+}
+
+export interface EvaluationNote {
+  criteria: string;
+  score: number; // Note sur 20 ou 100
+  maxScore: number;
+  comment?: string;
+  evaluatedBy: string;
+  evaluatedAt: string;
+}
+
+export interface EmailLog {
+  id: string;
+  type: 'application_received' | 'documents_incomplete' | 'payment_reminder' | 'under_review' | 'accepted' | 'rejected' | 'waitlisted' | 'enrollment_reminder';
+  subject: string;
+  sentAt: string;
+  sentBy?: string;
+  status: 'sent' | 'failed' | 'bounced';
+  errorMessage?: string;
 }
 
 // ===== FABLAB RÉSERVATIONS =====
@@ -218,7 +361,7 @@ export interface Reservation {
   currency: 'FCFA';
   paymentStatus: 'pending' | 'paid' | 'refunded';
   paymentReceiptUrl?: string;
-  adminNotes?: string;
+  notes?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -239,6 +382,103 @@ export interface FabLabSubscription {
   updatedAt: string;
 }
 
+// ===== SYSTÈME D'ABONNEMENT FABLAB =====
+export interface FablabMachine {
+  id: string;
+  name: string;
+  description: string;
+  category: 'impression' | 'gravure' | 'decoupe' | 'electronique';
+  skillLevel: 'beginner' | 'intermediate' | 'advanced';
+  status: 'available' | 'maintenance' | 'occupied';
+  features: string[];
+  specifications?: Record<string, string>;
+  imageUrl?: string;
+  createdAt: string;
+  lastUpdated?: string;
+}
+
+export interface FablabSubscription {
+  id: string;
+  userId: string;
+  userName: string;
+  email: string;
+  phone: string;
+  type: 'monthly' | 'yearly';
+  status: 'active' | 'expired' | 'suspended' | 'pending';
+  startDate: string;
+  endDate: string;
+  createdAt: string;
+  subscriptionKey: string; // Clé unique pour vérification
+  totalHoursUsed: number; // Total des heures utilisées ce mois
+  monthlyHourLimit: number; // Limite d'heures par mois (exemple: 20h/mois pour mensuel, 40h/mois pour annuel)
+  currentMonthHours: number; // Heures utilisées ce mois-ci
+  isBlocked: boolean; // Bloqué si dépassement
+}
+
+export interface MachineHourlyRate {
+  machineId: string;
+  machineName: string;
+  pricePerHour: number; // Prix en FCFA par heure
+  currency: 'FCFA';
+  category: 'impression3d' | 'gravure_laser' | 'decoupe_laser' | 'electronique' | 'outils';
+}
+
+export interface FablabReservation {
+  id: string;
+  subscriptionId: string;
+  machineId: string;
+  machineName: string;
+  userId: string;
+  userName: string;
+  startTime: string; // ISO date string
+  endTime: string;   // ISO date string
+  plannedDuration: number; // En heures
+  actualDuration?: number; // En heures (après utilisation)
+  hourlyRate: number; // Prix par heure de la machine
+  totalCost: number; // Coût total en FCFA
+  status: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+  notes?: string;
+  createdAt: string;
+  lastUpdated?: string;
+}
+
+export interface MachineUsageSession {
+  id: string;
+  reservationId: string;
+  machineId: string;
+  userId: string;
+  startTime: string;
+  endTime?: string;
+  duration?: number; // En heures
+  cost: number; // Coût en FCFA
+  status: 'active' | 'completed' | 'cancelled';
+  createdAt: string;
+}
+
+export interface SubscriptionUsageReport {
+  subscriptionId: string;
+  currentMonth: {
+    year: number;
+    month: number; // 1-12
+    totalHours: number;
+    totalCost: number;
+    sessionsCount: number;
+    machinesUsed: string[];
+  };
+  monthlyLimit: number;
+  remainingHours: number;
+  isOverLimit: boolean;
+  sessions: MachineUsageSession[];
+}
+
+export interface TimeSlot {
+  hour: number;
+  available: boolean;
+  cost?: number;
+  isOccupied?: boolean;
+  reservationId?: string;
+}
+
 // ===== TÉMOIGNAGES =====
 export interface Testimonial {
   id: string;
@@ -252,7 +492,7 @@ export interface Testimonial {
   rating: number; // 1-5
   status: 'pending' | 'approved' | 'rejected';
   isVisible: boolean;
-  adminNotes?: string;
+  notes?: string;
   approvedAt?: string;
   approvedBy?: string;
   createdAt: string;
@@ -265,46 +505,13 @@ export interface User {
   email: string;
   name: string;
   phone?: string;
-  role: 'student' | 'admin' | 'instructor';
+  role: 'student' | 'instructor';
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface AdminUser {
-  id: string;
-  username: string;
-  email: string;
-  role: 'admin' | 'editor' | 'viewer';
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface AdminLoginForm {
-  username: string;
-  password: string;
-}
-
-export interface AdminDashboardStats {
-  totalUsers: number;
-  totalProjects: number;
-  totalDonations: number;
-  totalEvents: number;
-  totalReservations: number;
-  [key: string]: number;
-}
-
-export interface AdminTokenResponse {
-  token: string;
-  user: AdminUser;
-}
-
-export interface AdminPermission {
-  module: 'formations' | 'stages' | 'university' | 'fablab' | 'testimonials' | 'users' | 'content';
-  actions: ('create' | 'read' | 'update' | 'delete')[];
-}
-
-// ===== STATISTIQUES ADMIN =====
+// ===== STATISTIQUES =====
 export interface DashboardStats {
   formations: {
     total: number;
@@ -433,18 +640,40 @@ export interface DonationForm {
   message?: string;
 }
 
+// ===== DONS (ENTITÉ COMPLÈTE) =====
+export interface Donation {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  amount: number;
+  donationType: 'unique' | 'monthly' | 'yearly';
+  isAnonymous: boolean;
+  message?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 // ===== ÉVÉNEMENTS =====
 export interface Event {
   id: string;
   title: string;
   description: string;
   date: string;
+  startTime?: string;
+  endTime?: string;
   location: string;
+  capacity?: number;
+  registeredCount?: number;
   imageUrl?: string;
-  category?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  image?: string;
+  category?: 'information' | 'conference' | 'workshop' | 'ceremony' | string;
+  status?: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // ===== ARTICLES =====
@@ -469,4 +698,260 @@ export interface EditablePage {
   content: string;
   lastModified: string;
   updatedBy: string;
+}
+
+// ===== SYSTÈME DE CLÉS D'ACCÈS FABLAB =====
+export interface FormationType {
+  id: string;
+  title: string;
+  description: string;
+  category: 'languages' | 'technology' | 'business' | 'arts';
+  duration: string;
+  level: string;
+  price: number;
+  capacity: number;
+  enrolledCount: number;
+  status: 'active' | 'upcoming' | 'completed' | 'cancelled';
+  startDate: string;
+  endDate: string;
+}
+
+// ===== SYSTÈME DE CLÉS D'ACCÈS FABLAB =====
+export interface FablabAccessKey {
+  id: string;
+  subscriptionId: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  keyCode: string; // Clé unique générée automatiquement
+  status: 'active' | 'revoked' | 'expired';
+  validFrom: string;
+  validUntil: string;
+  lastUsed?: string;
+  usageCount: number;
+  isEmailSent: boolean;
+  sentAt?: string;
+  createdAt: string;
+  notes?: string;
+}
+
+export interface FablabKeyRequest {
+  id: string;
+  subscriptionId: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  requestDate: string;
+  status: 'pending' | 'approved' | 'rejected';
+  validatedBy?: string;
+  validatedAt?: string;
+  notes?: string;
+  keyGenerated?: boolean;
+  keyId?: string;
+}
+
+// ===== API RESPONSE TYPES =====
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+// ===== HOOKS ET UTILITAIRES =====
+export interface TableColumn<T> {
+  key: keyof T;
+  header: string;
+  render?: (value: any, item: T) => React.ReactNode;
+  sortable?: boolean;
+  filterable?: boolean;
+  width?: string;
+}
+
+export interface TableProps<T> {
+  data: T[];
+  columns: TableColumn<T>[];
+  loading?: boolean;
+  searchable?: boolean;
+  pagination?: boolean;
+  itemsPerPage?: number;
+  onRowClick?: (item: T) => void;
+  className?: string;
+}
+
+// ===== SYSTÈME D'EMAIL ET NOTIFICATIONS =====
+export interface EmailTemplate {
+  id: string;
+  type: 'application_received' | 'documents_incomplete' | 'payment_reminder' | 'under_review' | 'accepted' | 'rejected' | 'waitlisted' | 'enrollment_reminder';
+  name: string;
+  subject: string;
+  htmlContent: string;
+  textContent: string;
+  variables: EmailVariable[];
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: string;
+  updatedBy?: string;
+}
+
+export interface EmailVariable {
+  name: string;
+  description: string;
+  type: 'string' | 'number' | 'date' | 'boolean';
+  required: boolean;
+  defaultValue?: string;
+}
+
+export interface EmailConfiguration {
+  id: string;
+  smtpHost: string;
+  smtpPort: number;
+  smtpUser: string;
+  smtpPassword: string;
+  senderEmail: string;
+  senderName: string;
+  isActive: boolean;
+  testMode: boolean; // Pour envoyer uniquement aux emails de test
+  testEmails: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface NotificationSettings {
+  id: string;
+  programId?: string; // Null pour paramètres globaux
+  
+  // Notifications automatiques activées
+  autoNotifyOnApplication: boolean;
+  autoNotifyOnDocumentUpload: boolean;
+  autoNotifyOnPayment: boolean;
+  autoNotifyOnStatusChange: boolean;
+  
+  // Délais pour les rappels
+  paymentReminderDays: number[]; // [7, 3, 1] jours avant la deadline
+  documentReminderDays: number[];
+  
+  // Notifications aux responsables
+  notifyStaffOnNewApplication: boolean;
+  notifyStaffOnPayment: boolean;
+  staffNotificationEmails: string[];
+  
+  // Configuration
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BulkEmailOperation {
+  id: string;
+  name: string;
+  templateId: string;
+  recipientFilter: {
+    programIds?: string[];
+    statuses?: UniversityApplication['status'][];
+    dateRange?: {
+      start: string;
+      end: string;
+    };
+  };
+  recipientCount: number;
+  sentCount: number;
+  failedCount: number;
+  status: 'draft' | 'scheduled' | 'sending' | 'completed' | 'failed';
+  scheduledAt?: string;
+  startedAt?: string;
+  completedAt?: string;
+  createdBy: string;
+  createdAt: string;
+}
+
+// ===== GESTION DOCUMENTAIRE =====
+export interface DocumentTemplate {
+  id: string;
+  name: string;
+  description: string;
+  category: 'academic' | 'identity' | 'financial' | 'medical' | 'other';
+  acceptedFormats: string[];
+  maxSizeBytes: number;
+  isRequired: boolean;
+  validationRules?: DocumentValidationRule[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DocumentValidationRule {
+  type: 'file_size' | 'file_format' | 'image_quality' | 'text_recognition';
+  parameters: Record<string, any>;
+  errorMessage: string;
+  minSize?: number;
+  maxSize?: number;
+  allowedExtensions: string[];
+  requiresVerification?: boolean;
+}
+
+export interface DocumentReview {
+  id: string;
+  documentId: string;
+  reviewedBy: string;
+  status: 'approved' | 'rejected' | 'needs_revision';
+  comments?: string;
+  rejectionReason?: string;
+  reviewedAt: string;
+}
+
+// ===== RAPPORTS ET STATISTIQUES =====
+export interface UniversityDashboardStats {
+  totalPrograms: number;
+  activePrograms: number;
+  totalApplications: number;
+  pendingApplications: number;
+  acceptedApplications: number;
+  rejectedApplications: number;
+  totalRevenue: number;
+  pendingPayments: number;
+  
+  // Statistiques par période
+  applicationsThisMonth: number;
+  applicationsLastMonth: number;
+  paymentsThisMonth: number;
+  paymentsLastMonth: number;
+  
+  // Top programmes
+  popularPrograms: {
+    programId: string;
+    programName: string;
+    applicationCount: number;
+  }[];
+  
+  // Données pour graphiques
+  applicationsByMonth: {
+    month: string;
+    count: number;
+  }[];
+  
+  applicationsByStatus: {
+    status: string;
+    count: number;
+  }[];
+}
+
+export interface ApplicationsReport {
+  id: string;
+  name: string;
+  type: 'applications_summary' | 'payments_summary' | 'documents_status' | 'ranking_report';
+  filters: {
+    programIds?: string[];
+    dateRange: {
+      start: string;
+      end: string;
+    };
+    statuses?: UniversityApplication['status'][];
+  };
+  generatedAt: string;
+  generatedBy: string;
+  fileUrl?: string;
+  status: 'generating' | 'ready' | 'expired';
 }

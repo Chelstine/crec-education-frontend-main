@@ -301,7 +301,7 @@ const UniversityPage = () => {
               transition={{ type: "spring", stiffness: 300 }}
             >
               <Button
-                className="w-full sm:w-auto px-8 py-3 bg-[#e69500] hover:bg-[#f7b733] text-white rounded-full shadow-md hover:shadow-lg transition-all text-lg font-semibold"
+                className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-blue-600 to-amber-500 hover:from-blue-700 hover:to-amber-600 text-white rounded-full shadow-md hover:shadow-lg transition-all text-lg font-semibold"
                 asChild
               >
                 <Link to="/formations/university/inscription">Déposer ma candidature</Link>

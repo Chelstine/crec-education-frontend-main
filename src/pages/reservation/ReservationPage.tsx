@@ -1,279 +1,464 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import Calendar from 'react-calendar';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogFooter, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
-} from "@/components/ui/dialog";
-import { 
-  Clock, 
-  User, 
-  Zap, 
-  Calendar as CalendarIcon, 
+import { motion } from 'framer-motion';
+import {
   CheckCircle,
-  AlertCircle,
-  Crown,
-  Star,
-  Timer,
-  Printer,
-  Settings,
+  AlertTriangle,
   X
 } from 'lucide-react';
-import { motion } from 'framer-motion';
-import 'react-calendar/dist/Calendar.css';
-import '../../customCalendar.css';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
+import {
+  useFablabMachines,
+  useMachineHourlyRates,
+  useFablabSubscriptions,
+  useUserReservations,
+  useSubscriptionUsage,
+  useAvailableSlots,
+  useCreateFablabReservation,
+  useCancelReservation
+} from '@/hooks/useApi';
+import {
+  FablabMachine,
+  FablabSubscription,
+  FablabReservation,
+  SubscriptionUsageReport,
+  MachineHourlyRate,
+  TimeSlot
+} from '@/types';
+import MachineSelection from '@/components/reservation/MachineSelection';
+import ReservationCalendar from '@/components/reservation/ReservationCalendar';
+import ReservationForm from '@/components/reservation/ReservationForm';
+import ReservationsList from '@/components/reservation/ReservationsList';
+import SubscriptionInfo from '@/components/reservation/SubscriptionInfo';
+import UsageWarningComponent from '@/components/reservation/UsageWarning';
 
-interface Reservation {
-  id: string;
-  equipmentId: string;
-  equipmentName: string;
-  startTime: Date;
-  endTime: Date;
-  userId: string;
-  status: 'pending' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled';
-  userType: 'premium' | 'basic' | 'student';
-}
-
-interface Equipment {
-  id: string;
-  name: string;
-  description: string;
-  imageUrl: string;
-  category: 'impression' | 'gravure' | 'decoupe' | 'electronique';
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  hourlyRate: number;
-  status: 'available' | 'maintenance' | 'occupied';
-  features: string[];
-}
-
-interface UserSubscription {
-  type: 'premium' | 'basic' | 'student';
-  hoursRemaining: number;
-  monthlyLimit: number;
-  priorityBooking: boolean;
-  advancedBookingDays: number;
+interface UsageWarning {
+  type: 'warning' | 'danger' | 'blocked';
+  message: string;
+  hoursLeft: number;
 }
 
 const ReservationPage: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { toast } = useToast();
+  
+  // Check if redirected from subscription
+  const fromSubscription = location.state?.fromSubscription;
+  const subscriptionMessage = location.state?.message;
+  const planName = location.state?.planName;
+  
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [selectedEquipment, setSelectedEquipment] = useState<string>('');
-  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [selectedMachine, setSelectedMachine] = useState<string>('');
   const [startHour, setStartHour] = useState<number | null>(null);
   const [endHour, setEndHour] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [isReservationDialogOpen, setIsReservationDialogOpen] = useState(false);
-
-  // Mock user subscription data
-  const userSubscription: UserSubscription = {
-    type: 'premium',
-    hoursRemaining: 15,
-    monthlyLimit: 20,
-    priorityBooking: true,
-    advancedBookingDays: 14
-  };
-
-  const holidays: string[] = ['2025-01-01', '2025-05-01', '2025-12-25'];
-
-  const equipmentList: Equipment[] = [
-    {
-      id: 'FAB-IMP-01',
-      name: 'Creality Ender-5 S1',
-      description: 'Imprimante 3D haute vitesse - 250mm/s, 300°C, Détection filaments',
-      imageUrl: '/images/ender5.jpg',
-      category: 'impression',
-      difficulty: 'intermediate',
-      hourlyRate: 8,
-      status: 'available',
-      features: ['Auto-leveling', 'Détection filament', 'Impression reprise', '220x220x280mm']
-    },
-    {
-      id: 'FAB-IMP-02',
-      name: 'Creality Ender-3',
-      description: 'Imprimante 3D standard - Protection alimentation, Impression reprise',
-      imageUrl: '/images/ender3.jpg',
-      category: 'impression',
-      difficulty: 'beginner',
-      hourlyRate: 5,
-      status: 'available',
-      features: ['Protection alimentation', 'Impression reprise', '220x220x250mm']
-    },
-    {
-      id: 'FAB-IMP-03',
-      name: 'Anycubic Kobra 2 Pro',
-      description: 'Imprimante 3D rapide - 500mm/s, Nivellement Auto LeviQ 2.0',
-      imageUrl: '/images/kobra2.jpg',
-      category: 'impression',
-      difficulty: 'intermediate',
-      hourlyRate: 10,
-      status: 'maintenance',
-      features: ['500mm/s', 'Auto-leveling LeviQ 2.0', '220x220x250mm', 'Écran tactile']
-    },
-    {
-      id: 'FAB-GRAV-01',
-      name: 'Graveur Laser Latilool F50',
-      description: 'Graveur laser 50W - Gravure haute précision multi-matériaux',
-      imageUrl: '/images/latilool.jpg',
-      category: 'gravure',
-      difficulty: 'advanced',
-      hourlyRate: 15,
-      status: 'available',
-      features: ['50W', '400x400mm', 'Multi-matériaux', 'Haute précision']
-    },
-    {
-      id: 'FAB-CNC-01',
-      name: 'CNC Router 3018',
-      description: 'Fraiseuse CNC - Usinage bois, plastique, métaux tendres',
-      imageUrl: '/images/cnc3018.jpg',
-      category: 'decoupe',
-      difficulty: 'advanced',
-      hourlyRate: 12,
-      status: 'available',
-      features: ['300x180x45mm', 'Multi-matériaux', 'Contrôle GRBL', 'Précision 0.1mm']
-    },
-    {
-      id: 'FAB-ELEC-01',
-      name: 'Station de Soudage Weller',
-      description: 'Station soudage électronique - Contrôle température, accessoires',
-      imageUrl: '/images/weller.jpg',
-      category: 'electronique',
-      difficulty: 'intermediate',
-      hourlyRate: 6,
-      status: 'available',
-      features: ['Contrôle température', 'Multiple pointes', 'Station aspirante', 'ESD safe']
+  const [reservationNotes, setReservationNotes] = useState<string>('');
+  const [usageWarning, setUsageWarning] = useState<UsageWarning | null>(null);
+  // API Hooks
+  const { data: machinesResponse, isLoading: machinesLoading } = useFablabMachines();
+  const { data: hourlyRatesResponse, isLoading: ratesLoading } = useMachineHourlyRates();
+  const { data: subscriptionsResponse, isLoading: subscriptionsLoading } = useFablabSubscriptions();
+  
+  // Extract data from API responses
+  let machines = machinesResponse?.data || [];
+  let hourlyRates = hourlyRatesResponse?.data || [];
+  const subscriptions = subscriptionsResponse?.data || [];
+  
+  // Mock data for development/demo when API is not available
+  if (machines.length === 0) {
+    machines = [
+      {
+        id: 'machine-001',
+        name: 'Imprimante 3D Ender 3',
+        description: 'Imprimante 3D FDM de qualité pour prototypage rapide',
+        category: 'impression',
+        skillLevel: 'beginner',
+        status: 'available',
+        features: ['220x220x250mm', 'Protection alimentation', 'Impression de reprise'],
+        imageUrl: '/img/machines/creality-ender3.jpg'
+      },
+      {
+        id: 'machine-002',
+        name: 'Graveur Laser F50',
+        description: 'Graveur laser haute précision pour bois, métal et acrylique',
+        category: 'gravure',
+        skillLevel: 'intermediate',
+        status: 'available',
+        features: ['50W Puissance', '400x400mm', 'Protection yeux', 'Multi-matériaux'],
+        imageUrl: '/img/machines/latilool-f50.jpg'
+      },
+      {
+        id: 'machine-003',
+        name: 'Imprimante 3D Ender-5 S1',
+        description: 'Imprimante 3D haute vitesse avec auto-nivellement',
+        category: 'impression',
+        skillLevel: 'intermediate',
+        status: 'maintenance',
+        features: ['250mm/s vitesse', '300°C température', 'CR Touch auto-nivellement'],
+        imageUrl: '/img/machines/creality-ender5-s1.jpg'
+      },
+      {
+        id: 'machine-004',
+        name: 'Kit Arduino et composants',
+        description: 'Station complète pour projets électroniques et IoT',
+        category: 'electronique',
+        skillLevel: 'beginner',
+        status: 'available',
+        features: ['Arduino Uno', 'Capteurs variés', 'Breadboards', 'Composants'],
+        imageUrl: '/img/placeholder-machine.jpg'
+      }
+    ];
+  }
+  
+  if (hourlyRates.length === 0) {
+    hourlyRates = [
+      {
+        machineId: 'machine-001',
+        machineName: 'Imprimante 3D Ender 3',
+        hourlyRate: 2500,
+        currency: 'FCFA',
+        category: 'impression3d'
+      },
+      {
+        machineId: 'machine-002',
+        machineName: 'Graveur Laser F50',
+        hourlyRate: 5000,
+        currency: 'FCFA',
+        category: 'gravure_laser'
+      },
+      {
+        machineId: 'machine-003',
+        machineName: 'Imprimante 3D Ender-5 S1',
+        hourlyRate: 3500,
+        currency: 'FCFA',
+        category: 'impression3d'
+      },
+      {
+        machineId: 'machine-004',
+        machineName: 'Kit Arduino et composants',
+        hourlyRate: 1500,
+        currency: 'FCFA',
+        category: 'electronique'
+      }
+    ];
+  }
+  
+  // Check for test user subscription from localStorage
+  const [testUserSubscription, setTestUserSubscription] = useState<FablabSubscription | null>(null);
+  
+  useEffect(() => {
+    const subscriberInfo = localStorage.getItem('subscriberInfo');
+    if (subscriberInfo) {
+      try {
+        const parsed = JSON.parse(subscriberInfo);
+        if (parsed.verified && parsed.name === 'Marie Kouassi') {
+          // Create a mock subscription object for the test user
+          const mockSubscription: FablabSubscription = {
+            id: 'test-subscription-001',
+            userId: 'test-user-001',
+            userName: parsed.name,
+            email: 'marie.kouassi@crec.com',
+            phone: '+229 67 89 12 34',
+            type: parsed.plan as 'monthly' | 'yearly',
+            status: 'active',
+            startDate: new Date().toISOString(),
+            endDate: parsed.expiresAt,
+            createdAt: new Date().toISOString(),
+            subscriptionKey: parsed.key,
+            totalHoursUsed: parsed.usageCount || 12,
+            monthlyHourLimit: parsed.usageLimit || 40,
+            currentMonthHours: parsed.usageCount || 12,
+            isBlocked: false
+          };
+          setTestUserSubscription(mockSubscription);
+        }
+      } catch (error) {
+        console.error('Error parsing subscriber info:', error);
+      }
     }
-  ];
+  }, []);
+  
+  // Get current subscription (prioritize test user, then API data)
+  const currentSubscription = testUserSubscription || subscriptions.find((sub: FablabSubscription) => sub.status === 'active');
+  
+  // API hooks that depend on current subscription
+  const { data: reservationsResponse, isLoading: reservationsLoading } = useUserReservations(currentSubscription?.id || '');
+  const { data: usageReportResponse, isLoading: usageLoading } = useSubscriptionUsage(currentSubscription?.id || '');
+  
+  // Extract reservation and usage data
+  let reservations = reservationsResponse?.data || [];
+  
+  // Add mock reservations for test user
+  if (testUserSubscription && reservations.length === 0) {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    
+    reservations = [
+      {
+        id: 'test-reservation-001',
+        subscriptionId: testUserSubscription.id,
+        machineId: 'machine-001',
+        machineName: 'Imprimante 3D Ender 3',
+        userId: 'test-user-001',
+        userName: 'Marie Kouassi',
+        startTime: new Date(tomorrow.setHours(10, 0, 0, 0)).toISOString(),
+        endTime: new Date(tomorrow.setHours(12, 0, 0, 0)).toISOString(),
+        plannedDuration: 2,
+        hourlyRate: 2500,
+        totalCost: 5000,
+        status: 'confirmed',
+        notes: 'Impression de prototype éducatif',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: 'test-reservation-002',
+        subscriptionId: testUserSubscription.id,
+        machineId: 'machine-002',
+        machineName: 'Graveur Laser F50',
+        userId: 'test-user-001',
+        userName: 'Marie Kouassi',
+        startTime: new Date(nextWeek.setHours(14, 0, 0, 0)).toISOString(),
+        endTime: new Date(nextWeek.setHours(16, 0, 0, 0)).toISOString(),
+        plannedDuration: 2,
+        hourlyRate: 5000,
+        totalCost: 10000,
+        status: 'confirmed',
+        notes: 'Gravure de porte-clés personnalisés pour les étudiants',
+        createdAt: new Date().toISOString()
+      }
+    ];
+  }
+  
+  let usageReport = usageReportResponse?.data;
+  
+  // Create mock usage report for test user
+  if (testUserSubscription && !usageReport) {
+    usageReport = {
+      subscriptionId: testUserSubscription.id,
+      currentMonth: {
+        totalHours: testUserSubscription.currentMonthHours,
+        sessionsCount: 5,
+        lastSession: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() // Il y a 2 jours
+      },
+      previousMonth: {
+        totalHours: 18,
+        sessionsCount: 8
+      },
+      yearToDate: {
+        totalHours: testUserSubscription.totalHoursUsed,
+        sessionsCount: 25
+      }
+    };
+  }
+  
+  // Available slots for selected machine and date
+  const { data: availableSlotsResponse } = useAvailableSlots(
+    selectedMachine || '', 
+    selectedMachine ? selectedDate.toISOString().split('T')[0] : ''
+  );
+  const availableSlots = availableSlotsResponse?.data || [];
+  
+  const createReservationMutation = useCreateFablabReservation();
+  const cancelReservationMutation = useCancelReservation();
+  
+  // Check if user has active subscription
+  const hasActiveSubscription = !!currentSubscription;
 
-  // Mock existing reservations
-  const existingReservations: Reservation[] = [
-    {
-      id: 'res1',
-      equipmentId: 'FAB-IMP-01',
-      equipmentName: 'Creality Ender-5 S1',
-      startTime: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), 10, 0),
-      endTime: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), 12, 0),
-      userId: 'user2',
-      status: 'confirmed',
-      userType: 'premium'
+  // Affichage du message de bienvenue après souscription
+  useEffect(() => {
+    if (fromSubscription && subscriptionMessage) {
+      toast({
+        title: "Bienvenue au FabLab CREC!",
+        description: subscriptionMessage || `Votre abonnement ${planName || ''} a été enregistré avec succès.`,
+        duration: 8000,
+      });
     }
-  ];
+  }, [fromSubscription, subscriptionMessage, planName, toast]);
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'impression': return <Printer className="h-4 w-4" />;
-      case 'gravure': return <Zap className="h-4 w-4" />;
-      case 'decoupe': return <Settings className="h-4 w-4" />;
-      case 'electronique': return <Settings className="h-4 w-4" />;
-      default: return <Settings className="h-4 w-4" />;
+  // Calculate usage warnings
+  useEffect(() => {
+    if (!usageReport || !currentSubscription) return;
+
+    const reportData = usageReport as SubscriptionUsageReport;
+    const hoursUsed = reportData.currentMonth.totalHours;
+    const hourLimit = currentSubscription.monthlyHourLimit;
+    const hoursLeft = hourLimit - hoursUsed;
+    const usagePercentage = (hoursUsed / hourLimit) * 100;
+
+    if (currentSubscription.isBlocked) {
+      setUsageWarning({
+        type: 'blocked',
+        message: 'Votre compte est bloqué pour dépassement d\'heures. Contactez le support.',
+        hoursLeft: 0
+      });
+    } else if (usagePercentage >= 90) {
+      setUsageWarning({
+        type: 'danger',
+        message: `Attention: Il vous reste seulement ${hoursLeft}h ce mois-ci.`,
+        hoursLeft
+      });
+    } else if (usagePercentage >= 75) {
+      setUsageWarning({
+        type: 'warning',
+        message: `Vous avez utilisé ${usagePercentage.toFixed(0)}% de vos heures mensuelles.`,
+        hoursLeft
+      });
+    } else {
+      setUsageWarning(null);
     }
+  }, [usageReport, currentSubscription]);
+
+  // Helper functions
+  const getMachineHourlyRate = (machineId: string): number => {
+    const rate = hourlyRates.find(r => r.machineId === machineId);
+    return rate?.hourlyRate || 0;
   };
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'beginner': return 'bg-green-100 text-green-800';
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800';
-      case 'advanced': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  const calculateCost = (machineId: string, hours: number): number => {
+    const hourlyRate = getMachineHourlyRate(machineId);
+    return hourlyRate * hours;
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'available': return 'bg-green-100 text-green-800';
-      case 'maintenance': return 'bg-orange-100 text-orange-800';
-      case 'occupied': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  const canMakeReservation = (): boolean => {
+    if (!hasActiveSubscription) return false;
+    if (currentSubscription?.isBlocked) return false;
+    if (!usageReport) return false;
+    
+    const reportData = usageReport as SubscriptionUsageReport;
+    const requestedHours = endHour && startHour ? endHour - startHour : 0;
+    const hoursLeft = currentSubscription.monthlyHourLimit - reportData.currentMonth.totalHours;
+    
+    return hoursLeft >= requestedHours;
   };
 
-  const filteredEquipment = selectedCategory === 'all' 
-    ? equipmentList 
-    : equipmentList.filter(eq => eq.category === selectedCategory);
-
-  const calculateCost = (equipment: Equipment, hours: number) => {
-    const baseRate = equipment.hourlyRate;
-    const discount = userSubscription.type === 'premium' ? 0.8 : 
-                    userSubscription.type === 'student' ? 0.9 : 1;
-    return Math.round(baseRate * hours * discount);
-  };
-
-  const isTimeSlotAvailable = (equipmentId: string, startHour: number, endHour: number) => {
-    const proposedStart = new Date(selectedDate);
-    proposedStart.setHours(startHour, 0, 0, 0);
-    const proposedEnd = new Date(selectedDate);
-    proposedEnd.setHours(endHour, 0, 0, 0);
-
-    return !existingReservations.some(reservation =>
-      reservation.equipmentId === equipmentId &&
-      reservation.status !== 'cancelled' &&
-      (
-        (proposedStart >= reservation.startTime && proposedStart < reservation.endTime) ||
-        (proposedEnd > reservation.startTime && proposedEnd <= reservation.endTime) ||
-        (proposedStart <= reservation.startTime && proposedEnd >= reservation.endTime)
-      )
-    );
-  };
-
+  // Event handlers
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
     setStartHour(null);
     setEndHour(null);
   };
 
-  const handleEquipmentSelect = (equipmentId: string) => {
-    setSelectedEquipment(equipmentId);
+  const handleMachineSelect = (machineId: string) => {
+    setSelectedMachine(machineId);
     setStartHour(null);
     setEndHour(null);
   };
 
-  const handleReservation = () => {
-    if (startHour === null || endHour === null || !selectedEquipment || endHour <= startHour) return;
+  const handleReservation = async () => {
+    if (!startHour || !endHour || !selectedMachine || !canMakeReservation() || !currentSubscription) return;
 
-    const startTime = new Date(selectedDate);
-    startTime.setHours(startHour, 0, 0, 0);
-    const endTime = new Date(selectedDate);
-    endTime.setHours(endHour, 0, 0, 0);
+    const hours = endHour - startHour;
+    const totalCost = calculateCost(selectedMachine, hours);
 
-    const overlapping = reservations.some(r =>
-      r.equipmentId === selectedEquipment &&
-      r.startTime < endTime &&
-      r.endTime > startTime
-    );
+    try {
+      await createReservationMutation.mutateAsync({
+        subscriptionId: currentSubscription.id,
+        machineId: selectedMachine,
+        startTime: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), startHour).toISOString(),
+        endTime: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), endHour).toISOString(),
+        notes: reservationNotes || `Réservation de ${hours}h - ${totalCost} FCFA`
+      });
 
-    if (overlapping) {
-      alert("Ce créneau est déjà réservé.");
-      return;
+      // Reset form
+      setStartHour(null);
+      setEndHour(null);
+      setReservationNotes('');
+      
+      toast({
+        title: "Réservation confirmée",
+        description: "Votre réservation a été confirmée avec succès!",
+      });
+    } catch (error) {
+      console.error('Erreur lors de la réservation:', error);
+      toast({
+        title: "Erreur",
+        description: "Erreur lors de la réservation. Veuillez réessayer.",
+        variant: "destructive",
+      });
     }
-
-    const newReservation: Reservation = {
-      id: Math.random().toString(36).substring(2, 9),
-      equipmentId: selectedEquipment,
-      equipmentName: equipmentList.find(e => e.id === selectedEquipment)?.name || '',
-      startTime,
-      endTime,
-      userId: 'current-user-id',
-      status: 'confirmed',
-      userType: userSubscription.type
-    };
-
-    setReservations([...reservations, newReservation]);
-    setStartHour(null);
-    setEndHour(null);
   };
 
-  const tileDisabled = ({ date }: { date: Date }) => {
-    const isSunday = date.getDay() === 0;
-    const isHoliday = holidays.includes(date.toISOString().split('T')[0]);
-    return isSunday || isHoliday;
+  const handleCancelReservation = async (reservationId: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir annuler cette réservation ?')) return;
+
+    try {
+      await cancelReservationMutation.mutateAsync(reservationId);
+      toast({
+        title: "Réservation annulée",
+        description: "Votre réservation a été annulée avec succès.",
+      });
+    } catch (error) {
+      console.error('Erreur lors de l\'annulation:', error);
+      toast({
+        title: "Erreur",
+        description: "Erreur lors de l'annulation. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    }
   };
+
+  const holidays: string[] = ['2025-01-01', '2025-05-01', '2025-12-25'];
+
+  // Redirect to subscription page if no active subscription
+  if (!subscriptionsLoading && !hasActiveSubscription) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="max-w-md w-full mx-4">
+          <CardHeader className="text-center">
+            <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+            <CardTitle>Abonnement requis</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p className="text-gray-600">
+              Vous devez avoir un abonnement FabLab actif pour effectuer des réservations.
+            </p>
+            <div className="space-y-3">
+              <Button 
+                onClick={() => navigate('/subscription')}
+                className="w-full"
+              >
+                S'abonner maintenant
+              </Button>
+              
+              <div className="flex items-center gap-2 justify-center my-3">
+                <div className="h-px bg-gray-300 flex-1"></div>
+                <span className="text-xs text-gray-500">OU</span>
+                <div className="h-px bg-gray-300 flex-1"></div>
+              </div>
+              
+              <Button 
+                onClick={() => navigate('/subscription-verification')}
+                variant="outline"
+                className="w-full"
+              >
+                J'ai déjà un abonnement
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (machinesLoading || ratesLoading || subscriptionsLoading || usageLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -293,355 +478,96 @@ const ReservationPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Welcome Message for Redirected Users */}
+      {fromSubscription && (
+        <div className="container mx-auto px-4 -mt-3 relative z-10 mb-4">
+          <Alert className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="font-semibold">Bienvenue dans le FabLab !</span>
+                  <p className="text-sm mt-1">{subscriptionMessage}</p>
+                  {planName && (
+                    <Badge variant="secondary" className="mt-2 text-xs">
+                      Plan: {planName}
+                    </Badge>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate(location.pathname, { replace: true })}
+                  className="text-green-600 hover:text-green-800"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+
       {/* User Subscription Info */}
       <div className="container mx-auto px-4 -mt-6 relative z-10">
-        <Card className="bg-white shadow-lg">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Crown className="h-6 w-6 text-yellow-500" />
-                <div>
-                  <CardTitle className="text-xl">
-                    Abonnement {userSubscription.type.charAt(0).toUpperCase() + userSubscription.type.slice(1)}
-                  </CardTitle>
-                  <p className="text-gray-600">
-                    {userSubscription.hoursRemaining}h restantes ce mois-ci
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <Badge variant="outline" className="mb-2">
-                  {userSubscription.priorityBooking ? 'Réservation prioritaire' : 'Standard'}
-                </Badge>
-                <p className="text-sm text-gray-600">
-                  Réservation jusqu'à {userSubscription.advancedBookingDays} jours à l'avance
-                </p>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
+        {currentSubscription && (
+          <SubscriptionInfo 
+            subscription={currentSubscription}
+            usageReport={usageReport}
+          />
+        )}
+
+        {/* Usage Warning */}
+        {usageWarning && (
+          <UsageWarningComponent 
+            usageWarning={usageWarning}
+            onRenewSubscription={() => navigate('/subscription')}
+          />
+        )}
       </div>
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Equipment Selection */}
           <div className="lg:col-span-2">
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Settings className="h-5 w-5" />
-                  <span>Sélection d'équipement</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {/* Category Filter */}
-                <div className="flex flex-wrap gap-2 mb-6">
-                  <Button
-                    variant={selectedCategory === 'all' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setSelectedCategory('all')}
-                  >
-                    Toutes
-                  </Button>
-                  <Button
-                    variant={selectedCategory === 'impression' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setSelectedCategory('impression')}
-                    className="flex items-center space-x-1"
-                  >
-                    <Printer className="h-4 w-4" />
-                    <span>Impression 3D</span>
-                  </Button>
-                  <Button
-                    variant={selectedCategory === 'gravure' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setSelectedCategory('gravure')}
-                    className="flex items-center space-x-1"
-                  >
-                    <Zap className="h-4 w-4" />
-                    <span>Gravure</span>
-                  </Button>
-                  <Button
-                    variant={selectedCategory === 'decoupe' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setSelectedCategory('decoupe')}
-                  >
-                    Découpe
-                  </Button>
-                  <Button
-                    variant={selectedCategory === 'electronique' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setSelectedCategory('electronique')}
-                  >
-                    Électronique
-                  </Button>
-                </div>
-
-                {/* Equipment Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {filteredEquipment.map(equipment => (
-                    <motion.div
-                      key={equipment.id}
-                      whileHover={{ scale: 1.02 }}
-                      className={`relative p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        selectedEquipment === equipment.id
-                          ? 'border-blue-500 bg-blue-50 shadow-md'
-                          : 'border-gray-200 hover:border-blue-300 hover:shadow-sm'
-                      } ${equipment.status !== 'available' ? 'opacity-60' : ''}`}
-                      onClick={() => equipment.status === 'available' && handleEquipmentSelect(equipment.id)}
-                    >
-                      {/* Status Badge */}
-                      <div className="absolute top-2 right-2">
-                        <Badge className={getStatusColor(equipment.status)}>
-                          {equipment.status === 'available' ? 'Disponible' : 
-                           equipment.status === 'maintenance' ? 'Maintenance' : 'Occupé'}
-                        </Badge>
-                      </div>
-
-                      <div className="flex items-start space-x-3">
-                        <div className={`p-2 rounded-lg ${getCategoryIcon(equipment.category).props.className ? 'bg-blue-100' : 'bg-gray-100'}`}>
-                          {getCategoryIcon(equipment.category)}
-                        </div>
-                        
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 mb-1">{equipment.name}</h3>
-                          <p className="text-sm text-gray-600 mb-3">{equipment.description}</p>
-                          
-                          <div className="flex items-center justify-between mb-3">
-                            <Badge className={getDifficultyColor(equipment.difficulty)}>
-                              {equipment.difficulty === 'beginner' ? 'Débutant' :
-                               equipment.difficulty === 'intermediate' ? 'Intermédiaire' : 'Avancé'}
-                            </Badge>
-                            <div className="flex items-center space-x-1 text-green-600">
-                              <span className="font-semibold">{equipment.hourlyRate}€</span>
-                              <span className="text-xs">/heure</span>
-                            </div>
-                          </div>
-
-                          <div className="space-y-1">
-                            {equipment.features.slice(0, 2).map((feature, index) => (
-                              <div key={index} className="flex items-center space-x-1 text-xs text-gray-500">
-                                <CheckCircle className="h-3 w-3 text-green-500" />
-                                <span>{feature}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <MachineSelection
+              machines={machines}
+              selectedCategory={selectedCategory}
+              selectedMachine={selectedMachine}
+              hourlyRates={hourlyRates}
+              onCategoryChange={setSelectedCategory}
+              onMachineSelect={handleMachineSelect}
+            />
           </div>
 
           {/* Calendar and Booking */}
           <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <CalendarIcon className="h-5 w-5" />
-                  <span>Sélection de date</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Calendar
-                  onChange={handleDateChange}
-                  value={selectedDate}
-                  tileDisabled={tileDisabled}
-                  className="w-full"
-                />
-              </CardContent>
-            </Card>
+            <ReservationCalendar
+              selectedDate={selectedDate}
+              onDateChange={handleDateChange}
+              holidays={holidays}
+            />
 
-            {selectedEquipment && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Clock className="h-5 w-5" />
-                    <span>Horaires</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Début</label>
-                      <select
-                        className="w-full border rounded-md px-3 py-2 text-sm"
-                        value={startHour ?? ''}
-                        onChange={e => setStartHour(parseInt(e.target.value))}
-                      >
-                        <option value="">--:--</option>
-                        {Array.from({ length: 10 }, (_, i) => i + 8).map(hour => (
-                          <option key={hour} value={hour}>{`${hour}:00`}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Fin</label>
-                      <select
-                        className="w-full border rounded-md px-3 py-2 text-sm"
-                        value={endHour ?? ''}
-                        onChange={e => setEndHour(parseInt(e.target.value))}
-                      >
-                        <option value="">--:--</option>
-                        {Array.from({ length: 10 }, (_, i) => i + 9).map(hour => (
-                          <option key={hour} value={hour}>{`${hour}:00`}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  {startHour !== null && endHour !== null && endHour > startHour && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span>Durée:</span>
-                          <span className="font-medium">{endHour - startHour}h</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Coût estimé:</span>
-                          <span className="font-medium text-green-600">
-                            {calculateCost(equipmentList.find(e => e.id === selectedEquipment)!, endHour - startHour)}€
-                          </span>
-                        </div>
-                        {userSubscription.type !== 'basic' && (
-                          <div className="text-xs text-blue-600">
-                            Remise {userSubscription.type} appliquée
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  <Dialog open={isReservationDialogOpen} onOpenChange={setIsReservationDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button
-                        className="w-full"
-                        disabled={startHour === null || endHour === null || endHour <= startHour}
-                        onClick={() => setIsReservationDialogOpen(true)}
-                      >
-                        Réserver
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Confirmer la réservation</DialogTitle>
-                        <DialogDescription>
-                          Vérifiez les détails de votre réservation avant de confirmer.
-                        </DialogDescription>
-                      </DialogHeader>
-                      
-                      {startHour !== null && endHour !== null && (
-                        <div className="space-y-4">
-                          <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                              <span className="text-gray-600">Machine:</span>
-                              <p className="font-medium">
-                                {equipmentList.find(e => e.id === selectedEquipment)?.name}
-                              </p>
-                            </div>
-                            <div>
-                              <span className="text-gray-600">Date:</span>
-                              <p className="font-medium">{selectedDate.toLocaleDateString()}</p>
-                            </div>
-                            <div>
-                              <span className="text-gray-600">Horaire:</span>
-                              <p className="font-medium">{startHour}:00 - {endHour}:00</p>
-                            </div>
-                            <div>
-                              <span className="text-gray-600">Coût total:</span>
-                              <p className="font-medium text-green-600">
-                                {calculateCost(equipmentList.find(e => e.id === selectedEquipment)!, endHour - startHour)}€
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsReservationDialogOpen(false)}>
-                          Annuler
-                        </Button>
-                        <Button onClick={() => {
-                          handleReservation();
-                          setIsReservationDialogOpen(false);
-                        }}>
-                          Confirmer la réservation
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </CardContent>
-              </Card>
-            )}
+            <ReservationForm
+              selectedMachine={selectedMachine}
+              startHour={startHour}
+              endHour={endHour}
+              reservationNotes={reservationNotes}
+              hourlyRate={getMachineHourlyRate(selectedMachine)}
+              canMakeReservation={canMakeReservation()}
+              onStartHourChange={setStartHour}
+              onEndHourChange={setEndHour}
+              onNotesChange={setReservationNotes}
+              onReservation={handleReservation}
+            />
           </div>
         </div>
 
         {/* Current Reservations */}
-        {reservations.length > 0 && (
-          <Card className="mt-8">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <User className="h-5 w-5" />
-                <span>Mes réservations</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {reservations.map(reservation => (
-                  <motion.div
-                    key={reservation.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="border rounded-lg p-4 bg-white shadow-sm"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h3 className="font-medium text-gray-900">{reservation.equipmentName}</h3>
-                        <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
-                          <span className="flex items-center space-x-1">
-                            <CalendarIcon className="h-4 w-4" />
-                            <span>{reservation.startTime.toLocaleDateString()}</span>
-                          </span>
-                          <span className="flex items-center space-x-1">
-                            <Clock className="h-4 w-4" />
-                            <span>
-                              {reservation.startTime.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})} - 
-                              {reservation.endTime.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}
-                            </span>
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <Badge 
-                          className={
-                            reservation.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                            reservation.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-gray-100 text-gray-800'
-                          }
-                        >
-                          {reservation.status === 'confirmed' ? 'Confirmé' : 
-                           reservation.status === 'pending' ? 'En attente' : reservation.status}
-                        </Badge>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setReservations(reservations.filter(r => r.id !== reservation.id));
-                          }}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        <ReservationsList
+          reservations={reservations as FablabReservation[]}
+          onCancelReservation={handleCancelReservation}
+        />
       </div>
     </div>
   );

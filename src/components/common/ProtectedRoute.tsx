@@ -6,12 +6,15 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const isSubscribed = localStorage.getItem('isSubscribed') === 'true';
+  // Vérifier si l'utilisateur a un abonnement vérifié
+  const subscriberInfo = localStorage.getItem('subscriberInfo');
+  const isVerified = subscriberInfo ? JSON.parse(subscriberInfo).verified : false;
+  
   const location = useLocation();
 
-  if (!isSubscribed) {
-    const redirectPath = location.pathname.replace(/^\//, '');
-    return <Navigate to={`/souscription?redirect=${redirectPath}`} replace />;
+  if (!isVerified) {
+    // Rediriger vers la page de vérification d'abonnement
+    return <Navigate to="/subscription-verification" replace />;
   }
 
   return <>{children}</>;

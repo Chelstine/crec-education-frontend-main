@@ -5,6 +5,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
 import LangSwitcher from '@/components/common/LangSwitcher';
 import ThemeToggle from '@/components/common/ThemeToggle';
+import SubscriberStatus from '@/components/common/SubscriberStatus';
 
 const Header = () => {
   const { t } = useLanguage();
@@ -30,6 +31,7 @@ const Header = () => {
       { name: 'ISTMR', path: '/formations/university' },
       { name: 'Formations ouvertes', path: '/formations/open' },
       { name: 'FABLAB', path: '/formations/fablab' },
+      { name: 'Réservation', path: '/subscription-verification' },
     ],
     events: [
       { name: 'Calendrier', path: '/events/calendar' },
@@ -37,7 +39,7 @@ const Header = () => {
     ],
     news: [
       { name: 'Vie de Campus', path: '/news/campus-life' },
-      { name: 'Articles', path: '/news/articles' },
+      { name: 'Articles', path: '/news' },
       { name: 'Stages & Emplois', path: '/news/stages' },
     ],
   };
@@ -130,6 +132,7 @@ const Header = () => {
 
         {/* Right section (icons and button) - 20% of width */}
         <div className="flex items-center justify-end w-1/5 gap-3">
+          <SubscriberStatus />
           <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="hover:text-crec-gold">
             <Search size={20} className="text-crec-darkblue" />
           </button>

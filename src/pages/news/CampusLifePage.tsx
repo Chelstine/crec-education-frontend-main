@@ -119,7 +119,7 @@ const CampusLifePage = () => {
               >
                 <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
                   <Button
-                    className="w-full sm:w-auto px-8 py-3 bg-[#e69500] hover:bg-[#f7b733] text-white rounded-full shadow-md hover:shadow-lg transition-all text-lg font-semibold"
+                    className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-blue-600 to-amber-500 hover:from-blue-700 hover:to-amber-600 text-white rounded-full shadow-md hover:shadow-lg transition-all text-lg font-semibold"
                     asChild
                   >
                     <Link to="/clubs">Découvrir les clubs</Link>
@@ -200,7 +200,7 @@ const CampusLifePage = () => {
               Enracinée dans la tradition jésuite, notre communauté offre des retraites, des messes hebdomadaires et des activités interconfessionnelles pour nourrir l’esprit et favoriser le dialogue.
             </p>
             <Button
-              className="px-6 py-3 bg-[#e69500] hover:bg-[#f7b733] text-white rounded-full"
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-amber-500 hover:from-blue-700 hover:to-amber-600 text-white rounded-full"
               asChild
             >
               <Link to="/spiritual-life">En savoir plus</Link>
@@ -310,7 +310,7 @@ const CampusLifePage = () => {
             </div>
             <div className="text-center mt-6">
               <Button
-                className="px-6 py-3 bg-[#e69500] hover:bg-[#f7b733] text-white rounded-full"
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-amber-500 hover:from-blue-700 hover:to-amber-600 text-white rounded-full"
                 asChild
               >
                 <Link to="/gallery">Voir plus</Link>
@@ -333,7 +333,7 @@ const CampusLifePage = () => {
               Nos étudiants collaborent avec les communautés locales de Porto-Novo pour des projets de développement durable, d’éducation et de santé, incarnant l’esprit jésuite de service.
             </p>
             <Button
-              className="px-6 py-3 bg-[#e69500] hover:bg-[#f7b733] text-white rounded-full"
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-amber-500 hover:from-blue-700 hover:to-amber-600 text-white rounded-full"
               asChild
             >
               <Link to="/community">Découvrir nos projets</Link>
@@ -371,7 +371,7 @@ const CampusLifePage = () => {
             >
               <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
                 <Button
-                  className="w-full sm:w-auto px-8 py-3 bg-[#e69500] hover:bg-[#f7b733] text-white rounded-full shadow-md hover:shadow-lg transition-all text-lg font-semibold"
+                  className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-blue-600 to-amber-500 hover:from-blue-700 hover:to-amber-600 text-white rounded-full shadow-md hover:shadow-lg transition-all text-lg font-semibold"
                   asChild
                 >
                   <Link to="/clubs">Découvrir les clubs</Link>

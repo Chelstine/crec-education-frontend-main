@@ -205,10 +205,10 @@ const FablabPage = () => {
             >
               <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
                 <Button
-                  className="w-full sm:w-auto px-8 py-3 bg-[#e69500] hover:bg-[#f7b733] text-white rounded-full shadow-md hover:shadow-lg transition-all text-lg font-semibold"
+                  className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-blue-600 to-amber-500 hover:from-blue-700 hover:to-amber-600 text-white rounded-full shadow-md hover:shadow-lg transition-all text-lg font-semibold"
                   asChild
                 >
-                  <Link to="/souscription?redirect=reservation">Réserver une machine</Link>
+                  <Link to="/subscription-verification">Réserver une machine</Link>
                 </Button>
               </motion.div>
               <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
@@ -597,7 +597,7 @@ const FablabPage = () => {
                 href="https://maps.app.goo.gl/6hS2iXvG5WjZ8KkD7"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#e69500] hover:underline"
+                className="text-blue-600 hover:text-amber-500 hover:underline transition-colors"
               >
                 CREC, Godomey, Bénin
               </a>
@@ -639,7 +639,15 @@ const FablabPage = () => {
                 className="w-full sm:w-auto px-8 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all text-lg font-semibold"
                 asChild
               >
-                <Link to="/souscription?redirect=reservation">Réserver une machine</Link>
+                <Link to="/formations/fablab/inscription">S'inscrire aux formations</Link>
+              </Button>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
+              <Button
+                className="w-full sm:w-auto px-8 py-3 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all text-lg font-semibold"
+                asChild
+              >
+                <Link to="/subscription-verification">Réserver une machine</Link>
               </Button>
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>

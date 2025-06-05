@@ -1,62 +1,116 @@
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
+import { Upload, CreditCard, Smartphone, Building, AlertCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const InscriptionPage = () => {
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
+    phone: "",
     formation: "",
-    paymentMethod: "",
-    phoneNumber: "",
+    level: "",
+    motivation: "",
+    paymentReceipt: null as File | null,
+    paymentMethod: ""
   });
 
-  const handleSubmit = (e) => {
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const formations = [
+    { value: "langues", label: "Formations en Langues", price: "50,000" },
+    { value: "informatique", label: "Formations Informatiques", price: "75,000" },
+    { value: "tutorat", label: "Accompagnement Scolaire", price: "40,000" }
+  ];
+
+
+  const paymentMethods = [
+    {
+      type: "Mobile Money",
+      accounts: [
+        { name: "Orange Money", number: "+237 6XX XXX XXX", account: "CREC-OM-002" },
+        { name: "MTN MoMo", number: "+237 6XX XXX XXX", account: "CREC-MTN-002" }
+      ]
+    },
+    {
+      type: "Banque",
+      accounts: [
+        { name: "Afriland First Bank", number: "40001 00000 12345678901 23", account: "CREC EDUCATION" },
+        { name: "UBA Cameroun", number: "10033 00000 12345678901 45", account: "CREC EDUCATION" }
+      ]
+    }
+  ];
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormData(prev => ({ ...prev, paymentReceipt: file }));
+      if (errors.paymentReceipt) {
+        setErrors(prev => ({ ...prev, paymentReceipt: "" }));
+      }
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.firstName.trim()) newErrors.firstName = "Le prénom est requis";
+    if (!formData.lastName.trim()) newErrors.lastName = "Le nom est requis";
+    if (!formData.email.trim()) newErrors.email = "L'email est requis";
+    if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Format d'email invalide";
+    if (!formData.phone.trim()) newErrors.phone = "Le téléphone est requis";
+    if (!formData.formation) newErrors.formation = "Veuillez sélectionner une formation";
+    if (!formData.paymentReceipt) newErrors.paymentReceipt = "Le reçu de paiement est requis";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Validation des champs
-    if (!formData.name || !formData.email || !formData.formation || !formData.paymentMethod || !formData.phoneNumber) {
-      alert("Veuillez remplir tous les champs obligatoires du formulaire.");
-      return;
+    if (validateForm()) {
+      // Traitement du formulaire
+      alert("Inscription soumise avec succès ! Nous vous contacterons sous peu.");
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        formation: "",
+        level: "",
+        motivation: "",
+        paymentReceipt: null,
+        paymentMethod: ""
+      });
     }
-    // Validation simple du numéro de téléphone (format local, ex: 9 chiffres pour le Cameroun)
-    if (!/^\+?[0-9]{9,12}$/.test(formData.phoneNumber)) {
-      alert("Veuillez entrer un numéro de téléphone valide.");
-      return;
-    }
-    // Simulation de la demande de paiement mobile
-    alert(
-      `Une demande de paiement de ${getFormationPrice(formData.formation)} XAF pour ${
-        formData.formation
-      } a été envoyée à ${formData.phoneNumber} via ${formData.paymentMethod}. Veuillez confirmer le paiement sur votre téléphone.`
-    );
-    // Réinitialiser le formulaire
-    setFormData({ name: "", email: "", formation: "", paymentMethod: "", phoneNumber: "" });
   };
 
-  const handleInputChange = (e) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
-  };
+  const selectedFormation = formations.find(f => f.value === formData.formation);
 
-  const handleSelectChange = (name) => (value) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const getFormationPrice = (formation) => {
-    switch (formation) {
-      case "langues":
-        return "500,000";
-      case "informatique":
-        return "750,000";
-      case "tutorat":
-        return "400,000";
-      default:
-        return "0";
-    }
+  const getFormationPrice = (formationValue: string) => {
+    const formation = formations.find(f => f.value === formationValue);
+    return formation ? formation.price : "";
   };
 
   return (
@@ -92,7 +146,7 @@ const InscriptionPage = () => {
                 <CardTitle className="text-xl font-bold text-crec-dark">Langues</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold text-crec-gold mb-4">500,000 XAF / an</p>
+                <p className="text-2xl font-bold text-crec-gold mb-4">500,000 FCFA / an</p>
                 <p className="text-gray-600 mb-4">Cours d'anglais et autres langues pour tous niveaux.</p>
                 <ul className="list-disc list-inside text-gray-600">
                   <li>Paiement sécurisé via Orange Money ou MTN Mobile Money</li>
@@ -106,7 +160,7 @@ const InscriptionPage = () => {
                 <CardTitle className="text-xl font-bold text-crec-dark">Informatique</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold text-crec-gold mb-4">750,000 XAF / an</p>
+                <p className="text-2xl font-bold text-crec-gold mb-4">750,000 FCFA / an</p>
                 <p className="text-gray-600 mb-4">Formations en développement web, bureautique et plus.</p>
                 <ul className="list-disc list-inside text-gray-600">
                   <li>Paiement sécurisé via Orange Money ou MTN Mobile Money</li>
@@ -120,7 +174,7 @@ const InscriptionPage = () => {
                 <CardTitle className="text-xl font-bold text-crec-dark">Tutorat</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold text-crec-gold mb-4">400,000 XAF / an</p>
+                <p className="text-2xl font-bold text-crec-gold mb-4">400,000 FCFA / an</p>
                 <p className="text-gray-600 mb-4">Accompagnement scolaire personnalisé.</p>
                 <ul className="list-disc list-inside text-gray-600">
                   <li>Paiement sécurisé via Orange Money ou MTN Mobile Money</li>
@@ -141,17 +195,33 @@ const InscriptionPage = () => {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold mb-8 text-center text-crec-dark">Formulaire d'inscription et paiement</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <Label htmlFor="name" className="text-crec-dark">Nom complet</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Votre nom"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-                className="w-full border-gray-300 rounded-md focus:ring-[#FCA311] focus:border-[#FCA311]"
-              />
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <Label htmlFor="firstName" className="text-crec-dark">Prénom</Label>
+                <Input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  placeholder="Votre prénom"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full border-gray-300 rounded-md focus:ring-[#FCA311] focus:border-[#FCA311]"
+                />
+              </div>
+              <div className="flex-1">
+                <Label htmlFor="lastName" className="text-crec-dark">Nom</Label>
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  placeholder="Votre nom"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full border-gray-300 rounded-md focus:ring-[#FCA311] focus:border-[#FCA311]"
+                />
+              </div>
             </div>
             <div>
               <Label htmlFor="email" className="text-crec-dark">Adresse e-mail</Label>
@@ -169,7 +239,7 @@ const InscriptionPage = () => {
               <Label htmlFor="formation" className="text-crec-dark">Formation choisie</Label>
               <Select
                 value={formData.formation}
-                onValueChange={handleSelectChange("formation")}
+                onValueChange={(value) => handleSelectChange("formation", value)}
                 required
               >
                 <SelectTrigger className="w-full border-gray-300 rounded-md focus:ring-[#FCA311] focus:border-[#FCA311]">
@@ -190,7 +260,7 @@ const InscriptionPage = () => {
                   <Label htmlFor="paymentMethod" className="text-crec-dark">Mode de paiement</Label>
                   <Select
                     value={formData.paymentMethod}
-                    onValueChange={handleSelectChange("paymentMethod")}
+                    onValueChange={(value) => handleSelectChange("paymentMethod", value)}
                     required
                   >
                     <SelectTrigger className="w-full border-gray-300 rounded-md focus:ring-[#FCA311] focus:border-[#FCA311]">
@@ -209,7 +279,7 @@ const InscriptionPage = () => {
                     id="phoneNumber"
                     type="tel"
                     placeholder="+229 01 XX XXX XXX"
-                    value={formData.phoneNumber}
+                    value={formData.phone}
                     onChange={handleInputChange}
                     required
                     className="w-full border-gray-300 rounded-md focus:ring-[#FCA311] focus:border-[#FCA311]"
@@ -225,7 +295,7 @@ const InscriptionPage = () => {
                 type="submit"
                 className="bg-[#FCA311] hover:bg-[#fcb930] text-white rounded-full px-6 py-2 transition duration-300"
               >
-                Payer {formData.formation ? getFormationPrice(formData.formation) + " XAF" : "et s'inscrire"}
+                Payer {formData.formation ? getFormationPrice(formData.formation) + " FCFA" : "et s'inscrire"}
               </Button>
             </div>
           </form>

@@ -56,7 +56,11 @@ const HomePage = () => {
 
   // Données pour les partenaires
   const partners = [
-    { name: "Institut de Recherche et de Formation en Informatique (IFRI)", logo: "/img/partner1.svg" },
+    { 
+      name: "IFRI - Institut de Formation et de Recherche en Informatique", 
+      logo: "/img/ifri-logo.svg",
+      link: "https://ifri-uac.bj/"
+    },
     { name: "Fondation Éducative", logo: "/img/partner2.svg" },
     { name: "Association Écologique", logo: "/img/partner3.svg" },
     { name: "Institut de Recherche", logo: "/img/partner4.svg" }
@@ -68,9 +72,9 @@ const HomePage = () => {
         title="Centre de Recherche, d'Étude et de Créativité"
         subtitle="Formation, Recherche et Accompagnement pour une éducation intégrale fondée sur des valeurs chrétiennes."
         bgImages={[
-          'https://images.unsplash.com/photo-1551038247-3d9af20df552',
-          'https://images.unsplash.com/photo-1551218808-94e220e084d2',
-          'https://images.unsplash.com/photo-1551183053-bf91a1d81141'
+          '/img/crec1.jpg',
+          '/img/crec2.jpeg',
+          '/img/crec3.jpg'
         ]}
         ctaText="Découvrir nos formations"
         ctaLink="#formations"
@@ -142,13 +146,35 @@ tradition que le CREC (Centre de Recherche d'Étude et de Créativité) a été 
     
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
       {courses.map((course) => (
-        <Link key={course.id} to={course.link} className="block group">
-          <Card
-            title={course.title}
-            description={course.description}
-            image={course.image}
-            className="group-hover:shadow-lg transition"
-          />
+        <Link 
+          to={course.link}
+          key={course.id} 
+          className="group flex flex-col h-full hover:no-underline"
+        >
+          <div className="flex-1 overflow-hidden rounded-t-xl relative">
+            <img 
+              src={course.image} 
+              alt={course.title}
+              className="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-300"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 opacity-70"></div>
+            <h3 className="absolute bottom-0 left-0 text-white text-2xl font-bold p-6">
+              {course.title}
+            </h3>
+          </div>
+          <div className="bg-white p-6 border border-gray-100 rounded-b-xl shadow-sm flex-1 flex flex-col">
+            <p className="text-crec-darkgray mb-6 flex-1">
+              {course.description.length > 150 
+                ? course.description.substring(0, 150) + '...' 
+                : course.description}
+            </p>
+            <div className="mt-auto pt-4 flex justify-between items-center border-t border-gray-100">
+              <span className="font-medium text-crec-darkblue">En savoir plus</span>
+              <div className="w-10 h-10 rounded-full bg-crec-lightgold flex items-center justify-center transform group-hover:bg-crec-gold group-hover:translate-x-1 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-crec-darkblue"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+              </div>
+            </div>
+          </div>
         </Link>
       ))}
     </div>
@@ -183,7 +209,7 @@ tradition que le CREC (Centre de Recherche d'Étude et de Créativité) a été 
                 nous encourageons chacun à devenir acteur du changement pour un monde plus durable et solidaire.
               </p>
               <Button asChild variant="outline" className="border-crec-gold text-crec-darkblue hover:bg-crec-gold hover:text-white">
-                <Link to="/formations/ecology">Découvrir nos initiatives</Link>
+                <Link to="/events">Suivre nos événements</Link>
               </Button>
             </div>
             <div className="order-1 md:order-2">
@@ -231,7 +257,7 @@ tradition que le CREC (Centre de Recherche d'Étude et de Créativité) a été 
                 dans leur prise de décision.
               </p>
               <Button asChild variant="outline" className="border-crec-gold text-crec-darkblue hover:bg-crec-gold hover:text-white">
-                <Link to="/formations/governance">En savoir plus</Link>
+                <Link to="/events">Suivre nos événements</Link>
               </Button>
             </div>
           </div>
@@ -290,7 +316,18 @@ tradition que le CREC (Centre de Recherche d'Étude et de Créativité) a été 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center">
               {partners.map((partner, index) => (
                 <div key={index} className="p-4 grayscale hover:grayscale-0 transition-all">
-                  <img src={partner.logo} alt={partner.name} className="h-20 object-contain" />
+                  {partner.link ? (
+                    <a 
+                      href={partner.link} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block hover:scale-105 transition-transform"
+                    >
+                      <img src={partner.logo} alt={partner.name} className="h-20 object-contain" />
+                    </a>
+                  ) : (
+                    <img src={partner.logo} alt={partner.name} className="h-20 object-contain" />
+                  )}
                 </div>
               ))}
             </div>

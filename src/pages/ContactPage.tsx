@@ -1,15 +1,48 @@
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, Loader2 } from "lucide-react";
+import { useContactSubmission } from "@/hooks/useApi";
+import { ContactForm } from "@/types";
 
 const ContactPage = () => {
-  const handleSubmit = (e: React.FormEvent) => {
+  const [formData, setFormData] = useState<ContactForm>({
+    name: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
+
+  const contactMutation = useContactSubmission();
+
+  const handleInputChange = (field: keyof ContactForm, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Logique de soumission du formulaire
+    
+    // Validation basique
+    if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+      return;
+    }
+
+    try {
+      await contactMutation.mutateAsync(formData);
+      // Reset form on success
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        message: ""
+      });
+    } catch (error) {
+      // Error is handled by the hook
+    }
   };
 
   return (
@@ -43,25 +76,34 @@ const ContactPage = () => {
               <CardContent className="p-6">
                 <h2 className="text-2xl font-bold mb-6">Envoyez-nous un message</h2>
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="firstName">Prénom</Label>
-                      <Input id="firstName" required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="lastName">Nom</Label>
-                      <Input id="lastName" required />
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Nom complet</Label>
+                    <Input 
+                      id="name" 
+                      value={formData.name}
+                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      required 
+                    />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" required />
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      value={formData.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      required 
+                    />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="subject">Sujet</Label>
-                    <Select required>
+                    <Select 
+                      value={formData.subject} 
+                      onValueChange={(value) => handleInputChange('subject', value)}
+                      required
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionnez un sujet" />
                       </SelectTrigger>
@@ -69,6 +111,8 @@ const ContactPage = () => {
                         <SelectItem value="admission">Admission</SelectItem>
                         <SelectItem value="formation">Formation</SelectItem>
                         <SelectItem value="fablab">FABLAB</SelectItem>
+                        <SelectItem value="stages">Stages et emplois</SelectItem>
+                        <SelectItem value="partenariat">Partenariat</SelectItem>
                         <SelectItem value="other">Autre</SelectItem>
                       </SelectContent>
                     </Select>
@@ -76,11 +120,28 @@ const ContactPage = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="message">Message</Label>
-                    <Textarea id="message" rows={4} required />
+                    <Textarea 
+                      id="message" 
+                      rows={4} 
+                      value={formData.message}
+                      onChange={(e) => handleInputChange('message', e.target.value)}
+                      required 
+                    />
                   </div>
 
-                  <Button type="submit" className="w-full bg-crec-gold hover:bg-crec-lightgold text-white">
-                    Envoyer le message
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-crec-gold hover:bg-crec-lightgold text-white"
+                    disabled={contactMutation.isPending}
+                  >
+                    {contactMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Envoi en cours...
+                      </>
+                    ) : (
+                      'Envoyer le message'
+                    )}
                   </Button>
                 </form>
               </CardContent>
