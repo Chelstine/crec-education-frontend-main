@@ -73,7 +73,7 @@ const AboutPage = () => {
         <div
           className="min-h-[300px] flex flex-col items-center justify-center text-center relative text-white p-6"
           style={{
-            backgroundImage: "url('/img/about-bg.jpg')",
+            backgroundImage: "url('/img/a-propos.png')",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}

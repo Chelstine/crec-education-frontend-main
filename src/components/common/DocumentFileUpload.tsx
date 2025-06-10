@@ -466,7 +466,7 @@ const DocumentFileUpload: React.FC<FileUploadProps> = ({
               <li>• Taille: {documentType.validationRules.minSize} - {documentType.validationRules.maxSize} KB</li>
               <li>• Formats acceptés: {documentType.validationRules.allowedExtensions.join(', ')}</li>
               {documentType.validationRules.requiresVerification && (
-                <li>• Ce document nécessite une vérification administrative</li>
+                <li>• Ce document nécessite une vérification manuelle</li>
               )}
             </ul>
           </CardContent>

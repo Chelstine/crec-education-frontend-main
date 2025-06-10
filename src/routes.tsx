@@ -1,7 +1,7 @@
 import { createBrowserRouter, RouteObject } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import MainLayout from '@/layouts/MainLayout';
-import AdminLayout from '@/layouts/AdminLayout';
+import ReservationLayout from '@/layouts/ReservationLayout';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
 
 // Loading component for lazy routes
@@ -60,36 +60,12 @@ const DonatePage = lazy(() => import('@/pages/DonatePage'));
 const TestimonialsPage = lazy(() => import('@/pages/TestimonialsPage'));
 
 // Pages Admin
-const AdminLoginPage = lazy(() => import('@/pages/admin/AdminLoginPage'));
-const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage'));
-const ContactsAdminPage = lazy(() => import('@/pages/admin/ContactsAdminPage'));
-const DonsAdminPage = lazy(() => import('@/pages/admin/DonsAdminPage'));
-
-// Nouvelles pages Admin
-const AdminExportPage = lazy(() => import('@/pages/admin/AdminExportPage'));
-const AdminFablabSubscriptionsPage = lazy(() => import('@/pages/admin/AdminFablabSubscriptionsPage'));
-const AdminDonationsPage = lazy(() => import('@/pages/admin/AdminDonationsPage'));
-const AdminDuplicateFilesPage = lazy(() => import('@/pages/admin/AdminDuplicateFilesPage'));
-
-// Pages Admin - Formations
-const FilieresAdminPage = lazy(() => import('@/pages/admin/formations/FilieresAdminPage'));
-const InscriptionsISTAdminPage = lazy(() => import('@/pages/admin/formations/InscriptionsISTAdminPage'));
-const FormationsOuvertesAdminPage = lazy(() => import('@/pages/admin/formations/FormationsOuvertesAdminPage'));
-const InscriptionsFormationsOuvertesAdminPage = lazy(() => import('@/pages/admin/formations/InscriptionsFormationsOuvertesAdminPage'));
-
-// Pages Admin - FabLab
-const ProjetsAdminPage = lazy(() => import('@/pages/admin/fablab/ProjetsAdminPage'));
-const EquipementsAdminPage = lazy(() => import('@/pages/admin/fablab/EquipementsAdminPage'));
-const AbonnementsAdminPage = lazy(() => import('@/pages/admin/fablab/AbonnementsAdminPage'));
-const ReservationsAdminPage = lazy(() => import('@/pages/admin/fablab/ReservationsAdminPage'));
-
-// Pages Admin - Événements
-const CalendrierAdminPage = lazy(() => import('@/pages/admin/evenements/CalendrierAdminPage'));
-const ConferencesAdminPage = lazy(() => import('@/pages/admin/evenements/ConferencesAdminPage'));
-
-// Pages Admin - Actualités
-const VieCampusAdminPage = lazy(() => import('@/pages/admin/actualites/VieCampusAdminPage'));
-const StagesEmploisAdminPage = lazy(() => import('@/pages/admin/actualites/StagesEmploisAdminPage'));
+const AdminLogin = lazy(() => import('@/pages/admin/AdminLogin'));
+const AdminLayout = lazy(() => import('@/layouts/AdminLayout'));
+const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
+const InscriptionsManagement = lazy(() => import('@/pages/admin/InscriptionsManagement'));
+const PageManagement = lazy(() => import('@/pages/admin/PageManagement'));
+const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
 
 // Helper function to wrap lazy components with Suspense
 const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType<any>>) => (
@@ -103,135 +79,185 @@ const routes: RouteObject[] = [
     path: '/',
     element: <MainLayout />,
     children: [
-      { index: true, element: withSuspense(HomePage) },
-
-      // À propos
-      { path: 'about', element: withSuspense(AboutPage) },
-      { path: 'about/jesuites', element: withSuspense(JesuitesPage) },
-      { path: 'about/ignace', element: withSuspense(IgnacePage) },
-      { path: 'about/saints', element: withSuspense(SaintsPage) },
-      { path: 'about/famille-ignatienne', element: withSuspense(FamilleIgnatiennePage) },
-      { path: 'about/equipe', element: withSuspense(EquipePage) },
-      { path: 'about/communautes', element: withSuspense(CommunautesPage) },
-
-      // Formations - Page principale (hub)
-      { path: 'formations', element: withSuspense(FormationsHubPage) },
-      
-      // Formations Ouvertes - Page de présentation
-      { path: 'formations/open', element: withSuspense(OpenFormationsPage) },
-      { path: 'formations/open/inscription', element: withSuspense(OpenFormationsInscriptionPage) },
-      
-      // Formations Universitaires
-      { path: 'formations/university', element: withSuspense(UniversityPage) },
-      { path: 'formations/university/inscription', element: withSuspense(InscriptionUniversitairePage) },
-      
-      // Formations FABLAB
-      { path: 'formations/fablab', element: withSuspense(FablabPage) },
-      { path: 'formations/fablab/inscription', element: withSuspense(FablabInscriptionPage) },
-      
-      // Souscription et vérification
-      { path: 'subscription', element: withSuspense(SubscriptionPage) },
-      { path: 'subscription-verification', element: withSuspense(SubscriptionVerification) },
-
-      // Réservation (protégée)
       {
-        path: 'reservation',
+        index: true,
+        element: withSuspense(HomePage),
+      },
+      // Pages principales
+      {
+        path: 'contact',
+        element: withSuspense(ContactPage),
+      },
+      {
+        path: 'legal',
+        element: withSuspense(LegalPage),
+      },
+      {
+        path: 'privacy',
+        element: withSuspense(PrivacyPage),
+      },
+      {
+        path: 'donate',
+        element: withSuspense(DonatePage),
+      },
+      {
+        path: 'testimonials',
+        element: withSuspense(TestimonialsPage),
+      },
+
+      // Pages À propos
+      {
+        path: 'about',
+        element: withSuspense(AboutPage),
+      },
+      {
+        path: 'about/jesuites',
+        element: withSuspense(JesuitesPage),
+      },
+      {
+        path: 'about/ignace',
+        element: withSuspense(IgnacePage),
+      },
+      {
+        path: 'about/saints',
+        element: withSuspense(SaintsPage),
+      },
+      {
+        path: 'about/famille-ignatienne',
+        element: withSuspense(FamilleIgnatiennePage),
+      },
+      {
+        path: 'about/equipe',
+        element: withSuspense(EquipePage),
+      },
+      {
+        path: 'about/communautes',
+        element: withSuspense(CommunautesPage),
+      },
+
+      // Pages Formations
+      {
+        path: 'formations',
+        element: withSuspense(FormationsHubPage),
+      },
+      {
+        path: 'formations/ouvertes',
+        element: withSuspense(OpenFormationsPage),
+      },
+      {
+        path: 'formations/ouvertes/inscription',
+        element: withSuspense(OpenFormationsInscriptionPage),
+      },
+      {
+        path: 'formations/university',
+        element: withSuspense(UniversityPage),
+      },
+      {
+        path: 'formations/university/inscription',
+        element: withSuspense(InscriptionUniversitairePage),
+      },
+      {
+        path: 'formations/fablab',
+        element: withSuspense(FablabPage),
+      },
+      {
+        path: 'formations/fablab/inscription',
+        element: withSuspense(FablabInscriptionPage),
+      },
+
+      // Pages Abonnement (sans header)
+      {
+        path: 'subscription',
+        element: withSuspense(SubscriptionPage),
+      },
+      {
+        path: 'subscription-verification',
+        element: withSuspense(SubscriptionVerification),
+      },
+
+      // Pages News
+      {
+        path: 'news',
+        element: withSuspense(NewsPage),
+      },
+      {
+        path: 'news/campus',
+        element: withSuspense(CampusLifePage),
+      },
+      {
+        path: 'news/stages',
+        element: withSuspense(StagesPage),
+      },
+      {
+        path: 'news/:id',
+        element: withSuspense(ArticlePage),
+      },
+
+      // Pages Événements
+      {
+        path: 'events',
+        element: withSuspense(EventsPage),
+      },
+      {
+        path: 'events/:id',
+        element: withSuspense(EventDetailPage),
+      },
+      {
+        path: 'calendar',
+        element: withSuspense(CalendarPage),
+      },
+
+      // 404 - doit être en dernier
+      {
+        path: '*',
+        element: withSuspense(NotFoundPage),
+      },
+    ],
+  },
+  // Layout spécial pour les réservations (sans header)
+  {
+    path: '/reservation',
+    element: <ReservationLayout />,
+    children: [
+      {
+        index: true,
         element: (
           <ProtectedRoute>
-            <Suspense fallback={<LoadingSpinner />}>
-              <ReservationPage />
-            </Suspense>
+            {withSuspense(ReservationPage)}
           </ProtectedRoute>
         ),
       },
-
-      // News
-      { path: 'news', element: withSuspense(NewsPage) },
-      { path: 'news/:id', element: withSuspense(ArticlePage) },
-      { path: 'news/campus-life', element: withSuspense(CampusLifePage) },
-      { path: 'news/stages', element: withSuspense(StagesPage) },
-
-      // Témoignages
-      { path: 'testimonials', element: withSuspense(TestimonialsPage) },
-
-      // Événements
-      { path: 'events', element: withSuspense(EventsPage) },
-      { path: 'events/:id', element: withSuspense(EventDetailPage) },
-      { path: 'events/calendar', element: withSuspense(CalendarPage) },
-
-      // Dons
-      { path: 'donate', element: withSuspense(DonatePage) },
-
-      // Contact
-      { path: 'contact', element: withSuspense(ContactPage) },
     ],
   },
-  
-  // Admin Routes
+  // Routes Admin
   {
     path: '/admin/login',
-    element: withSuspense(AdminLoginPage),
+    element: withSuspense(AdminLogin),
   },
   {
     path: '/admin',
-    element: <AdminLayout />,
+    element: withSuspense(AdminLayout),
     children: [
-      // Dashboard principal
-      { index: true, element: withSuspense(AdminDashboardPage) },
-      
-      // Export et rapports
-      { path: 'export', element: withSuspense(AdminExportPage) },
-      
-      // Gestion des contacts
-      { path: 'contacts', element: withSuspense(ContactsAdminPage) },
-      
-      // Gestion des dons
-      { path: 'dons', element: withSuspense(DonsAdminPage) },
-      { path: 'donations', element: withSuspense(AdminDonationsPage) },
-      
-      // Gestion des fichiers
-      { path: 'duplicate-files', element: withSuspense(AdminDuplicateFilesPage) },
-      
-      // Gestion des formations
-      { path: 'formations/filieres', element: withSuspense(FilieresAdminPage) },
-      { path: 'formations/inscriptions-ist', element: withSuspense(InscriptionsISTAdminPage) },
-      { path: 'formations/ouvertes', element: withSuspense(FormationsOuvertesAdminPage) },
-      { path: 'formations/inscriptions-ouvertes', element: withSuspense(InscriptionsFormationsOuvertesAdminPage) },
-      
-      // Gestion FabLab
-      { path: 'fablab/projets', element: withSuspense(ProjetsAdminPage) },
-      { path: 'fablab/equipements', element: withSuspense(EquipementsAdminPage) },
-      { path: 'fablab/abonnements', element: withSuspense(AbonnementsAdminPage) },
-      { path: 'fablab/reservations', element: withSuspense(ReservationsAdminPage) },
-      { path: 'fablab/subscriptions', element: withSuspense(AdminFablabSubscriptionsPage) },
-      
-      // Gestion des événements
-      { path: 'evenements/calendrier', element: withSuspense(CalendrierAdminPage) },
-      { path: 'evenements/conferences', element: withSuspense(ConferencesAdminPage) },
-      
-      // Gestion des actualités
-      { path: 'actualites/vie-campus', element: withSuspense(VieCampusAdminPage) },
-      { path: 'actualites/emplois', element: withSuspense(StagesEmploisAdminPage) },
-    ],
-  },
-  
-  // Standalone pages
-  {
-    path: '/',
-    element: <MainLayout />,
-    children: [
-      // Légal
-      { path: 'legal', element: withSuspense(LegalPage) },
-      { path: 'privacy', element: withSuspense(PrivacyPage) },
-
-      // 404
-      { path: '*', element: withSuspense(NotFoundPage) },
+      {
+        index: true,
+        element: withSuspense(AdminDashboard),
+      },
+      {
+        path: 'inscriptions',
+        element: withSuspense(InscriptionsManagement),
+      },
+      {
+        path: 'pages',
+        element: withSuspense(PageManagement),
+      },
+      {
+        path: 'settings',
+        element: withSuspense(AdminSettings),
+      },
     ],
   },
 ];
 
-export const router = createBrowserRouter(routes, {
-  future: {
-    v7_relativeSplatPath: true
-  }
-});
+const router = createBrowserRouter(routes);
+
+export default router;

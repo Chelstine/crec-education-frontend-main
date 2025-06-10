@@ -90,7 +90,7 @@ export const API_ENDPOINTS = {
     getAll: '/formations',
     getById: (id: string) => `/formations/${id}`,
     getUniversity: '/formations/university',
-    getOpenFormations: '/formations/open',
+    getOpenFormations: '/formations/ouvertes',
     getPrograms: '/formations/programs',
     inscription: '/formations/inscription',
     universityApplication: '/formations/university/application',
@@ -280,28 +280,7 @@ export class FormationService {
     });
   }
 
-  // Nouvelles méthodes pour l'administration
-  static async getUniversityPrograms(): Promise<any[]> {
-    const response = await apiCall<ApiResponse<any[]>>(API_ENDPOINTS.formations.getPrograms);
-    return response.data || [];
-  }
 
-  static async getUniversityApplications(): Promise<any[]> {
-    try {
-      const response = await apiCall<ApiResponse<any[]>>('/admin/university/applications');
-      return response.data || [];
-    } catch (error) {
-      console.error('Erreur lors du chargement des candidatures:', error);
-      return [];
-    }
-  }
-
-  static async updateApplicationStatus(applicationId: string, status: string, notes?: string): Promise<void> {
-    await apiCall('/admin/university/applications/' + applicationId, {
-      method: 'PUT',
-      data: { status, notes }
-    });
-  }
 }
 
 // Events Service
@@ -404,26 +383,7 @@ export class DonationService {
     });
   }
 
-  // Nouvelles méthodes pour l'administration
-  static async getDonations(): Promise<any[]> {
-    try {
-      const response = await apiCall<ApiResponse<any[]>>('/admin/donations');
-      return response.data || [];
-    } catch (error) {
-      console.error('Erreur lors du chargement des dons:', error);
-      return [];
-    }
-  }
 
-  static async getDonationStats(): Promise<any> {
-    try {
-      const response = await apiCall<ApiResponse<any>>('/admin/donations/stats');
-      return response.data || {};
-    } catch (error) {
-      console.error('Erreur lors du chargement des statistiques:', error);
-      return {};
-    }
-  }
 }
 
 // Pricing Service
@@ -493,10 +453,10 @@ export const FablabSubscriptionService = {
     return response.data;
   },
 
-  // Nouvelles méthodes pour l'administration
+  // Méthodes pour la gestion des abonnements FabLab
   async getSubscriptions(): Promise<any[]> {
     try {
-      const response = await apiClient.get('/admin/fablab/subscriptions');
+      const response = await apiClient.get('/fablab/subscriptions');
       return response.data?.data || [];
     } catch (error) {
       console.error('Erreur lors du chargement des abonnements:', error);
@@ -505,19 +465,19 @@ export const FablabSubscriptionService = {
   },
 
   async validateSubscription(subscriptionId: string): Promise<void> {
-    await apiClient.put(`/admin/fablab/subscriptions/${subscriptionId}/validate`);
+    await apiClient.put(`/fablab/subscriptions/${subscriptionId}/validate`);
   },
 
   async rejectSubscription(subscriptionId: string, reason?: string): Promise<void> {
-    await apiClient.put(`/admin/fablab/subscriptions/${subscriptionId}/reject`, { reason });
+    await apiClient.put(`/fablab/subscriptions/${subscriptionId}/reject`, { reason });
   },
 
   async generateAccessKey(subscriptionId: string, accessKey: any): Promise<void> {
-    await apiClient.post(`/admin/fablab/subscriptions/${subscriptionId}/access-key`, accessKey);
+    await apiClient.post(`/fablab/subscriptions/${subscriptionId}/access-key`, accessKey);
   },
 
   async sendAccessKey(subscriptionId: string, keyCode: string): Promise<void> {
-    await apiClient.post(`/admin/fablab/subscriptions/${subscriptionId}/send-key`, { keyCode });
+    await apiClient.post(`/fablab/subscriptions/${subscriptionId}/send-key`, { keyCode });
   },
 };
 

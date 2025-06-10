@@ -1,11 +1,11 @@
-import { EmailTemplate, EmailConfiguration, NotificationSettings, UniversityApplication, UniversityProgram } from "@/types";
+import { EmailTemplate, EmailConfiguration, NotificationSettings } from "@/types/admin";
+import { UniversityApplication, UniversityProgram } from "@/types";
 
 export class EmailService {
   private static instance: EmailService;
   private emailConfiguration: EmailConfiguration = {
     smtpHost: "smtp.gmail.com",
     smtpPort: 587,
-    smtpSecure: false,
     smtpUser: process.env.NEXT_PUBLIC_SMTP_USER || "noreply@crec.edu",
     smtpPassword: process.env.NEXT_PUBLIC_SMTP_PASSWORD || "",
     fromName: "CREC Education",
@@ -15,6 +15,7 @@ export class EmailService {
   private notificationSettings: NotificationSettings = {
     enableApplicationConfirmation: true,
     enableStatusUpdates: true,
+    enablePaymentConfirmation: true,
     enablePaymentNotifications: true,
     enableReminderEmails: true,
     enableBulkEmails: true,
@@ -495,21 +496,21 @@ export class EmailService {
       const applicationNumber = `CREC-${new Date().getFullYear()}-${application.id?.slice(-6)}`;
       
       const variables = {
-        firstName: application.personalInfo.firstName,
-        lastName: application.personalInfo.lastName,
-        programTitle: program.title,
+        firstName: application.applicantName.split(' ')[0] || application.applicantName,
+        lastName: application.applicantName.split(' ').slice(1).join(' ') || '',
+        programTitle: program.title || program.name,
         applicationNumber,
-        submissionDate: new Date(application.submissionDate).toLocaleDateString('fr-FR'),
+        submissionDate: new Date(application.applicationDate).toLocaleDateString('fr-FR'),
         status: "Reçue",
-        inscriptionFee: this.formatCurrency(program.inscriptionFee.amount),
-        paymentReference: application.paymentInfo?.reference || "N/A"
+        inscriptionFee: this.formatCurrency(program.inscriptionFee),
+        paymentReference: application.paymentReference || "N/A"
       };
 
       const emailContent = this.replaceVariables(template.htmlContent, variables);
       const emailText = this.replaceVariables(template.textContent, variables);
 
       return await this.sendEmail({
-        to: application.personalInfo.email,
+        to: application.applicantEmail,
         subject: template.subject,
         html: emailContent,
         text: emailText,
@@ -539,12 +540,12 @@ export class EmailService {
       }
 
       const variables = {
-        firstName: application.personalInfo.firstName,
-        lastName: application.personalInfo.lastName,
-        programTitle: program.title,
+        firstName: application.applicantName.split(' ')[0] || application.applicantName,
+        lastName: application.applicantName.split(' ').slice(1).join(' ') || '',
+        programTitle: program.title || program.name,
         duration: program.duration,
         startDate: new Date(program.startDate).toLocaleDateString('fr-FR'),
-        tuitionFee: this.formatCurrency(program.tuitionFee.amount),
+        tuitionFee: this.formatCurrency(program.tuitionFee),
         orientationDate: this.getOrientationDate(program.startDate),
         confirmationLink: `${process.env.NEXT_PUBLIC_APP_URL}/confirmation/${application.id}`,
         counselingLink: `${process.env.NEXT_PUBLIC_APP_URL}/orientation`
@@ -554,7 +555,7 @@ export class EmailService {
       const emailText = this.replaceVariables(template.textContent, variables);
 
       return await this.sendEmail({
-        to: application.personalInfo.email,
+        to: application.applicantEmail,
         subject: template.subject,
         html: emailContent,
         text: emailText,
@@ -576,10 +577,10 @@ export class EmailService {
       const paymentDeadline = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
       
       const variables = {
-        firstName: application.personalInfo.firstName,
-        lastName: application.personalInfo.lastName,
-        programTitle: program.title,
-        amount: this.formatCurrency(program.tuitionFee.amount),
+        firstName: application.applicantName.split(' ')[0] || application.applicantName,
+        lastName: application.applicantName.split(' ').slice(1).join(' ') || '',
+        programTitle: program.title || program.name,
+        amount: this.formatCurrency(program.tuitionFee),
         paymentDeadline: paymentDeadline.toLocaleDateString('fr-FR'),
         paymentReference: `PAY-${application.id?.slice(-8)}`,
         paymentLink: `${process.env.NEXT_PUBLIC_APP_URL}/payment/${application.id}`
@@ -589,7 +590,7 @@ export class EmailService {
       const emailText = this.replaceVariables(template.textContent, variables);
 
       return await this.sendEmail({
-        to: application.personalInfo.email,
+        to: application.applicantEmail,
         subject: template.subject,
         html: emailContent,
         text: emailText,

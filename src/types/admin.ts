@@ -1,183 +1,156 @@
+// Types for admin system
+
 export interface AdminUser {
   id: string;
-  username: string;
   email: string;
+  name: string;
+  role: 'admin' | 'super-admin' | 'moderator';
+  lastLogin: string;
 }
 
-export interface Filiere {
-  id: string;
-  nom: string;
-  description: string;
-  duree: string;
-  prerequis: string;
-  competences: string[];
-  debouches: string[];
-  profilIdeal: string;
-  image?: string;
-  tarif: number;
-  niveauAdmission: string;
-  createdAt: string;
-  updatedAt: string;
+export interface DocumentStatus {
+  type: string;
+  status: 'pending' | 'verified' | 'rejected';
 }
 
-export interface InscriptionIST {
-  id: string;
-  nom: string;
-  prenom: string;
+export interface PersonalInfo {
+  firstName: string;
+  lastName: string;
   email: string;
-  telephone: string;
-  filiere: string;
-  lettreMotivation: string;
-  documentsUpload: string[];
-  recuPaiement: string;
+  phone: string;
+}
+
+export interface PaymentInfo {
+  reference?: string;
+  method?: string;
+  date?: string;
+}
+
+export interface UniversityApplication {
+  id: string;
+  applicantName: string;
+  email: string;
+  phone: string;
+  program: string;
+  submissionDate: string;
   status: 'pending' | 'accepted' | 'rejected';
-  dateInscription: string;
+  documents: DocumentStatus[];
+  paymentAmount: number;
+  paymentStatus: 'pending' | 'verified' | 'failed';
+  notes?: string;
+  personalInfo?: PersonalInfo;
+  paymentInfo?: PaymentInfo;
 }
 
-export interface FormationOuverte {
+export interface FormationApplication {
   id: string;
-  nom: string;
-  description: string;
-  duree: string;
-  tarif: number;
-  features: string[];
-  niveau: string;
-  certificat: boolean;
-  category: string;
-  icon?: string;
-  image?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface InscriptionFormationOuverte {
-  id: string;
-  nom: string;
-  prenom: string;
+  applicantName: string;
   email: string;
-  telephone: string;
+  phone: string;
   formation: string;
-  recuPaiement: string;
-  status: 'pending' | 'validated' | 'rejected';
-  dateInscription: string;
+  submissionDate: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  paymentMethod: string;
+  paymentStatus: 'pending' | 'verified' | 'failed';
+  experience: string;
+  motivation: string;
 }
 
-export interface ProjetFabLab {
+export interface FabLabApplication {
   id: string;
-  titre: string;
-  description: string;
-  fichierUrl: string;
-  type: 'video' | 'photo';
-  technologies: string[];
-  category: 'iot' | '3d' | 'electronics' | 'automation';
-  difficulte: 'facile' | 'moyen' | 'difficile';
-  dureeRealisation: string;
-  cout: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface EquipementFabLab {
-  id: string;
-  nom: string;
-  code: string;
-  description: string;
-  tarif: number;
-  features: string[];
-  reference: string;
-  prixMensuel: number;
-  prixAnnuel: number;
-  image?: string;
-  category: string;
-  disponible: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface AbonnementFabLab {
-  id: string;
-  nom: string;
-  prenom: string;
+  applicantName: string;
   email: string;
-  telephone: string;
-  typeAbonnement: string;
-  recuPaiement: string;
-  status: 'pending' | 'validated' | 'rejected';
-  cleAbonnement?: string;
-  dateAbonnement: string;
+  phone: string;
+  subscriptionType: string;
+  submissionDate: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  paymentAmount: number;
+  paymentStatus: 'pending' | 'verified' | 'failed';
+  accessLevel: string;
 }
 
-export interface ReservationFabLab {
-  id: string;
-  utilisateur: string;
-  cleAbonnement: string;
-  machine: string;
-  dateReservation: string;
-  heureDebut: string;
-  heureFin: string;
-  status: 'active' | 'completed' | 'cancelled';
+export interface AdminStats {
+  totalApplications: number;
+  pendingApplications: number;
+  acceptedApplications: number;
+  rejectedApplications: number;
+  totalRevenue: number;
+  monthlyGrowth: number;
+  pendingPayments: number;
+  activeFabLabSubscriptions: number;
 }
 
-export interface Evenement {
+export interface RecentActivity {
   id: string;
-  titre: string;
-  date: string;
-  heureDebut: string;
-  heureFin: string;
-  lieu: string;
-  description: string;
-  image?: string;
-  organisateur: string;
-  maxParticipants?: number;
-  couleur: string;
-  type: 'evenement' | 'conference';
-  statut: 'planifie' | 'en_cours' | 'termine' | 'annule';
-  createdAt: string;
-  updatedAt: string;
+  type: 'university' | 'formation' | 'fablab';
+  action: string;
+  user: string;
+  program: string;
+  time: string;
+  status: 'pending' | 'accepted' | 'rejected';
 }
 
-export interface PublicationVieCampus {
+export interface UrgentTask {
   id: string;
-  titre: string;
-  description: string;
-  date: string;
-  images: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface OffreEmploi {
-  id: string;
-  titre: string;
-  domaine: string;
-  description: string;
-  duree: string;
-  type: 'stage' | 'emploi';
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface MessageContact {
-  id: string;
-  nom: string;
-  email: string;
   message: string;
-  dateEnvoi: string;
-  status: 'new' | 'read' | 'replied';
+  priority: 'low' | 'medium' | 'high';
+  link: string;
+  count: number;
 }
 
-export interface Don {
+export interface MonthlyData {
+  month: string;
+  applications: number;
+  revenue: number;
+  accepted: number;
+}
+
+export interface PageContent {
   id: string;
-  nom: string;
-  montant: number;
-  recuPaiement: string;
-  status: 'pending' | 'validated' | 'rejected';
-  dateDon: string;
+  title: string;
+  content: string;
+  lastModified: string;
+  modifiedBy: string;
+}
+
+export interface AdminSettings {
+  id: string;
+  emailNotifications: boolean;
+  autoApproval: boolean;
+  maintenanceMode: boolean;
+  backupSchedule: string;
+}
+
+// Email service related types
+export interface EmailConfiguration {
+  smtpHost: string;
+  smtpPort: number;
+  smtpUser: string;
+  smtpPassword: string;
+  fromName: string;
+  fromEmail: string;
+}
+
+export interface NotificationSettings {
+  enableApplicationConfirmation: boolean;
+  enableStatusUpdates: boolean;
+  enablePaymentConfirmation: boolean;
+  enablePaymentNotifications?: boolean;
+  enableReminderEmails?: boolean;
+  enableBulkEmails?: boolean;
+  emailFrequencyLimit?: number;
+  emailCooldownHours?: number;
+  staffNotificationEmail?: string;
+  ccEmails?: string[];
+  bccEmails?: string[];
 }
 
 export interface EmailTemplate {
   id: string;
-  type: 'acceptance' | 'rejection' | 'subscription_key' | 'contact_reply';
+  name: string;
   subject: string;
-  content: string;
+  htmlContent: string;
+  textContent: string;
+  category: string;
+  isActive?: boolean;
 }

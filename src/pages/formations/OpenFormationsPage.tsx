@@ -131,10 +131,6 @@ const OpenFormationsPage = () => {
                 Certifications reconnues
               </Badge>
               <Badge variant="secondary" className="text-lg py-2 px-4">
-                <Users className="w-4 h-4 mr-2" />
-                Accompagnement personnalisé
-              </Badge>
-              <Badge variant="secondary" className="text-lg py-2 px-4">
                 <Clock className="w-4 h-4 mr-2" />
                 Horaires flexibles
               </Badge>
@@ -319,7 +315,7 @@ const OpenFormationsPage = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="bg-crec-gold hover:bg-crec-gold/90 text-black">
-                <Link to="/formations/open/inscription">
+                <Link to="/formations/ouvertes/inscription">
                   <BookOpen className="w-5 h-5 mr-2" />
                   S'inscrire maintenant
                 </Link>

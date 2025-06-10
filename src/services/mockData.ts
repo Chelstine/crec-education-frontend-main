@@ -13,7 +13,7 @@ import {
   MessageContact,
   Don,
   EmailTemplate
-} from '@/types/admin';
+} from '@/types';
 
 // Mock data pour simuler le backend
 export const mockFilieres: Filiere[] = [

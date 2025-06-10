@@ -20,7 +20,7 @@ const FormationsHubPage = () => {
       icon: <BookOpen className="w-12 h-12 text-crec-gold mb-4" />,
       description: "Formations continues en langues, informatique et accompagnement scolaire",
       features: ["Tous niveaux", "Horaires flexibles", "Certifications"],
-      link: "/formations/open"
+      link: "/formations/ouvertes"
     },
     {
       id: 3,

@@ -1,11 +1,12 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import Banner from '@/components/common/Banner';
 import SectionTitle from '@/components/common/SectionTitle';
 import { Card } from '@/components/common/Card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
-import { Leaf, Gavel, Users } from 'lucide-react';
+import { Leaf, Gavel, Users, ExternalLink } from 'lucide-react';
 
 
 const HomePage = () => {
@@ -17,7 +18,7 @@ const HomePage = () => {
       id: 1,
       title: 'Université ISTMR',
       description: 'Nous formons une nouvelle génération de professionnels du numérique, compétents et responsables. À travers l\'ISTMR, nous proposons des formations universitaires de haut niveau en développement de logiciels, en création d\'applications web et mobiles, et en science des données — pour accompagner les mutations technologiques de notre continent.',
-      image: '/img/universite.png',
+      image: '/img/crec3.jpg',
       link: '/formations/university'
     },
     {
@@ -25,7 +26,7 @@ const HomePage = () => {
       title: 'Formations ouvertes',
       description: 'Nous croyons que l\'éducation ne doit exclure personne. C\'est pourquoi nous proposons des formations ouvertes à tous : cours d\'anglais, initiation à l\'informatique, et accompagnement scolaire. Que vous soyez en reconversion, sans diplôme ou simplement en quête de savoir, nous vous accompagnons avec des outils concrets et certifiants, adaptés à votre rythme et à vos besoins.',
       image: '/img/formation.png',
-      link: '/formations/open'
+      link: '/formations/ouvertes'
     },
     {
       id: 3,
@@ -57,13 +58,23 @@ const HomePage = () => {
   // Données pour les partenaires
   const partners = [
     { 
-      name: "IFRI - Institut de Formation et de Recherche en Informatique", 
-      logo: "/img/ifri-logo.svg",
-      link: "https://ifri-uac.bj/"
+      name: "IFRI", 
+      logo: "/img/ifri-logo.png",
+      link: "https://ifri-uac.bj/",
+      description: "Institut de Formation et de Recherche en Informatique"
     },
-    { name: "Fondation Éducative", logo: "/img/partner2.svg" },
-    { name: "Association Écologique", logo: "/img/partner3.svg" },
-    { name: "Institut de Recherche", logo: "/img/partner4.svg" }
+    { 
+      name: "PJAO", 
+      logo: "/img/pjao.png",
+      link: "https://pjao.org/",
+      description: "Province Jésuite de l'Afrique de l'Ouest"
+    },
+    { 
+      name: "FAO", 
+      logo: "/img/fao.png",
+      link: "https://www.fao.org/",
+      description: "Organisation des Nations Unies pour l'alimentation et l'agriculture"
+    }
   ];
   return (
     <div className="min-h-screen">
@@ -216,7 +227,7 @@ tradition que le CREC (Centre de Recherche d'Étude et de Créativité) a été 
               <img 
                   src="/img/ecologie.png"
                 alt="Écologie intégrale" 
-                className="rounded-lg shadow-lg w-full h-80 object-cover"
+                className="rounded-lg shadow-lg w-full h-96 object-cover"
               />
             </div>
           </div>
@@ -312,25 +323,71 @@ tradition que le CREC (Centre de Recherche d'Étude et de Créativité) a été 
           </div>
           
           <div className="mt-12">
-            <h3 className="text-xl font-bold mb-6 text-center text-crec-darkblue">Nos partenaires</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <h3 className="text-2xl font-bold mb-4 text-center text-crec-darkblue">Nos partenaires</h3>
+              <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
+                Le CREC collabore avec des institutions de renom pour enrichir ses programmes et offrir les meilleures opportunités à ses étudiants.
+              </p>
+            </motion.div>
+            
+            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
               {partners.map((partner, index) => (
-                <div key={index} className="p-4 grayscale hover:grayscale-0 transition-all">
-                  {partner.link ? (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="flex flex-col items-center group"
+                >
+                  {partner.link && partner.link !== "#" ? (
                     <a 
                       href={partner.link} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="block hover:scale-105 transition-transform"
+                      className="flex flex-col items-center transition-transform duration-300 hover:scale-105"
+                      title={partner.description}
                     >
-                      <img src={partner.logo} alt={partner.name} className="h-20 object-contain" />
+                      <img 
+                        src={partner.logo} 
+                        alt={partner.name} 
+                        className="h-12 w-auto object-contain transition-opacity duration-300 hover:opacity-80"
+                      />
+                      <span className="text-xs text-gray-600 mt-2 text-center font-medium">
+                        {partner.name}
+                      </span>
                     </a>
                   ) : (
-                    <img src={partner.logo} alt={partner.name} className="h-20 object-contain" />
+                    <div className="flex flex-col items-center" title={partner.description}>
+                      <img 
+                        src={partner.logo} 
+                        alt={partner.name} 
+                        className="h-12 w-auto object-contain"
+                      />
+                      <span className="text-xs text-gray-600 mt-2 text-center font-medium">
+                        {partner.name}
+                      </span>
+                    </div>
                   )}
-                </div>
+                </motion.div>
               ))}
             </div>
+            
+            {/* Statistiques partenariats */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              viewport={{ once: true }}
+              className="mt-12 bg-gradient-to-r from-crec-light/30 to-crec-gold/20 rounded-2xl p-8"
+            >
+
+            </motion.div>
           </div>
         </div>
       </section>

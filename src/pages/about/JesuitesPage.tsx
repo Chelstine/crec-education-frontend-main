@@ -64,7 +64,7 @@ const JesuitsPage = () => {
         <div
           className="min-h-[400px] flex flex-col items-center justify-center text-center relative text-white p-6"
           style={{
-            backgroundImage: "url('/img/jesuits-bg.jpg')",
+            backgroundImage: "url('/img/a-propos.png')",
             backgroundSize: "cover",
             backgroundPosition: "center"
           }}
