@@ -6,32 +6,53 @@ import { Card } from '@/components/common/Card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
+import { useMultipleContent } from '@/services/contentService';
 import { Leaf, Gavel, Users, ExternalLink } from 'lucide-react';
 
 
 const HomePage = () => {
   const { t } = useLanguage();
 
-  // Données pour les formations
+  // Récupérer le contenu géré par l'admin
+  const content = useMultipleContent([
+    'home_hero_title',
+    'home_hero_subtitle', 
+    'home_hero_description',
+    'home_formations_title',
+    'home_formations_subtitle',
+    'home_formations_description',
+    'home_university_title',
+    'home_university_description',
+    'home_open_formations_title',
+    'home_open_formations_description',
+    'home_fablab_title',
+    'home_fablab_description',
+    'home_partners_title',
+    'home_partners_subtitle',
+    'home_stats_experience_number',
+    'home_stats_experience_text'
+  ]);
+
+  // Données pour les formations - utilise le contenu géré
   const courses = [
     {
       id: 1,
-      title: 'Université ISTMR',
-      description: 'Nous formons une nouvelle génération de professionnels du numérique, compétents et responsables. À travers l\'ISTMR, nous proposons des formations universitaires de haut niveau en développement de logiciels, en création d\'applications web et mobiles, et en science des données — pour accompagner les mutations technologiques de notre continent.',
+      title: content.home_university_title,
+      description: content.home_university_description,
       image: '/img/crec3.jpg',
       link: '/formations/university'
     },
     {
       id: 2,
-      title: 'Formations ouvertes',
-      description: 'Nous croyons que l\'éducation ne doit exclure personne. C\'est pourquoi nous proposons des formations ouvertes à tous : cours d\'anglais, initiation à l\'informatique, et accompagnement scolaire. Que vous soyez en reconversion, sans diplôme ou simplement en quête de savoir, nous vous accompagnons avec des outils concrets et certifiants, adaptés à votre rythme et à vos besoins.',
+      title: content.home_open_formations_title,
+      description: content.home_open_formations_description,
       image: '/img/formation.png',
       link: '/formations/ouvertes'
     },
     {
       id: 3,
-      title: 'Fablab',
-      description: 'Nous mettons à votre disposition des espaces d\'expérimentation concrets pour inventer, construire et apprendre autrement. Nos ateliers Fablab sont ouverts aux étudiants, passionnés et professionnels désireux de prototyper des idées, de manipuler des technologies, et d\'innover au service de leur communauté.Nos épiquements sont à votre disposition pour réaliser des projets incroyables.',
+      title: content.home_fablab_title,
+      description: content.home_fablab_description,
       image: '/img/fablab.png',
       link: '/formations/fablab'
     }
@@ -132,8 +153,8 @@ tradition que le CREC (Centre de Recherche d'Étude et de Créativité) a été 
               </div>
               <div className="absolute bottom-6 right-6 bg-crec-gold p-4 rounded-lg shadow-lg w-40 h-40 flex items-center justify-center">
                 <p className="text-white text-center font-bold">
-                  <span className="block text-3xl">10</span>
-                  <span className="block text-sm mt-1">ans d'excellence</span>
+                  <span className="block text-3xl">{content.home_stats_experience_number}</span>
+                  <span className="block text-sm mt-1">{content.home_stats_experience_text}</span>
                 </p>
               </div>
             </div>
@@ -142,20 +163,19 @@ tradition que le CREC (Centre de Recherche d'Étude et de Créativité) a été 
       </section>
 
    {/* Formations section */}
-<section className="py-16 bg-white" id="formations">
-  <div className="max-w-[100vw] px-4 sm:px-8 lg:px-16 xl:px-24 mx-auto">
+<section className="py-8 md:py-16 bg-white" id="formations">
+  <div className="max-w-[100vw] px-4 sm:px-6 lg:px-8 xl:px-16 mx-auto">
     <SectionTitle 
-      title=" 🎓 Nos formations"
-      subtitle='Une communauté qui pense à la culture intellectuelle humaine'
+      title={content.home_formations_title}
+      subtitle={content.home_formations_subtitle}
       align="center"
     />
 
-    <p className="text-crec-darkgray text-lg text-justify leading-relaxed max-w-7xl mx-auto mt-6 mb-12">
-      Le Centre de Recherche, d'Étude et de Créativité (CREC) est une œuvre éducative jésuite basée à Godomey, engagée dans la formation d'hommes et de femmes compétents, responsables et ouverts à l'innovation.
-      Le CREC propose plusieurs types de formations accessibles à différents profils, allant des programmes universitaires à des ateliers pratiques et inclusifs.
+    <p className="text-crec-darkgray text-base md:text-lg text-justify leading-relaxed max-w-4xl mx-auto mt-4 md:mt-6 mb-8 md:mb-12">
+      {content.home_formations_description}
     </p>
     
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8">
       {courses.map((course) => (
         <Link 
           to={course.link}
@@ -166,17 +186,17 @@ tradition que le CREC (Centre de Recherche d'Étude et de Créativité) a été 
             <img 
               src={course.image} 
               alt={course.title}
-              className="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-48 md:h-64 object-cover transform group-hover:scale-105 transition-transform duration-300"
             />
             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 opacity-70"></div>
-            <h3 className="absolute bottom-0 left-0 text-white text-2xl font-bold p-6">
+            <h3 className="absolute bottom-0 left-0 text-white text-lg md:text-2xl font-bold p-4 md:p-6">
               {course.title}
             </h3>
           </div>
-          <div className="bg-white p-6 border border-gray-100 rounded-b-xl shadow-sm flex-1 flex flex-col">
-            <p className="text-crec-darkgray mb-6 flex-1">
-              {course.description.length > 150 
-                ? course.description.substring(0, 150) + '...' 
+          <div className="bg-white p-4 md:p-6 border border-gray-100 rounded-b-xl shadow-sm flex-1 flex flex-col">
+            <p className="text-crec-darkgray text-sm md:text-base mb-4 md:mb-6 flex-1">
+              {course.description.length > 120 
+                ? course.description.substring(0, 120) + '...' 
                 : course.description}
             </p>
             <div className="mt-auto pt-4 flex justify-between items-center border-t border-gray-100">

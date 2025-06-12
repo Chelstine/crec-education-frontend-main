@@ -193,7 +193,6 @@ export interface UniversityProgram {
   documentsRequired?: DocumentType[]; // Alias pour documentTypes
   
   // Détails académiques
-  credits?: number;
   schedule?: ProgramSchedule[];
   courses?: Course[];
   
@@ -227,7 +226,6 @@ export interface Course {
   id: string;
   code: string;
   name: string;
-  credits: number;
   isCore: boolean; // Cours obligatoire ou optionnel
   year: number;
   semester: number;

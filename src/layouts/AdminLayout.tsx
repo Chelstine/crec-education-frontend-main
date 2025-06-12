@@ -45,36 +45,32 @@ const AdminLayout = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);  const menuItems = [
     { 
-      name: 'Accueil', 
-      icon: Home,
-      path: '/admin',
-      description: 'Vue d\'ensemble',
-      badge: null
-    },
-    { 
-      name: 'Inscriptions', 
-      icon: Users, 
-      path: '/admin/inscriptions',
-      description: 'Gérer les candidatures',
-      badge: 12, // Nombre total d'inscriptions en attente
+      name: 'Formations', 
+      icon: BookOpen, 
+      path: '/admin/formations',
+      description: 'Gérer les formations',
+      badge: null,
       submenu: [
-        { name: 'Université', icon: GraduationCap, path: '/admin/inscriptions/university', badge: 5 },
-        { name: 'Formations Ouvertes', icon: BookOpen, path: '/admin/inscriptions/formations', badge: 3 },
-        { name: 'FabLab', icon: Wrench, path: '/admin/inscriptions/fablab', badge: 4 }
+        { name: 'ISTMR', icon: GraduationCap, path: '/admin/formations/istmr', badge: null },
+        { name: 'FabLab', icon: Wrench, path: '/admin/formations/fablab', badge: null },
+        { name: 'Formations Ouvertes', icon: BookOpen, path: '/admin/formations/ouvertes', badge: null },
+        { name: 'Gestion Inscriptions ISTMR', icon: Users, path: '/admin/inscriptions/istmr', badge: 8 },
+        { name: 'Gestion Inscriptions FabLab', icon: Users, path: '/admin/inscriptions/fablab', badge: 12 },
+        { name: 'Gestion Inscriptions Ouvertes', icon: Users, path: '/admin/inscriptions/ouvertes', badge: 5 }
       ]
     },
     { 
-      name: 'Pages', 
-      icon: FileText, 
-      path: '/admin/pages',
-      description: 'Modifier le contenu',
+      name: 'Événements', 
+      icon: Calendar, 
+      path: '/admin/evenements',
+      description: 'Gérer les événements',
       badge: null
     },
     { 
-      name: 'Paramètres', 
-      icon: Settings, 
-      path: '/admin/settings',
-      description: 'Configuration',
+      name: 'Actualités', 
+      icon: FileText, 
+      path: '/admin/actualites',
+      description: 'Articles et news',
       badge: null
     }
   ];
@@ -88,6 +84,9 @@ const AdminLayout = () => {
   const getCurrentPageTitle = () => {
     const currentPath = location.pathname;
     if (currentPath === '/admin') return 'Tableau de bord';
+    if (currentPath.includes('/formations')) return 'Gestion des Formations';
+    if (currentPath.includes('/sections')) return 'Gestion des Sections';
+    if (currentPath.includes('/fablab')) return 'Gestion du FabLab';
     if (currentPath.includes('/inscriptions/university')) return 'Inscriptions Université';
     if (currentPath.includes('/inscriptions/formations')) return 'Formations Ouvertes';
     if (currentPath.includes('/inscriptions/fablab')) return 'Abonnements FabLab';

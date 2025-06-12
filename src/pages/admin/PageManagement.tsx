@@ -52,6 +52,20 @@ const PageManagementNew: React.FC = () => {
       description: 'Modifier les informations sur les programmes de formation'
     },
     {
+      id: 'homepage',
+      name: 'Page d\'accueil',
+      icon: Globe,
+      color: 'bg-indigo-500',
+      description: 'Modifier le contenu de la page d\'accueil'
+    },
+    {
+      id: 'contact',
+      name: 'Contact',
+      icon: Type,
+      color: 'bg-teal-500',
+      description: 'Mettre à jour les informations de contact'
+    },
+    {
       id: 'teachers',
       name: 'Enseignants',
       icon: Users,
@@ -81,65 +95,297 @@ const PageManagementNew: React.FC = () => {
     }
   ];
 
-  // Contenu éditable par catégorie - Données de base
+  // Contenu éditable par catégorie - Données complètes du site
   const editableContent: {[key: string]: EditableContent[]} = {
     formations: [
+      // Université ISTMR
       {
-        id: 'university_title',
-        label: 'Titre du programme universitaire',
-        value: 'Formation Universitaire en Ingénierie',
+        id: 'istmr_hero_title',
+        label: 'Titre principal ISTMR',
+        value: 'ISTMR',
         type: 'text',
         category: 'formations',
-        description: 'Le titre principal affiché pour le programme universitaire',
+        description: 'Nom affiché en grand dans le hero de la page université',
+        maxLength: 50
+      },
+      {
+        id: 'istmr_hero_subtitle',
+        label: 'Sous-titre ISTMR',
+        value: 'Institut des Sciences et Technologies Matteo Ricci',
+        type: 'text',
+        category: 'formations',
+        description: 'Sous-titre explicatif sous le logo ISTMR',
         maxLength: 100
       },
       {
-        id: 'university_description',
-        label: 'Description du programme universitaire',
-        value: 'Une formation complète en ingénierie avec une approche pratique et innovante. Préparez-vous aux défis technologiques de demain.',
+        id: 'istmr_hero_description',
+        label: 'Description hero ISTMR',
+        value: 'Formez-vous au numérique avec une éducation jésuite d\'excellence, ancrée dans la foi, le service et l\'innovation technologique au cœur de l\'Afrique.',
         type: 'textarea',
         category: 'formations',
-        description: 'Description détaillée du programme universitaire'
+        description: 'Texte de présentation dans le hero de la page université'
       },
       {
-        id: 'university_duration',
-        label: 'Durée de la formation universitaire',
-        value: '3 ans',
-        type: 'text',
-        category: 'formations',
-        description: 'Durée totale du programme'
-      },
-      {
-        id: 'open_formations_title',
-        label: 'Titre des formations ouvertes',
-        value: 'Formations Ouvertes au Public',
-        type: 'text',
-        category: 'formations',
-        description: 'Titre pour les formations courtes ouvertes à tous'
-      },
-      {
-        id: 'open_formations_description',
-        label: 'Description des formations ouvertes',
-        value: 'Découvrez nos formations courtes et spécialisées, adaptées à tous les niveaux et disponibles tout au long de l\'année.',
+        id: 'istmr_about_description',
+        label: 'Description à propos ISTMR',
+        value: 'Sous l\'égide du Centre de Recherche d\'Étude et de Créativité (CREC), l\'ISTMR propose des formations en informatique, avec des projets d\'extension vers les télécommunications et l\'électronique, soutenus par un réseau de 195 universités jésuites.',
         type: 'textarea',
         category: 'formations',
-        description: 'Description générale des formations ouvertes'
+        description: 'Description détaillée dans la section "À propos"'
       },
+      // Formations ouvertes
       {
-        id: 'fablab_title',
-        label: 'Titre du FabLab',
-        value: 'FabLab CREC - Espace d\'Innovation',
+        id: 'open_formations_hero_title',
+        label: 'Titre hero formations ouvertes',
+        value: 'Nos Formations',
         type: 'text',
         category: 'formations',
-        description: 'Titre principal du FabLab'
+        description: 'Titre principal du hero des formations ouvertes',
+        maxLength: 50
       },
       {
-        id: 'fablab_description',
-        label: 'Description du FabLab',
-        value: 'Un espace équipé des dernières technologies pour donner vie à vos projets créatifs et innovants. Imprimantes 3D, découpe laser, électronique et plus encore.',
+        id: 'open_formations_hero_description',
+        label: 'Description hero formations ouvertes',
+        value: 'Développez vos compétences avec nos formations professionnelles adaptées à vos besoins.',
         type: 'textarea',
         category: 'formations',
-        description: 'Description complète du FabLab et de ses équipements'
+        description: 'Description dans le hero des formations ouvertes'
+      },
+      {
+        id: 'open_formations_intro_description',
+        label: 'Introduction formations ouvertes',
+        value: 'Le CREC propose une gamme complète de formations pour accompagner votre développement personnel et professionnel. De l\'université au FabLab, en passant par nos formations ouvertes, trouvez le parcours qui vous correspond.',
+        type: 'textarea',
+        category: 'formations',
+        description: 'Texte d\'introduction sous le hero'
+      },
+      // FabLab
+      {
+        id: 'fablab_hero_title',
+        label: 'Titre hero FabLab',
+        value: 'FabLab CREC',
+        type: 'text',
+        category: 'formations',
+        description: 'Titre principal du hero FabLab',
+        maxLength: 50
+      },
+      {
+        id: 'fablab_hero_description',
+        label: 'Description hero FabLab',
+        value: 'Un espace jésuite d\'innovation numérique pour créer, apprendre et collaborer au service du Bénin.',
+        type: 'textarea',
+        category: 'formations',
+        description: 'Description dans le hero du FabLab'
+      },
+      {
+        id: 'fablab_about_description',
+        label: 'Description à propos FabLab',
+        value: 'Le FabLab du Centre de Recherche d\'Étude et de Créativité (CREC) est un atelier collaboratif situé à Godomey, Bénin, inspiré par la mission jésuite de promouvoir l\'excellence et le service. Ouvert à tous — étudiants, entrepreneurs, artisans — il offre un accès à des imprimantes 3D et un graveur laser pour transformer vos idées en prototypes.',
+        type: 'textarea',
+        category: 'formations',
+        description: 'Description complète du FabLab'
+      },
+      {
+        id: 'fablab_mission_description',
+        label: 'Mission FabLab',
+        value: 'Guidé par la cura personalis et le magis, le FabLab propose des formations, un accès autonome supervisé, et des services assistés pour concrétiser vos projets. Notre communauté dynamique favorise le partage de savoir-faire et l\'innovation sociale, en soutenant le développement local et durable.',
+        type: 'textarea',
+        category: 'formations',
+        description: 'Mission et valeurs du FabLab'
+      }
+    ],
+    homepage: [
+      // Section Hero
+      {
+        id: 'home_hero_title',
+        label: 'Titre principal homepage',
+        value: 'CREC',
+        type: 'text',
+        category: 'homepage',
+        description: 'Titre principal affiché sur la homepage',
+        maxLength: 50
+      },
+      {
+        id: 'home_hero_subtitle',
+        label: 'Sous-titre homepage',
+        value: 'Centre de Recherche, d\'Étude et de Créativité',
+        type: 'text',
+        category: 'homepage',
+        description: 'Sous-titre explicatif de l\'organisation',
+        maxLength: 100
+      },
+      {
+        id: 'home_hero_description',
+        label: 'Description hero homepage',
+        value: 'Une œuvre éducative jésuite dédiée à l\'excellence académique, à l\'innovation technologique et au service de la communauté au Bénin.',
+        type: 'textarea',
+        category: 'homepage',
+        description: 'Description principale dans le hero de la homepage'
+      },
+      // Section formations
+      {
+        id: 'home_formations_title',
+        label: 'Titre section formations',
+        value: '🎓 Nos formations',
+        type: 'text',
+        category: 'homepage',
+        description: 'Titre de la section formations sur la homepage',
+        maxLength: 80
+      },
+      {
+        id: 'home_formations_subtitle',
+        label: 'Sous-titre section formations',
+        value: 'Une communauté qui pense à la culture intellectuelle humaine',
+        type: 'text',
+        category: 'homepage',
+        description: 'Sous-titre de la section formations',
+        maxLength: 100
+      },
+      {
+        id: 'home_formations_description',
+        label: 'Description section formations',
+        value: 'Le Centre de Recherche, d\'Étude et de Créativité (CREC) est une œuvre éducative jésuite basée à Godomey, engagée dans la formation d\'hommes et de femmes compétents, responsables et ouverts à l\'innovation. Le CREC propose plusieurs types de formations accessibles à différents profils, allant des programmes universitaires à des ateliers pratiques et inclusifs.',
+        type: 'textarea',
+        category: 'homepage',
+        description: 'Description complète de la section formations'
+      },
+      // Formation Université 
+      {
+        id: 'home_university_title',
+        label: 'Titre formation université',
+        value: 'Université ISTMR',
+        type: 'text',
+        category: 'homepage',
+        description: 'Titre de la carte formation université',
+        maxLength: 50
+      },
+      {
+        id: 'home_university_description',
+        label: 'Description formation université',
+        value: 'Nous formons une nouvelle génération de professionnels du numérique, compétents et responsables. À travers l\'ISTMR, nous proposons des formations universitaires de haut niveau en développement de logiciels, en création d\'applications web et mobiles, et en science des données — pour accompagner les mutations technologiques de notre continent.',
+        type: 'textarea',
+        category: 'homepage',
+        description: 'Description de la formation universitaire sur la homepage'
+      },
+      // Formation Formations ouvertes
+      {
+        id: 'home_open_formations_title',
+        label: 'Titre formations ouvertes',
+        value: 'Formations ouvertes',
+        type: 'text',
+        category: 'homepage',
+        description: 'Titre de la carte formations ouvertes',
+        maxLength: 50
+      },
+      {
+        id: 'home_open_formations_description',
+        label: 'Description formations ouvertes',
+        value: 'Nous croyons que l\'éducation ne doit exclure personne. C\'est pourquoi nous proposons des formations ouvertes à tous : cours d\'anglais, initiation à l\'informatique, et accompagnement scolaire. Que vous soyez en reconversion, sans diplôme ou simplement en quête de savoir, nous vous accompagnons avec des outils concrets et certifiants, adaptés à votre rythme et à vos besoins.',
+        type: 'textarea',
+        category: 'homepage',
+        description: 'Description des formations ouvertes sur la homepage'
+      },
+      // Formation FabLab
+      {
+        id: 'home_fablab_title',
+        label: 'Titre FabLab',
+        value: 'Fablab',
+        type: 'text',
+        category: 'homepage',
+        description: 'Titre de la carte FabLab',
+        maxLength: 50
+      },
+      {
+        id: 'home_fablab_description',
+        label: 'Description FabLab',
+        value: 'Nous mettons à votre disposition des espaces d\'expérimentation concrets pour inventer, construire et apprendre autrement. Nos ateliers Fablab sont ouverts aux étudiants, passionnés et professionnels désireux de prototyper des idées, de manipuler des technologies, et d\'innover au service de leur communauté. Nos équipements sont à votre disposition pour réaliser des projets incroyables.',
+        type: 'textarea',
+        category: 'homepage',
+        description: 'Description du FabLab sur la homepage'
+      },
+      // Section partenaires
+      {
+        id: 'home_partners_title',
+        label: 'Titre section partenaires',
+        value: 'Nos partenaires',
+        type: 'text',
+        category: 'homepage',
+        description: 'Titre de la section partenaires',
+        maxLength: 50
+      },
+      {
+        id: 'home_partners_subtitle',
+        label: 'Sous-titre partenaires',
+        value: 'Ils nous font confiance',
+        type: 'text',
+        category: 'homepage',
+        description: 'Sous-titre de la section partenaires',
+        maxLength: 50
+      },
+      // Statistiques
+      {
+        id: 'home_stats_experience_number',
+        label: 'Années d\'expérience',
+        value: '10',
+        type: 'number',
+        category: 'homepage',
+        description: 'Nombre d\'années d\'expérience affiché'
+      },
+      {
+        id: 'home_stats_experience_text',
+        label: 'Texte années d\'expérience',
+        value: 'ans d\'excellence',
+        type: 'text',
+        category: 'homepage',
+        description: 'Texte accompagnant le nombre d\'années',
+        maxLength: 30
+      }
+    ],
+    contact: [
+      // Informations de contact
+      {
+        id: 'contact_address',
+        label: 'Adresse complète',
+        value: 'Godomey-Salamey, Maison des Pères Jésuites, Lot N°2 du lotissement de Godomey Sud, tranche B. - B.P. 307 Godomey',
+        type: 'textarea',
+        category: 'contact',
+        description: 'Adresse physique complète de l\'organisation'
+      },
+      {
+        id: 'contact_email',
+        label: 'Email principal',
+        value: 'contact@crec-education.org',
+        type: 'text',
+        category: 'contact',
+        description: 'Adresse email principale de contact',
+        maxLength: 100
+      },
+      {
+        id: 'contact_phone',
+        label: 'Téléphone principal',
+        value: '+33 (0)1 23 45 67 89',
+        type: 'text',
+        category: 'contact',
+        description: 'Numéro de téléphone principal',
+        maxLength: 30
+      },
+      {
+        id: 'contact_phone_benin',
+        label: 'Téléphone Bénin',
+        value: '+229 XX XX XX XX',
+        type: 'text',
+        category: 'contact',
+        description: 'Numéro de téléphone local au Bénin',
+        maxLength: 30
+      },
+      {
+        id: 'contact_hours',
+        label: 'Horaires d\'ouverture',
+        value: 'Lundi - Vendredi: 8h00 - 17h00',
+        type: 'text',
+        category: 'contact',
+        description: 'Horaires d\'ouverture du centre',
+        maxLength: 100
       }
     ],
     teachers: [

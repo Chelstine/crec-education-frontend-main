@@ -63,9 +63,27 @@ const TestimonialsPage = lazy(() => import('@/pages/TestimonialsPage'));
 const AdminLogin = lazy(() => import('@/pages/admin/AdminLogin'));
 const AdminLayout = lazy(() => import('@/layouts/AdminLayout'));
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
+const FormationsManagement = lazy(() => import('@/pages/admin/FormationsManagement'));
+const FormationDetail = lazy(() => import('@/pages/admin/FormationDetail'));
+const SectionsManagement = lazy(() => import('@/pages/admin/SectionsManagement'));
+const FabLabManagement = lazy(() => import('@/pages/admin/FabLabManagement'));
 const InscriptionsManagement = lazy(() => import('@/pages/admin/InscriptionsManagement'));
 const PageManagement = lazy(() => import('@/pages/admin/PageManagement'));
 const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
+
+// Pages Admin - Formations spécialisées
+const ISTMRManagement = lazy(() => import('@/pages/admin/formations/ISTMRManagement'));
+const FabLabFormationsManagement = lazy(() => import('@/pages/admin/formations/FabLabFormationsManagement'));
+const FormationsOuvertesManagement = lazy(() => import('@/pages/admin/formations/FormationsOuvertesManagement'));
+
+// Pages Admin - Inscriptions spécialisées
+const InscriptionsISTMR = lazy(() => import('@/pages/admin/inscriptions/InscriptionsISTMR'));
+const InscriptionsFabLab = lazy(() => import('@/pages/admin/inscriptions/InscriptionsFabLab'));
+const InscriptionsFormationsOuvertes = lazy(() => import('@/pages/admin/inscriptions/InscriptionsFormationsOuvertes'));
+
+// Pages Admin - Gestion des contenus
+const EvenementsManagement = lazy(() => import('@/pages/admin/EvenementsManagement'));
+const ActualitesManagement = lazy(() => import('@/pages/admin/ActualitesManagement'));
 
 // Helper function to wrap lazy components with Suspense
 const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType<any>>) => (
@@ -241,6 +259,58 @@ const routes: RouteObject[] = [
       {
         index: true,
         element: withSuspense(AdminDashboard),
+      },
+      // Routes principales
+      {
+        path: 'formations',
+        element: withSuspense(FormationsManagement),
+      },
+      {
+        path: 'formations/:id',
+        element: withSuspense(FormationDetail),
+      },
+      {
+        path: 'evenements',
+        element: withSuspense(EvenementsManagement),
+      },
+      {
+        path: 'actualites',
+        element: withSuspense(ActualitesManagement),
+      },
+      // Routes formations spécialisées
+      {
+        path: 'formations/istmr',
+        element: withSuspense(ISTMRManagement),
+      },
+      {
+        path: 'formations/fablab',
+        element: withSuspense(FabLabFormationsManagement),
+      },
+      {
+        path: 'formations/ouvertes',
+        element: withSuspense(FormationsOuvertesManagement),
+      },
+      // Routes inscriptions spécialisées
+      {
+        path: 'inscriptions/istmr',
+        element: withSuspense(InscriptionsISTMR),
+      },
+      {
+        path: 'inscriptions/fablab',
+        element: withSuspense(InscriptionsFabLab),
+      },
+      {
+        path: 'inscriptions/ouvertes',
+        element: withSuspense(InscriptionsFormationsOuvertes),
+      },
+      // Routes anciennes (à maintenir pour compatibilité)
+      {
+        path: 'sections',
+        element: withSuspense(SectionsManagement),
+      },
+      {
+        path: 'fablab',
+        element: withSuspense(FabLabManagement),
       },
       {
         path: 'inscriptions',

@@ -51,16 +51,16 @@ const ContactPage = () => {
       <section className="relative w-full">
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70" />
         <div 
-          className="min-h-[300px] flex flex-col items-center justify-center text-center relative text-white p-6"
+          className="min-h-[250px] md:min-h-[300px] flex flex-col items-center justify-center text-center relative text-white p-4 md:p-6"
           style={{
             backgroundImage: "url('/img/contact-bg.jpg')",
             backgroundSize: "cover",
             backgroundPosition: "center"
           }}
         >
-          <div className="max-w-3xl mx-auto bg-black/50 p-8 rounded-lg backdrop-blur-sm">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Contactez-nous</h1>
-            <p className="text-xl md:text-2xl mb-8">
+          <div className="max-w-3xl mx-auto bg-black/50 p-4 md:p-8 rounded-lg backdrop-blur-sm">
+            <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-2 md:mb-4">Contactez-nous</h1>
+            <p className="text-lg md:text-xl lg:text-2xl">
               Nous sommes là pour répondre à toutes vos questions
             </p>
           </div>
@@ -68,43 +68,47 @@ const ContactPage = () => {
       </section>
 
       {/* Contact Section */}
-      <section className="py-16 bg-white">
+      <section className="py-8 md:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
             {/* Contact Form */}
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-2xl font-bold mb-6">Envoyez-nous un message</h2>
-                <form onSubmit={handleSubmit} className="space-y-6">
+            <Card className="order-2 lg:order-1">
+              <CardContent className="p-4 md:p-6">
+                <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Envoyez-nous un message</h2>
+                <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Nom complet</Label>
+                    <Label htmlFor="name" className="text-sm md:text-base">Nom complet</Label>
                     <Input 
                       id="name" 
                       value={formData.name}
                       onChange={(e) => handleInputChange('name', e.target.value)}
+                      className="h-12 text-base"
+                      placeholder="Votre nom complet"
                       required 
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email" className="text-sm md:text-base">Email</Label>
                     <Input 
                       id="email" 
                       type="email" 
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
+                      className="h-12 text-base"
+                      placeholder="votre.email@exemple.com"
                       required 
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="subject">Sujet</Label>
+                    <Label htmlFor="subject" className="text-sm md:text-base">Sujet</Label>
                     <Select 
                       value={formData.subject} 
                       onValueChange={(value) => handleInputChange('subject', value)}
                       required
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-12 text-base">
                         <SelectValue placeholder="Sélectionnez un sujet" />
                       </SelectTrigger>
                       <SelectContent>
@@ -119,19 +123,21 @@ const ContactPage = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="message">Message</Label>
+                    <Label htmlFor="message" className="text-sm md:text-base">Message</Label>
                     <Textarea 
                       id="message" 
                       rows={4} 
                       value={formData.message}
                       onChange={(e) => handleInputChange('message', e.target.value)}
+                      className="min-h-[100px] text-base resize-none"
+                      placeholder="Décrivez votre demande en détail..."
                       required 
                     />
                   </div>
 
                   <Button 
                     type="submit" 
-                    className="w-full bg-crec-gold hover:bg-crec-lightgold text-white"
+                    className="w-full h-12 bg-crec-gold hover:bg-crec-lightgold text-white text-base font-medium"
                     disabled={contactMutation.isPending}
                   >
                     {contactMutation.isPending ? (
@@ -148,7 +154,7 @@ const ContactPage = () => {
             </Card>
 
             {/* Contact Information */}
-            <div className="space-y-8">
+            <div className="space-y-6 md:space-y-8 order-1 lg:order-2">
               <Card>
                 <CardContent className="p-6">
                   <h2 className="text-2xl font-bold mb-6">Informations de contact</h2>

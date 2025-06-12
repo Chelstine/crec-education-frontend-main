@@ -73,11 +73,11 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 w-full z-50 bg-white shadow-md" style={{ fontFamily: 'Cambria, serif', fontSize: '14pt' }}>
-      <div className="container mx-auto flex items-center py-4 px-6">
-        {/* Logo section - 20% of width */}
-        <div className="w-1/5">
+      <div className="container mx-auto flex items-center py-2 md:py-4 px-4 md:px-6">
+        {/* Logo section - responsive width */}
+        <div className="flex-shrink-0 lg:w-1/5">
           <Link to="/" className="block">
-            <img src="/img/logo.png" alt="CREC Logo" className="h-14 w-auto object-contain" />
+            <img src="/img/logo.png" alt="CREC Logo" className="h-10 md:h-14 w-auto object-contain" />
           </Link>
         </div>
 
@@ -129,20 +129,34 @@ const Header = () => {
           </Link>
         </nav>
 
-        {/* Right section (icons and button) - 20% of width */}
-        <div className="flex items-center justify-end w-1/5 gap-3">
-          <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="hover:text-crec-gold">
+        {/* Right section (icons and button) - responsive layout */}
+        <div className="flex items-center justify-end flex-1 lg:w-1/5 gap-2 md:gap-3">
+          {/* Search button - hidden on small screens */}
+          <button 
+            onClick={() => setIsSearchOpen(!isSearchOpen)} 
+            className="hover:text-crec-gold hidden sm:block"
+          >
             <Search size={20} className="text-crec-darkblue" />
           </button>
-          <ThemeToggle />
-          <LangSwitcher />
           
+          {/* Theme and Language toggles - hidden on extra small screens */}
+          <div className="hidden sm:flex items-center gap-2">
+            <ThemeToggle />
+            <LangSwitcher />
+          </div>
+          
+          {/* Donate button - only on large screens */}
           <Button asChild variant="default" className="bg-crec-gold hover:bg-crec-lightgold text-white hidden lg:flex">
             <Link to="/donate">{t('nav.donate')}</Link>
           </Button>
           
-          <button className="lg:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />} 
+          {/* Mobile menu button with improved styling */}
+          <button 
+            className="lg:hidden p-2 hover:bg-gray-100 rounded-md transition-colors"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label={isMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+          >
+            {isMenuOpen ? <X size={24} className="text-crec-darkblue" /> : <Menu size={24} className="text-crec-darkblue" />} 
           </button>
         </div>
       </div>
@@ -166,12 +180,30 @@ const Header = () => {
         </div>
       )}
 
-      {/* Mobile menu */}
+      {/* Mobile menu with improved styling */}
       {isMenuOpen && (
-        <div className="lg:hidden bg-white shadow-md">
-          <div className="container mx-auto py-4">
-            <nav className="flex flex-col gap-2">
-              <Link to="/" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 text-crec-darkblue hover:bg-gray-100">
+        <div className="lg:hidden bg-white shadow-lg border-t">
+          <div className="container mx-auto py-2">
+            {/* Mobile-only search */}
+            <div className="px-4 py-3 border-b border-gray-100 sm:hidden">
+              <div className="flex items-center border border-gray-300 rounded-md">
+                <input
+                  type="text"
+                  placeholder={t('common.search') + '...'}
+                  className="w-full p-2 focus:outline-none text-sm"
+                />
+                <button className="p-2 bg-crec-gold text-white rounded-r-md">
+                  <Search size={16} />
+                </button>
+              </div>
+            </div>
+
+            <nav className="flex flex-col">
+              <Link 
+                to="/" 
+                onClick={() => setIsMenuOpen(false)} 
+                className="px-4 py-3 text-crec-darkblue hover:bg-gray-50 transition-colors border-b border-gray-100"
+              >
                 {t('nav.home')}
               </Link>
 
@@ -179,18 +211,20 @@ const Header = () => {
                 <div key={key} className="border-b border-gray-100">
                   <button
                     onClick={() => toggleDropdown(key)}
-                    className="w-full px-4 py-2 flex justify-between items-center text-crec-darkblue"
+                    className="w-full px-4 py-3 flex justify-between items-center text-crec-darkblue hover:bg-gray-50 transition-colors"
                   >
-                    {t(`nav.${key}`)}
+                    <span className="font-medium">{t(`nav.${key}`)}</span>
                     {openDropdown === key ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </button>
                   {openDropdown === key && (
-                    <div className="pl-6">
-                      {items.map((item) => (
+                    <div className="bg-gray-50">
+                      {items.map((item, index) => (
                         <Link
                           key={item.path}
                           to={item.path}
-                          className="block py-2 text-crec-blue hover:text-crec-gold"
+                          className={`block px-6 py-2 text-sm text-crec-blue hover:text-crec-gold hover:bg-white transition-colors ${
+                            index !== items.length - 1 ? 'border-b border-gray-200' : ''
+                          }`}
                           onClick={() => setIsMenuOpen(false)}
                         >
                           {item.name}
@@ -201,16 +235,35 @@ const Header = () => {
                 </div>
               ))}
 
-              {/* Remove direct Témoignages link from mobile nav */}
-              {/* <Link to="/testimonials" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 text-crec-darkblue hover:bg-gray-100">Témoignages</Link> */}
-
-              <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 text-crec-darkblue hover:bg-gray-100">
+              <Link 
+                to="/contact" 
+                onClick={() => setIsMenuOpen(false)} 
+                className="px-4 py-3 text-crec-darkblue hover:bg-gray-50 transition-colors border-b border-gray-100"
+              >
                 {t('nav.contact')}
               </Link>
 
-              <Link to="/donate" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 bg-crec-gold text-white text-center">
-                {t('nav.donate')}
-              </Link>
+              {/* Mobile utilities section */}
+              <div className="px-4 py-3 border-b border-gray-100 sm:hidden">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Préférences</span>
+                  <div className="flex items-center gap-3">
+                    <ThemeToggle />
+                    <LangSwitcher />
+                  </div>
+                </div>
+              </div>
+
+              {/* Donate button in mobile menu */}
+              <div className="p-4">
+                <Link 
+                  to="/donate" 
+                  onClick={() => setIsMenuOpen(false)} 
+                  className="block w-full py-3 bg-crec-gold text-white text-center rounded-md hover:bg-crec-lightgold transition-colors font-medium"
+                >
+                  {t('nav.donate')}
+                </Link>
+              </div>
             </nav>
           </div>
         </div>

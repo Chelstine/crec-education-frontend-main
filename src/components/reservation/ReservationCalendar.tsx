@@ -2,6 +2,7 @@ import React from 'react';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import '../../customCalendar.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface ReservationCalendarProps {

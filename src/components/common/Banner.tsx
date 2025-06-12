@@ -67,17 +67,27 @@ const Banner: React.FC<BannerProps> = ({
 
   return (
     <div
-      className={`relative ${sizeClasses[size]} ${className}`}
-      style={{
-        backgroundImage: bgImages && bgImages.length > 0
-          ? `url(${bgImages[currentIndex]})`
-          : undefined,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundColor: bgImages ? undefined : defaultBg,
-        transition: 'background-image 0.5s ease-in-out'
-      }}
+      className={`relative overflow-hidden ${sizeClasses[size]} ${className}`}
     >
+      {/* Background Images with smooth transition */}
+      {bgImages && bgImages.length > 0 ? (
+        <>
+          {bgImages.map((image, index) => (
+            <div
+              key={index}
+              className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${
+                index === currentIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{
+                backgroundImage: `url(${image})`,
+              }}
+            />
+          ))}
+        </>
+      ) : (
+        <div className={`absolute inset-0 ${defaultBg}`} />
+      )}
+
       {/* Overlay */}
       {overlay && bgImages && bgImages.length > 0 && (
         <div className="absolute inset-0 bg-crec-darkblue bg-opacity-60"></div>
@@ -110,16 +120,18 @@ const Banner: React.FC<BannerProps> = ({
 
       {/* Navigation dots */}
       {bgImages && bgImages.length > 1 && (
-        <div className="absolute bottom-4 left-0 right-0 z-10">
-          <div className="flex justify-center space-x-2">
+        <div className="absolute bottom-6 left-0 right-0 z-20">
+          <div className="flex justify-center space-x-3">
             {bgImages.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
-                className={`w-3 h-3 rounded-full ${
-                  index === currentIndex ? 'bg-crec-gold' : 'bg-white bg-opacity-50'
+                className={`w-4 h-4 rounded-full transition-all duration-300 hover:scale-125 touch-target ${
+                  index === currentIndex 
+                    ? 'bg-crec-gold shadow-lg' 
+                    : 'bg-white bg-opacity-60 hover:bg-opacity-80'
                 }`}
-                aria-label={`Go to slide ${index + 1}`}
+                aria-label={`Aller à la diapositive ${index + 1}`}
               />
             ))}
           </div>
@@ -131,15 +143,15 @@ const Banner: React.FC<BannerProps> = ({
         <>
           <button
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-30 hover:bg-opacity-50 p-2 rounded-full text-white"
-            aria-label="Previous slide"
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-70 p-3 rounded-full text-white transition-all duration-300 hover:scale-110 touch-target"
+            aria-label="Image précédente"
           >
             <ChevronLeft size={24} />
           </button>
           <button
             onClick={nextSlide}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-30 hover:bg-opacity-50 p-2 rounded-full text-white"
-            aria-label="Next slide"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-70 p-3 rounded-full text-white transition-all duration-300 hover:scale-110 touch-target"
+            aria-label="Image suivante"
           >
             <ChevronRight size={24} />
           </button>

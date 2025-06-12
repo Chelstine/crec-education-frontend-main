@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Users, 
   FileText, 
@@ -11,370 +13,508 @@ import {
   AlertTriangle,
   Eye,
   Download,
-  HelpCircle,
-  LogOut,
-  BarChart3
+  TrendingUp,
+  GraduationCap,
+  Wrench,
+  BookOpen,
+  Award,
+  Target,
+  Activity,
+  UserCheck,
+  Zap,
+  BarChart3,
+  Settings,
+  Plus,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 
 const AdminDashboard: React.FC = () => {
-  const [adminName] = useState('Admin CREC'); // En production, récupérer du localStorage ou API
+  const location = useLocation();
+  const isMainDashboard = location.pathname === '/admin' || location.pathname === '/admin/';
+
   const [stats, setStats] = useState({
-    pendingApplications: 0,
-    acceptedThisMonth: 0,
-    pendingPayments: 0,
-    activeFabLabSubscriptions: 0
+    totalStudents: 248,
+    pendingApplications: 17,
+    activeFormations: 12,
+    monthlyRevenue: 4250000,
+    fabLabMembers: 68,
+    completedProjects: 156,
+    satisfaction: 94.2
   });
 
-  const [urgentTasks, setUrgentTasks] = useState<any[]>([]);
-  const [monthlyData, setMonthlyData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [timeFilter, setTimeFilter] = useState<'today' | 'week' | 'month'>('month');
+  const [recentActivities, setRecentActivities] = useState([
+    {
+      id: 1,
+      type: 'application',
+      title: 'Nouvelle candidature ISTMR',
+      user: 'Marie Koffi',
+      time: 'Il y a 5 min',
+      icon: GraduationCap,
+      color: 'bg-blue-500'
+    },
+    {
+      id: 2,
+      type: 'payment',
+      title: 'Paiement validé FabLab',
+      user: 'Jean Hounkpatin',
+      time: 'Il y a 12 min',
+      icon: DollarSign,
+      color: 'bg-green-500'
+    },
+    {
+      id: 3,
+      type: 'project',
+      title: 'Projet IoT terminé',
+      user: 'Équipe Arduino',
+      time: 'Il y a 1h',
+      icon: Wrench,
+      color: 'bg-purple-500'
+    },
+    {
+      id: 4,
+      type: 'formation',
+      title: 'Nouvelle session Python',
+      user: 'Dr. Sagbo',
+      time: 'Il y a 2h',
+      icon: BookOpen,
+      color: 'bg-orange-500'
+    }
+  ]);
+
+  const quickStats = [
+    {
+      title: 'Étudiants Actifs',
+      value: stats.totalStudents,
+      change: '+12%',
+      trend: 'up',
+      icon: Users,
+      color: 'from-blue-500 to-blue-600',
+      bgColor: 'bg-blue-50',
+      description: 'Total des étudiants inscrits'
+    },
+    {
+      title: 'Candidatures',
+      value: stats.pendingApplications,
+      change: '+5',
+      trend: 'up',
+      icon: FileText,
+      color: 'from-orange-500 to-orange-600',
+      bgColor: 'bg-orange-50',
+      description: 'En attente de validation'
+    },
+    {
+      title: 'Revenus Mensuels',
+      value: `${(stats.monthlyRevenue / 1000000).toFixed(1)}M`,
+      change: '+8.3%',
+      trend: 'up',
+      icon: DollarSign,
+      color: 'from-green-500 to-green-600',
+      bgColor: 'bg-green-50',
+      description: 'FCFA ce mois'
+    },
+    {
+      title: 'Satisfaction',
+      value: `${stats.satisfaction}%`,
+      change: '+2.1%',
+      trend: 'up',
+      icon: Award,
+      color: 'from-purple-500 to-purple-600',
+      bgColor: 'bg-purple-50',
+      description: 'Note moyenne étudiants'
+    }
+  ];
+
+  const urgentTasks = [
+    {
+      id: 1,
+      title: '5 documents à valider',
+      description: 'Candidatures ISTMR',
+      icon: Clock,
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50',
+      priority: 'high'
+    },
+    {
+      id: 2,
+      title: '3 paiements en attente',
+      description: 'À vérifier',
+      icon: UserCheck,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50',
+      priority: 'medium'
+    },
+    {
+      id: 3,
+      title: 'Session démo FabLab',
+      description: 'Prévue demain 14h',
+      icon: Target,
+      color: 'text-green-600',
+      bgColor: 'bg-green-50',
+      priority: 'low'
+    }
+  ];
 
   useEffect(() => {
-    // Simuler appel API
-    setTimeout(() => {
+    // Simulation du chargement des données
+    const timer = setTimeout(() => {
       setStats({
-        pendingApplications: 10,
-        acceptedThisMonth: 50,
-        pendingPayments: 5,
-        activeFabLabSubscriptions: 20
+        totalStudents: 248,
+        pendingApplications: 17,
+        activeFormations: 12,
+        monthlyRevenue: 4250000,
+        fabLabMembers: 68,
+        completedProjects: 156,
+        satisfaction: 94.2
       });
+    }, 500);
 
-      setUrgentTasks([
-        { 
-          id: 1, 
-          message: '3 dossiers Université à vérifier', 
-          priority: 'high',
-          link: '/admin/inscriptions/university'
-        },
-        { 
-          id: 2, 
-          message: '2 paiements FabLab en attente', 
-          priority: 'medium',
-          link: '/admin/inscriptions/fablab'
-        },
-        { 
-          id: 3, 
-          message: '5 documents à valider', 
-          priority: 'low',
-          link: '/admin/inscriptions/formations'
-        }
-      ]);
-
-      // Données pour graphique simple (6 derniers mois)
-      setMonthlyData([
-        { month: 'Jan', university: 8, formations: 12, fablab: 3 },
-        { month: 'Fév', university: 12, formations: 15, fablab: 5 },
-        { month: 'Mar', university: 15, formations: 18, fablab: 7 },
-        { month: 'Avr', university: 10, formations: 20, fablab: 6 },
-        { month: 'Mai', university: 18, formations: 25, fablab: 8 },
-        { month: 'Juin', university: 20, formations: 22, fablab: 10 }
-      ]);
-
-      setLoading(false);
-    }, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('adminToken');
-    window.location.href = '/admin/login';
-  };
-
-  const exportReport = () => {
-    // Simuler export PDF/Excel
-    console.log('Export rapport...', { timeFilter, stats });
-    // En production: générer et télécharger le rapport
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low': return 'bg-blue-100 text-blue-800 border-blue-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-crec-gold"></div>
-      </div>
-    );
+  if (!isMainDashboard) {
+    return <Outlet />;
   }
 
   return (
-    <div className="space-y-6">
-      {/* En-tête avec salutation */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl p-6 text-white"
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Bonjour, {adminName} 👋
-            </h1>
-            <p className="text-slate-200 text-lg">
-              Voici un aperçu de l'activité de votre plateforme CREC
-            </p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
+        
+        {/* Header avec salutation et actions */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col lg:flex-row justify-between items-start lg:items-center bg-white rounded-2xl p-6 shadow-sm"
+        >
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 bg-gradient-to-br from-crec-gold to-yellow-600 rounded-xl flex items-center justify-center">
+                <BarChart3 className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-800">
+                  Tableau de Bord CREC
+                </h1>
+                <p className="text-gray-600">
+                  Bienvenue ! Vue d'ensemble de votre institution éducative
+                </p>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={exportReport}
-              className="flex items-center space-x-2 bg-crec-gold text-black px-4 py-2 rounded-lg hover:bg-yellow-400 transition-colors"
+          <div className="flex gap-3 mt-4 lg:mt-0">
+            <Button variant="outline" className="flex items-center gap-2 hover:bg-gray-50">
+              <Download className="w-4 h-4" />
+              Télécharger Rapport
+            </Button>
+            <Button 
+              className="bg-gradient-to-r from-crec-gold to-yellow-600 hover:from-yellow-600 hover:to-crec-gold text-white flex items-center gap-2 shadow-lg"
+              asChild
             >
-              <Download className="h-4 w-4" />
-              <span>Télécharger rapport</span>
-            </button>
-            <button
-              onClick={handleLogout}
-              className="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>Se déconnecter</span>
-            </button>
+              <Link to="/" target="_blank">
+                <Eye className="w-4 h-4" />
+                Voir le Site
+              </Link>
+            </Button>
           </div>
+        </motion.div>
+
+        {/* Cartes de statistiques principales */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {quickStats.map((stat, index) => (
+            <motion.div
+              key={stat.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <Card className="relative overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-md">
+                <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-5`} />
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-700">
+                    {stat.title}
+                  </CardTitle>
+                  <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} shadow-lg`}>
+                    <stat.icon className="h-5 w-5 text-white" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-gray-800 mb-2">{stat.value}</div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`flex items-center gap-1 text-sm font-medium ${
+                      stat.trend === 'up' ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {stat.trend === 'up' ? (
+                        <ArrowUp className="w-4 h-4" />
+                      ) : (
+                        <ArrowDown className="w-4 h-4" />
+                      )}
+                      {stat.change}
+                    </span>
+                    <span className="text-gray-500 text-sm">vs mois dernier</span>
+                  </div>
+                  <p className="text-xs text-gray-600">{stat.description}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
         </div>
-      </motion.div>
 
-      {/* Filtres temporels */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="flex items-center space-x-4"
-      >
-        <span className="text-sm font-medium text-gray-700">Période :</span>
-        {(['today', 'week', 'month'] as const).map((filter) => (
-          <button
-            key={filter}
-            onClick={() => setTimeFilter(filter)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              timeFilter === filter
-                ? 'bg-crec-gold text-black'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+        {/* Section principale avec 2 colonnes */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Colonne de gauche - Activités récentes */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="lg:col-span-2"
           >
-            {filter === 'today' && 'Aujourd\'hui'}
-            {filter === 'week' && 'Semaine'}
-            {filter === 'month' && 'Mois'}
-          </button>
-        ))}
-      </motion.div>
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                <CardTitle className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-500 rounded-lg">
+                    <Activity className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <span className="text-lg">Activité en Temps Réel</span>
+                    <p className="text-sm text-gray-600 font-normal">Dernières actions sur la plateforme</p>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {recentActivities.map((activity, index) => (
+                    <motion.div
+                      key={activity.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 * index }}
+                      className="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-all duration-200 cursor-pointer border border-transparent hover:border-gray-200"
+                    >
+                      <div className={`p-3 rounded-full ${activity.color} shadow-lg`}>
+                        <activity.icon className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-800">{activity.title}</p>
+                        <p className="text-sm text-gray-600">{activity.user}</p>
+                      </div>
+                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{activity.time}</span>
+                    </motion.div>
+                  ))}
+                </div>
+                <div className="mt-6 pt-4 border-t">
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link to="/admin/activities">
+                      Voir toutes les activités
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-      {/* Cartes de statistiques principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Link to="/admin/inscriptions/university">
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-crec-gold hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Dossiers en attente</p>
-                  <p className="text-3xl font-bold text-slate-800 mt-2">{stats.pendingApplications}</p>
-                  <p className="text-sm text-gray-500 mt-1">candidatures</p>
-                </div>
-                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                  <Users className="h-6 w-6 text-red-600" />
-                </div>
-              </div>
-            </div>
-          </Link>
-        </motion.div>
+          {/* Colonne de droite - Actions rapides et tâches */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="space-y-6"
+          >
+            {/* Actions rapides */}
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+              <CardHeader className="bg-gradient-to-r from-yellow-50 to-orange-50">
+                <CardTitle className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-r from-crec-gold to-yellow-600 rounded-lg">
+                    <Zap className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-lg">Actions Rapides</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 p-4">
+                <Link to="/admin/formations">
+                  <Button variant="ghost" className="w-full justify-start h-12 hover:bg-blue-50 hover:text-blue-700">
+                    <GraduationCap className="w-5 h-5 mr-3" />
+                    Gérer les formations
+                  </Button>
+                </Link>
+                <Link to="/admin/inscriptions/university">
+                  <Button variant="ghost" className="w-full justify-start h-12 hover:bg-green-50 hover:text-green-700">
+                    <FileText className="w-5 h-5 mr-3" />
+                    Candidatures ISTMR
+                  </Button>
+                </Link>
+                <Link to="/admin/inscriptions/fablab">
+                  <Button variant="ghost" className="w-full justify-start h-12 hover:bg-purple-50 hover:text-purple-700">
+                    <Wrench className="w-5 h-5 mr-3" />
+                    FabLab & Projets
+                  </Button>
+                </Link>
+                <Link to="/admin/pages">
+                  <Button variant="ghost" className="w-full justify-start h-12 hover:bg-orange-50 hover:text-orange-700">
+                    <Settings className="w-5 h-5 mr-3" />
+                    Modifier le contenu
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Link to="/admin/inscriptions">
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-crec-gold hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Inscriptions acceptées</p>
-                  <p className="text-3xl font-bold text-slate-800 mt-2">{stats.acceptedThisMonth}</p>
-                  <p className="text-sm text-gray-500 mt-1">ce mois</p>
+            {/* Tâches urgentes */}
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+              <CardHeader className="bg-gradient-to-r from-red-50 to-orange-50">
+                <CardTitle className="flex items-center gap-3">
+                  <div className="p-2 bg-orange-500 rounded-lg">
+                    <AlertTriangle className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-lg">Tâches Urgentes</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="space-y-3">
+                  {urgentTasks.map((task, index) => (
+                    <motion.div
+                      key={task.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 * index }}
+                      className={`flex items-center gap-3 p-3 ${task.bgColor} rounded-lg hover:shadow-sm transition-shadow cursor-pointer`}
+                    >
+                      <task.icon className={`w-5 h-5 ${task.color}`} />
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-800">{task.title}</p>
+                        <p className="text-xs text-gray-600">{task.description}</p>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-green-600" />
-                </div>
-              </div>
-            </div>
-          </Link>
-        </motion.div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Link to="/admin/inscriptions/fablab">
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-crec-gold hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Paiements à vérifier</p>
-                  <p className="text-3xl font-bold text-slate-800 mt-2">{stats.pendingPayments}</p>
-                  <p className="text-sm text-gray-500 mt-1">reçus</p>
-                </div>
-                <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                  <FileText className="h-6 w-6 text-yellow-600" />
-                </div>
-              </div>
-            </div>
-          </Link>
-        </motion.div>
-
+        {/* Section du bas - Vue d'ensemble des programmes */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <Link to="/admin/inscriptions/fablab">
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-crec-gold hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="flex items-center justify-between">
+          <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+            <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50">
+              <CardTitle className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg">
+                  <Award className="w-5 h-5 text-white" />
+                </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Abonnements FabLab actifs</p>
-                  <p className="text-3xl font-bold text-slate-800 mt-2">{stats.activeFabLabSubscriptions}</p>
-                  <p className="text-sm text-gray-500 mt-1">abonnés</p>
+                  <span className="text-xl">Vue d'Ensemble des Programmes</span>
+                  <p className="text-sm text-gray-600 font-normal">Statistiques par domaine</p>
                 </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-blue-600" />
-                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                {/* ISTMR */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1 }}
+                  className="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                >
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <GraduationCap className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="font-bold text-xl text-blue-800 mb-1">ISTMR</h3>
+                  <p className="text-sm text-blue-600 mb-4">Formation Universitaire</p>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-700">Étudiants:</span>
+                      <span className="font-bold text-lg text-blue-800">125</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-700">Candidatures:</span>
+                      <span className="font-bold text-lg text-orange-600">12</span>
+                    </div>
+                  </div>
+                  <Button 
+                    className="w-full mt-4 bg-blue-500 hover:bg-blue-600" 
+                    size="sm"
+                    asChild
+                  >
+                    <Link to="/admin/formations/university">
+                      Gérer ISTMR
+                    </Link>
+                  </Button>
+                </motion.div>
+
+                {/* Formations Ouvertes */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                >
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <BookOpen className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="font-bold text-xl text-green-800 mb-1">Formations</h3>
+                  <p className="text-sm text-green-600 mb-4">Programmes Ouverts</p>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-700">Participants:</span>
+                      <span className="font-bold text-lg text-green-800">89</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-700">Sessions actives:</span>
+                      <span className="font-bold text-lg text-green-600">8</span>
+                    </div>
+                  </div>
+                  <Button 
+                    className="w-full mt-4 bg-green-500 hover:bg-green-600" 
+                    size="sm"
+                    asChild
+                  >
+                    <Link to="/admin/formations/open">
+                      Gérer Formations
+                    </Link>
+                  </Button>
+                </motion.div>
+
+                {/* FabLab */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-center p-6 bg-gradient-to-br from-purple-50 to-violet-100 rounded-2xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                >
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Wrench className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="font-bold text-xl text-purple-800 mb-1">FabLab</h3>
+                  <p className="text-sm text-purple-600 mb-4">Innovation & Créativité</p>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-700">Membres:</span>
+                      <span className="font-bold text-lg text-purple-800">68</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-700">Projets actifs:</span>
+                      <span className="font-bold text-lg text-purple-600">23</span>
+                    </div>
+                  </div>
+                  <Button 
+                    className="w-full mt-4 bg-purple-500 hover:bg-purple-600" 
+                    size="sm"
+                    asChild
+                  >
+                    <Link to="/admin/fablab">
+                      Gérer FabLab
+                    </Link>
+                  </Button>
+                </motion.div>
               </div>
-            </div>
-          </Link>
+            </CardContent>
+          </Card>
         </motion.div>
       </div>
-
-      {/* Section "À faire" - Alertes */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="bg-white rounded-lg shadow-sm border p-6"
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-slate-800">📋 À faire</h3>
-          <span className="text-sm text-gray-500">Actions prioritaires</span>
-        </div>
-        <div className="space-y-3">
-          {urgentTasks.map((task) => (
-            <motion.div
-              key={task.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 * task.id }}
-            >
-              <Link
-                to={task.link}
-                className={`flex items-center justify-between p-4 rounded-lg border hover:shadow-md transition-shadow ${getPriorityColor(task.priority)}`}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 rounded-full bg-current"></div>
-                  <span className="font-medium">{task.message}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs font-medium px-2 py-1 rounded bg-white bg-opacity-50">
-                    {task.priority === 'high' && 'Urgent'}
-                    {task.priority === 'medium' && 'Important'}
-                    {task.priority === 'low' && 'Normal'}
-                  </span>
-                  <Eye className="h-4 w-4" />
-                </div>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Graphique simple des inscriptions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-        className="bg-white rounded-lg shadow-sm border p-6"
-      >
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-lg font-semibold text-slate-800 flex items-center">
-              <BarChart3 className="h-5 w-5 mr-2" />
-              Inscriptions par catégorie
-            </h3>
-            <p className="text-sm text-gray-600">6 derniers mois</p>
-          </div>
-        </div>
-
-        {/* Graphique en barres simple */}
-        <div className="space-y-4">
-          <div className="flex items-center space-x-4 text-sm">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-crec-gold rounded"></div>
-              <span>Université</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-blue-500 rounded"></div>
-              <span>Formations</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-gray-500 rounded"></div>
-              <span>FabLab</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-6 gap-4 h-32">
-            {monthlyData.map((data, index) => (
-              <div key={index} className="flex flex-col items-center space-y-1">
-                <div className="flex-1 flex flex-col justify-end space-y-1 w-full">
-                  <div
-                    className="bg-gray-500 rounded-t"
-                    style={{ height: `${(data.fablab / 30) * 100}%` }}
-                  ></div>
-                  <div
-                    className="bg-blue-500 rounded-t"
-                    style={{ height: `${(data.formations / 30) * 100}%` }}
-                  ></div>
-                  <div
-                    className="bg-crec-gold rounded-t"
-                    style={{ height: `${(data.university / 30) * 100}%` }}
-                  ></div>
-                </div>
-                <span className="text-xs text-gray-600">{data.month}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Aide rapide */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 }}
-        className="bg-blue-50 border border-blue-200 rounded-lg p-6"
-      >
-        <div className="flex items-start space-x-3">
-          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-            <HelpCircle className="h-4 w-4 text-blue-600" />
-          </div>
-          <div>
-            <h4 className="font-semibold text-blue-900 mb-2">💡 Aide rapide</h4>
-            <p className="text-blue-800 text-sm mb-3">
-              Cliquez sur 'Inscriptions' pour gérer les dossiers. Utilisez les cartes ci-dessus pour naviguer rapidement.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-blue-700">
-              <div>• Cartes cliquables pour navigation rapide</div>
-              <div>• Section "À faire" pour les urgences</div>
-              <div>• Graphique pour suivre les tendances</div>
-              <div>• Bouton "?" pour aide contextuelle</div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
     </div>
   );
 };
