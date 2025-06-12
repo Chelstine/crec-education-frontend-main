@@ -54,9 +54,9 @@ const AdminLayout = () => {
         { name: 'ISTMR', icon: GraduationCap, path: '/admin/formations/istmr', badge: null },
         { name: 'FabLab', icon: Wrench, path: '/admin/formations/fablab', badge: null },
         { name: 'Formations Ouvertes', icon: BookOpen, path: '/admin/formations/ouvertes', badge: null },
-        { name: 'Gestion Inscriptions ISTMR', icon: Users, path: '/admin/inscriptions/istmr', badge: 8 },
-        { name: 'Gestion Inscriptions FabLab', icon: Users, path: '/admin/inscriptions/fablab', badge: 12 },
-        { name: 'Gestion Inscriptions Ouvertes', icon: Users, path: '/admin/inscriptions/ouvertes', badge: 5 }
+        { name: 'Gestion Inscriptions ISTMR', icon: Users, path: '/admin/inscriptions/istmr', badge: null },
+        { name: 'Gestion Inscriptions FabLab', icon: Users, path: '/admin/inscriptions/fablab', badge: null },
+        { name: 'Gestion Inscriptions Ouvertes', icon: Users, path: '/admin/inscriptions/ouvertes', badge: null }
       ]
     },
     { 

@@ -10,9 +10,9 @@ const Header = () => {
   const { t } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState(null);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   // Référence pour suivre les timeouts de fermeture des menus
-  const timeoutRef = useRef(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Référence pour les menus déroulants
   const dropdownRefs = useRef({});
 

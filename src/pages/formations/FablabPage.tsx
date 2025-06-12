@@ -332,16 +332,7 @@ const FablabPage = () => {
                     
                     {/* Informations enrichies */}
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between text-xs text-gray-500">
-                        <span>👁 {project.views}</span>
-                        <span>❤️ {project.likes}</span>
-                        <span>⏱ {project.dureeRealisation}</span>
-                        {project.cout && (
-                          <span className="font-medium text-jesuit-gold">
-                            {project.cout.toLocaleString()} F
-                          </span>
-                        )}
-                      </div>
+                      
                       
                       <div>
                         <h4 className="text-xs font-semibold text-jesuit-dark uppercase tracking-wide mb-1">

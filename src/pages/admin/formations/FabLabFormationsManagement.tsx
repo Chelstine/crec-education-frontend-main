@@ -556,7 +556,7 @@ const FabLabFormationsManagement: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredData.map((project: Project) => (
+                    {(filteredData as Project[]).map((project) => (
                       <TableRow key={project.id}>
                         <TableCell>
                           <div>
@@ -619,7 +619,7 @@ const FabLabFormationsManagement: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredData.map((machine: Machine) => (
+                    {(filteredData as Machine[]).map((machine) => (
                       <TableRow key={machine.id}>
                         <TableCell>
                           <div>
@@ -687,7 +687,7 @@ const FabLabFormationsManagement: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredData.map((service: Service) => (
+                    {(filteredData as Service[]).map((service) => (
                       <TableRow key={service.id}>
                         <TableCell>
                           <div>
@@ -749,7 +749,7 @@ const FabLabFormationsManagement: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredData.map((tariff: Tariff) => (
+                    {(filteredData as Tariff[]).map((tariff) => (
                       <TableRow key={tariff.id}>
                         <TableCell>
                           <div>

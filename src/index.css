@@ -208,6 +208,12 @@
     background-position: center;
   }
 
+  .hero-bg-campus {
+    background-image: url('/img/crec-campus-bg.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+
   .iframe-no-border {
     border: 0;
   }

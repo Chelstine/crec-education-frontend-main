@@ -301,6 +301,8 @@ const InscriptionsManagement: React.FC = () => {
         </div>
         <button
           onClick={exportApplications}
+          title="Exporter la liste des candidatures"
+          aria-label="Exporter la liste des candidatures"
           className="flex items-center space-x-2 bg-crec-gold text-black px-4 py-2 rounded-lg hover:bg-yellow-400 transition-colors"
         >
           <Download className="h-4 w-4" />
@@ -325,6 +327,8 @@ const InscriptionsManagement: React.FC = () => {
 
           {/* Filtre catégorie */}
           <select
+            title="Filtrer par catégorie"
+            aria-label="Filtrer par catégorie"
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-crec-gold focus:border-transparent"
@@ -337,6 +341,8 @@ const InscriptionsManagement: React.FC = () => {
 
           {/* Filtre temps */}
           <select
+            title="Filtrer par période"
+            aria-label="Filtrer par période"
             value={timeFilter}
             onChange={(e) => setTimeFilter(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-crec-gold focus:border-transparent"
@@ -481,6 +487,7 @@ const InscriptionsManagement: React.FC = () => {
                 <button
                   onClick={() => setShowModal(false)}
                   className="text-gray-400 hover:text-gray-600"
+                  title="Fermer la vérification du dossier"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -534,12 +541,16 @@ const InscriptionsManagement: React.FC = () => {
                       <div className="flex items-center space-x-3">
                         <button
                           onClick={() => window.open(doc.url, '_blank')}
+                          title={`Voir le document ${doc.name}`}
+                          aria-label={`Voir le document ${doc.name}`}
                           className="text-blue-600 hover:text-blue-800 text-sm"
                         >
                           Voir
                         </button>
                         <button
                           onClick={() => window.open(doc.url, '_blank')}
+                          title={`Télécharger le document ${doc.name}`}
+                          aria-label={`Télécharger le document ${doc.name}`}
                           className="text-gray-600 hover:text-gray-800 text-sm"
                         >
                           Télécharger
@@ -646,6 +657,7 @@ const InscriptionsManagement: React.FC = () => {
                   onChange={(e) => setEmailContent(e.target.value)}
                   rows={6}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-crec-gold focus:border-transparent"
+                  placeholder="Écrivez votre message ici..."
                 />
               </div>
 

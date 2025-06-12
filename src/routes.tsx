@@ -56,31 +56,34 @@ const CalendarPage = lazy(() => import('@/pages/events/CalendarPage'));
 // Pages Dons
 const DonatePage = lazy(() => import('@/pages/DonatePage'));
 
-// Pages Admin
+// Pages Admin - Imports centralisés
 const AdminLogin = lazy(() => import('@/pages/admin/AdminLogin'));
 const AdminLayout = lazy(() => import('@/layouts/AdminLayout'));
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
+
+// Gestion des formations
 const FormationsManagement = lazy(() => import('@/pages/admin/FormationsManagement'));
 const FormationDetail = lazy(() => import('@/pages/admin/FormationDetail'));
-const SectionsManagement = lazy(() => import('@/pages/admin/SectionsManagement'));
-const FabLabManagement = lazy(() => import('@/pages/admin/FabLabManagement'));
-const InscriptionsManagement = lazy(() => import('@/pages/admin/InscriptionsManagement'));
-const PageManagement = lazy(() => import('@/pages/admin/PageManagement'));
-const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
-
-// Pages Admin - Formations spécialisées
 const ISTMRManagement = lazy(() => import('@/pages/admin/formations/ISTMRManagement'));
 const FabLabFormationsManagement = lazy(() => import('@/pages/admin/formations/FabLabFormationsManagement'));
 const FormationsOuvertesManagement = lazy(() => import('@/pages/admin/formations/FormationsOuvertesManagement'));
 
-// Pages Admin - Inscriptions spécialisées
+// Gestion des inscriptions
+const InscriptionsManagement = lazy(() => import('@/pages/admin/InscriptionsManagement'));
 const InscriptionsISTMR = lazy(() => import('@/pages/admin/inscriptions/InscriptionsISTMR'));
 const InscriptionsFabLab = lazy(() => import('@/pages/admin/inscriptions/InscriptionsFabLab'));
+const FabLabMemberships = lazy(() => import('@/pages/admin/inscriptions/FabLabMemberships'));
 const InscriptionsFormationsOuvertes = lazy(() => import('@/pages/admin/inscriptions/InscriptionsFormationsOuvertes'));
 
-// Pages Admin - Gestion des contenus
+// Gestion des contenus
 const EvenementsManagement = lazy(() => import('@/pages/admin/EvenementsManagement'));
 const ActualitesManagement = lazy(() => import('@/pages/admin/ActualitesManagement'));
+const PageManagement = lazy(() => import('@/pages/admin/PageManagement'));
+const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
+
+// Legacy - À revoir/supprimer
+const SectionsManagement = lazy(() => import('@/pages/admin/SectionsManagement'));
+const FabLabManagement = lazy(() => import('@/pages/admin/FabLabManagement'));
 
 // Helper function to wrap lazy components with Suspense
 const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType<any>>) => (
@@ -283,6 +286,7 @@ const routes: RouteObject[] = [
         path: 'formations/ouvertes',
         element: withSuspense(FormationsOuvertesManagement),
       },
+
       // Routes inscriptions spécialisées
       {
         path: 'inscriptions/istmr',
@@ -293,21 +297,22 @@ const routes: RouteObject[] = [
         element: withSuspense(InscriptionsFabLab),
       },
       {
+        path: 'inscriptions/fablab-memberships',
+        element: withSuspense(FabLabMemberships),
+      },
+      {
         path: 'inscriptions/ouvertes',
         element: withSuspense(InscriptionsFormationsOuvertes),
       },
-      // Routes anciennes (à maintenir pour compatibilité)
+
+      // Routes de gestion générale
       {
-        path: 'sections',
-        element: withSuspense(SectionsManagement),
+        path: 'evenements',
+        element: withSuspense(EvenementsManagement),
       },
       {
-        path: 'fablab',
-        element: withSuspense(FabLabManagement),
-      },
-      {
-        path: 'inscriptions',
-        element: withSuspense(InscriptionsManagement),
+        path: 'actualites',
+        element: withSuspense(ActualitesManagement),
       },
       {
         path: 'pages',
@@ -316,6 +321,28 @@ const routes: RouteObject[] = [
       {
         path: 'settings',
         element: withSuspense(AdminSettings),
+      },
+
+      // Routes legacy (à maintenir temporairement pour compatibilité)
+      {
+        path: 'formations',
+        element: withSuspense(FormationsManagement),
+      },
+      {
+        path: 'formations/:id',
+        element: withSuspense(FormationDetail),
+      },
+      {
+        path: 'inscriptions',
+        element: withSuspense(InscriptionsManagement),
+      },
+      {
+        path: 'sections',
+        element: withSuspense(SectionsManagement),
+      },
+      {
+        path: 'fablab',
+        element: withSuspense(FabLabManagement),
       },
     ],
   },

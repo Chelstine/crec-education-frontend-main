@@ -3,10 +3,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Dialog,
   DialogContent,
@@ -32,770 +29,431 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Eye, 
-  Search, 
-  Filter,
-  Wrench,
-  Cpu,
-  Lightbulb,
-  DollarSign,
-  Users,
-  Calendar,
+  Search,
+  Plus,
+  Edit,
+  Trash2,
   Settings,
-  Star,
+  Cpu,
+  Wrench,
+  Calendar,
+  Users,
+  AlertTriangle,
   CheckCircle,
-  XCircle,
   Clock
 } from 'lucide-react';
 
-// Types pour le FabLab
-interface Machine {
+// Types pour la gestion du FabLab
+interface FabLabEquipment {
   id: string;
   name: string;
-  type: 'printer3d' | 'laser' | 'cnc' | 'electronics' | 'tools';
-  brand: string;
+  type: 'imprimante-3d' | 'laser' | 'cnc' | 'electronique' | 'autre';
   model: string;
+  status: 'disponible' | 'en-cours' | 'maintenance' | 'hors-service';
+  location: string;
   description: string;
-  specifications: string;
-  status: 'available' | 'maintenance' | 'reserved' | 'broken';
-  hourlyRate: number;
-  imageUrl?: string;
-  materials: string[];
-  maxDimensions: string;
-  precision: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  category: 'electronics' | 'mechanical' | 'software' | 'mixed';
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  duration: string;
-  materials: string[];
-  tools: string[];
-  steps: string[];
-  imageUrl?: string;
-  author: string;
-  featured: boolean;
-  status: 'active' | 'completed' | 'archived';
-  likes: number;
-  views: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Service {
-  id: string;
-  name: string;
-  description: string;
-  category: 'consultation' | 'training' | 'production' | 'maintenance';
-  price: number;
-  duration: string;
-  includes: string[];
-  requirements: string[];
-  available: boolean;
-  maxParticipants?: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Pricing {
-  id: string;
-  name: string;
-  type: 'membership' | 'hourly' | 'project' | 'material';
-  price: number;
-  duration?: string;
-  description: string;
-  includes: string[];
-  restrictions?: string[];
-  popular: boolean;
-  active: boolean;
+  specifications: Record<string, string>;
+  maintenanceDate?: string;
   createdAt: string;
   updatedAt: string;
 }
 
 const FabLabManagement: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('machines');
+  const [equipment, setEquipment] = useState<FabLabEquipment[]>([]);
+  const [filteredEquipment, setFilteredEquipment] = useState<FabLabEquipment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  
-  // États pour chaque section
-  const [machines, setMachines] = useState<Machine[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [services, setServices] = useState<Service[]>([]);
-  const [pricings, setPricings] = useState<Pricing[]>([]);
+  const [filterType, setFilterType] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [selectedEquipment, setSelectedEquipment] = useState<FabLabEquipment | null>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
-  // Dialogues
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<any>(null);
-
-  // Données mock
-  const mockMachines: Machine[] = [
+  // Mock data pour les équipements FabLab
+  const mockEquipment: FabLabEquipment[] = [
     {
       id: '1',
-      name: 'Imprimante 3D Ender 5 S1',
-      type: 'printer3d',
-      brand: 'Creality',
-      model: 'Ender 5 S1',
-      description: 'Imprimante 3D FDM haute précision avec lit chauffant automatique',
-      specifications: 'Volume: 220×220×300mm, Précision: ±0.1mm, Filaments: PLA, ABS, PETG',
-      status: 'available',
-      hourlyRate: 2500,
-      materials: ['PLA', 'ABS', 'PETG', 'TPU'],
-      maxDimensions: '220×220×300mm',
-      precision: '±0.1mm',
-      imageUrl: '/img/machines/creality-ender5-s1.jpg',
+      name: 'Anycubic Kobra 2',
+      type: 'imprimante-3d',
+      model: 'Kobra 2',
+      status: 'disponible',
+      location: 'Zone Impression 3D - A1',
+      description: 'Imprimante 3D FDM haute précision',
+      specifications: {
+        'Volume d\'impression': '220×220×250 mm',
+        'Précision': '±0.1 mm',
+        'Matériaux': 'PLA, ABS, PETG',
+        'Connectivité': 'USB, WiFi'
+      },
       createdAt: '2024-01-15',
-      updatedAt: '2024-12-01'
+      updatedAt: '2024-12-20'
     },
     {
       id: '2',
-      name: 'Découpeuse Laser F50',
+      name: 'Creality Ender 3 V2',
+      type: 'imprimante-3d',
+      model: 'Ender 3 V2',
+      status: 'en-cours',
+      location: 'Zone Impression 3D - A2',
+      description: 'Imprimante 3D FDM pour débutants',
+      specifications: {
+        'Volume d\'impression': '220×220×250 mm',
+        'Précision': '±0.1 mm',
+        'Matériaux': 'PLA, ABS',
+        'Connectivité': 'microSD'
+      },
+      createdAt: '2024-02-10',
+      updatedAt: '2024-12-20'
+    },
+    {
+      id: '3',
+      name: 'LaserBox Pro',
       type: 'laser',
-      brand: 'Latilool',
-      model: 'F50',
-      description: 'Découpeuse et graveuse laser CO2 pour matériaux variés',
-      specifications: 'Puissance: 50W, Surface: 500×300mm, Matériaux: Bois, Acrylique, Cuir',
-      status: 'available',
-      hourlyRate: 5000,
-      materials: ['Bois', 'Acrylique', 'Cuir', 'Carton', 'Textile'],
-      maxDimensions: '500×300×20mm',
-      precision: '±0.05mm',
-      imageUrl: '/img/machines/latilool-f50.jpg',
-      createdAt: '2024-02-01',
-      updatedAt: '2024-12-01'
-    }
-  ];
-
-  const mockProjects: Project[] = [
-    {
-      id: '1',
-      title: 'Système d\'arrosage automatique Arduino',
-      description: 'Créez un système intelligent pour arroser vos plantes automatiquement',
-      category: 'electronics',
-      difficulty: 'intermediate',
-      duration: '2-3 heures',
-      materials: ['Arduino Uno', 'Capteur d\'humidité', 'Pompe à eau', 'Relais', 'Tuyaux'],
-      tools: ['Imprimante 3D', 'Fer à souder', 'Multimètre'],
-      steps: [
-        'Assembler le circuit électronique',
-        'Programmer l\'Arduino',
-        'Imprimer le boîtier en 3D',
-        'Installer le système d\'arrosage',
-        'Calibrer les capteurs'
-      ],
-      imageUrl: '/img/projects/arduino-watering.jpg',
-      author: 'Ing. Pierre KODJO',
-      featured: true,
-      status: 'active',
-      likes: 45,
-      views: 320,
-      createdAt: '2024-01-20',
-      updatedAt: '2024-12-01'
+      model: 'LaserBox Pro 40W',
+      status: 'maintenance',
+      location: 'Zone Découpe Laser - B1',
+      description: 'Découpeuse laser CO2 professionnelle',
+      specifications: {
+        'Puissance': '40W',
+        'Zone de travail': '400×280 mm',
+        'Matériaux': 'Bois, Acrylique, Cuir, Papier',
+        'Épaisseur max': '10 mm'
+      },
+      maintenanceDate: '2024-12-22',
+      createdAt: '2024-03-05',
+      updatedAt: '2024-12-20'
     },
     {
-      id: '2',
-      title: 'Robot éducatif programmable',
-      description: 'Construisez un robot mobile pour apprendre la programmation',
-      category: 'mixed',
-      difficulty: 'advanced',
-      duration: '1-2 jours',
-      materials: ['Arduino Mega', 'Moteurs pas-à-pas', 'Capteurs ultrason', 'Châssis imprimé'],
-      tools: ['Imprimante 3D', 'Découpeuse laser', 'Kit électronique'],
-      steps: [
-        'Découper le châssis',
-        'Imprimer les pièces mobiles',
-        'Assembler la mécanique',
-        'Câbler l\'électronique',
-        'Programmer les mouvements'
-      ],
-      imageUrl: '/img/projects/educational-robot.jpg',
-      author: 'Dr. Amina SAGBO',
-      featured: true,
-      status: 'active',
-      likes: 62,
-      views: 480,
-      createdAt: '2024-02-15',
-      updatedAt: '2024-12-01'
-    }
-  ];
-
-  const mockServices: Service[] = [
-    {
-      id: '1',
-      name: 'Formation Impression 3D',
-      description: 'Apprenez les bases de l\'impression 3D et la conception pour la fabrication additive',
-      category: 'training',
-      price: 25000,
-      duration: '4 heures',
-      includes: [
-        'Introduction aux technologies 3D',
-        'Utilisation des logiciels de CAO',
-        'Préparation et lancement d\'impression',
-        'Post-traitement des pièces'
-      ],
-      requirements: ['Ordinateur portable', 'Motivation d\'apprendre'],
-      available: true,
-      maxParticipants: 8,
-      createdAt: '2024-01-01',
-      updatedAt: '2024-12-01'
-    },
-    {
-      id: '2',
-      name: 'Consultation Projet',
-      description: 'Conseil personnalisé pour votre projet de fabrication numérique',
-      category: 'consultation',
-      price: 15000,
-      duration: '1 heure',
-      includes: [
-        'Analyse de faisabilité',
-        'Choix des technologies',
-        'Estimation des coûts',
-        'Planning de réalisation'
-      ],
-      requirements: ['Description détaillée du projet'],
-      available: true,
-      createdAt: '2024-01-01',
-      updatedAt: '2024-12-01'
-    }
-  ];
-
-  const mockPricings: Pricing[] = [
-    {
-      id: '1',
-      name: 'Abonnement Étudiant',
-      type: 'membership',
-      price: 15000,
-      duration: '1 mois',
-      description: 'Accès complet au FabLab pour les étudiants',
-      includes: [
-        'Accès illimité aux machines',
-        'Formations de base incluses',
-        'Stockage de projets',
-        'Support technique'
-      ],
-      restrictions: ['Carte étudiante requise', 'Horaires d\'ouverture uniquement'],
-      popular: true,
-      active: true,
-      createdAt: '2024-01-01',
-      updatedAt: '2024-12-01'
-    },
-    {
-      id: '2',
-      name: 'Impression 3D - PLA',
-      type: 'material',
-      price: 500,
-      description: 'Prix par gramme de filament PLA',
-      includes: ['Filament PLA de qualité', 'Post-traitement de base'],
-      popular: false,
-      active: true,
-      createdAt: '2024-01-01',
-      updatedAt: '2024-12-01'
+      id: '4',
+      name: 'CNC Router Mini',
+      type: 'cnc',
+      model: 'SainSmart Genmitsu 3018',
+      status: 'disponible',
+      location: 'Zone CNC - C1',
+      description: 'Fraiseuse CNC compacte pour prototypage',
+      specifications: {
+        'Zone de travail': '300×180×45 mm',
+        'Précision': '±0.1 mm',
+        'Matériaux': 'Bois, Plastique, Aluminium',
+        'Logiciel': 'Candle, UGS'
+      },
+      createdAt: '2024-04-12',
+      updatedAt: '2024-12-18'
     }
   ];
 
   useEffect(() => {
-    // Simulation du chargement des données
     const timer = setTimeout(() => {
-      setMachines(mockMachines);
-      setProjects(mockProjects);
-      setServices(mockServices);
-      setPricings(mockPricings);
+      setEquipment(mockEquipment);
+      setFilteredEquipment(mockEquipment);
       setLoading(false);
     }, 1000);
 
     return () => clearTimeout(timer);
   }, []);
 
-  const getStatusBadge = (status: string, type: 'machine' | 'project' | 'service' | 'pricing') => {
-    if (type === 'machine') {
-      const statusConfig = {
-        available: { color: 'bg-green-100 text-green-800', label: 'Disponible' },
-        maintenance: { color: 'bg-yellow-100 text-yellow-800', label: 'Maintenance' },
-        reserved: { color: 'bg-blue-100 text-blue-800', label: 'Réservé' },
-        broken: { color: 'bg-red-100 text-red-800', label: 'En panne' }
-      };
-      const config = statusConfig[status as keyof typeof statusConfig];
-      return <Badge className={config.color}>{config.label}</Badge>;
-    }
-    
-    if (type === 'project') {
-      const statusConfig = {
-        active: { color: 'bg-green-100 text-green-800', label: 'Actif' },
-        completed: { color: 'bg-blue-100 text-blue-800', label: 'Terminé' },
-        archived: { color: 'bg-gray-100 text-gray-800', label: 'Archivé' }
-      };
-      const config = statusConfig[status as keyof typeof statusConfig];
-      return <Badge className={config.color}>{config.label}</Badge>;
+  // Filtrage
+  useEffect(() => {
+    let filtered = equipment;
+
+    if (searchTerm) {
+      filtered = filtered.filter(item =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
 
-    return null;
+    if (filterType !== 'all') {
+      filtered = filtered.filter(item => item.type === filterType);
+    }
+
+    if (filterStatus !== 'all') {
+      filtered = filtered.filter(item => item.status === filterStatus);
+    }
+
+    setFilteredEquipment(filtered);
+  }, [equipment, searchTerm, filterType, filterStatus]);
+
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      'disponible': { color: 'bg-green-100 text-green-800', label: 'Disponible', icon: CheckCircle },
+      'en-cours': { color: 'bg-blue-100 text-blue-800', label: 'En cours', icon: Clock },
+      'maintenance': { color: 'bg-yellow-100 text-yellow-800', label: 'Maintenance', icon: Wrench },
+      'hors-service': { color: 'bg-red-100 text-red-800', label: 'Hors service', icon: AlertTriangle }
+    };
+    const config = statusConfig[status as keyof typeof statusConfig];
+    const IconComponent = config.icon;
+    return (
+      <Badge className={config.color}>
+        <IconComponent className="w-3 h-3 mr-1" />
+        {config.label}
+      </Badge>
+    );
   };
 
-  const getTypeIcon = (type: string) => {
-    const icons = {
-      printer3d: Cpu,
-      laser: Lightbulb,
-      cnc: Settings,
-      electronics: Wrench,
-      tools: Wrench
+  const getTypeBadge = (type: string) => {
+    const typeConfig = {
+      'imprimante-3d': { color: 'bg-purple-100 text-purple-800', label: 'Impression 3D' },
+      'laser': { color: 'bg-red-100 text-red-800', label: 'Laser' },
+      'cnc': { color: 'bg-blue-100 text-blue-800', label: 'CNC' },
+      'electronique': { color: 'bg-orange-100 text-orange-800', label: 'Électronique' },
+      'autre': { color: 'bg-gray-100 text-gray-800', label: 'Autre' }
     };
-    return icons[type as keyof typeof icons] || Wrench;
+    const config = typeConfig[type as keyof typeof typeConfig];
+    return <Badge className={config.color}>{config.label}</Badge>;
+  };
+
+  const openDetailDialog = (item: FabLabEquipment) => {
+    setSelectedEquipment(item);
+    setIsDetailDialogOpen(true);
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-crec-gold"></div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="container mx-auto px-4 py-8">
+      {/* En-tête */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row justify-between items-start sm:items-center"
+        className="flex items-center justify-between mb-8"
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
-            <Wrench className="w-8 h-8 text-crec-gold" />
-            Gestion du FabLab
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <Settings className="h-8 w-8 text-crec-gold" />
+            Gestion FabLab
           </h1>
-          <p className="text-gray-600 mt-1">
-            Gérez les machines, projets, services et tarifs du FabLab
-          </p>
+          <p className="text-gray-600 mt-1">Gestion des équipements et ressources</p>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <Button onClick={() => setIsAddDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Ajouter Équipement
+          </Button>
         </div>
       </motion.div>
 
-      {/* Statistiques rapides */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Machines</CardTitle>
-              <Cpu className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{machines.length}</div>
-              <p className="text-xs text-muted-foreground">
-                {machines.filter(m => m.status === 'available').length} disponibles
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
+      {/* Statistiques */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Équipements</CardTitle>
+            <Cpu className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-700">{equipment.length}</div>
+          </CardContent>
+        </Card>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Projets</CardTitle>
-              <Lightbulb className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{projects.length}</div>
-              <p className="text-xs text-muted-foreground">
-                {projects.filter(p => p.featured).length} en vedette
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Disponibles</CardTitle>
+            <CheckCircle className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-700">
+              {equipment.filter(e => e.status === 'disponible').length}
+            </div>
+          </CardContent>
+        </Card>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Services</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{services.length}</div>
-              <p className="text-xs text-muted-foreground">
-                {services.filter(s => s.available).length} disponibles
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
+        <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">En Maintenance</CardTitle>
+            <Wrench className="h-4 w-4 text-yellow-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-yellow-700">
+              {equipment.filter(e => e.status === 'maintenance').length}
+            </div>
+          </CardContent>
+        </Card>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Tarifs</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">{pricings.length}</div>
-              <p className="text-xs text-muted-foreground">
-                {pricings.filter(p => p.active).length} actifs
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">En Utilisation</CardTitle>
+            <Users className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-700">
+              {equipment.filter(e => e.status === 'en-cours').length}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Onglets de gestion */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="machines">Machines</TabsTrigger>
-            <TabsTrigger value="projects">Projets</TabsTrigger>
-            <TabsTrigger value="services">Services</TabsTrigger>
-            <TabsTrigger value="pricing">Tarifs</TabsTrigger>
-          </TabsList>
+      {/* Filtres et recherche */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-lg">Filtres et Recherche</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Rechercher par nom, modèle ou description..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            
+            <div className="flex gap-4">
+              <Select value={filterType} onValueChange={setFilterType}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Type d'équipement" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les types</SelectItem>
+                  <SelectItem value="imprimante-3d">Impression 3D</SelectItem>
+                  <SelectItem value="laser">Laser</SelectItem>
+                  <SelectItem value="cnc">CNC</SelectItem>
+                  <SelectItem value="electronique">Électronique</SelectItem>
+                  <SelectItem value="autre">Autre</SelectItem>
+                </SelectContent>
+              </Select>
 
-          {/* Machines */}
-          <TabsContent value="machines">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>Machines du FabLab</CardTitle>
-                  <Button className="bg-crec-gold hover:bg-crec-lightgold">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Nouvelle Machine
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Machine</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Statut</TableHead>
-                        <TableHead>Tarif/h</TableHead>
-                        <TableHead>Matériaux</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {machines.map((machine) => {
-                        const IconComponent = getTypeIcon(machine.type);
-                        return (
-                          <TableRow key={machine.id}>
-                            <TableCell>
-                              <div className="flex items-center gap-3">
-                                {machine.imageUrl && (
-                                  <img
-                                    src={machine.imageUrl}
-                                    alt={machine.name}
-                                    className="w-12 h-12 rounded-lg object-cover"
-                                  />
-                                )}
-                                <div>
-                                  <div className="font-medium">{machine.name}</div>
-                                  <div className="text-sm text-gray-500">
-                                    {machine.brand} {machine.model}
-                                  </div>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <IconComponent className="w-4 h-4 text-crec-gold" />
-                                <span className="capitalize">{machine.type}</span>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              {getStatusBadge(machine.status, 'machine')}
-                            </TableCell>
-                            <TableCell>
-                              <span className="font-medium">
-                                {machine.hourlyRate.toLocaleString()} FCFA
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex flex-wrap gap-1">
-                                {machine.materials.slice(0, 2).map((material) => (
-                                  <Badge key={material} variant="outline" className="text-xs">
-                                    {material}
-                                  </Badge>
-                                ))}
-                                {machine.materials.length > 2 && (
-                                  <Badge variant="outline" className="text-xs">
-                                    +{machine.materials.length - 2}
-                                  </Badge>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  title="Modifier la machine"
-                                  aria-label="Modifier cette machine"
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="text-red-600 hover:text-red-700"
-                                  title="Supprimer la machine"
-                                  aria-label="Supprimer cette machine"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Statut" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les statuts</SelectItem>
+                  <SelectItem value="disponible">Disponible</SelectItem>
+                  <SelectItem value="en-cours">En cours</SelectItem>
+                  <SelectItem value="maintenance">Maintenance</SelectItem>
+                  <SelectItem value="hors-service">Hors service</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-          {/* Projets */}
-          <TabsContent value="projects">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>Projets du FabLab</CardTitle>
-                  <Button className="bg-crec-gold hover:bg-crec-lightgold">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Nouveau Projet
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {projects.map((project) => (
-                    <Card key={project.id} className="overflow-hidden">
-                      {project.imageUrl && (
-                        <div className="aspect-video overflow-hidden">
-                          <img
-                            src={project.imageUrl}
-                            alt={project.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-semibold text-lg">{project.title}</h3>
-                          {project.featured && (
-                            <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                          )}
-                        </div>
-                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                          {project.description}
-                        </p>
-                        <div className="flex items-center gap-2 mb-3">
-                          {getStatusBadge(project.status, 'project')}
-                          <Badge variant="outline" className="text-xs">
-                            {project.difficulty}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
-                          <span>👁 {project.views}</span>
-                          <span>❤️ {project.likes}</span>
-                          <span>⏱ {project.duration}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="flex-1"
-                            title="Modifier le projet"
-                            aria-label="Modifier ce projet"
-                          >
-                            <Edit className="h-4 w-4 mr-1" />
-                            Modifier
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-red-600 hover:text-red-700"
-                            title="Supprimer le projet"
-                            aria-label="Supprimer ce projet"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
+      {/* Liste des équipements */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Équipements FabLab ({filteredEquipment.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Équipement</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Statut</TableHead>
+                  <TableHead>Localisation</TableHead>
+                  <TableHead>Dernière MAJ</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredEquipment.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="font-medium">{item.name}</div>
+                        <div className="text-sm text-gray-500">{item.model}</div>
+                        <div className="text-xs text-gray-400">{item.description}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {getTypeBadge(item.type)}
+                    </TableCell>
+                    <TableCell>
+                      {getStatusBadge(item.status)}
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">{item.location}</div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        {new Date(item.updatedAt).toLocaleDateString('fr-FR')}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openDetailDialog(item)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            
+            {filteredEquipment.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                Aucun équipement trouvé avec ces critères.
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Dialog de détails */}
+      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Détails de l'équipement</DialogTitle>
+          </DialogHeader>
+          
+          {selectedEquipment && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div><strong>Nom:</strong> {selectedEquipment.name}</div>
+                <div><strong>Modèle:</strong> {selectedEquipment.model}</div>
+                <div><strong>Type:</strong> {selectedEquipment.type}</div>
+                <div><strong>Statut:</strong> {selectedEquipment.status}</div>
+                <div><strong>Localisation:</strong> {selectedEquipment.location}</div>
+              </div>
+              
+              <div>
+                <h4 className="font-medium mb-2">Spécifications:</h4>
+                <div className="bg-gray-50 p-3 rounded">
+                  {Object.entries(selectedEquipment.specifications).map(([key, value]) => (
+                    <div key={key} className="flex justify-between py-1">
+                      <span className="font-medium">{key}:</span>
+                      <span>{value}</span>
+                    </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Services */}
-          <TabsContent value="services">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>Services du FabLab</CardTitle>
-                  <Button className="bg-crec-gold hover:bg-crec-lightgold">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Nouveau Service
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {services.map((service) => (
-                    <Card key={service.id}>
-                      <CardContent className="p-6">
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <h3 className="text-lg font-semibold">{service.name}</h3>
-                              <Badge className={service.available ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
-                                {service.available ? 'Disponible' : 'Indisponible'}
-                              </Badge>
-                              <Badge variant="outline">
-                                {service.category}
-                              </Badge>
-                            </div>
-                            <p className="text-gray-600 mb-3">{service.description}</p>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                              <div>
-                                <span className="font-medium">Prix:</span> {service.price.toLocaleString()} FCFA
-                              </div>
-                              <div>
-                                <span className="font-medium">Durée:</span> {service.duration}
-                              </div>
-                              {service.maxParticipants && (
-                                <div>
-                                  <span className="font-medium">Max participants:</span> {service.maxParticipants}
-                                </div>
-                              )}
-                            </div>
-                            <div className="mt-3">
-                              <span className="font-medium text-sm">Inclut:</span>
-                              <ul className="list-disc list-inside text-sm text-gray-600 mt-1">
-                                {service.includes.map((item, index) => (
-                                  <li key={index}>{item}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2 ml-4">
-                            <Button variant="outline" size="sm">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Tarifs */}
-          <TabsContent value="pricing">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>Tarifs du FabLab</CardTitle>
-                  <Button className="bg-crec-gold hover:bg-crec-lightgold">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Nouveau Tarif
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {pricings.map((pricing) => (
-                    <Card key={pricing.id} className={`relative ${pricing.popular ? 'ring-2 ring-crec-gold' : ''}`}>
-                      {pricing.popular && (
-                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                          <Badge className="bg-crec-gold text-white">Populaire</Badge>
-                        </div>
-                      )}
-                      <CardContent className="p-6">
-                        <div className="text-center mb-4">
-                          <h3 className="text-lg font-semibold">{pricing.name}</h3>
-                          <div className="text-3xl font-bold text-crec-gold mt-2">
-                            {pricing.price.toLocaleString()}
-                            <span className="text-sm text-gray-500 ml-1">FCFA</span>
-                          </div>
-                          {pricing.duration && (
-                            <p className="text-sm text-gray-500">/ {pricing.duration}</p>
-                          )}
-                        </div>
-                        <p className="text-gray-600 text-sm mb-4">{pricing.description}</p>
-                        <div className="space-y-2 mb-4">
-                          {pricing.includes.map((item, index) => (
-                            <div key={index} className="flex items-center gap-2 text-sm">
-                              <CheckCircle className="w-4 h-4 text-green-500" />
-                              <span>{item}</span>
-                            </div>
-                          ))}
-                        </div>
-                        {pricing.restrictions && (
-                          <div className="space-y-2 mb-4">
-                            {pricing.restrictions.map((restriction, index) => (
-                              <div key={index} className="flex items-center gap-2 text-sm text-gray-500">
-                                <XCircle className="w-4 h-4 text-gray-400" />
-                                <span>{restriction}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm" className="flex-1">
-                            <Edit className="h-4 w-4 mr-1" />
-                            Modifier
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </motion.div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDetailDialogOpen(false)}>
+              Fermer
+            </Button>
+            <Button>Modifier</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

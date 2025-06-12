@@ -1,3 +1,5 @@
+// This page manages FabLab memberships/subscriptions (not training applications). Consider renaming to FabLabMemberships.tsx for clarity.
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -32,7 +34,7 @@ interface FabLabSubscription {
   submittedAt: string;
 }
 
-const FabLabInscriptions: React.FC = () => {
+const FabLabMemberships: React.FC = () => {
   const [subscriptions, setSubscriptions] = useState<FabLabSubscription[]>([]);
   const [filteredSubscriptions, setFilteredSubscriptions] = useState<FabLabSubscription[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -529,4 +531,4 @@ const FabLabInscriptions: React.FC = () => {
   );
 };
 
-export default FabLabInscriptions;
+export default FabLabMemberships;
