@@ -307,7 +307,7 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
       profil: '',
       type: 'licence',
       duree: '3 ans',
-      capacite: 30,
+      inscrits: 0,
       fraisInscription: 450000,
       statut: 'active'
     });
@@ -341,7 +341,6 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
       profil: newFiliere.profil!,
       type: (newFiliere.type as 'licence' | 'master' | 'specialisation') || 'licence',
       duree: newFiliere.duree!,
-      capacite: newFiliere.capacite || 30,
       inscrits: 0,
       fraisInscription: newFiliere.fraisInscription || 450000,
       statut: (newFiliere.statut as 'active' | 'inactive') || 'active'
@@ -358,7 +357,7 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
       profil: '',
       type: 'licence',
       duree: '3 ans',
-      capacite: 30,
+      inscrits: 0,
       fraisInscription: 450000,
       statut: 'active'
     });
@@ -375,10 +374,56 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
       profil: '',
       type: 'licence',
       duree: '3 ans',
-      capacite: 30,
+      inscrits: 0,
       fraisInscription: 450000,
       statut: 'active'
     });
+  };
+
+  // Nouvelles fonctions pour la gestion des étudiants
+  const handleStudentIncrement = (filiereId: string) => {
+    setFilieres(filieres.map(f => 
+      f.id === filiereId 
+        ? { ...f, inscrits: f.inscrits + 1 }
+        : f
+    ));
+  };
+
+  const handleStudentDecrement = (filiereId: string) => {
+    setFilieres(filieres.map(f => 
+      f.id === filiereId 
+        ? { ...f, inscrits: Math.max(0, f.inscrits - 1) }
+        : f
+    ));
+  };
+
+  const handleStudentAdjustment = (filiereId: string, newCount: number) => {
+    if (newCount >= 0) {
+      setFilieres(filieres.map(f => 
+        f.id === filiereId 
+          ? { ...f, inscrits: newCount }
+          : f
+      ));
+    }
+  };
+
+  const handleStudentAdjustmentInput = (filiereId: string, value: string) => {
+    const numValue = parseInt(value) || 0;
+    setStudentAdjustments({ ...studentAdjustments, [filiereId]: numValue });
+  };
+
+  const applyStudentAdjustment = (filiereId: string) => {
+    const adjustment = studentAdjustments[filiereId];
+    if (adjustment !== undefined && adjustment >= 0) {
+      handleStudentAdjustment(filiereId, adjustment);
+      setStudentAdjustments({ ...studentAdjustments, [filiereId]: undefined });
+    }
+  };
+
+  // Simulation d'auto-increment lors d'acceptation de candidature
+  const simulateApplicationAccepted = (filiereId: string) => {
+    handleStudentIncrement(filiereId);
+    // Dans un vrai système, ceci serait déclenché par l'acceptation d'une candidature
   };
 
   const stats = {
@@ -386,8 +431,7 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
     licences: filieres.filter(f => f.type === 'licence').length,
     masters: filieres.filter(f => f.type === 'master').length,
     specialisations: filieres.filter(f => f.type === 'specialisation').length,
-    inscritsTotal: filieres.reduce((sum, f) => sum + f.inscrits, 0),
-    capaciteTotal: filieres.reduce((sum, f) => sum + f.capacite, 0)
+    inscritsTotal: filieres.reduce((sum, f) => sum + f.inscrits, 0)
   };
 
   return (
@@ -473,8 +517,8 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
             <div className="flex items-center gap-2">
               <DollarSign className="w-5 h-5 text-purple-600" />
               <div>
-                <p className="text-sm text-gray-600">Capacité</p>
-                <p className="text-2xl font-bold text-purple-600">{stats.capaciteTotal}</p>
+                <p className="text-sm text-gray-600">Formations actives</p>
+                <p className="text-2xl font-bold text-purple-600">{filieres.filter(f => f.statut === 'active').length}</p>
               </div>
             </div>
           </CardContent>
@@ -555,7 +599,40 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
                           </div>
                           <div className="flex items-center gap-2">
                             <Users className="w-4 h-4" />
-                            {filiere.inscrits}/{filiere.capacite} étudiants
+                            <span>{filiere.inscrits} étudiants inscrits</span>
+                            <div className="flex items-center gap-1 ml-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                onClick={() => handleStudentDecrement(filiere.id)}
+                                className="h-6 w-6 p-0"
+                              >
+                                <UserMinus className="w-3 h-3" />
+                              </Button>
+                              <Input
+                                type="number"
+                                min="0"
+                                value={studentAdjustments[filiere.id] ?? filiere.inscrits}
+                                onChange={(e) => handleStudentAdjustmentInput(filiere.id, e.target.value)}
+                                className="h-6 w-16 text-xs text-center"
+                              />
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                onClick={() => applyStudentAdjustment(filiere.id)}
+                                className="h-6 w-6 p-0"
+                              >
+                                <Save className="w-3 h-3" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                onClick={() => handleStudentIncrement(filiere.id)}
+                                className="h-6 w-6 p-0"
+                              >
+                                <UserPlus className="w-3 h-3" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
                         
@@ -897,18 +974,6 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Capacité
-                  </label>
-                  <Input
-                    type="number"
-                    value={newFiliere.capacite || ''}
-                    onChange={(e) => setNewFiliere({...newFiliere, capacite: parseInt(e.target.value) || 0})}
-                    placeholder="30"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Frais d'inscription (FCFA)
                   </label>
                   <Input
@@ -1049,18 +1114,6 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Capacité
-                  </label>
-                  <Input
-                    type="number"
-                    value={newFiliere.capacite || ''}
-                    onChange={(e) => setNewFiliere({...newFiliere, capacite: parseInt(e.target.value) || 0})}
-                    placeholder="30"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Frais d'inscription (FCFA)
                   </label>
                   <Input
@@ -1147,6 +1200,27 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
           </div>
         </div>
       )}
+
+      {/* Dialogue de confirmation de suppression */}
+      <AlertDialog open={deleteConfirmId !== null} onOpenChange={() => setDeleteConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-red-500" />
+              Confirmer la suppression
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer cette filière ? Cette action est irréversible et supprimera toutes les données associées.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelDeleteFiliere}>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteFiliere} className="bg-red-600 hover:bg-red-700">
+              Supprimer définitivement
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

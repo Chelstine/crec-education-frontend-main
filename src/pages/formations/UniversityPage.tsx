@@ -15,7 +15,6 @@ const programs = [
     profil: "Passionné par la logique, la structure et le travail collaboratif.",
     type: 'licence',
     duree: '3 ans',
-    capacite: 30,
     inscrits: 28,
     fraisInscription: 450000,
     statut: 'active'
@@ -30,7 +29,6 @@ const programs = [
     profil: "Créatif, visuel, et motivé par la concrétisation rapide d'idées.",
     type: 'licence',
     duree: '3 ans',
-    capacite: 25,
     inscrits: 23,
     fraisInscription: 450000,
     statut: 'active'
@@ -45,7 +43,6 @@ const programs = [
     profil: "Curieux, analytique, et attiré par les solutions basées sur les données.",
     type: 'licence',
     duree: '3 ans',
-    capacite: 20,
     inscrits: 18,
     fraisInscription: 480000,
     statut: 'active'
@@ -354,7 +351,7 @@ const UniversityPage = () => {
                     </div>
                     <div className="flex items-center gap-1">
                       <Users className="w-4 h-4 text-amber-600" />
-                      <span>{program.inscrits}/{program.capacite}</span>
+                      <span>{program.inscrits} étudiants inscrits</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 mb-4">
