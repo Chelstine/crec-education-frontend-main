@@ -85,12 +85,7 @@ const FablabPage = () => {
       <section className="relative w-full">
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/70" />
         <div
-          className="min-h-[400px] flex flex-col items-center justify-center text-center relative text-white p-6"
-          style={{
-            backgroundImage: "url('/img/fablab-crec-bg.jpg')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
+          className="min-h-[400px] flex flex-col items-center justify-center text-center relative text-white p-6 fablab-hero-bg"
         >
           <motion.div
             className="max-w-3xl mx-auto bg-black/60 p-10 rounded-2xl backdrop-blur-md shadow-2xl"

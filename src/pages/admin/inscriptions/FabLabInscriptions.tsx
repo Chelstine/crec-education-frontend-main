@@ -304,6 +304,7 @@ const FabLabInscriptions: React.FC = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
+            aria-label="Filter by status"
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="all">All Statuses</option>
@@ -312,10 +313,10 @@ const FabLabInscriptions: React.FC = () => {
             <option value="expired">Expired</option>
             <option value="cancelled">Cancelled</option>
           </select>
-
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
+            aria-label="Filter by subscription type"
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="all">All Types</option>
@@ -328,6 +329,7 @@ const FabLabInscriptions: React.FC = () => {
           <select
             value={paymentFilter}
             onChange={(e) => setPaymentFilter(e.target.value)}
+            aria-label="Filter by payment status"
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="all">All Payments</option>
@@ -409,25 +411,31 @@ const FabLabInscriptions: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                     <button
+                      type="button"
                       onClick={() => {
                         setSelectedSubscription(subscription);
                         setShowModal(true);
                       }}
                       className="text-blue-600 hover:text-blue-900"
+                      title="View details"
                     >
                       <Eye className="h-4 w-4" />
                     </button>
                     {subscription.status === 'pending' && (
                       <>
                         <button
+                          type="button"
                           onClick={() => handleStatusChange(subscription.id, 'active')}
                           className="text-green-600 hover:text-green-900"
+                          title="Approve subscription"
                         >
                           <CheckCircle className="h-4 w-4" />
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleStatusChange(subscription.id, 'cancelled')}
                           className="text-red-600 hover:text-red-900"
+                          title="Reject subscription"
                         >
                           <XCircle className="h-4 w-4" />
                         </button>
