@@ -56,9 +56,6 @@ const CalendarPage = lazy(() => import('@/pages/events/CalendarPage'));
 // Pages Dons
 const DonatePage = lazy(() => import('@/pages/DonatePage'));
 
-// Pages Témoignages
-const TestimonialsPage = lazy(() => import('@/pages/TestimonialsPage'));
-
 // Pages Admin
 const AdminLogin = lazy(() => import('@/pages/admin/AdminLogin'));
 const AdminLayout = lazy(() => import('@/layouts/AdminLayout'));
@@ -117,10 +114,6 @@ const routes: RouteObject[] = [
       {
         path: 'donate',
         element: withSuspense(DonatePage),
-      },
-      {
-        path: 'testimonials',
-        element: withSuspense(TestimonialsPage),
       },
 
       // Pages À propos

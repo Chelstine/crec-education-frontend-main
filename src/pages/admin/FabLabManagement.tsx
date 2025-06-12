@@ -547,13 +547,20 @@ const FabLabManagement: React.FC = () => {
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center gap-2">
-                                <Button variant="outline" size="sm">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  title="Modifier la machine"
+                                  aria-label="Modifier cette machine"
+                                >
                                   <Edit className="h-4 w-4" />
                                 </Button>
                                 <Button
                                   variant="outline"
                                   size="sm"
                                   className="text-red-600 hover:text-red-700"
+                                  title="Supprimer la machine"
+                                  aria-label="Supprimer cette machine"
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -616,7 +623,13 @@ const FabLabManagement: React.FC = () => {
                           <span>⏱ {project.duration}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm" className="flex-1">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1"
+                            title="Modifier le projet"
+                            aria-label="Modifier ce projet"
+                          >
                             <Edit className="h-4 w-4 mr-1" />
                             Modifier
                           </Button>
@@ -624,6 +637,8 @@ const FabLabManagement: React.FC = () => {
                             variant="outline"
                             size="sm"
                             className="text-red-600 hover:text-red-700"
+                            title="Supprimer le projet"
+                            aria-label="Supprimer ce projet"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

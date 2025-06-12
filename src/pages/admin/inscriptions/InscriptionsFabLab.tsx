@@ -310,6 +310,8 @@ const InscriptionsFabLab: React.FC = () => {
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+                title="Filtrer par statut"
+                aria-label="Filtrer les inscriptions par statut"
               >
                 <option value="all">Tous les statuts</option>
                 <option value="en_attente">En attente</option>
@@ -322,6 +324,8 @@ const InscriptionsFabLab: React.FC = () => {
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+                title="Filtrer par type"
+                aria-label="Filtrer les inscriptions par type"
               >
                 <option value="all">Tous les types</option>
                 <option value="abonnement">Abonnements</option>

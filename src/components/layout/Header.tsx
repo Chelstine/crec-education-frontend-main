@@ -33,11 +33,11 @@ const Header = () => {
       { name: 'Réservation', path: '/subscription-verification' },
     ],
     events: [
-      { name: 'Calendrier', path: '/events/calendar' },
+      { name: 'Calendrier', path: '/calendar' },
       { name: 'Conférences', path: '/events' },
     ],
     news: [
-      { name: 'Vie de Campus', path: '/news/campus-life' },
+      { name: 'Vie de Campus', path: '/news/campus' },
       { name: 'Articles', path: '/news' },
       { name: 'Stages & Emplois', path: '/news/stages' },
     ],
@@ -135,6 +135,8 @@ const Header = () => {
           <button 
             onClick={() => setIsSearchOpen(!isSearchOpen)} 
             className="hover:text-crec-gold hidden sm:block"
+            title="Rechercher"
+            aria-label="Ouvrir la recherche"
           >
             <Search size={20} className="text-crec-darkblue" />
           </button>
@@ -172,7 +174,11 @@ const Header = () => {
                 className="w-full p-2 focus:outline-none"
                 autoFocus
               />
-              <button className="p-2 bg-crec-gold text-white rounded-r-md">
+              <button 
+                className="p-2 bg-crec-gold text-white rounded-r-md"
+                title="Lancer la recherche"
+                aria-label="Lancer la recherche"
+              >
                 <Search size={20} />
               </button>
             </div>
@@ -192,7 +198,11 @@ const Header = () => {
                   placeholder={t('common.search') + '...'}
                   className="w-full p-2 focus:outline-none text-sm"
                 />
-                <button className="p-2 bg-crec-gold text-white rounded-r-md">
+                <button 
+                  className="p-2 bg-crec-gold text-white rounded-r-md"
+                  title="Rechercher"
+                  aria-label="Lancer la recherche mobile"
+                >
                   <Search size={16} />
                 </button>
               </div>

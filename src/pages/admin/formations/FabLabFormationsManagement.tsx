@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
@@ -29,6 +29,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs';
 import { 
   Plus, 
   Edit, 
@@ -39,206 +45,224 @@ import {
   Users,
   Calendar,
   DollarSign,
-  Star,
-  MapPin,
-  Clock,
+  Settings,
   Cpu,
   Lightbulb,
-  Award,
   TrendingUp,
-  Zap
+  Zap,
+  Monitor,
+  Wifi,
+  UserCheck
 } from 'lucide-react';
 
-// Types pour les formations FabLab
-interface FormationFabLab {
+// Types pour le FabLab
+interface Project {
   id: string;
   title: string;
   description: string;
   category: string;
-  type: 'workshop' | 'course' | 'project' | 'bootcamp';
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  duration: string;
+  materials: string[];
+  tools: string[];
+  image?: string;
+  instructions: string;
+  status: 'active' | 'inactive' | 'draft';
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Machine {
+  id: string;
+  name: string;
+  type: string;
+  brand: string;
+  model: string;
+  description: string;
+  specifications: string[];
+  location: string;
+  status: 'available' | 'maintenance' | 'broken' | 'reserved';
+  lastMaintenance: string;
+  nextMaintenance: string;
+  price: number;
+  image?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Service {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
   duration: string;
   price: number;
-  capacity: number;
-  enrolled: number;
-  startDate: string;
-  endDate: string;
-  location: string;
-  instructor: string;
-  level: 'beginner' | 'intermediate' | 'advanced';
-  prerequisites?: string;
-  objectives: string[];
-  equipment: string[];
-  materials: string[];
-  projects: string[];
-  certification?: string;
-  status: 'active' | 'inactive' | 'completed' | 'planned';
-  featured: boolean;
+  includes: string[];
+  requirements: string[];
+  status: 'active' | 'inactive';
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Tariff {
+  id: string;
+  name: string;
+  type: 'membership' | 'hourly' | 'project' | 'material';
+  description: string;
+  price: number;
+  unit: string;
+  duration?: string;
+  benefits: string[];
+  restrictions: string[];
+  status: 'active' | 'inactive';
   createdAt: string;
   updatedAt: string;
 }
 
 const FabLabFormationsManagement: React.FC = () => {
-  const [formations, setFormations] = useState<FormationFabLab[]>([]);
-  const [filteredFormations, setFilteredFormations] = useState<FormationFabLab[]>([]);
+  const [activeTab, setActiveTab] = useState('projects');
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [machines, setMachines] = useState<Machine[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [tariffs, setTariffs] = useState<Tariff[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterCategory, setFilterCategory] = useState<string>('all');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [filterLevel, setFilterLevel] = useState<string>('all');
+  const [subscriberCount, setSubscriberCount] = useState(0);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  // Mock data pour les formations FabLab
-  const mockFormations: FormationFabLab[] = [
+  // Mock data pour le FabLab
+  const mockProjects: Project[] = [
     {
       id: '1',
-      title: 'Initiation à l\'Impression 3D',
-      description: 'Apprenez les bases de l\'impression 3D, de la modélisation à la fabrication',
-      category: 'Impression 3D',
-      type: 'workshop',
-      duration: '2 semaines',
-      price: 150000,
-      capacity: 12,
-      enrolled: 10,
-      startDate: '2025-02-01',
-      endDate: '2025-02-15',
-      location: 'FabLab - Zone Impression 3D',
-      instructor: 'M. Kossi AMEGBETO',
-      level: 'beginner',
-      prerequisites: 'Aucun prérequis',
-      objectives: [
-        'Comprendre les principes de l\'impression 3D',
-        'Utiliser les logiciels de modélisation 3D',
-        'Configurer et utiliser une imprimante 3D',
-        'Résoudre les problèmes courants'
-      ],
-      equipment: ['Imprimante 3D Ender 3', 'Imprimante 3D Anycubic Kobra', 'Ordinateurs avec logiciels 3D'],
-      materials: ['Filament PLA', 'Filament PETG', 'Support adhésif', 'Outils de finition'],
-      projects: [
-        'Porte-clés personnalisé',
-        'Support de téléphone',
-        'Objet décoratif complexe',
-        'Pièce de réparation fonctionnelle'
-      ],
-      certification: 'Certificat FabLab - Impression 3D',
+      title: 'Système d\'arrosage automatique',
+      description: 'Un système IoT pour l\'arrosage automatique des plantes',
+      category: 'IoT',
+      difficulty: 'intermediate',
+      duration: '3-4 heures',
+      materials: ['Arduino Uno', 'Capteur d\'humidité', 'Pompe à eau', 'Relais'],
+      tools: ['Fer à souder', 'Breadboard', 'Multimètre'],
+      instructions: 'Instructions détaillées pour créer un système d\'arrosage automatique...',
       status: 'active',
-      featured: true,
       createdAt: '2024-12-01',
       updatedAt: '2024-12-20'
     },
     {
       id: '2',
-      title: 'Arduino et Électronique pour Débutants',
-      description: 'Découvrez l\'électronique et la programmation avec Arduino',
-      category: 'Électronique',
-      type: 'course',
-      duration: '1 mois',
-      price: 200000,
-      capacity: 15,
-      enrolled: 12,
-      startDate: '2025-02-15',
-      endDate: '2025-03-15',
-      location: 'FabLab - Zone Électronique',
-      instructor: 'Mme. Adjoa MENSAH',
-      level: 'beginner',
-      prerequisites: 'Notions de base en informatique',
-      objectives: [
-        'Comprendre les composants électroniques',
-        'Programmer des microcontrôleurs Arduino',
-        'Réaliser des montages électroniques',
-        'Créer des projets IoT simples'
-      ],
-      equipment: ['Cartes Arduino Uno', 'Breadboards', 'Multimètres', 'Fer à souder'],
-      materials: ['Résistances', 'LEDs', 'Capteurs', 'Servomoteurs', 'Écrans LCD'],
-      projects: [
-        'Système d\'éclairage automatique',
-        'Station météo connectée',
-        'Système d\'arrosage automatique',
-        'Robot suiveur de ligne'
-      ],
-      certification: 'Certificat FabLab - Arduino & IoT',
-      status: 'planned',
-      featured: true,
+      title: 'Porte-clés personnalisé',
+      description: 'Design et impression 3D d\'un porte-clés unique',
+      category: 'Impression 3D',
+      difficulty: 'beginner',
+      duration: '1-2 heures',
+      materials: ['Filament PLA', 'Support adhésif'],
+      tools: ['Imprimante 3D', 'Logiciel CAO'],
+      instructions: 'Guide complet pour créer un porte-clés personnalisé...',
+      status: 'active',
       createdAt: '2024-11-15',
       updatedAt: '2024-12-18'
-    },
+    }
+  ];
+
+  const mockMachines: Machine[] = [
     {
-      id: '3',
-      title: 'Fabrication Numérique Avancée',
-      description: 'Maîtrisez les techniques avancées de fabrication numérique',
-      category: 'Fabrication Numérique',
-      type: 'bootcamp',
-      duration: '6 semaines',
-      price: 500000,
-      capacity: 8,
-      enrolled: 6,
-      startDate: '2025-03-01',
-      endDate: '2025-04-15',
-      location: 'FabLab - Atelier Principal',
-      instructor: 'M. Edem KODJO',
-      level: 'advanced',
-      prerequisites: 'Expérience en impression 3D et électronique',
-      objectives: [
-        'Maîtriser la découpe laser',
-        'Intégrer plusieurs technologies',
-        'Gérer un projet de A à Z',
-        'Créer des prototypes professionnels'
-      ],
-      equipment: ['Découpeuse laser', 'Fraiseuse CNC', 'Imprimantes 3D professionnelles', 'Outils de précision'],
-      materials: ['Bois contreplaqué', 'Acrylique', 'Métal fin', 'Composants électroniques avancés'],
-      projects: [
-        'Horloge intelligente personnalisée',
-        'Drone de surveillance',
-        'Station de recharge solaire',
-        'Prototype de produit innovant'
-      ],
-      certification: 'Certificat FabLab - Expert Fabrication',
-      status: 'planned',
-      featured: true,
-      createdAt: '2024-12-05',
+      id: '1',
+      name: 'Imprimante 3D Ender 3 Pro',
+      type: 'Impression 3D',
+      brand: 'Creality',
+      model: 'Ender 3 Pro',
+      description: 'Imprimante 3D FDM populaire et fiable',
+      specifications: ['Volume: 220x220x250mm', 'Résolution: 0.1mm', 'Filament: PLA, ABS, PETG'],
+      location: 'Zone Impression 3D',
+      status: 'available',
+      lastMaintenance: '2024-12-01',
+      nextMaintenance: '2025-01-01',
+      price: 25000,
+      createdAt: '2024-01-01',
       updatedAt: '2024-12-20'
     },
     {
-      id: '4',
-      title: 'Réparation et Maintenance d\'Équipements',
-      description: 'Apprenez à diagnostiquer et réparer les équipements électroniques',
-      category: 'Réparation',
-      type: 'workshop',
-      duration: '3 semaines',
-      price: 180000,
-      capacity: 10,
-      enrolled: 8,
-      startDate: '2025-01-20',
-      endDate: '2025-02-10',
-      location: 'FabLab - Atelier Réparation',
-      instructor: 'M. Koffi LAWSON',
-      level: 'intermediate',
-      prerequisites: 'Connaissances de base en électronique',
-      objectives: [
-        'Diagnostiquer les pannes courantes',
-        'Utiliser les outils de diagnostic',
-        'Remplacer les composants défectueux',
-        'Prévenir les pannes futures'
-      ],
-      equipment: ['Oscilloscopes', 'Analyseurs de spectre', 'Stations de dessoudage', 'Pièces de rechange'],
-      materials: ['Composants électroniques', 'Soudure', 'Flux', 'Nettoyants spécialisés'],
-      projects: [
-        'Réparation d\'ordinateur portable',
-        'Maintenance d\'imprimante 3D',
-        'Réparation de smartphone',
-        'Diagnostic de carte électronique'
-      ],
-      certification: 'Certificat FabLab - Réparation Électronique',
-      status: 'active',
-      featured: false,
-      createdAt: '2024-10-01',
+      id: '2',
+      name: 'Découpeuse Laser CO2',
+      type: 'Découpe Laser',
+      brand: 'LaserCut',
+      model: 'LC-1290',
+      description: 'Découpeuse laser CO2 pour matériaux divers',
+      specifications: ['Surface: 1200x900mm', 'Puissance: 80W', 'Matériaux: Bois, Acrylique, Cuir'],
+      location: 'Zone Découpe',
+      status: 'maintenance',
+      lastMaintenance: '2024-12-15',
+      nextMaintenance: '2024-12-25',
+      price: 50000,
+      createdAt: '2024-02-01',
       updatedAt: '2024-12-15'
+    }
+  ];
+
+  const mockServices: Service[] = [
+    {
+      id: '1',
+      name: 'Formation Arduino',
+      description: 'Formation complète sur l\'utilisation d\'Arduino',
+      category: 'Formation',
+      duration: '2 jours',
+      price: 75000,
+      includes: ['Cours théorique', 'Travaux pratiques', 'Kit Arduino', 'Certificat'],
+      requirements: ['Connaissances de base en électronique'],
+      status: 'active',
+      createdAt: '2024-01-01',
+      updatedAt: '2024-12-01'
+    },
+    {
+      id: '2',
+      name: 'Prototypage Rapide',
+      description: 'Service de prototypage pour vos projets',
+      category: 'Prototypage',
+      duration: '1-5 jours',
+      price: 100000,
+      includes: ['Consultation', 'Design', 'Impression 3D', 'Tests'],
+      requirements: ['Cahier des charges détaillé'],
+      status: 'active',
+      createdAt: '2024-02-01',
+      updatedAt: '2024-12-10'
+    }
+  ];
+
+  const mockTariffs: Tariff[] = [
+    {
+      id: '1',
+      name: 'Abonnement Mensuel Étudiant',
+      type: 'membership',
+      description: 'Accès illimité aux équipements pour étudiants',
+      price: 25000,
+      unit: 'mois',
+      duration: '1 mois',
+      benefits: ['Accès 24h/24', 'Formation incluse', 'Support technique'],
+      restrictions: ['Justificatif étudiant requis', 'Supervision obligatoire'],
+      status: 'active',
+      createdAt: '2024-01-01',
+      updatedAt: '2024-12-01'
+    },
+    {
+      id: '2',
+      name: 'Utilisation Imprimante 3D',
+      type: 'hourly',
+      description: 'Tarif horaire pour l\'utilisation des imprimantes 3D',
+      price: 2500,
+      unit: 'heure',
+      benefits: ['Assistance technique', 'Maintenance incluse'],
+      restrictions: ['Filament non inclus', 'Réservation obligatoire'],
+      status: 'active',
+      createdAt: '2024-01-01',
+      updatedAt: '2024-11-15'
     }
   ];
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setFormations(mockFormations);
-      setFilteredFormations(mockFormations);
+      setProjects(mockProjects);
+      setMachines(mockMachines);
+      setServices(mockServices);
+      setTariffs(mockTariffs);
+      setSubscriberCount(147); // Nombre d'abonnés fictif
       setLoading(false);
     }, 1000);
 
@@ -246,66 +270,52 @@ const FabLabFormationsManagement: React.FC = () => {
   }, []);
 
   // Filtrage
-  useEffect(() => {
-    let filtered = formations;
+  const getFilteredData = (): (Project | Machine | Service | Tariff)[] => {
+    const getData = (): (Project | Machine | Service | Tariff)[] => {
+      switch (activeTab) {
+        case 'projects': return projects;
+        case 'machines': return machines;
+        case 'services': return services;
+        case 'tariffs': return tariffs;
+        default: return [];
+      }
+    };
 
+    let filtered = getData();
     if (searchTerm) {
-      filtered = filtered.filter(formation =>
-        formation.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        formation.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        formation.instructor.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter((item: any) =>
+        item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.category?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-
-    if (filterCategory !== 'all') {
-      filtered = filtered.filter(formation => formation.category === filterCategory);
-    }
-
-    if (filterStatus !== 'all') {
-      filtered = filtered.filter(formation => formation.status === filterStatus);
-    }
-
-    if (filterLevel !== 'all') {
-      filtered = filtered.filter(formation => formation.level === filterLevel);
-    }
-
-    setFilteredFormations(filtered);
-  }, [formations, searchTerm, filterCategory, filterStatus, filterLevel]);
-
-  const getTypeBadge = (type: string) => {
-    const typeConfig = {
-      workshop: { color: 'bg-blue-100 text-blue-800', label: 'Atelier' },
-      course: { color: 'bg-green-100 text-green-800', label: 'Cours' },
-      project: { color: 'bg-purple-100 text-purple-800', label: 'Projet' },
-      bootcamp: { color: 'bg-orange-100 text-orange-800', label: 'Bootcamp' }
-    };
-    const config = typeConfig[type as keyof typeof typeConfig];
-    return <Badge className={config.color}>{config.label}</Badge>;
+    return filtered;
   };
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      active: { color: 'bg-green-100 text-green-800', label: 'Active' },
-      inactive: { color: 'bg-gray-100 text-gray-800', label: 'Inactive' },
-      completed: { color: 'bg-blue-100 text-blue-800', label: 'Terminée' },
-      planned: { color: 'bg-yellow-100 text-yellow-800', label: 'Planifiée' }
+      active: { color: 'bg-green-100 text-green-800', label: 'Actif' },
+      inactive: { color: 'bg-gray-100 text-gray-800', label: 'Inactif' },
+      available: { color: 'bg-green-100 text-green-800', label: 'Disponible' },
+      maintenance: { color: 'bg-yellow-100 text-yellow-800', label: 'Maintenance' },
+      broken: { color: 'bg-red-100 text-red-800', label: 'En panne' },
+      reserved: { color: 'bg-blue-100 text-blue-800', label: 'Réservé' },
+      draft: { color: 'bg-gray-100 text-gray-800', label: 'Brouillon' }
     };
     const config = statusConfig[status as keyof typeof statusConfig];
-    return <Badge className={config.color}>{config.label}</Badge>;
+    return <Badge className={config?.color || 'bg-gray-100 text-gray-800'}>{config?.label || status}</Badge>;
   };
 
-  const getLevelBadge = (level: string) => {
-    const levelConfig = {
+  const getDifficultyBadge = (difficulty: string) => {
+    const difficultyConfig = {
       beginner: { color: 'bg-green-100 text-green-800', label: 'Débutant' },
       intermediate: { color: 'bg-yellow-100 text-yellow-800', label: 'Intermédiaire' },
       advanced: { color: 'bg-red-100 text-red-800', label: 'Avancé' }
     };
-    const config = levelConfig[level as keyof typeof levelConfig];
-    return <Badge className={config.color}>{config.label}</Badge>;
+    const config = difficultyConfig[difficulty as keyof typeof difficultyConfig];
+    return <Badge className={config?.color || 'bg-gray-100 text-gray-800'}>{config?.label || difficulty}</Badge>;
   };
-
-  // Obtenir les catégories uniques
-  const categories = [...new Set(formations.map(f => f.category))];
 
   if (loading) {
     return (
@@ -315,9 +325,11 @@ const FabLabFormationsManagement: React.FC = () => {
     );
   }
 
+  const filteredData = getFilteredData();
+
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* En-tête */}
+      {/* En-tête avec compteur d'abonnés */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -326,42 +338,27 @@ const FabLabFormationsManagement: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
             <Wrench className="h-8 w-8 text-crec-gold" />
-            FabLab - Formations Techniques
+            Gestion FabLab
           </h1>
-          <p className="text-gray-600 mt-1">Ateliers et formations en fabrication numérique</p>
+          <p className="text-gray-600 mt-1">Administration des équipements et services</p>
         </div>
         
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-crec-gold hover:bg-crec-lightgold">
-              <Plus className="mr-2 h-4 w-4" />
-              Nouvelle Formation
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Créer une nouvelle formation FabLab</DialogTitle>
-              <DialogDescription>
-                Ajoutez un nouvel atelier ou formation technique
-              </DialogDescription>
-            </DialogHeader>
-            {/* Formulaire sera ajouté ici */}
-            <div className="text-center py-8 text-gray-500">
-              Formulaire de création en cours de développement...
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                Annuler
-              </Button>
-              <Button className="bg-crec-gold hover:bg-crec-lightgold">
-                Créer
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        {/* Compteur d'abonnés */}
+        <Card className="bg-gradient-to-br from-crec-gold to-crec-lightgold text-white">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Abonnés FabLab</CardTitle>
+            <UserCheck className="h-4 w-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{subscriberCount}</div>
+            <p className="text-xs opacity-80">
+              Membres actifs
+            </p>
+          </CardContent>
+        </Card>
       </motion.div>
 
-      {/* Statistiques */}
+      {/* Statistiques générales */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -370,13 +367,13 @@ const FabLabFormationsManagement: React.FC = () => {
         >
           <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Formations</CardTitle>
-              <Wrench className="h-4 w-4 text-blue-600" />
+              <CardTitle className="text-sm font-medium">Projets</CardTitle>
+              <Lightbulb className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-700">{formations.length}</div>
+              <div className="text-2xl font-bold text-blue-700">{projects.length}</div>
               <p className="text-xs text-blue-600">
-                Ateliers et cours
+                Guides disponibles
               </p>
             </CardContent>
           </Card>
@@ -389,15 +386,13 @@ const FabLabFormationsManagement: React.FC = () => {
         >
           <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Participants</CardTitle>
-              <Users className="h-4 w-4 text-green-600" />
+              <CardTitle className="text-sm font-medium">Machines</CardTitle>
+              <Monitor className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-700">
-                {formations.reduce((total, f) => total + f.enrolled, 0)}
-              </div>
+              <div className="text-2xl font-bold text-green-700">{machines.length}</div>
               <p className="text-xs text-green-600">
-                Sur {formations.reduce((total, f) => total + f.capacity, 0)} places
+                Équipements disponibles
               </p>
             </CardContent>
           </Card>
@@ -410,15 +405,13 @@ const FabLabFormationsManagement: React.FC = () => {
         >
           <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Revenus</CardTitle>
-              <DollarSign className="h-4 w-4 text-purple-600" />
+              <CardTitle className="text-sm font-medium">Services</CardTitle>
+              <Settings className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-700">
-                {(formations.reduce((total, f) => total + (f.price * f.enrolled), 0) / 1000000).toFixed(1)}M
-              </div>
+              <div className="text-2xl font-bold text-purple-700">{services.length}</div>
               <p className="text-xs text-purple-600">
-                FCFA générés
+                Services proposés
               </p>
             </CardContent>
           </Card>
@@ -431,22 +424,20 @@ const FabLabFormationsManagement: React.FC = () => {
         >
           <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Projets Réalisés</CardTitle>
-              <Lightbulb className="h-4 w-4 text-orange-600" />
+              <CardTitle className="text-sm font-medium">Tarifs</CardTitle>
+              <DollarSign className="h-4 w-4 text-orange-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-700">
-                {formations.reduce((total, f) => total + f.projects.length, 0)}
-              </div>
+              <div className="text-2xl font-bold text-orange-700">{tariffs.length}</div>
               <p className="text-xs text-orange-600">
-                Projets dans le curriculum
+                Grilles tarifaires
               </p>
             </CardContent>
           </Card>
         </motion.div>
       </div>
 
-      {/* Filtres et recherche */}
+      {/* Barre de recherche */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -454,195 +445,341 @@ const FabLabFormationsManagement: React.FC = () => {
       >
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-lg">Filtres et Recherche</CardTitle>
+            <CardTitle className="text-lg">Recherche</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Rechercher par titre, catégorie ou instructeur..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              
-              <div className="flex gap-4">
-                <Select value={filterCategory} onValueChange={setFilterCategory}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Catégorie" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Toutes les catégories</SelectItem>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Select value={filterLevel} onValueChange={setFilterLevel}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Niveau" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tous les niveaux</SelectItem>
-                    <SelectItem value="beginner">Débutant</SelectItem>
-                    <SelectItem value="intermediate">Intermédiaire</SelectItem>
-                    <SelectItem value="advanced">Avancé</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Statut" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tous les statuts</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="planned">Planifiée</SelectItem>
-                    <SelectItem value="completed">Terminée</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Rechercher..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
             </div>
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Liste des formations */}
+      {/* Onglets CRUD */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Formations FabLab ({filteredFormations.length})</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Formation</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Niveau</TableHead>
-                    <TableHead>Statut</TableHead>
-                    <TableHead>Participants</TableHead>
-                    <TableHead>Dates</TableHead>
-                    <TableHead>Prix</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredFormations.map((formation) => (
-                    <TableRow key={formation.id}>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="font-medium">{formation.title}</div>
-                          <div className="text-sm text-gray-500">{formation.category}</div>
-                          <div className="text-xs text-gray-400">
-                            <MapPin className="inline w-3 h-3 mr-1" />
-                            {formation.location}
-                          </div>
-                          {formation.featured && (
-                            <Star className="inline w-4 h-4 text-yellow-500" />
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {getTypeBadge(formation.type)}
-                        <div className="text-xs text-gray-500 mt-1">
-                          {formation.duration}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {getLevelBadge(formation.level)}
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(formation.status)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-center">
-                          <div className="font-medium">
-                            {formation.enrolled}/{formation.capacity}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {Math.round((formation.enrolled / formation.capacity) * 100)}% rempli
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {new Date(formation.startDate).toLocaleDateString('fr-FR')}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            → {new Date(formation.endDate).toLocaleDateString('fr-FR')}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-medium">
-                          {formation.price.toLocaleString()} FCFA
-                        </div>
-                        {formation.certification && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            <Award className="inline w-3 h-3 mr-1" />
-                            Certifiant
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            asChild
-                            variant="default"
-                            size="sm"
-                            className="bg-crec-gold hover:bg-crec-lightgold"
-                          >
-                            <Link to={`/admin/formations/fablab/${formation.id}`}>
-                              <Eye className="h-4 w-4 mr-1" />
-                              Gérer
-                            </Link>
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="projects" className="flex items-center gap-2">
+              <Lightbulb className="h-4 w-4" />
+              Projets
+            </TabsTrigger>
+            <TabsTrigger value="machines" className="flex items-center gap-2">
+              <Monitor className="h-4 w-4" />
+              Machines
+            </TabsTrigger>
+            <TabsTrigger value="services" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Services
+            </TabsTrigger>
+            <TabsTrigger value="tariffs" className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              Tarifs
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Contenu des onglets Projets */}
+          <TabsContent value="projects">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Projets ({projects.length})</CardTitle>
+                <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="bg-crec-gold hover:bg-crec-lightgold">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Nouveau Projet
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>Créer un nouveau projet</DialogTitle>
+                      <DialogDescription>
+                        Ajoutez un nouveau guide de projet au FabLab
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <label className="text-right">Titre</label>
+                        <Input className="col-span-3" placeholder="Nom du projet" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <label className="text-right">Catégorie</label>
+                        <Select>
+                          <SelectTrigger className="col-span-3" aria-label="Sélectionner une catégorie de projet">
+                            <SelectValue placeholder="Sélectionner une catégorie" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="iot">IoT</SelectItem>
+                            <SelectItem value="3d">Impression 3D</SelectItem>
+                            <SelectItem value="laser">Découpe Laser</SelectItem>
+                            <SelectItem value="electronics">Électronique</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <label className="text-right">Description</label>
+                        <Textarea className="col-span-3" placeholder="Description du projet" />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                        Annuler
+                      </Button>
+                      <Button className="bg-crec-gold hover:bg-crec-lightgold">
+                        Créer
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Projet</TableHead>
+                      <TableHead>Catégorie</TableHead>
+                      <TableHead>Difficulté</TableHead>
+                      <TableHead>Durée</TableHead>
+                      <TableHead>Statut</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              
-              {filteredFormations.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  Aucune formation trouvée avec ces critères.
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredData.map((project: Project) => (
+                      <TableRow key={project.id}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{project.title}</div>
+                            <div className="text-sm text-gray-500">{project.description}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{project.category}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          {getDifficultyBadge(project.difficulty)}
+                        </TableCell>
+                        <TableCell>{project.duration}</TableCell>
+                        <TableCell>
+                          {getStatusBadge(project.status)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Button variant="outline" size="sm" title="Voir les détails du projet" aria-label="Voir les détails">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="sm" title="Modifier le projet" aria-label="Modifier">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="sm" className="text-red-600" title="Supprimer le projet" aria-label="Supprimer">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Contenu des onglets Machines */}
+          <TabsContent value="machines">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Machines ({machines.length})</CardTitle>
+                <Button className="bg-crec-gold hover:bg-crec-lightgold">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Nouvelle Machine
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Machine</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Localisation</TableHead>
+                      <TableHead>Statut</TableHead>
+                      <TableHead>Prix/h</TableHead>
+                      <TableHead>Maintenance</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredData.map((machine: Machine) => (
+                      <TableRow key={machine.id}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{machine.name}</div>
+                            <div className="text-sm text-gray-500">{machine.brand} {machine.model}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{machine.type}</Badge>
+                        </TableCell>
+                        <TableCell>{machine.location}</TableCell>
+                        <TableCell>
+                          {getStatusBadge(machine.status)}
+                        </TableCell>
+                        <TableCell>{machine.price.toLocaleString()} FCFA</TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            <div>Dernier: {new Date(machine.lastMaintenance).toLocaleDateString('fr-FR')}</div>
+                            <div className="text-gray-500">Prochain: {new Date(machine.nextMaintenance).toLocaleDateString('fr-FR')}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Button variant="outline" size="sm" title="Voir les détails de la machine" aria-label="Voir les détails">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="sm" title="Modifier la machine" aria-label="Modifier">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="sm" className="text-red-600" title="Supprimer la machine" aria-label="Supprimer">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Contenu des onglets Services */}
+          <TabsContent value="services">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Services ({services.length})</CardTitle>
+                <Button className="bg-crec-gold hover:bg-crec-lightgold">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Nouveau Service
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Service</TableHead>
+                      <TableHead>Catégorie</TableHead>
+                      <TableHead>Durée</TableHead>
+                      <TableHead>Prix</TableHead>
+                      <TableHead>Statut</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredData.map((service: Service) => (
+                      <TableRow key={service.id}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{service.name}</div>
+                            <div className="text-sm text-gray-500">{service.description}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{service.category}</Badge>
+                        </TableCell>
+                        <TableCell>{service.duration}</TableCell>
+                        <TableCell>{service.price.toLocaleString()} FCFA</TableCell>
+                        <TableCell>
+                          {getStatusBadge(service.status)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Button variant="outline" size="sm" title="Voir les détails du service" aria-label="Voir les détails">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="sm" title="Modifier le service" aria-label="Modifier">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="sm" className="text-red-600" title="Supprimer le service" aria-label="Supprimer">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Contenu des onglets Tarifs */}
+          <TabsContent value="tariffs">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Tarifs ({tariffs.length})</CardTitle>
+                <Button className="bg-crec-gold hover:bg-crec-lightgold">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Nouveau Tarif
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Tarif</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Prix</TableHead>
+                      <TableHead>Unité</TableHead>
+                      <TableHead>Statut</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredData.map((tariff: Tariff) => (
+                      <TableRow key={tariff.id}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{tariff.name}</div>
+                            <div className="text-sm text-gray-500">{tariff.description}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{tariff.type}</Badge>
+                        </TableCell>
+                        <TableCell>{tariff.price.toLocaleString()} FCFA</TableCell>
+                        <TableCell>{tariff.unit}</TableCell>
+                        <TableCell>
+                          {getStatusBadge(tariff.status)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Button variant="outline" size="sm" title="Voir les détails du tarif" aria-label="Voir les détails">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="sm" title="Modifier le tarif" aria-label="Modifier">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="sm" className="text-red-600" title="Supprimer le tarif" aria-label="Supprimer">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </motion.div>
     </div>
   );

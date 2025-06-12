@@ -989,6 +989,8 @@ const FormationForm: React.FC<{
             checked={formData.featured}
             onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
             className="rounded border-gray-300"
+            title="Formation mise en avant"
+            aria-label="Mettre cette formation en avant"
           />
           <Label htmlFor="featured">Formation en vedette</Label>
         </div>

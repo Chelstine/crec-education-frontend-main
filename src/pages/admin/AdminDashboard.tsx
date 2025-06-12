@@ -337,7 +337,7 @@ const AdminDashboard: React.FC = () => {
                     Gérer les formations
                   </Button>
                 </Link>
-                <Link to="/admin/inscriptions/university">
+                <Link to="/admin/inscriptions/istmr">
                   <Button variant="ghost" className="w-full justify-start h-12 hover:bg-green-50 hover:text-green-700">
                     <FileText className="w-5 h-5 mr-3" />
                     Candidatures ISTMR
@@ -439,7 +439,7 @@ const AdminDashboard: React.FC = () => {
                     size="sm"
                     asChild
                   >
-                    <Link to="/admin/formations/university">
+                    <Link to="/admin/formations/istmr">
                       Gérer ISTMR
                     </Link>
                   </Button>
@@ -472,7 +472,7 @@ const AdminDashboard: React.FC = () => {
                     size="sm"
                     asChild
                   >
-                    <Link to="/admin/formations/open">
+                    <Link to="/admin/formations/ouvertes">
                       Gérer Formations
                     </Link>
                   </Button>
@@ -505,7 +505,7 @@ const AdminDashboard: React.FC = () => {
                     size="sm"
                     asChild
                   >
-                    <Link to="/admin/fablab">
+                    <Link to="/admin/formations/fablab">
                       Gérer FabLab
                     </Link>
                   </Button>

@@ -795,6 +795,9 @@ const PageManagementNew: React.FC = () => {
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-crec-gold focus:border-transparent"
                         min="0"
                         step="0.01"
+                        title={`Modifier ${item.label.toLowerCase()}`}
+                        aria-label={`Modifier ${item.label.toLowerCase()}`}
+                        placeholder={`${item.label}...`}
                       />
                     ) : (
                       <input

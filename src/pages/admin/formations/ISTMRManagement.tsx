@@ -802,6 +802,8 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
                         value={tempRentree.position}
                         onChange={(e) => setTempRentree({...tempRentree, position: e.target.value as 'avant' | 'apres'})}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        title="Position de la section rentrée"
+                        aria-label="Sélectionner la position de la section rentrée"
                       >
                         <option value="avant">Avant les filières</option>
                         <option value="apres">Après les filières</option>
@@ -954,6 +956,8 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
                     value={newFiliere.type}
                     onChange={(e) => setNewFiliere({...newFiliere, type: e.target.value as 'licence' | 'master' | 'specialisation'})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    title="Type de formation"
+                    aria-label="Sélectionner le type de formation"
                   >
                     <option value="licence">Licence</option>
                     <option value="master">Master</option>
@@ -1094,6 +1098,8 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
                     value={newFiliere.type}
                     onChange={(e) => setNewFiliere({...newFiliere, type: e.target.value as 'licence' | 'master' | 'specialisation'})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    title="Type de formation"
+                    aria-label="Sélectionner le type de formation"
                   >
                     <option value="licence">Licence</option>
                     <option value="master">Master</option>
@@ -1132,6 +1138,8 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
                     value={newFiliere.statut}
                     onChange={(e) => setNewFiliere({...newFiliere, statut: e.target.value as 'active' | 'inactive'})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    title="Statut de la formation"
+                    aria-label="Sélectionner le statut de la formation"
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>

@@ -38,7 +38,7 @@ const Footer = () => {
               <li><Link to="/about" className="text-gray-300 hover:text-white transition">{t('nav.about')}</Link></li>
               <li><Link to="/formations" className="text-gray-300 hover:text-white transition">{t('nav.formations')}</Link></li>
               <li><Link to="/events" className="text-gray-300 hover:text-white transition">Actualités & Événements</Link></li>
-              <li><Link to="/resources" className="text-gray-300 hover:text-white transition">{t('nav.resources')}</Link></li>
+              <li><Link to="/news" className="text-gray-300 hover:text-white transition">Actualités</Link></li>
               <li><Link to="/contact" className="text-gray-300 hover:text-white transition">{t('nav.contact')}</Link></li>
               <li><Link to="/donate" className="text-gray-300 hover:text-white transition">{t('nav.donate')}</Link></li>
             </ul>

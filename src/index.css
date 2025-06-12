@@ -189,6 +189,81 @@
     background-color: rgba(255, 255, 255, 0.6);
   }
 
+  /* Utility classes for background images and styles */
+  .hero-bg-about {
+    background-image: url('/img/a-propos.png');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .hero-bg-formations {
+    background-image: url('/img/formation.png');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .hero-bg-contact {
+    background-image: url('/img/com.png');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .iframe-no-border {
+    border: 0;
+  }
+
+  .z-index-minus-1 {
+    z-index: -1;
+  }
+
+  .preview-container {
+    max-width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+  }
+
+  /* Dynamic z-index utilities */
+  .z-dynamic-10 {
+    z-index: 10;
+  }
+
+  .z-dynamic-20 {
+    z-index: 20;
+  }
+
+  .z-dynamic-30 {
+    z-index: 30;
+  }
+
+  .z-dynamic-40 {
+    z-index: 40;
+  }
+
+  .z-dynamic-50 {
+    z-index: 50;
+  }
+
+  /* Additional hero overlays */
+  .hero-overlay-dark {
+    background: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.7),
+      rgba(0, 0, 0, 0.4),
+      rgba(0, 0, 0, 0.7)
+    );
+  }
+
+  .hero-overlay-gradient {
+    background: linear-gradient(
+      45deg,
+      rgba(0, 0, 0, 0.8) 0%,
+      rgba(0, 0, 0, 0.6) 30%,
+      rgba(0, 0, 0, 0.4) 50%,
+      rgba(0, 0, 0, 0.6) 70%,
+      rgba(0, 0, 0, 0.8) 100%
+    );
+  }
+
   /* Amélioration de l'overlay gradient */
   .hero-overlay {
     background: linear-gradient(
@@ -199,5 +274,11 @@
       rgba(0, 0, 0, 0.6) 70%,
       rgba(0, 0, 0, 0.8) 100%
     );
+  }
+
+  /* Dynamic background image utility */
+  .bg-image-dynamic {
+    background-size: cover;
+    background-position: center;
   }
 }

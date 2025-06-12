@@ -800,6 +800,8 @@ const SectionForm: React.FC<{
           checked={formData.visible}
           onChange={(e) => setFormData({ ...formData, visible: e.target.checked })}
           className="rounded border-gray-300"
+          title="Visibilité de la section"
+          aria-label="Rendre cette section visible"
         />
         <Label htmlFor="visible">Section visible</Label>
       </div>

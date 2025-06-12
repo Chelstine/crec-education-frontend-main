@@ -78,6 +78,7 @@ const Banner: React.FC<BannerProps> = ({
               className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${
                 index === currentIndex ? 'opacity-100' : 'opacity-0'
               }`}
+              data-bg-image={image}
               style={{
                 backgroundImage: `url(${image})`,
               }}

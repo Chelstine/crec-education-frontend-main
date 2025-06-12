@@ -83,7 +83,7 @@ const UniversityPage = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1.5, ease: 'easeOut' }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-900/50 to-amber-900/30"></div>
+          <div className="absolute inset-0 bg-black/40"></div>
         </div>
         <div className="relative z-10 flex items-center justify-center h-full text-center px-4">
           <motion.div

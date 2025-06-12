@@ -214,6 +214,7 @@ const ContactPage = () => {
                       allowFullScreen
                       loading="lazy"
                       referrerPolicy="no-referrer-when-downgrade"
+                      title="Carte de localisation du Centre Jésuite de Recherche d'Étude et de Créativité à Cotonou"
                     />
                   </div>
                 </CardContent>
