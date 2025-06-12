@@ -50,14 +50,7 @@ const ContactPage = () => {
       {/* Hero Section */}
       <section className="relative w-full">
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70" />
-        <div 
-          className="min-h-[250px] md:min-h-[300px] flex flex-col items-center justify-center text-center relative text-white p-4 md:p-6"
-          style={{
-            backgroundImage: "url('/img/contact-bg.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center"
-          }}
-        >
+        <div className="min-h-[250px] md:min-h-[300px] flex flex-col items-center justify-center text-center relative text-white p-4 md:p-6 bg-contact">
           <div className="max-w-3xl mx-auto bg-black/50 p-4 md:p-8 rounded-lg backdrop-blur-sm">
             <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-2 md:mb-4">Contactez-nous</h1>
             <p className="text-lg md:text-xl lg:text-2xl">
@@ -210,7 +203,7 @@ const ContactPage = () => {
                      src="https://www.google.com/maps/embed?pb=!1m23!1m12!1m3!1d53611.21654568425!2d2.269525521679684!3d6.383382500000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m8!3e6!4m0!4m5!1s0x102357caccf1e90d%3A0xbce64d9a20725bcc!2s98MR%2B9MC%20Centre%20J%C3%A9suite%20De%20Recherche%20D&#39;Etude%20Et%20De%20Cr%C3%A9ativit%C3%A9%2C%20Unnamed%20Road%2C%20Cotonou!3m2!1d6.383447599999999!2d2.3416475!5e1!3m2!1sfr!2sbj!4v1747747530198!5m2!1sfr!2sbj"
             width="100%"
                       height="100%"
-                      style={{ border: 0 }}
+                      className="iframe-borderless"
                       allowFullScreen
                       loading="lazy"
                       referrerPolicy="no-referrer-when-downgrade"

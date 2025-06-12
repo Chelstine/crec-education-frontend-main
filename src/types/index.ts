@@ -334,7 +334,7 @@ export interface EvaluationNote {
 
 export interface EmailLog {
   id: string;
-  type: 'application_received' | 'documents_incomplete' | 'payment_reminder' | 'under_review' | 'accepted' | 'rejected' | 'waitlisted' | 'enrollment_reminder';
+  type: 'application_received' | 'documents_incomplete' | 'payment_reminder' | 'under_review' | 'accepted' | 'rejected' | 'waitlisted' | 'enrollment_reminder' | 'acceptance' | 'rejection' | 'subscription_key';
   subject: string;
   sentAt: string;
   sentBy?: string;
@@ -782,11 +782,12 @@ export interface TableProps<T> {
 // ===== SYSTÈME D'EMAIL ET NOTIFICATIONS =====
 export interface EmailTemplate {
   id: string;
-  type: 'application_received' | 'documents_incomplete' | 'payment_reminder' | 'under_review' | 'accepted' | 'rejected' | 'waitlisted' | 'enrollment_reminder';
+  type: 'application_received' | 'documents_incomplete' | 'payment_reminder' | 'under_review' | 'accepted' | 'rejected' | 'waitlisted' | 'enrollment_reminder' | 'acceptance' | 'rejection' | 'subscription_key';
   name: string;
   subject: string;
   htmlContent: string;
   textContent: string;
+  content?: string;
   variables: EmailVariable[];
   isActive: boolean;
   createdAt: string;
@@ -936,20 +937,259 @@ export interface UniversityDashboardStats {
   }[];
 }
 
-export interface ApplicationsReport {
+// ===== FABLAB PROJETS =====
+export interface ProjetFabLab {
   id: string;
-  name: string;
-  type: 'applications_summary' | 'payments_summary' | 'documents_status' | 'ranking_report';
-  filters: {
-    programIds?: string[];
-    dateRange: {
-      start: string;
-      end: string;
-    };
-    statuses?: UniversityApplication['status'][];
-  };
-  generatedAt: string;
-  generatedBy: string;
-  fileUrl?: string;
-  status: 'generating' | 'ready' | 'expired';
+  titre: string;
+  description: string;
+  category: 'iot' | '3d' | 'electronics' | 'automation' | 'art' | 'education';
+  difficulte: 'facile' | 'moyen' | 'difficile';
+  dureeRealisation: string;
+  
+  // Média support (nouvelle amélioration)
+  fichierUrl?: string; // URL de l'image ou vidéo
+  mediaUrl?: string; // Alias pour fichierUrl
+  type: 'photo' | 'video';
+  mediaType?: 'image' | 'video'; // Alias pour type
+  
+  // Détails techniques
+  technologies: string[];
+  materiaux: string[];
+  outils: string[];
+  instructions: string;
+  cout?: number; // Coût en FCFA
+  
+  // Métadonnées
+  auteur: string;
+  author?: string; // Alias pour auteur
+  featured: boolean;
+  likes: number;
+  views: number;
+  
+  // Dates
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ===== EQUIPEMENTS FABLAB =====
+export interface EquipementFabLab {
+  id: string;
+  nom: string;
+  code: string;
+  description: string;
+  tarif: number; // Prix par heure en FCFA
+  features: string[];
+  reference: string;
+  prixMensuel: number;
+  prixAnnuel: number;
+  image: string;
+  category: 'impression-3d' | 'usinage' | 'electronique' | 'outils';
+  disponible: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ===== ABONNEMENTS FABLAB =====
+export interface AbonnementFabLab {
+  id: string;
+  nom: string;
+  prenom?: string;
+  email: string;
+  telephone: string;
+  typeAbonnement: 'etudiant' | 'professionnel' | 'entreprise' | 'Mensuel' | 'Annuel';
+  duree: 'mensuel' | 'annuel';
+  statut: 'actif' | 'expire' | 'suspendu';
+  status?: 'validated' | 'pending' | 'rejected';
+  cleAbonnement?: string;
+  dateAbonnement?: string;
+  dateDebut: string;
+  dateFin: string;
+  montant: number;
+  recuPaiement?: string;
+  cleAcces: string;
+  heuresUtilisees: number;
+  limiteHeures: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ===== RESERVATIONS FABLAB =====
+export interface ReservationFabLab {
+  id: string;
+  utilisateurId: string;
+  utilisateur?: string;
+  cleAbonnement?: string;
+  machine?: string;
+  dateReservation?: string;
+  heureDebut?: string;
+  heureFin?: string;
+  status?: 'active' | 'completed' | 'cancelled' | 'pending';
+  equipementId: string;
+  dateDebut: string;
+  dateFin: string;
+  duree: number; // en heures
+  coutTotal: number;
+  statut: 'planifiee' | 'confirmee' | 'en_cours' | 'terminee' | 'annulee';
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ===== AUTRES INTERFACES =====
+export interface Filiere {
+  id: string;
+  nom: string;
+  description: string;
+  niveau: 'licence' | 'master' | 'doctorat';
+  duree: string;
+  fraisInscription: number;
+  capacite: number;
+  active: boolean;
+  prerequis?: string;
+  competences?: string[];
+  debouches?: string[];
+  profilIdeal?: string;
+  image?: string;
+  tarif?: number;
+  niveauAdmission?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InscriptionIST {
+  id: string;
+  nom: string;
+  prenom: string;
+  email: string;
+  telephone: string;
+  filiere: string;
+  niveau: string;
+  statut: 'en_attente' | 'acceptee' | 'refusee';
+  status?: 'pending' | 'accepted' | 'rejected';
+  documents: string[];
+  documentsUpload?: string[];
+  recuPaiement?: string;
+  montantPaye: number;
+  dateInscription: string;
+  lettreMotivation?: string;
+}
+
+export interface FormationOuverte {
+  id: string;
+  nom?: string;
+  titre: string;
+  description: string;
+  categorie: string;
+  category?: string;
+  niveau: string;
+  duree: string;
+  prix: number;
+  tarif?: number;
+  features?: string[];
+  certificat?: boolean;
+  icon?: string;
+  image?: string;
+  instructeur: string;
+  capacite: number;
+  inscrits: number;
+  dateDebut: string;
+  dateFin: string;
+  active: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface InscriptionFormationOuverte {
+  id: string;
+  formationId: string;
+  formation?: string;
+  nom: string;
+  prenom?: string;
+  email: string;
+  telephone: string;
+  recuPaiement?: string;
+  statut: 'en_attente' | 'confirmee' | 'annulee';
+  status?: 'pending' | 'confirmed' | 'cancelled';
+  montantPaye: number;
+  dateInscription: string;
+}
+
+export interface Evenement {
+  id: string;
+  titre: string;
+  description: string;
+  date: string;
+  heureDebut?: string;
+  heureFin?: string;
+  lieu: string;
+  organisateur?: string;
+  capacite: number;
+  maxParticipants?: number;
+  participants: number;
+  couleur?: string;
+  statut?: 'planifie' | 'en_cours' | 'termine' | 'annule';
+  type: 'conference' | 'workshop' | 'ceremonie' | 'information' | 'evenement';
+  active: boolean;
+  image?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface PublicationVieCampus {
+  id: string;
+  titre: string;
+  contenu: string;
+  description?: string;
+  auteur: string;
+  date?: string;
+  datePublication: string;
+  images?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+  type: 'actualite' | 'annonce' | 'evenement';
+  visible: boolean;
+  image?: string;
+}
+
+export interface OffreEmploi {
+  id: string;
+  titre: string;
+  entreprise: string;
+  description: string;
+  domaine?: string;
+  duree?: string;
+  localisation: string;
+  type: 'cdi' | 'cdd' | 'stage' | 'freelance';
+  salaire?: string;
+  datePublication: string;
+  dateExpiration: string;
+  createdAt?: string;
+  updatedAt?: string;
+  active: boolean;
+}
+
+export interface MessageContact {
+  id: string;
+  nom: string;
+  email: string;
+  sujet: string;
+  message: string;
+  dateEnvoi?: string;
+  status?: 'new' | 'read' | 'replied' | 'archived';
+  statut: 'nouveau' | 'lu' | 'repondu' | 'archive';
+  dateMessage: string;
+}
+
+export interface Don {
+  id: string;
+  nom?: string;
+  donateur: string;
+  email: string;
+  montant: number;
+  type: 'unique' | 'mensuel' | 'annuel';
+  statut: 'en_attente' | 'confirme' | 'rembourse';
+  status?: 'pending' | 'confirmed' | 'refunded';
+  recuPaiement?: string;
+  message?: string;
+  dateDon: string;
 }

@@ -294,13 +294,23 @@ const SectionsManagement: React.FC = () => {
   const renderSectionPreview = (section: Section) => {
     switch (section.type) {
       case 'hero':
+        // Génère une classe CSS unique pour chaque combinaison de couleurs
+        const bgColor = section.backgroundColor || '#1e3a8a';
+        const textColor = section.textColor || '#ffffff';
+        const colorKey = `${bgColor}-${textColor}`.replace(/[^a-z0-9]/gi, '');
+        const heroClassName = `hero-preview-${colorKey}`;
+        
+        // Ajoute le style CSS si pas déjà présent
+        if (typeof window !== 'undefined' && !document.getElementById(heroClassName)) {
+          const style = document.createElement('style');
+          style.id = heroClassName;
+          style.innerHTML = `.${heroClassName} { background-color: ${bgColor}; color: ${textColor}; }`;
+          document.head.appendChild(style);
+        }
+        
         return (
           <div 
-            className="h-32 rounded-lg flex items-center justify-center p-4 text-center"
-            style={{ 
-              backgroundColor: section.backgroundColor || '#1e3a8a',
-              color: section.textColor || '#ffffff'
-            }}
+            className={`h-32 rounded-lg flex items-center justify-center p-4 text-center ${heroClassName}`}
           >
             <div>
               <h2 className="text-xl font-bold mb-2">{section.title}</h2>

@@ -38,12 +38,7 @@ const FormationsHubPage = () => {
       <section className="relative w-full">
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70" />
         <div 
-          className="min-h-[400px] flex flex-col items-center justify-center text-center relative text-white p-6"
-          style={{
-            backgroundImage: "url('/img/formation.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center"
-          }}
+          className="min-h-[400px] flex flex-col items-center justify-center text-center relative text-white p-6 bg-formations-hub"
           role="banner"
         >
           <motion.div 

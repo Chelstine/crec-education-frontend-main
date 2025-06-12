@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, Mail, Phone, User, CreditCard, Clock, Shield, Star, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import ProgressBar from '@/components/ui/progress-bar';
 
 interface FormData {
   firstName: string;
@@ -201,12 +202,10 @@ const SubscriptionPage = () => {
           </div>
           
           {/* Barre de progression */}
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-gradient-to-r from-blue-500 to-amber-500 h-2 rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${(step / 3) * 100}%` }}
-            />
-          </div>
+          <ProgressBar 
+            percentage={(step / 3) * 100} 
+            barClassName="bg-gradient-to-r from-blue-500 to-amber-500 transition-all duration-500 ease-out"
+          />
         </div>
       </section>
 
@@ -362,13 +361,15 @@ const SubscriptionPage = () => {
                       <div className="flex items-center gap-2">
                         <input
                           type="radio"
+                          id={`plan-${plan.id}`}
                           name="subscriptionType"
                           value={plan.id}
                           checked={formData.subscriptionType === plan.id}
                           onChange={handleChange}
                           className="w-4 h-4 text-blue-600"
+                          aria-describedby={`plan-${plan.id}-description`}
                         />
-                        <label className="text-sm font-medium text-gray-700">
+                        <label htmlFor={`plan-${plan.id}`} className="text-sm font-medium text-gray-700">
                           Choisir ce plan
                         </label>
                       </div>
@@ -420,12 +421,14 @@ const SubscriptionPage = () => {
                   <div className="flex items-center gap-2 mt-6">
                     <input
                       type="checkbox"
+                      id="termsAccepted"
                       name="termsAccepted"
                       checked={formData.termsAccepted}
                       onChange={handleChange}
                       className="w-4 h-4 text-blue-600 rounded border-gray-300"
+                      aria-describedby="terms-description"
                     />
-                    <label className="text-sm text-gray-700">
+                    <label htmlFor="termsAccepted" className="text-sm text-gray-700">
                       J'accepte les{' '}
                       <a href="#" className="text-blue-600 hover:underline">
                         conditions générales d'utilisation

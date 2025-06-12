@@ -281,4 +281,103 @@
     background-size: cover;
     background-position: center;
   }
+
+  /* Background image classes to replace inline styles */
+  .bg-a-propos {
+    background-image: url('/img/a-propos.png');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .bg-formations-hub {
+    background-image: url('/img/formation.png');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .bg-open-formations {
+    background-image: url('/img/formation.png');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .bg-contact {
+    background-image: url('/img/contact.png');
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* Border utility classes */
+  .border-none-important {
+    border: 0 !important;
+  }
+
+  /* Transform utilities */
+  .transform-scale-hover:hover {
+    transform: scale(1.02);
+  }
+
+  .transform-rotate-6 {
+    transform: rotate(6deg);
+  }
+
+  /* Dynamic background image using CSS custom properties */
+  .bg-dynamic {
+    background-image: var(--bg-image);
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* Iframe utilities */
+  .iframe-borderless {
+    border: 0;
+  }
+
+  /* Progress bar utilities */
+  .progress-bar-dynamic {
+    width: var(--progress-width);
+  }
+
+  /* Hero section with dynamic colors */
+  .hero-dynamic {
+    background-color: var(--hero-bg-color, #1e3a8a);
+    color: var(--hero-text-color, #ffffff);
+  }
+
+  /* Hero section with default blue theme */
+  .hero-blue-theme {
+    background-color: #1e3a8a;
+    color: #ffffff;
+  }
+
+  /* Hero section with custom colors applied via CSS variables */
+  .hero-custom-colors {
+    background-color: var(--section-bg-color);
+    color: var(--section-text-color);
+  }
+
+  /* Progress bar width utility */
+  .progress-width-dynamic {
+    width: var(--progress-percentage, 0%);
+  }
+
+  /* Background utilities for banners */
+  .bg-image-dynamic {
+    background-image: var(--bg-url);
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* Utilitaire pour background dynamique sans style inline direct */
+  .dynamic-bg {
+    background-image: var(--bg-url);
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* Utilitaire pour section hero dynamique */
+  .dynamic-hero-section {
+    background-color: var(--hero-bg, #1e3a8a);
+    color: var(--hero-color, #ffffff);
+  }
 }

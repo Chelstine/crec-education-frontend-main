@@ -273,10 +273,10 @@ const FabLabFormationsManagement: React.FC = () => {
   const getFilteredData = (): (Project | Machine | Service | Tariff)[] => {
     const getData = (): (Project | Machine | Service | Tariff)[] => {
       switch (activeTab) {
-        case 'projects': return projects;
-        case 'machines': return machines;
-        case 'services': return services;
-        case 'tariffs': return tariffs;
+        case 'projects': return projects.filter(Boolean);
+        case 'machines': return machines.filter(Boolean);
+        case 'services': return services.filter(Boolean);
+        case 'tariffs': return tariffs.filter(Boolean);
         default: return [];
       }
     };
@@ -284,13 +284,15 @@ const FabLabFormationsManagement: React.FC = () => {
     let filtered = getData();
     if (searchTerm) {
       filtered = filtered.filter((item: any) =>
-        item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.category?.toLowerCase().includes(searchTerm.toLowerCase())
+        item && (
+          item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.category?.toLowerCase().includes(searchTerm.toLowerCase())
+        )
       );
     }
-    return filtered;
+    return filtered.filter(Boolean);
   };
 
   const getStatusBadge = (status: string) => {
@@ -632,11 +634,13 @@ const FabLabFormationsManagement: React.FC = () => {
                         <TableCell>
                           {getStatusBadge(machine.status)}
                         </TableCell>
-                        <TableCell>{machine.price.toLocaleString()} FCFA</TableCell>
+                        <TableCell>
+                          {machine.price ? machine.price.toLocaleString() : '0'} FCFA
+                        </TableCell>
                         <TableCell>
                           <div className="text-sm">
-                            <div>Dernier: {new Date(machine.lastMaintenance).toLocaleDateString('fr-FR')}</div>
-                            <div className="text-gray-500">Prochain: {new Date(machine.nextMaintenance).toLocaleDateString('fr-FR')}</div>
+                            <div>Dernier: {machine.lastMaintenance ? new Date(machine.lastMaintenance).toLocaleDateString('fr-FR') : 'N/A'}</div>
+                            <div className="text-gray-500">Prochain: {machine.nextMaintenance ? new Date(machine.nextMaintenance).toLocaleDateString('fr-FR') : 'N/A'}</div>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -695,7 +699,9 @@ const FabLabFormationsManagement: React.FC = () => {
                           <Badge variant="outline">{service.category}</Badge>
                         </TableCell>
                         <TableCell>{service.duration}</TableCell>
-                        <TableCell>{service.price.toLocaleString()} FCFA</TableCell>
+                        <TableCell>
+                          {service.price ? service.price.toLocaleString() : '0'} FCFA
+                        </TableCell>
                         <TableCell>
                           {getStatusBadge(service.status)}
                         </TableCell>
@@ -754,7 +760,9 @@ const FabLabFormationsManagement: React.FC = () => {
                         <TableCell>
                           <Badge variant="outline">{tariff.type}</Badge>
                         </TableCell>
-                        <TableCell>{tariff.price.toLocaleString()} FCFA</TableCell>
+                        <TableCell>
+                          {tariff.price ? tariff.price.toLocaleString() : '0'} FCFA
+                        </TableCell>
                         <TableCell>{tariff.unit}</TableCell>
                         <TableCell>
                           {getStatusBadge(tariff.status)}

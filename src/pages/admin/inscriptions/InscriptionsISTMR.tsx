@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import ProgressBar from '@/components/ui/progress-bar';
 import {
   Dialog,
   DialogContent,
@@ -533,10 +534,11 @@ const InscriptionsISTMR: React.FC = () => {
                             {calculateDocumentCompleteness(inscription.documents)}% complet
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-blue-600 h-2 rounded-full" 
-                              style={{ width: `${calculateDocumentCompleteness(inscription.documents)}%` }}
-                            ></div>
+                            <ProgressBar 
+                              percentage={calculateDocumentCompleteness(inscription.documents)} 
+                              barClassName="bg-blue-600"
+                              className="h-2"
+                            />
                           </div>
                         </div>
                       </TableCell>

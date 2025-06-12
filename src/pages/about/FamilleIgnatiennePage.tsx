@@ -68,14 +68,7 @@ const FamilleIgnatiennePage = () => {
       {/* Hero Section */}
       <section className="relative w-full">
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70" />
-        <div
-          className="min-h-[400px] flex flex-col items-center justify-center text-center relative text-white p-6"
-          style={{
-            backgroundImage: "url('/img/a-propos.png')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}
-        >
+        <div className="min-h-[400px] flex flex-col items-center justify-center text-center relative text-white p-6 bg-a-propos">
           <div className="max-w-3xl mx-auto bg-black/50 p-8 rounded-lg backdrop-blur-sm">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">La Famille Ignatienne</h1>
             <p className="text-xl md:text-2xl mb-8">

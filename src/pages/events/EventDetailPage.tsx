@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link, useParams } from "react-router-dom";
 import { Calendar, MapPin, Clock, Users, Share2, Bookmark } from "lucide-react";
+import DynamicBackground from '@/components/ui/dynamic-background';
 
 // Données factices pour l'événement
 const eventData = {
@@ -78,13 +79,9 @@ const EventDetailPage = () => {
       {/* Hero Section */}
       <section className="relative w-full">
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70" />
-        <div 
+        <DynamicBackground 
+          imageUrl={event.image}
           className="min-h-[400px] flex flex-col items-center justify-center text-center relative text-white p-6"
-          style={{
-            backgroundImage: `url(${event.image})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center"
-          }}
         >
           <div className="max-w-3xl mx-auto bg-black/50 p-8 rounded-lg backdrop-blur-sm">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">{event.title}</h1>
@@ -103,7 +100,7 @@ const EventDetailPage = () => {
               </div>
             </div>
           </div>
-        </div>
+        </DynamicBackground>
       </section>
 
       {/* Main Content */}
@@ -219,10 +216,11 @@ const EventDetailPage = () => {
                       src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.9916256937595!2d2.292292615509614!3d48.85837007928757!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e2964e34e2d%3A0x8ddca9ee380ef7e0!2sTour%20Eiffel!5e0!3m2!1sfr!2sfr!4v1647874586708!5m2!1sfr!2sfr"
                       width="100%"
                       height="100%"
-                      style={{ border: 0 }}
+                      className="iframe-borderless"
                       allowFullScreen
                       loading="lazy"
                       referrerPolicy="no-referrer-when-downgrade"
+                      title="Carte de localisation de l'événement"
                     />
                   </div>
                   <p className="mt-4 text-gray-600">
@@ -254,4 +252,4 @@ const EventDetailPage = () => {
   );
 };
 
-export default EventDetailPage; 
+export default EventDetailPage;

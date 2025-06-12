@@ -107,14 +107,7 @@ const OpenFormationsPage = () => {
       {/* Hero Section */}
       <section className="relative w-full">
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70" />
-        <div 
-          className="min-h-[500px] flex flex-col items-center justify-center text-center relative text-white p-6"
-          style={{
-            backgroundImage: "url('/img/formation.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center"
-          }}
-        >
+        <div className="min-h-[500px] flex flex-col items-center justify-center text-center relative text-white p-6 bg-open-formations">
           <motion.div 
             className="max-w-4xl mx-auto bg-black/60 p-10 rounded-2xl backdrop-blur-md"
             initial={{ opacity: 0, y: 20 }}

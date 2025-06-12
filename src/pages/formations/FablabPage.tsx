@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Printer, Wrench, MapPin, Clock, Lightbulb, Users, BookOpen, Cpu, Zap, Cog, Wifi } from 'lucide-react';
+import { Printer, Wrench, MapPin, Clock, Lightbulb, Users, BookOpen, Cpu, Zap, Cog, Wifi, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { ProjetFabLab, EquipementFabLab } from '@/types';
+import { mockProjetsFabLab, mockEquipementsFabLab } from '@/services/mockData';
 
-// Define TypeScript interface
+// Define TypeScript interface for machines (compatibility)
 interface Machine {
   name: string;
   code: string;
@@ -20,106 +22,9 @@ const FablabPage = () => {
   // State pour le filtrage des projets
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
 
-  // Interface pour les projets réalisés
-  interface Project {
-    id: number;
-    title: string;
-    description: string;
-    image: string;
-    technologies: string[];
-    category: 'iot' | '3d' | 'electronics' | 'automation';
-  }
-
-  const projects: Project[] = [
-    {
-      id: 1,
-      title: "Système d'arrosage automatique Arduino",
-      description: "Système intelligent d'arrosage des plantes utilisant des capteurs d'humidité du sol et une pompe contrôlée par Arduino.",
-      image: "/img/projects/arduino-watering.jpg",
-      technologies: ["Arduino", "Capteurs d'humidité", "Pompe", "Relais"],
-      category: "automation"
-    },
-    {
-      id: 2,
-      title: "Station météo ESP32",
-      description: "Station météorologique connectée mesurant température, humidité et pression atmosphérique avec affichage en temps réel.",
-      image: "/img/projects/esp32-weather.jpg",
-      technologies: ["ESP32", "DHT22", "BMP280", "WiFi", "Web Server"],
-      category: "iot"
-    },
-    {
-      id: 3,
-      title: "Système de présence RFID",
-      description: "Système automatisé de gestion des présences utilisant des cartes RFID et une base de données en temps réel.",
-      image: "/img/projects/attendance-system.jpg",
-      technologies: ["RFID", "Arduino", "LCD", "Base de données", "Buzzer"],
-      category: "electronics"
-    },
-    {
-      id: 4,
-      title: "Robot éducatif programmable",
-      description: "Robot mobile programmable pour l'apprentissage de la robotique avec détection d'obstacles et contrôle à distance.",
-      image: "/img/projects/educational-robot.jpg",
-      technologies: ["Arduino", "Moteurs", "Capteurs ultrason", "Bluetooth"],
-      category: "electronics"
-    },
-    {
-      id: 5,
-      title: "Prothèse de main imprimée 3D",
-      description: "Prothèse de main fonctionnelle imprimée en 3D avec mécanisme de préhension assistée par servomoteurs.",
-      image: "/img/projects/prosthetic-hand.jpg",
-      technologies: ["Impression 3D", "Servomoteurs", "Arduino", "Capteurs de pression"],
-      category: "3d"
-    },
-    {
-      id: 6,
-      title: "Lampe IoT intelligente",
-      description: "Lampe connectée contrôlable via smartphone avec ajustement automatique de l'intensité selon l'heure.",
-      image: "/img/projects/iot-lamp.jpg",
-      technologies: ["ESP32", "LED RGB", "Photorésistance", "Application mobile"],
-      category: "iot"
-    },
-    {
-      id: 7,
-      title: "Système de sécurité Raspberry Pi",
-      description: "Système de surveillance avec détection de mouvement, capture vidéo et notifications push.",
-      image: "/img/projects/raspberry-security.jpg",
-      technologies: ["Raspberry Pi", "Caméra", "PIR", "Python", "Notifications"],
-      category: "electronics"
-    },
-    {
-      id: 8,
-      title: "Maquette d'ascenseur automatisé",
-      description: "Modèle réduit d'ascenseur avec système de contrôle d'étages et sécurités intégrées.",
-      image: "/img/projects/elevator-model.jpg",
-      technologies: ["Arduino", "Moteur pas-à-pas", "Capteurs de position", "LCD"],
-      category: "automation"
-    },
-    {
-      id: 9,
-      title: "Maison connectée intelligente",
-      description: "Système domotique complet avec contrôle de l'éclairage, température et sécurité via smartphone.",
-      image: "/img/projects/smart-home.jpg",
-      technologies: ["ESP32", "Relais", "Capteurs", "WiFi", "Application mobile"],
-      category: "iot"
-    },
-    {
-      id: 10,
-      title: "Installation artistique interactive",
-      description: "Œuvre d'art numérique réagissant aux mouvements des visiteurs avec effets lumineux et sonores.",
-      image: "/img/projects/interactive-art.jpg",
-      technologies: ["Arduino", "Capteurs de mouvement", "LED", "Haut-parleurs"],
-      category: "electronics"
-    },
-    {
-      id: 11,
-      title: "Porte-clés personnalisés gravés",
-      description: "Collection de porte-clés en bois gravés au laser avec des motifs personnalisés pour les étudiants.",
-      image: "/img/projects/wooden-keychains.jpg",
-      technologies: ["Gravure laser", "Bois", "Design vectoriel"],
-      category: "3d"
-    }
-  ];
+  // Utiliser les données mockées centralisées
+  const projects = mockProjetsFabLab;
+  const equipements = mockEquipementsFabLab;
 
   // Fonction pour filtrer les projets selon la catégorie sélectionnée
   const filteredProjects = selectedFilter === 'all' 
@@ -381,11 +286,25 @@ const FablabPage = () => {
               >
                 <Card className="h-full overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 bg-white/90 backdrop-blur-sm">
                   <div className="relative overflow-hidden">
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
-                    />
+                    {/* Support vidéo/image avec indicateur */}
+                    {project.type === 'video' || project.mediaType === 'video' ? (
+                      <div className="relative">
+                        <img
+                          src={project.fichierUrl || project.mediaUrl || "/img/placeholder-project.jpg"}
+                          alt={project.titre}
+                          className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                          <Play className="w-12 h-12 text-white" />
+                        </div>
+                      </div>
+                    ) : (
+                      <img
+                        src={project.fichierUrl || project.mediaUrl || "/img/placeholder-project.jpg"}
+                        alt={project.titre}
+                        className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+                      />
+                    )}
                     <div className="absolute top-2 right-2">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium text-white ${
                         project.category === 'iot' ? 'bg-blue-500' :
@@ -399,27 +318,60 @@ const FablabPage = () => {
                          'Automatisation'}
                       </span>
                     </div>
+                    {/* Indicateur vidéo */}
+                    {(project.type === 'video' || project.mediaType === 'video') && (
+                      <div className="absolute top-2 left-2">
+                        <span className="px-2 py-1 bg-red-500 text-white rounded-full text-xs font-medium">
+                          🎥 Vidéo
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <CardContent className="p-4">
                     <h3 className="font-bold text-lg text-jesuit-dark mb-2 line-clamp-2">
-                      {project.title}
+                      {project.titre}
                     </h3>
                     <p className="text-sm text-jesuit-darkgray mb-3 line-clamp-3">
                       {project.description}
                     </p>
-                    <div className="space-y-2">
-                      <h4 className="text-xs font-semibold text-jesuit-dark uppercase tracking-wide">
-                        Technologies utilisées
-                      </h4>
-                      <div className="flex flex-wrap gap-1">
-                        {project.technologies.map((tech, techIndex) => (
-                          <span
-                            key={techIndex}
-                            className="px-2 py-1 bg-jesuit-light text-jesuit-dark text-xs rounded-md font-medium"
-                          >
-                            {tech}
+                    
+                    {/* Informations enrichies */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span>👁 {project.views}</span>
+                        <span>❤️ {project.likes}</span>
+                        <span>⏱ {project.dureeRealisation}</span>
+                        {project.cout && (
+                          <span className="font-medium text-jesuit-gold">
+                            {project.cout.toLocaleString()} F
                           </span>
-                        ))}
+                        )}
+                      </div>
+                      
+                      <div>
+                        <h4 className="text-xs font-semibold text-jesuit-dark uppercase tracking-wide mb-1">
+                          Technologies utilisées
+                        </h4>
+                        <div className="flex flex-wrap gap-1">
+                          {project.technologies.slice(0, 4).map((tech, techIndex) => (
+                            <span
+                              key={techIndex}
+                              className="px-2 py-1 bg-jesuit-light text-jesuit-dark text-xs rounded-md font-medium"
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                          {project.technologies.length > 4 && (
+                            <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">
+                              +{project.technologies.length - 4}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Auteur */}
+                      <div className="text-xs text-gray-500">
+                        <span className="font-medium">Par:</span> {project.auteur || project.author}
                       </div>
                     </div>
                   </CardContent>
@@ -500,9 +452,9 @@ const FablabPage = () => {
         </div>
       </section>
 
-      {/* Services et Tarifs */}
+      {/* Services et Tarifs Unifiés */}
       <section className="py-16 bg-jesuit-light">
-        <div className="max-w-5xl mx-auto px-4">
+        <div className="max-w-6xl mx-auto px-4">
           <motion.h2
             className="text-3xl font-bold mb-12 text-center text-jesuit-dark"
             initial={{ opacity: 0, y: -20 }}
@@ -512,40 +464,222 @@ const FablabPage = () => {
           >
             Services et tarifs
           </motion.h2>
-          <motion.div
-            className="space-y-12"
+          
+          {/* Abonnements */}
+          <motion.div 
+            className="mb-16"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+          >
+            <h3 className="text-2xl font-semibold text-jesuit-dark mb-8 text-center">Abonnements FabLab</h3>
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card className="bg-white shadow-lg border-2 border-jesuit-gold">
+                <CardContent className="p-6 text-center">
+                  <Users className="w-12 h-12 text-jesuit-gold mx-auto mb-4" />
+                  <h4 className="text-xl font-bold text-jesuit-dark mb-2">Étudiant</h4>
+                  <div className="text-3xl font-bold text-jesuit-gold mb-4">15,000 FCFA</div>
+                  <p className="text-sm text-jesuit-darkgray mb-6">par mois</p>
+                  <ul className="text-sm text-jesuit-darkgray space-y-2 mb-6 text-left">
+                    <li>✓ Accès illimité aux machines</li>
+                    <li>✓ Formations de base incluses</li>
+                    <li>✓ Support technique</li>
+                    <li>✓ Stockage de projets</li>
+                  </ul>
+                  <Link to="/formations/fablab/inscription" className="block">
+                    <Button className="w-full bg-jesuit-gold hover:bg-jesuit-gold/90">
+                      S'abonner
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white shadow-lg border-2 border-purple-500 relative">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-purple-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                    Populaire
+                  </span>
+                </div>
+                <CardContent className="p-6 text-center">
+                  <Lightbulb className="w-12 h-12 text-purple-500 mx-auto mb-4" />
+                  <h4 className="text-xl font-bold text-jesuit-dark mb-2">Professionnel</h4>
+                  <div className="text-3xl font-bold text-purple-500 mb-4">25,000 FCFA</div>
+                  <p className="text-sm text-jesuit-darkgray mb-6">par mois</p>
+                  <ul className="text-sm text-jesuit-darkgray space-y-2 mb-6 text-left">
+                    <li>✓ Tout de l'abonnement Étudiant</li>
+                    <li>✓ Accès prioritaire aux machines</li>
+                    <li>✓ Formations avancées incluses</li>
+                    <li>✓ Projets commerciaux autorisés</li>
+                    <li>✓ Support technique prioritaire</li>
+                  </ul>
+                  <Link to="/formations/fablab/inscription" className="block">
+                    <Button className="w-full bg-purple-500 hover:bg-purple-600">
+                      S'abonner
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white shadow-lg">
+                <CardContent className="p-6 text-center">
+                  <Cog className="w-12 h-12 text-blue-500 mx-auto mb-4" />
+                  <h4 className="text-xl font-bold text-jesuit-dark mb-2">Sur mesure</h4>
+                  <div className="text-3xl font-bold text-blue-500 mb-4">Devis</div>
+                  <p className="text-sm text-jesuit-darkgray mb-6">personnalisé</p>
+                  <ul className="text-sm text-jesuit-darkgray space-y-2 mb-6 text-left">
+                    <li>✓ Formation sur mesure</li>
+                    <li>✓ Accompagnement projet</li>
+                    <li>✓ Tarifs préférentiels</li>
+                    <li>✓ Support dédié</li>
+                  </ul>
+                  <Link to="/contact" className="block">
+                    <Button variant="outline" className="w-full border-blue-500 text-blue-500 hover:bg-blue-50">
+                      Nous contacter
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
+          </motion.div>
+
+          {/* Services et Formations */}
+          <motion.div 
+            className="mb-16"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card className="bg-white/80 backdrop-blur-sm shadow-md">
+            <h3 className="text-2xl font-semibold text-jesuit-dark mb-8 text-center">Formations et Services</h3>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Card className="bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all">
                 <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold text-jesuit-dark flex items-center gap-2 mb-4">
-                    <Wrench className="w-6 h-6 text-jesuit-gold" /> Utilisation autonome
-                  </h3>
-                  <ul className="text-jesuit-darkgray text-base list-disc list-inside">
-                    <li>Réservation en ligne</li>
-                    <li>Formation obligatoire (164,125 FCFA)</li>
-                    <li>Accès supervisé (25,210 FCFA/heure)</li>
-                  </ul>
+                  <Printer className="w-8 h-8 text-jesuit-gold mb-3" />
+                  <h4 className="text-lg font-semibold text-jesuit-dark mb-2">Formation Impression 3D</h4>
+                  <p className="text-jesuit-darkgray text-sm mb-4">
+                    Apprenez les bases de l'impression 3D et la conception pour la fabrication additive
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-jesuit-gold">25,000 FCFA</span>
+                    <span className="text-sm text-jesuit-darkgray">4h</span>
+                  </div>
                 </CardContent>
               </Card>
-              <Card className="bg-white/80 backdrop-blur-sm shadow-md">
+
+              <Card className="bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all">
                 <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold text-jesuit-dark flex items-center gap-2 mb-4">
-                    <Printer className="w-6 h-6 text-jesuit-gold" /> Service assisté
-                  </h3>
-                  <ul className="text-jesuit-darkgray text-base list-disc list-inside">
-                    <li>Envoyez votre fichier</li>
-                    <li>Devis personnalisé</li>
-                    <li>Fabrication et retrait (47,268 FCFA/heure)</li>
-                  </ul>
+                  <Cpu className="w-8 h-8 text-jesuit-gold mb-3" />
+                  <h4 className="text-lg font-semibold text-jesuit-dark mb-2">Arduino & IoT</h4>
+                  <p className="text-jesuit-darkgray text-sm mb-4">
+                    Découvrez l'électronique et programmez vos premiers objets connectés
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-jesuit-gold">30,000 FCFA</span>
+                    <span className="text-sm text-jesuit-darkgray">6h</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all">
+                <CardContent className="p-6">
+                  <Wrench className="w-8 h-8 text-jesuit-gold mb-3" />
+                  <h4 className="text-lg font-semibold text-jesuit-dark mb-2">Prototypage Rapide</h4>
+                  <p className="text-jesuit-darkgray text-sm mb-4">
+                    Service complet de prototypage pour vos projets innovants
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-jesuit-gold">Sur devis</span>
+                    <span className="text-sm text-jesuit-darkgray">1-5j</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all">
+                <CardContent className="p-6">
+                  <Lightbulb className="w-8 h-8 text-jesuit-gold mb-3" />
+                  <h4 className="text-lg font-semibold text-jesuit-dark mb-2">Consultation Projet</h4>
+                  <p className="text-jesuit-darkgray text-sm mb-4">
+                    Conseil personnalisé pour votre projet de fabrication numérique
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-jesuit-gold">15,000 FCFA</span>
+                    <span className="text-sm text-jesuit-darkgray">1h</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all">
+                <CardContent className="p-6">
+                  <Users className="w-8 h-8 text-jesuit-gold mb-3" />
+                  <h4 className="text-lg font-semibold text-jesuit-dark mb-2">Utilisation Supervisée</h4>
+                  <p className="text-jesuit-darkgray text-sm mb-4">
+                    Accès aux machines avec supervision pour les non-abonnés
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-jesuit-gold">5,000 FCFA</span>
+                    <span className="text-sm text-jesuit-darkgray">/heure</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all">
+                <CardContent className="p-6">
+                  <Cog className="w-8 h-8 text-jesuit-gold mb-3" />
+                  <h4 className="text-lg font-semibold text-jesuit-dark mb-2">Service Assisté</h4>
+                  <p className="text-jesuit-darkgray text-sm mb-4">
+                    Nous réalisons votre projet selon vos spécifications
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-jesuit-gold">15,000 FCFA</span>
+                    <span className="text-sm text-jesuit-darkgray">/heure</span>
+                  </div>
                 </CardContent>
               </Card>
             </div>
-          
+          </motion.div>
+
+          {/* Tarifs des matériaux */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            <h3 className="text-2xl font-semibold text-jesuit-dark mb-8 text-center">Tarifs des Matériaux</h3>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card className="bg-white shadow-md">
+                <CardContent className="p-4 text-center">
+                  <h4 className="font-semibold text-jesuit-dark mb-2">Filament PLA</h4>
+                  <div className="text-xl font-bold text-jesuit-gold">500 FCFA</div>
+                  <p className="text-sm text-jesuit-darkgray">par gramme</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white shadow-md">
+                <CardContent className="p-4 text-center">
+                  <h4 className="font-semibold text-jesuit-dark mb-2">Filament ABS</h4>
+                  <div className="text-xl font-bold text-jesuit-gold">600 FCFA</div>
+                  <p className="text-sm text-jesuit-darkgray">par gramme</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white shadow-md">
+                <CardContent className="p-4 text-center">
+                  <h4 className="font-semibold text-jesuit-dark mb-2">Plaque Acrylique</h4>
+                  <div className="text-xl font-bold text-jesuit-gold">2,000 FCFA</div>
+                  <p className="text-sm text-jesuit-darkgray">par dm²</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white shadow-md">
+                <CardContent className="p-4 text-center">
+                  <h4 className="font-semibold text-jesuit-dark mb-2">Contreplaqué</h4>
+                  <div className="text-xl font-bold text-jesuit-gold">1,500 FCFA</div>
+                  <p className="text-sm text-jesuit-darkgray">par dm²</p>
+                </CardContent>
+              </Card>
+            </div>
           </motion.div>
         </div>
       </section>

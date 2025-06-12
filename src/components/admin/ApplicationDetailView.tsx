@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import DocumentViewer from './DocumentViewer';
 import EmailNotification from './EmailNotification';
+import ProgressBar from '@/components/ui/progress-bar';
 
 interface Document {
   id: string;
@@ -209,6 +210,8 @@ const ApplicationDetailView: React.FC<ApplicationDetailViewProps> = ({
               <button
                 onClick={onClose}
                 className="p-2 text-gray-400 hover:text-gray-600 rounded-lg"
+                title="Fermer la vue détaillée"
+                aria-label="Fermer la vue détaillée"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -361,12 +364,10 @@ const ApplicationDetailView: React.FC<ApplicationDetailViewProps> = ({
                       {calculateDocumentCompletionPercentage()}% complété
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${calculateDocumentCompletionPercentage()}%` }}
-                    />
-                  </div>
+                  <ProgressBar 
+                    percentage={calculateDocumentCompletionPercentage()} 
+                    barClassName="bg-blue-600"
+                  />
                 </div>
 
                 {/* Documents List */}
@@ -525,6 +526,7 @@ const ApplicationDetailView: React.FC<ApplicationDetailViewProps> = ({
                     value={score}
                     onChange={(e) => setScore(Number(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    aria-label="Score d'évaluation de 0 à 100"
                   />
                 </div>
               </div>

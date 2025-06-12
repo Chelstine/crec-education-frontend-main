@@ -72,18 +72,28 @@ const Banner: React.FC<BannerProps> = ({
       {/* Background Images with smooth transition */}
       {bgImages && bgImages.length > 0 ? (
         <>
-          {bgImages.map((image, index) => (
-            <div
-              key={index}
-              className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${
-                index === currentIndex ? 'opacity-100' : 'opacity-0'
-              }`}
-              data-bg-image={image}
-              style={{
-                backgroundImage: `url(${image})`,
-              }}
-            />
-          ))}
+          {bgImages.map((image, index) => {
+            // Génère une classe CSS unique pour chaque image
+            const imageKey = btoa(image).replace(/[^a-z0-9]/gi, '').toLowerCase().substring(0, 10);
+            const className = `bg-url-${imageKey}`;
+            
+            // Ajoute le style CSS si pas déjà présent
+            if (typeof window !== 'undefined' && !document.getElementById(className)) {
+              const style = document.createElement('style');
+              style.id = className;
+              style.innerHTML = `.${className} { background-image: url('${image}'); }`;
+              document.head.appendChild(style);
+            }
+            
+            return (
+              <div
+                key={index}
+                className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${className} ${
+                  index === currentIndex ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
+            );
+          })}
         </>
       ) : (
         <div className={`absolute inset-0 ${defaultBg}`} />

@@ -72,7 +72,7 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 w-full z-50 bg-white shadow-md" style={{ fontFamily: 'Cambria, serif', fontSize: '14pt' }}>
+    <header className="sticky top-0 w-full z-50 bg-white shadow-md font-serif text-[14pt]">
       <div className="container mx-auto flex items-center py-2 md:py-4 px-4 md:px-6">
         {/* Logo section - responsive width */}
         <div className="flex-shrink-0 lg:w-1/5">
