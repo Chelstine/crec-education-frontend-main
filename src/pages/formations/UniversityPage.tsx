@@ -79,8 +79,8 @@ const UniversityPage = () => {
       <section className="relative w-full h-[500px] md:h-[600px] overflow-hidden">
         <div className="absolute inset-0">
           <motion.img
-            src="/img/matteo-ricci/composite-hero.jpeg"
-            alt="Composite image of Matteo Ricci"
+            src="/img/crec3.jpg"
+            alt="Campus CREC - ISTMR"
             className="w-full h-full object-cover"
             initial={{ opacity: 0, scale: 1.1 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -111,12 +111,7 @@ const UniversityPage = () => {
               >
                 S'inscrire maintenant
               </Link>
-              <a
-                href="#about"
-                className="px-6 py-3 border border-blue-900 text-blue-900 hover:bg-blue-900 hover:text-white rounded-full transition-all duration-300"
-              >
-                En savoir plus
-              </a>
+             
             </div>
           </motion.div>
         </div>
@@ -175,6 +170,38 @@ const UniversityPage = () => {
           >
             Pionnier du dialogue interculturel et de l'éducation scientifique
           </motion.p>
+          
+          {/* Photos de Matteo Ricci */}
+          <motion.div
+            className="flex justify-center gap-4 mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden shadow-md">
+              <img 
+                src="/img/matteo-ricci/matteo1.jpeg"
+                alt="Portrait de Matteo Ricci"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden shadow-md">
+              <img 
+                src="/img/matteo-ricci/matteo2.jpeg"
+                alt="Matteo Ricci en Chine"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden shadow-md">
+              <img 
+                src="/img/matteo-ricci/matteo3.jpeg"
+                alt="Œuvre de Matteo Ricci"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </motion.div>
+
           <div className="grid md:grid-cols-2 gap-12">
             <motion.div
               initial={{ opacity: 0, x: -30 }}

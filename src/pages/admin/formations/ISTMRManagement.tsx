@@ -6,6 +6,17 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import {
   Search,
   Download,
   Eye,
@@ -23,7 +34,10 @@ import {
   Info,
   Calendar,
   MapPin,
-  Clock
+  Clock,
+  UserPlus,
+  UserMinus,
+  AlertTriangle
 } from 'lucide-react';
 
 interface Filiere {
@@ -36,7 +50,6 @@ interface Filiere {
   profil: string;
   type: 'licence' | 'master' | 'specialisation';
   duree: string;
-  capacite: number;
   inscrits: number;
   fraisInscription: number;
   statut: 'active' | 'inactive';
@@ -70,6 +83,8 @@ const ISTMRManagement: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingFiliere, setEditingFiliere] = useState<Filiere | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [studentAdjustments, setStudentAdjustments] = useState<{[key: string]: number}>({});
   const [newFiliere, setNewFiliere] = useState<Partial<Filiere>>({
     title: '',
     description: '',
@@ -79,7 +94,7 @@ const ISTMRManagement: React.FC = () => {
     profil: '',
     type: 'licence',
     duree: '3 ans',
-    capacite: 30,
+    inscrits: 0,
     fraisInscription: 450000,
     statut: 'active'
   });
@@ -96,7 +111,6 @@ const ISTMRManagement: React.FC = () => {
       profil: 'Passionné par la logique, la structure et le travail collaboratif.',
       type: 'licence',
       duree: '3 ans',
-      capacite: 30,
       inscrits: 28,
       fraisInscription: 450000,
       statut: 'active'
@@ -111,7 +125,6 @@ const ISTMRManagement: React.FC = () => {
       profil: 'Créatif, visuel, et motivé par la concrétisation rapide d\'idées.',
       type: 'licence',
       duree: '3 ans',
-      capacite: 25,
       inscrits: 23,
       fraisInscription: 450000,
       statut: 'active'
@@ -126,7 +139,6 @@ const ISTMRManagement: React.FC = () => {
       profil: 'Curieux, analytique, et attiré par les solutions basées sur les données.',
       type: 'licence',
       duree: '3 ans',
-      capacite: 20,
       inscrits: 18,
       fraisInscription: 480000,
       statut: 'active'
@@ -212,9 +224,18 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
   };
 
   const handleDeleteFiliere = (id: string) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette filière ?')) {
-      setFilieres(filieres.filter(f => f.id !== id));
+    setDeleteConfirmId(id);
+  };
+
+  const confirmDeleteFiliere = () => {
+    if (deleteConfirmId) {
+      setFilieres(filieres.filter(f => f.id !== deleteConfirmId));
+      setDeleteConfirmId(null);
     }
+  };
+
+  const cancelDeleteFiliere = () => {
+    setDeleteConfirmId(null);
   };
 
   const handleEditFiliere = (filiere: Filiere) => {
@@ -228,7 +249,7 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
       profil: filiere.profil,
       type: filiere.type,
       duree: filiere.duree,
-      capacite: filiere.capacite,
+      inscrits: filiere.inscrits,
       fraisInscription: filiere.fraisInscription,
       statut: filiere.statut
     });
@@ -251,7 +272,7 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
       profil: newFiliere.profil!,
       type: (newFiliere.type as 'licence' | 'master' | 'specialisation') || 'licence',
       duree: newFiliere.duree!,
-      capacite: newFiliere.capacite || 30,
+      inscrits: newFiliere.inscrits || 0,
       fraisInscription: newFiliere.fraisInscription || 450000,
       statut: (newFiliere.statut as 'active' | 'inactive') || 'active'
     };
@@ -268,7 +289,7 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
       profil: '',
       type: 'licence',
       duree: '3 ans',
-      capacite: 30,
+      inscrits: 0,
       fraisInscription: 450000,
       statut: 'active'
     });
