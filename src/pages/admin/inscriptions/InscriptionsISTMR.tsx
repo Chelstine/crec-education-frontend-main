@@ -12,7 +12,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   Table,
@@ -29,11 +28,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { toast } from 'sonner';
+import {
   Search,
   Filter,
   Eye,
-  Edit,
   CheckCircle,
   XCircle,
   Clock,
@@ -47,10 +47,14 @@ import {
   Calendar,
   Building,
   Award,
-  FileText
+  FileText,
+  FileDown,
+  BarChart2,
+  AlertCircle,
 } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 
-// Types pour les inscriptions ISTMR
+// Types
 interface InscriptionISTMR {
   id: string;
   candidateId: string;
@@ -85,6 +89,12 @@ interface InscriptionISTMR {
   updatedAt: string;
 }
 
+interface Formation {
+  id: string;
+  title: string;
+  type: 'licence' | 'master' | 'specialisation';
+}
+
 const InscriptionsISTMR: React.FC = () => {
   const [inscriptions, setInscriptions] = useState<InscriptionISTMR[]>([]);
   const [filteredInscriptions, setFilteredInscriptions] = useState<InscriptionISTMR[]>([]);
@@ -92,10 +102,14 @@ const InscriptionsISTMR: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterFormation, setFilterFormation] = useState<string>('all');
+  const [filterYear, setFilterYear] = useState<string>('all');
   const [selectedInscription, setSelectedInscription] = useState<InscriptionISTMR | null>(null);
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
+  const [reviewStatus, setReviewStatus] = useState<'approved' | 'rejected' | 'waitlisted' | ''>('');
+  const [reviewComment, setReviewComment] = useState('');
+  const [activeTab, setActiveTab] = useState('all');
 
-  // Mock data pour les inscriptions ISTMR
+  // Mock data
   const mockInscriptions: InscriptionISTMR[] = [
     {
       id: '1',
@@ -116,7 +130,7 @@ const InscriptionsISTMR: React.FC = () => {
         transcript: true,
         motivationLetter: true,
         idCard: true,
-        diploma: true
+        diploma: true,
       },
       notes: 'Candidat très motivé avec un excellent dossier académique',
       academicYear: '2025-2026',
@@ -124,7 +138,7 @@ const InscriptionsISTMR: React.FC = () => {
       tuitionPaid: 0,
       tuitionTotal: 500000,
       createdAt: '2024-11-15',
-      updatedAt: '2024-12-20'
+      updatedAt: '2024-12-20',
     },
     {
       id: '2',
@@ -146,7 +160,7 @@ const InscriptionsISTMR: React.FC = () => {
         motivationLetter: true,
         idCard: true,
         diploma: true,
-        recommendationLetter: true
+        recommendationLetter: true,
       },
       notes: 'Candidature exceptionnelle. Expérience pastorale antérieure.',
       interviewDate: '2024-11-05',
@@ -157,7 +171,7 @@ const InscriptionsISTMR: React.FC = () => {
       tuitionTotal: 750000,
       scholarship: 'Bourse d\'excellence ignatienne',
       createdAt: '2024-10-20',
-      updatedAt: '2024-12-18'
+      updatedAt: '2024-12-18',
     },
     {
       id: '3',
@@ -179,7 +193,7 @@ const InscriptionsISTMR: React.FC = () => {
         motivationLetter: true,
         idCard: true,
         diploma: true,
-        recommendationLetter: true
+        recommendationLetter: true,
       },
       notes: 'Bon dossier mais places limitées. En attente de désistement.',
       academicYear: '2025-2026',
@@ -187,7 +201,7 @@ const InscriptionsISTMR: React.FC = () => {
       tuitionPaid: 0,
       tuitionTotal: 400000,
       createdAt: '2024-12-01',
-      updatedAt: '2024-12-20'
+      updatedAt: '2024-12-20',
     },
     {
       id: '4',
@@ -208,7 +222,7 @@ const InscriptionsISTMR: React.FC = () => {
         transcript: true,
         motivationLetter: true,
         idCard: true,
-        diploma: false
+        diploma: false,
       },
       notes: 'Dossier incomplet. Documents manquants non fournis dans les délais.',
       academicYear: '2025-2026',
@@ -216,26 +230,35 @@ const InscriptionsISTMR: React.FC = () => {
       tuitionPaid: 0,
       tuitionTotal: 500000,
       createdAt: '2024-09-30',
-      updatedAt: '2024-11-15'
-    }
+      updatedAt: '2024-11-15',
+    },
   ];
 
+  // Mock formations
+  const formations: Formation[] = [
+    { id: '1', title: 'Licence en Théologie Fondamentale', type: 'licence' },
+    { id: '2', title: 'Master en Théologie Pastorale', type: 'master' },
+    { id: '3', title: 'Spécialisation en Théologie Africaine', type: 'specialisation' },
+  ];
+
+  // Academic years
+  const academicYears = ['all', '2025-2026', '2024-2025', '2023-2024'];
+
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // Simulate API call
+    setTimeout(() => {
       setInscriptions(mockInscriptions);
       setFilteredInscriptions(mockInscriptions);
       setLoading(false);
     }, 1000);
-
-    return () => clearTimeout(timer);
   }, []);
 
-  // Filtrage
+  // Filtering
   useEffect(() => {
     let filtered = inscriptions;
 
     if (searchTerm) {
-      filtered = filtered.filter(inscription =>
+      filtered = filtered.filter((inscription) =>
         inscription.candidateName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         inscription.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         inscription.candidateId.toLowerCase().includes(searchTerm.toLowerCase())
@@ -243,22 +266,30 @@ const InscriptionsISTMR: React.FC = () => {
     }
 
     if (filterStatus !== 'all') {
-      filtered = filtered.filter(inscription => inscription.status === filterStatus);
+      filtered = filtered.filter((inscription) => inscription.status === filterStatus);
     }
 
     if (filterFormation !== 'all') {
-      filtered = filtered.filter(inscription => inscription.formationType === filterFormation);
+      filtered = filtered.filter((inscription) => inscription.formationId === filterFormation);
+    }
+
+    if (filterYear !== 'all') {
+      filtered = filtered.filter((inscription) => inscription.academicYear === filterYear);
+    }
+
+    if (activeTab !== 'all') {
+      filtered = filtered.filter((inscription) => inscription.status === activeTab);
     }
 
     setFilteredInscriptions(filtered);
-  }, [inscriptions, searchTerm, filterStatus, filterFormation]);
+  }, [inscriptions, searchTerm, filterStatus, filterFormation, filterYear, activeTab]);
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       pending: { color: 'bg-yellow-100 text-yellow-800', label: 'En attente', icon: Clock },
       approved: { color: 'bg-green-100 text-green-800', label: 'Approuvée', icon: CheckCircle },
       rejected: { color: 'bg-red-100 text-red-800', label: 'Rejetée', icon: XCircle },
-      waitlisted: { color: 'bg-blue-100 text-blue-800', label: 'Liste d\'attente', icon: Users }
+      waitlisted: { color: 'bg-blue-100 text-blue-800', label: 'Liste d\'attente', icon: Users },
     };
     const config = statusConfig[status as keyof typeof statusConfig];
     const IconComponent = config.icon;
@@ -274,29 +305,94 @@ const InscriptionsISTMR: React.FC = () => {
     const typeConfig = {
       licence: { color: 'bg-blue-100 text-blue-800', label: 'Licence' },
       master: { color: 'bg-purple-100 text-purple-800', label: 'Master' },
-      specialisation: { color: 'bg-orange-100 text-orange-800', label: 'Spécialisation' }
+      specialisation: { color: 'bg-orange-100 text-orange-800', label: 'Spécialisation' },
     };
     const config = typeConfig[type as keyof typeof typeConfig];
     return <Badge className={config.color}>{config.label}</Badge>;
   };
 
-  const calculateDocumentCompleteness = (documents: any) => {
+  const calculateDocumentCompleteness = (documents: InscriptionISTMR['documents']) => {
     const required = ['cv', 'transcript', 'motivationLetter', 'idCard', 'diploma'];
-    const completed = required.filter(doc => documents[doc]).length;
+    const completed = required.filter((doc) => documents[doc]).length;
     return Math.round((completed / required.length) * 100);
   };
 
-  const handleStatusChange = (inscriptionId: string, newStatus: string) => {
-    setInscriptions(prev => prev.map(inscription => 
-      inscription.id === inscriptionId 
-        ? { ...inscription, status: newStatus as any, updatedAt: new Date().toISOString() }
-        : inscription
-    ));
+  const handleReviewApplication = () => {
+    if (!selectedInscription || !reviewStatus) return;
+
+    const updatedInscription = {
+      ...selectedInscription,
+      status: reviewStatus,
+      notes: selectedInscription.notes
+        ? `${selectedInscription.notes}\nReview (${new Date().toLocaleDateString('fr-FR')}): ${reviewComment}`
+        : `Review (${new Date().toLocaleDateString('fr-FR')}): ${reviewComment}`,
+      updatedAt: new Date().toISOString(),
+    };
+
+    setInscriptions((prev) =>
+      prev.map((inscription) => (inscription.id === selectedInscription.id ? updatedInscription : inscription))
+    );
+    setFilteredInscriptions((prev) =>
+      prev.map((inscription) => (inscription.id === selectedInscription.id ? updatedInscription : inscription))
+    );
+    setIsReviewDialogOpen(false);
+    setReviewStatus('');
+    setReviewComment('');
+    toast.success(`Candidature ${reviewStatus === 'approved' ? 'approuvée' : reviewStatus === 'rejected' ? 'rejetée' : 'mise en liste d\'attente'} avec succès`);
   };
 
-  const openDetailDialog = (inscription: InscriptionISTMR) => {
-    setSelectedInscription(inscription);
-    setIsDetailDialogOpen(true);
+  const handleExportCSV = () => {
+    const headers = [
+      'ID',
+      'Nom Candidat',
+      'Email',
+      'Téléphone',
+      'Formation',
+      'Type',
+      'Année Académique',
+      'Statut',
+      'Date Candidature',
+      'Frais Payés',
+      'Frais Totaux',
+    ];
+    const csvRows = [
+      headers.join(','),
+      ...filteredInscriptions.map((inscription) =>
+        [
+          inscription.candidateId,
+          `"${inscription.candidateName}"`,
+          inscription.email,
+          inscription.phone,
+          `"${inscription.formationTitle}"`,
+          inscription.formationType,
+          inscription.academicYear,
+          inscription.status,
+          new Date(inscription.applicationDate).toLocaleDateString('fr-FR'),
+          inscription.tuitionPaid.toLocaleString(),
+          inscription.tuitionTotal.toLocaleString(),
+        ].join(',')
+      ),
+    ];
+    const csv = csvRows.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'inscriptions_istmr.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Exportation CSV réussie');
+  };
+
+  const getStats = () => {
+    const total = inscriptions.length;
+    const approved = inscriptions.filter((i) => i.status === 'approved').length;
+    const acceptanceRate = total > 0 ? ((approved / total) * 100).toFixed(1) : '0.0';
+    const byFormation = formations.map((formation) => ({
+      title: formation.title,
+      count: inscriptions.filter((i) => i.formationId === formation.id).length,
+    }));
+    return { total, approved, acceptanceRate, byFormation };
   };
 
   if (loading) {
@@ -307,386 +403,729 @@ const InscriptionsISTMR: React.FC = () => {
     );
   }
 
+  const stats = getStats();
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* En-tête */}
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white p-4 font-sans text-[15pt]">
+      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between mb-8"
+        transition={{ duration: 0.8 }}
+        className="max-w-6xl mx-auto mb-8"
       >
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Building className="h-8 w-8 text-crec-gold" />
-            Inscriptions ISTMR
-          </h1>
-          <p className="text-gray-600 mt-1">Gestion des candidatures universitaires</p>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Exporter
-          </Button>
-        </div>
+        <Card className="bg-white/90 backdrop-blur-sm shadow-2xl">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-3xl">
+              <Building className="w-8 h-8 text-blue-600" />
+              Gestion des Inscriptions ISTMR
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600">
+              Administrez les candidatures pour les programmes de l’ISTMR, vérifiez les dossiers, et gérez les admissions.
+            </p>
+          </CardContent>
+        </Card>
       </motion.div>
 
-      {/* Statistiques */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Candidatures</CardTitle>
-              <FileText className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-700">{inscriptions.length}</div>
-              <p className="text-xs text-blue-600">
-                Cette année académique
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Approuvées</CardTitle>
-              <UserCheck className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-700">
-                {inscriptions.filter(i => i.status === 'approved').length}
-              </div>
-              <p className="text-xs text-green-600">
-                Étudiants acceptés
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">En Attente</CardTitle>
-              <Clock className="h-4 w-4 text-yellow-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-yellow-700">
-                {inscriptions.filter(i => i.status === 'pending').length}
-              </div>
-              <p className="text-xs text-yellow-600">
-                À traiter
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Rejetées</CardTitle>
-              <UserX className="h-4 w-4 text-red-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-700">
-                {inscriptions.filter(i => i.status === 'rejected').length}
-              </div>
-              <p className="text-xs text-red-600">
-                Non retenues
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-
-      {/* Filtres et recherche */}
+      {/* Statistics */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
       >
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-lg">Filtres et Recherche</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Rechercher par nom, email ou ID candidat..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <Users className="w-8 h-8 text-blue-600" />
+              <div>
+                <p className="text-sm text-gray-600">Total Candidatures</p>
+                <p className="text-2xl font-bold text-blue-700">{stats.total}</p>
               </div>
-              
-              <div className="flex gap-4">
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Statut" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tous les statuts</SelectItem>
-                    <SelectItem value="pending">En attente</SelectItem>
-                    <SelectItem value="approved">Approuvées</SelectItem>
-                    <SelectItem value="waitlisted">Liste d'attente</SelectItem>
-                    <SelectItem value="rejected">Rejetées</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={filterFormation} onValueChange={setFilterFormation}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Type de formation" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Toutes les formations</SelectItem>
-                    <SelectItem value="licence">Licence</SelectItem>
-                    <SelectItem value="master">Master</SelectItem>
-                    <SelectItem value="specialisation">Spécialisation</SelectItem>
-                  </SelectContent>
-                </Select>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-green-50 border-green-200">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <UserCheck className="w-8 h-8 text-green-600" />
+              <div>
+                <p className="text-sm text-gray-600">Approuvées</p>
+                <p className="text-2xl font-bold text-green-700">{stats.approved}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-yellow-50 border-yellow-200">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <Clock className="w-8 h-8 text-yellow-600" />
+              <div>
+                <p className="text-sm text-gray-600">Taux d’Acceptation</p>
+                <p className="text-2xl font-bold text-yellow-700">{stats.acceptanceRate}%</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-purple-50 border-purple-200">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <BarChart2 className="w-8 h-8 text-purple-600" />
+              <div>
+                <p className="text-sm text-gray-600">Programmes</p>
+                <p className="text-2xl font-bold text-purple-700">{formations.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Liste des inscriptions */}
+      {/* Filters */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
+        transition={{ duration: 0.8, delay: 0.3 }}
+        className="max-w-6xl mx-auto mb-8"
       >
-        <Card>
+        <Card className="bg-white/90 backdrop-blur-sm shadow-2xl">
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Candidatures ISTMR ({filteredInscriptions.length})</span>
+            <CardTitle className="flex items-center gap-2">
+              <Filter className="w-5 h-5 text-blue-600" />
+              Filtres et Recherche
             </CardTitle>
           </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="space-y-2">
+              <Label>Recherche</Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Nom, email ou ID candidat"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 border-gray-300 focus:border-blue-500"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Formation</Label>
+              <Select value={filterFormation} onValueChange={setFilterFormation}>
+                <SelectTrigger className="border-gray-300 focus:border-blue-500">
+                  <SelectValue placeholder="Toutes les formations" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toutes les formations</SelectItem>
+                  {formations.map((formation) => (
+                    <SelectItem key={formation.id} value={formation.id}>
+                      {formation.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Année Académique</Label>
+              <Select value={filterYear} onValueChange={setFilterYear}>
+                <SelectTrigger className="border-gray-300 focus:border-blue-500">
+                  <SelectValue placeholder="Toutes les années" />
+                </SelectTrigger>
+                <SelectContent>
+                  {academicYears.map((year) => (
+                    <SelectItem key={year} value={year}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Statut</Label>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="border-gray-300 focus:border-blue-500">
+                  <SelectValue placeholder="Tous les statuts" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les statuts</SelectItem>
+                  <SelectItem value="pending">En attente</SelectItem>
+                  <SelectItem value="approved">Approuvée</SelectItem>
+                  <SelectItem value="waitlisted">Liste d’attente</SelectItem>
+                  <SelectItem value="rejected">Rejetée</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Applications Table */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.4 }}
+        className="max-w-6xl mx-auto"
+      >
+        <Card className="bg-white/90 backdrop-blur-sm shadow-2xl">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-blue-600" />
+              Candidatures ISTMR ({filteredInscriptions.length})
+            </CardTitle>
+            <Button onClick={handleExportCSV} className="bg-blue-600 hover:bg-blue-700">
+              <Download className="mr-2 h-4 w-4" />
+              Exporter CSV
+            </Button>
+          </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Candidat</TableHead>
-                    <TableHead>Formation</TableHead>
-                    <TableHead>Statut</TableHead>
-                    <TableHead>Documents</TableHead>
-                    <TableHead>Date Candidature</TableHead>
-                    <TableHead>Frais</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredInscriptions.map((inscription) => (
-                    <TableRow key={inscription.id}>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="font-medium">{inscription.candidateName}</div>
-                          <div className="text-sm text-gray-500 flex items-center gap-1">
-                            <Mail className="w-3 h-3" />
-                            {inscription.email}
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="all">Toutes</TabsTrigger>
+                <TabsTrigger value="pending">En attente</TabsTrigger>
+                <TabsTrigger value="approved">Approuvées</TabsTrigger>
+                <TabsTrigger value="waitlisted">Liste d’attente</TabsTrigger>
+                <TabsTrigger value="rejected">Rejetées</TabsTrigger>
+              </TabsList>
+              <TabsContent value="all">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Candidat</TableHead>
+                      <TableHead>Formation</TableHead>
+                      <TableHead>Statut</TableHead>
+                      <TableHead>Documents</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Frais</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredInscriptions.map((inscription) => (
+                      <TableRow key={inscription.id}>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="font-medium">{inscription.candidateName}</div>
+                            <div className="text-sm text-gray-500 flex items-center gap-1">
+                              <Mail className="w-3 h-3" />
+                              {inscription.email}
+                            </div>
+                            <div className="text-xs text-gray-400 flex items-center gap-1">
+                              <Phone className="w-3 h-3" />
+                              {inscription.phone}
+                            </div>
+                            <div className="text-xs text-gray-400">ID: {inscription.candidateId}</div>
                           </div>
-                          <div className="text-xs text-gray-400 flex items-center gap-1">
-                            <Phone className="w-3 h-3" />
-                            {inscription.phone}
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            {getFormationTypeBadge(inscription.formationType)}
+                            <div className="text-sm font-medium">{inscription.formationTitle}</div>
+                            <div className="text-xs text-gray-500">
+                              {inscription.academicYear} - {inscription.semester}
+                            </div>
                           </div>
-                          <div className="text-xs text-gray-400">
-                            ID: {inscription.candidateId}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          {getFormationTypeBadge(inscription.formationType)}
-                          <div className="text-sm font-medium">{inscription.formationTitle}</div>
-                          <div className="text-xs text-gray-500">
-                            {inscription.academicYear} - {inscription.semester}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(inscription.status)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="text-sm font-medium">
-                            {calculateDocumentCompleteness(inscription.documents)}% complet
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <ProgressBar 
-                              percentage={calculateDocumentCompleteness(inscription.documents)} 
+                        </TableCell>
+                        <TableCell>{getStatusBadge(inscription.status)}</TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="text-sm font-medium">
+                              {calculateDocumentCompleteness(inscription.documents)}% complet
+                            </div>
+                            <ProgressBar
+                              percentage={calculateDocumentCompleteness(inscription.documents)}
                               barClassName="bg-blue-600"
                               className="h-2"
                             />
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {new Date(inscription.applicationDate).toLocaleDateString('fr-FR')}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div className="font-medium">
-                            {inscription.tuitionPaid.toLocaleString()}/{inscription.tuitionTotal.toLocaleString()} FCFA
-                          </div>
-                          <div className="text-xs text-gray-500">
+                        </TableCell>
+                        <TableCell>
+                          {new Date(inscription.applicationDate).toLocaleDateString('fr-FR')}
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            <div className="font-medium">
+                              {inscription.tuitionPaid.toLocaleString()}/{inscription.tuitionTotal.toLocaleString()} FCFA
+                            </div>
                             {inscription.scholarship && (
-                              <span className="text-green-600">
+                              <div className="text-xs text-green-600">
                                 <Award className="inline w-3 h-3 mr-1" />
-                                Bourse
-                              </span>
+                                {inscription.scholarship}
+                              </div>
                             )}
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
+                        </TableCell>
+                        <TableCell>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => openDetailDialog(inscription)}
+                            onClick={() => {
+                              setSelectedInscription(inscription);
+                              setIsReviewDialogOpen(true);
+                            }}
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
-                          
-                          {inscription.status === 'pending' && (
-                            <>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-green-600 hover:text-green-700"
-                                onClick={() => handleStatusChange(inscription.id, 'approved')}
-                              >
-                                <CheckCircle className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-red-600 hover:text-red-700"
-                                onClick={() => handleStatusChange(inscription.id, 'rejected')}
-                              >
-                                <XCircle className="h-4 w-4" />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TabsContent>
+              <TabsContent value="pending">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Candidat</TableHead>
+                      <TableHead>Formation</TableHead>
+                      <TableHead>Documents</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Frais</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              
-              {filteredInscriptions.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  Aucune candidature trouvée avec ces critères.
-                </div>
-              )}
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredInscriptions
+                      .filter((inscription) => inscription.status === 'pending')
+                      .map((inscription) => (
+                        <TableRow key={inscription.id}>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <div className="font-medium">{inscription.candidateName}</div>
+                              <div className="text-sm text-gray-500 flex items-center gap-1">
+                                <Mail className="w-3 h-3" />
+                                {inscription.email}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              {getFormationTypeBadge(inscription.formationType)}
+                              <div className="text-sm font-medium">{inscription.formationTitle}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <div className="text-sm font-medium">
+                                {calculateDocumentCompleteness(inscription.documents)}% complet
+                              </div>
+                              <ProgressBar
+                                percentage={calculateDocumentCompleteness(inscription.documents)}
+                                barClassName="bg-blue-600"
+                                className="h-2"
+                              />
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {new Date(inscription.applicationDate).toLocaleDateString('fr-FR')}
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">
+                              <div className="font-medium">
+                                {inscription.tuitionPaid.toLocaleString()}/{inscription.tuitionTotal.toLocaleString()} FCFA
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedInscription(inscription);
+                                setIsReviewDialogOpen(true);
+                              }}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </TabsContent>
+              <TabsContent value="approved">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Candidat</TableHead>
+                      <TableHead>Formation</TableHead>
+                      <TableHead>Documents</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Frais</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredInscriptions
+                      .filter((inscription) => inscription.status === 'approved')
+                      .map((inscription) => (
+                        <TableRow key={inscription.id}>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <div className="font-medium">{inscription.candidateName}</div>
+                              <div className="text-sm text-gray-500 flex items-center gap-1">
+                                <Mail className="w-3 h-3" />
+                                {inscription.email}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              {getFormationTypeBadge(inscription.formationType)}
+                              <div className="text-sm font-medium">{inscription.formationTitle}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <div className="text-sm font-medium">
+                                {calculateDocumentCompleteness(inscription.documents)}% complet
+                              </div>
+                              <ProgressBar
+                                percentage={calculateDocumentCompleteness(inscription.documents)}
+                                barClassName="bg-blue-600"
+                                className="h-2"
+                              />
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {new Date(inscription.applicationDate).toLocaleDateString('fr-FR')}
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">
+                              <div className="font-medium">
+                                {inscription.tuitionPaid.toLocaleString()}/{inscription.tuitionTotal.toLocaleString()} FCFA
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedInscription(inscription);
+                                setIsReviewDialogOpen(true);
+                              }}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </TabsContent>
+              <TabsContent value="waitlisted">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Candidat</TableHead>
+                      <TableHead>Formation</TableHead>
+                      <TableHead>Documents</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Frais</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredInscriptions
+                      .filter((inscription) => inscription.status === 'waitlisted')
+                      .map((inscription) => (
+                        <TableRow key={inscription.id}>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <div className="font-medium">{inscription.candidateName}</div>
+                              <div className="text-sm text-gray-500 flex items-center gap-1">
+                                <Mail className="w-3 h-3" />
+                                {inscription.email}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              {getFormationTypeBadge(inscription.formationType)}
+                              <div className="text-sm font-medium">{inscription.formationTitle}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <div className="text-sm font-medium">
+                                {calculateDocumentCompleteness(inscription.documents)}% complet
+                              </div>
+                              <ProgressBar
+                                percentage={calculateDocumentCompleteness(inscription.documents)}
+                                barClassName="bg-blue-600"
+                                className="h-2"
+                              />
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {new Date(inscription.applicationDate).toLocaleDateString('fr-FR')}
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">
+                              <div className="font-medium">
+                                {inscription.tuitionPaid.toLocaleString()}/{inscription.tuitionTotal.toLocaleString()} FCFA
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedInscription(inscription);
+                                setIsReviewDialogOpen(true);
+                              }}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </TabsContent>
+              <TabsContent value="rejected">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Candidat</TableHead>
+                      <TableHead>Formation</TableHead>
+                      <TableHead>Documents</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Frais</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredInscriptions
+                      .filter((inscription) => inscription.status === 'rejected')
+                      .map((inscription) => (
+                        <TableRow key={inscription.id}>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <div className="font-medium">{inscription.candidateName}</div>
+                              <div className="text-sm text-gray-500 flex items-center gap-1">
+                                <Mail className="w-3 h-3" />
+                                {inscription.email}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              {getFormationTypeBadge(inscription.formationType)}
+                              <div className="text-sm font-medium">{inscription.formationTitle}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <div className="text-sm font-medium">
+                                {calculateDocumentCompleteness(inscription.documents)}% complet
+                              </div>
+                              <ProgressBar
+                                percentage={calculateDocumentCompleteness(inscription.documents)}
+                                barClassName="bg-blue-600"
+                                className="h-2"
+                              />
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {new Date(inscription.applicationDate).toLocaleDateString('fr-FR')}
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">
+                              <div className="font-medium">
+                                {inscription.tuitionPaid.toLocaleString()}/{inscription.tuitionTotal.toLocaleString()} FCFA
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedInscription(inscription);
+                                setIsReviewDialogOpen(true);
+                              }}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </TabsContent>
+            </Tabs>
+            {filteredInscriptions.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                Aucune candidature trouvée avec ces critères.
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Dialog de détails */}
-      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Détails de la candidature</DialogTitle>
-            <DialogDescription>
-              Informations complètes sur le candidat
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedInscription && (
-            <div className="space-y-6">
-              {/* Informations personnelles */}
-              <div>
-                <h3 className="font-semibold mb-3">Informations personnelles</h3>
+      {/* Review Dialog */}
+      {selectedInscription && (
+        <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Vérification de Candidature</DialogTitle>
+              <DialogDescription>
+                Détails de la candidature de {selectedInscription.candidateName}
+              </DialogDescription>
+            </DialogHeader>
+            <Tabs defaultValue="personal">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="personal">Personnelles</TabsTrigger>
+                <TabsTrigger value="education">Formation</TabsTrigger>
+                <TabsTrigger value="documents">Documents</TabsTrigger>
+                <TabsTrigger value="payment">Paiement</TabsTrigger>
+              </TabsList>
+              <TabsContent value="personal">
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div><strong>Nom:</strong> {selectedInscription.candidateName}</div>
                   <div><strong>Email:</strong> {selectedInscription.email}</div>
                   <div><strong>Téléphone:</strong> {selectedInscription.phone}</div>
-                  <div><strong>Date de naissance:</strong> {new Date(selectedInscription.dateOfBirth).toLocaleDateString('fr-FR')}</div>
+                  <div>
+                    <strong>Date de naissance:</strong>{' '}
+                    {new Date(selectedInscription.dateOfBirth).toLocaleDateString('fr-FR')}
+                  </div>
                   <div><strong>Nationalité:</strong> {selectedInscription.nationality}</div>
-                  <div><strong>Formation antérieure:</strong> {selectedInscription.previousEducation}</div>
+                  <div><strong>ID Candidat:</strong> {selectedInscription.candidateId}</div>
                 </div>
-              </div>
-
-              {/* Documents */}
-              <div>
-                <h3 className="font-semibold mb-3">Documents fournis</h3>
-                <div className="grid grid-cols-2 gap-2">
+              </TabsContent>
+              <TabsContent value="education">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div><strong>Formation:</strong> {selectedInscription.formationTitle}</div>
+                  <div><strong>Type:</strong> {getFormationTypeBadge(selectedInscription.formationType)}</div>
+                  <div><strong>Éducation antérieure:</strong> {selectedInscription.previousEducation}</div>
+                  <div><strong>Année académique:</strong> {selectedInscription.academicYear}</div>
+                  <div><strong>Semestre:</strong> {selectedInscription.semester}</div>
+                  {selectedInscription.interviewDate && (
+                    <div className="col-span-2">
+                      <strong>Date d’entretien:</strong>{' '}
+                      {new Date(selectedInscription.interviewDate).toLocaleDateString('fr-FR')}
+                    </div>
+                  )}
+                  {selectedInscription.interviewNotes && (
+                    <div className="col-span-2">
+                      <strong>Notes d’entretien:</strong>
+                      <p className="bg-gray-50 p-3 rounded">{selectedInscription.interviewNotes}</p>
+                    </div>
+                  )}
+                  {selectedInscription.notes && (
+                    <div className="col-span-2">
+                      <strong>Notes:</strong>
+                      <p className="bg-gray-50 p-3 rounded">{selectedInscription.notes}</p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+              <TabsContent value="documents">
+                <div className="space-y-4">
                   {Object.entries(selectedInscription.documents).map(([doc, provided]) => (
-                    <div key={doc} className="flex items-center gap-2">
-                      {provided ? (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <XCircle className="w-4 h-4 text-red-500" />
+                    <div key={doc} className="flex items-center justify-between border-b pb-2">
+                      <div className="flex items-center gap-2">
+                        {provided ? (
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <XCircle className="w-4 h-4 text-red-500" />
+                        )}
+                        <span className="text-sm capitalize">{doc.replace(/([A-Z])/g, ' $1')}</span>
+                      </div>
+                      {provided && (
+                        <Button variant="outline" size="sm" disabled>
+                          <FileDown className="mr-2 h-4 w-4" />
+                          Télécharger
+                        </Button>
                       )}
-                      <span className="text-sm capitalize">{doc.replace(/([A-Z])/g, ' $1')}</span>
                     </div>
                   ))}
                 </div>
-              </div>
-
-              {/* Notes */}
-              {selectedInscription.notes && (
-                <div>
-                  <h3 className="font-semibold mb-3">Notes</h3>
-                  <p className="text-sm bg-gray-50 p-3 rounded">{selectedInscription.notes}</p>
-                </div>
-              )}
-
-              {/* Entretien */}
-              {selectedInscription.interviewDate && (
-                <div>
-                  <h3 className="font-semibold mb-3">Entretien</h3>
-                  <div className="text-sm space-y-2">
-                    <div><strong>Date:</strong> {new Date(selectedInscription.interviewDate).toLocaleDateString('fr-FR')}</div>
-                    {selectedInscription.interviewNotes && (
-                      <div className="bg-gray-50 p-3 rounded">
-                        <strong>Notes d'entretien:</strong><br />
-                        {selectedInscription.interviewNotes}
-                      </div>
-                    )}
+              </TabsContent>
+              <TabsContent value="payment">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <strong>Frais payés:</strong> {selectedInscription.tuitionPaid.toLocaleString()} FCFA
                   </div>
+                  <div>
+                    <strong>Frais totaux:</strong> {selectedInscription.tuitionTotal.toLocaleString()} FCFA
+                  </div>
+                  {selectedInscription.scholarship && (
+                    <div className="col-span-2">
+                      <strong>Bourse:</strong> {selectedInscription.scholarship}
+                    </div>
+                  )}
                 </div>
-              )}
+              </TabsContent>
+            </Tabs>
+            <div className="mt-6 space-y-4">
+              <div>
+                <Label>Statut de la Candidature</Label>
+                <Select
+                  value={reviewStatus}
+                  onValueChange={(value) => setReviewStatus(value as 'approved' | 'rejected' | 'waitlisted')}
+                >
+                  <SelectTrigger className="border-gray-300 focus:border-blue-500">
+                    <SelectValue placeholder="Sélectionner un statut" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="approved">Approuver</SelectItem>
+                    <SelectItem value="rejected">Rejeter</SelectItem>
+                    <SelectItem value="waitlisted">Liste d’attente</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Commentaire</Label>
+                <textarea
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  placeholder="Ajoutez un commentaire sur la décision (optionnel)"
+                  className="w-full border-gray-300 focus:border-blue-500 rounded-md p-2"
+                  rows={4}
+                />
+              </div>
             </div>
-          )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailDialogOpen(false)}>
-              Fermer
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsReviewDialogOpen(false)}>
+                Annuler
+              </Button>
+              <Button
+                className="bg-blue-600 hover:bg-blue-700"
+                onClick={handleReviewApplication}
+                disabled={!reviewStatus}
+              >
+                Soumettre la Décision
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Important Notice */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.5 }}
+        className="max-w-6xl mx-auto mt-8"
+      >
+        <Card className="bg-amber-50 border-amber-200">
+          <CardContent className="p-4 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-amber-800 mb-2">Information importante</h3>
+              <ul className="text-amber-700 text-sm space-y-1">
+                <li>• Les candidatures doivent être traitées dans un délai de 5 jours ouvrables.</li>
+                <li>• Assurez-vous de vérifier tous les documents avant de prendre une décision.</li>
+                <li>• Les décisions sont définitives après soumission.</li>
+                <li>• Contactez les candidats approuvés pour les prochaines étapes.</li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 };

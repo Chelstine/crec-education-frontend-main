@@ -386,4 +386,16 @@
     background-color: var(--hero-bg, #1e3a8a);
     color: var(--hero-color, #ffffff);
   }
+
+  .events-hero-bg {
+    background-image: url('/img/conference.png');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .news-hero-bg {
+    background-image: url('/img/actualite.png');
+    background-size: cover;
+    background-position: center;
+  }
 }

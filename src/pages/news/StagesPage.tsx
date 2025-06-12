@@ -267,33 +267,18 @@ const StagesPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col">
       {/* Hero Section */}
       <section className="relative w-full">
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70" />
         <div 
-          className="min-h-[400px] flex flex-col items-center justify-center text-center relative text-white p-6"
-          style={{
-            backgroundImage: "url('/img/internships-bg.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center"
-          }}
+          className="min-h-[300px] flex flex-col items-center justify-center text-center relative text-white p-6 news-hero-bg"
         >
-          <div className="max-w-4xl mx-auto bg-black/50 p-8 rounded-lg backdrop-blur-sm">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Stages & Emplois</h1>
+          <div className="max-w-3xl mx-auto bg-black/50 p-8 rounded-lg backdrop-blur-sm">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Stages</h1>
             <p className="text-xl md:text-2xl mb-8">
-              Trouvez votre stage idéal ou votre premier emploi dans les meilleures entreprises du Bénin et de l'Afrique de l'Ouest.
+              Découvrez les opportunités de stage au CREC
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-[#FCA311] hover:bg-[#fcb930] text-white px-8 py-3">
-                <Search className="w-4 h-4 mr-2" />
-                Parcourir les offres
-              </Button>
-              <Button variant="outline" className="border-white text-white hover:bg-white hover:text-black px-8 py-3">
-                <Upload className="w-4 h-4 mr-2" />
-                Déposer un CV
-              </Button>
-            </div>
           </div>
         </div>
       </section>

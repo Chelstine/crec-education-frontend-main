@@ -79,25 +79,13 @@ const ArticlePage = () => {
       <section className="relative w-full">
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70" />
         <div 
-          className="min-h-[400px] flex flex-col items-center justify-center text-center relative text-white p-6"
-          style={{
-            backgroundImage: `url(${article.image})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center"
-          }}
+          className="min-h-[300px] flex flex-col items-center justify-center text-center relative text-white p-6 news-hero-bg"
         >
           <div className="max-w-3xl mx-auto bg-black/50 p-8 rounded-lg backdrop-blur-sm">
-            <div className="flex items-center justify-center gap-4 text-sm mb-4">
-              <div className="flex items-center">
-                <Calendar className="w-4 h-4 mr-2" />
-                <span>{new Date(article.date).toLocaleDateString()}</span>
-              </div>
-              <div className="flex items-center">
-                <Tag className="w-4 h-4 mr-2" />
-                <span>{article.category}</span>
-              </div>
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">{article.title}</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Article</h1>
+            <p className="text-xl md:text-2xl mb-8">
+              Découvrez l'article en détail
+            </p>
           </div>
         </div>
       </section>
@@ -237,4 +225,4 @@ const ArticlePage = () => {
   );
 };
 
-export default ArticlePage; 
+export default ArticlePage;

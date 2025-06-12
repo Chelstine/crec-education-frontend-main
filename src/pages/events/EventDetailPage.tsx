@@ -80,7 +80,7 @@ const EventDetailPage = () => {
       <section className="relative w-full">
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70" />
         <DynamicBackground 
-          imageUrl={event.image}
+          imageUrl="/img/conference.png"
           className="min-h-[400px] flex flex-col items-center justify-center text-center relative text-white p-6"
         >
           <div className="max-w-3xl mx-auto bg-black/50 p-8 rounded-lg backdrop-blur-sm">

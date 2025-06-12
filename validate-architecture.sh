@@ -26,9 +26,6 @@ done
 
 # Vérifier que les anciens fichiers ont été supprimés
 OLD_FILES=(
-  "src/pages/admin/formations/FormationsOuvertesManagement_old.tsx"
-  "src/pages/admin/formations/FormationsOuvertesManagement_new.tsx"
-  "src/pages/admin/inscriptions/InscriptionsFormationsOuvertes_new.tsx"
   "src/pages/admin/inscriptions/FabLabInscriptions.tsx"
 )
 
