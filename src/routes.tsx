@@ -60,30 +60,23 @@ const DonatePage = lazy(() => import('@/pages/DonatePage'));
 const AdminLogin = lazy(() => import('@/pages/admin/AdminLogin'));
 const AdminLayout = lazy(() => import('@/layouts/AdminLayout'));
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
+const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
 
 // Gestion des formations
-const FormationsManagement = lazy(() => import('@/pages/admin/FormationsManagement'));
-const FormationDetail = lazy(() => import('@/pages/admin/FormationDetail'));
 const ISTMRManagement = lazy(() => import('@/pages/admin/formations/ISTMRManagement'));
 const FabLabFormationsManagement = lazy(() => import('@/pages/admin/formations/FabLabFormationsManagement'));
 const FormationsOuvertesManagement = lazy(() => import('@/pages/admin/formations/FormationsOuvertesManagement'));
 
 // Gestion des inscriptions
-const InscriptionsManagement = lazy(() => import('@/pages/admin/InscriptionsManagement'));
 const InscriptionsISTMR = lazy(() => import('@/pages/admin/inscriptions/InscriptionsISTMR'));
 const InscriptionsFabLab = lazy(() => import('@/pages/admin/inscriptions/InscriptionsFabLab'));
-const FabLabMemberships = lazy(() => import('@/pages/admin/inscriptions/FabLabMemberships'));
 const InscriptionsFormationsOuvertes = lazy(() => import('@/pages/admin/inscriptions/InscriptionsFormationsOuvertes'));
 
-// Gestion des contenus
-const EvenementsManagement = lazy(() => import('@/pages/admin/EvenementsManagement'));
-const ActualitesManagement = lazy(() => import('@/pages/admin/ActualitesManagement'));
-const PageManagement = lazy(() => import('@/pages/admin/PageManagement'));
-const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
+// Gestion des événements
+const EvenementsManagement = lazy(() => import('@/pages/admin/events/EvenementsManagement'));
 
-// Legacy - À revoir/supprimer
-const SectionsManagement = lazy(() => import('@/pages/admin/SectionsManagement'));
-const FabLabManagement = lazy(() => import('@/pages/admin/FabLabManagement'));
+// Gestion des réservations
+const ReservationsFabLabManagement = lazy(() => import('@/pages/admin/reservations/ReservationsFabLabManagement'));
 
 // Helper function to wrap lazy components with Suspense
 const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType<any>>) => (
@@ -236,7 +229,7 @@ const routes: RouteObject[] = [
       {
         index: true,
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute requireAuth={true}>
             {withSuspense(ReservationPage)}
           </ProtectedRoute>
         ),
@@ -250,99 +243,96 @@ const routes: RouteObject[] = [
   },
   {
     path: '/admin',
-    element: withSuspense(AdminLayout),
+    element: (
+      <ProtectedRoute adminRequired={true}>
+        {withSuspense(AdminLayout)}
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,
         element: withSuspense(AdminDashboard),
       },
-      // Routes principales
-      {
-        path: 'formations',
-        element: withSuspense(FormationsManagement),
-      },
-      {
-        path: 'formations/:id',
-        element: withSuspense(FormationDetail),
-      },
-      {
-        path: 'evenements',
-        element: withSuspense(EvenementsManagement),
-      },
-      {
-        path: 'actualites',
-        element: withSuspense(ActualitesManagement),
-      },
       // Routes formations spécialisées
       {
         path: 'formations/istmr',
-        element: withSuspense(ISTMRManagement),
+        element: (
+          <ProtectedRoute adminRequired={true} permissions={['manage_formations']}>
+            {withSuspense(ISTMRManagement)}
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'formations/fablab',
-        element: withSuspense(FabLabFormationsManagement),
+        element: (
+          <ProtectedRoute adminRequired={true} permissions={['manage_formations']}>
+            {withSuspense(FabLabFormationsManagement)}
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'formations/ouvertes',
-        element: withSuspense(FormationsOuvertesManagement),
+        element: (
+          <ProtectedRoute adminRequired={true} permissions={['manage_formations']}>
+            {withSuspense(FormationsOuvertesManagement)}
+          </ProtectedRoute>
+        ),
       },
 
       // Routes inscriptions spécialisées
       {
         path: 'inscriptions/istmr',
-        element: withSuspense(InscriptionsISTMR),
+        element: (
+          <ProtectedRoute adminRequired={true} permissions={['manage_inscriptions']}>
+            {withSuspense(InscriptionsISTMR)}
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'inscriptions/fablab',
-        element: withSuspense(InscriptionsFabLab),
-      },
-      {
-        path: 'inscriptions/fablab-memberships',
-        element: withSuspense(FabLabMemberships),
+        element: (
+          <ProtectedRoute adminRequired={true} permissions={['manage_inscriptions']}>
+            {withSuspense(InscriptionsFabLab)}
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'inscriptions/ouvertes',
-        element: withSuspense(InscriptionsFormationsOuvertes),
+        element: (
+          <ProtectedRoute adminRequired={true} permissions={['manage_inscriptions']}>
+            {withSuspense(InscriptionsFormationsOuvertes)}
+          </ProtectedRoute>
+        ),
       },
 
-      // Routes de gestion générale
+      // Routes événements
       {
-        path: 'evenements',
-        element: withSuspense(EvenementsManagement),
+        path: 'events',
+        element: (
+          <ProtectedRoute adminRequired={true} permissions={['manage_events']}>
+            {withSuspense(EvenementsManagement)}
+          </ProtectedRoute>
+        ),
       },
+
+      // Routes réservations
       {
-        path: 'actualites',
-        element: withSuspense(ActualitesManagement),
+        path: 'reservations/fablab',
+        element: (
+          <ProtectedRoute adminRequired={true} permissions={['manage_reservations']}>
+            {withSuspense(ReservationsFabLabManagement)}
+          </ProtectedRoute>
+        ),
       },
-      {
-        path: 'pages',
-        element: withSuspense(PageManagement),
-      },
+
+      // Paramètres
       {
         path: 'settings',
-        element: withSuspense(AdminSettings),
-      },
-
-      // Routes legacy (à maintenir temporairement pour compatibilité)
-      {
-        path: 'formations',
-        element: withSuspense(FormationsManagement),
-      },
-      {
-        path: 'formations/:id',
-        element: withSuspense(FormationDetail),
-      },
-      {
-        path: 'inscriptions',
-        element: withSuspense(InscriptionsManagement),
-      },
-      {
-        path: 'sections',
-        element: withSuspense(SectionsManagement),
-      },
-      {
-        path: 'fablab',
-        element: withSuspense(FabLabManagement),
+        element: (
+          <ProtectedRoute adminRequired={true} permissions={['manage_settings']}>
+            {withSuspense(AdminSettings)}
+          </ProtectedRoute>
+        ),
       },
     ],
   },

@@ -1,673 +1,626 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import ProgressBar from '@/components/ui/progress-bar';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { AdminPageLayout, AdminTable, AdminForm, AdminFilters } from '../../../components/admin';
+import { useFilteredData } from '../../../hooks/useAdmin';
 import { 
-  Search,
-  Filter,
-  Eye,
-  Edit,
+  getBadgeColor, 
+  exportToCSV, 
+  formatDate,
+  formatDateTime 
+} from '../../../utils/adminUtils';
+import { 
+  UserCheck,
+  Clock,
   CheckCircle,
   XCircle,
-  Clock,
-  Download,
-  Mail,
-  Phone,
-  BookOpen,
   Users,
-  UserCheck,
-  UserX,
-  Calendar,
-  Building,
-  Award,
-  FileText,
-  Upload,
-  CreditCard
+  BookOpen
 } from 'lucide-react';
 
-// Types pour les inscriptions Formations Ouvertes - alignés avec le formulaire
+// Types pour les inscriptions formations ouvertes
 interface InscriptionFormationOuverte {
   id: string;
-  candidateId: string;
+  
+  // Informations de l'apprenant
   firstName: string;
   lastName: string;
-  candidateName: string;
   email: string;
   phone: string;
-  formation: string;
-  formationLabel: string;
-  price: string;
-  level: 'debutant' | 'intermediaire' | 'avance';
+  dateOfBirth: string;
+  gender: 'M' | 'F';
+  nationality: string;
+  address: string;
+  city: string;
+  
+  // Formation
+  formationId: string;
+  formationTitle: string;
+  formationPrice: number;
+  
+  // Professionnel
+  currentJob?: string;
+  company?: string;
+  workExperience: number; // en années
   motivation: string;
-  applicationDate: string;
-  status: 'pending' | 'approved' | 'rejected' | 'completed';
-  paymentReceipt: {
-    uploaded: boolean;
-    filename?: string;
-    verified: boolean;
-  };
-  paymentMethod: 'mobile_money' | 'bank' | 'offline';
-  feePaid: boolean;
-  notes?: string;
+  expectations: string;
+  
+  // Éducation
+  educationLevel: 'bac' | 'bac+2' | 'bac+3' | 'bac+5' | 'plus';
+  previousTrainings: string[];
+  
+  // Inscription
+  registrationDate: string;
+  status: 'pending' | 'approved' | 'rejected' | 'cancelled';
+  paymentStatus: 'pending' | 'partial' | 'completed' | 'refunded';
+  amountPaid: number;
+  
+  // Suivi administratif
   processedBy?: string;
+  processedDate?: string;
+  rejectionReason?: string;
+  notes?: string;
+  
+  // Documents
+  documents: {
+    id: string;
+    name: string;
+    type: 'cv' | 'diploma' | 'motivation_letter' | 'id_card' | 'photo' | 'other';
+    url: string;
+    uploadDate: string;
+    verified: boolean;
+  }[];
+  
   createdAt: string;
   updatedAt: string;
 }
 
 const InscriptionsFormationsOuvertes: React.FC = () => {
   const [inscriptions, setInscriptions] = useState<InscriptionFormationOuverte[]>([]);
-  const [filteredInscriptions, setFilteredInscriptions] = useState<InscriptionFormationOuverte[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [filterFormation, setFilterFormation] = useState<string>('all');
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedInscription, setSelectedInscription] = useState<InscriptionFormationOuverte | null>(null);
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
 
-  // Formations disponibles - alignées avec le formulaire d'inscription
-  const formations = [
-    { value: "anglais", label: "Anglais", price: "15,000" },
-    { value: "francais", label: "Français", price: "12,000" },
-    { value: "informatique", label: "Informatique de base", price: "20,000" },
-    { value: "bureautique", label: "Bureautique (Word, Excel, PowerPoint)", price: "18,000" },
-    { value: "accompagnement", label: "Accompagnement scolaire", price: "10,000" },
-    { value: "entrepreneuriat", label: "Entrepreneuriat", price: "25,000" }
-  ];
+  const {
+    searchTerm,
+    setSearchTerm,
+    filters,
+    updateFilter,
+    clearFilters,
+    filteredData
+  } = useFilteredData(
+    inscriptions.filter(inscription => 
+      activeTab === 'all' || inscription.status === activeTab
+    ), 
+    ['firstName', 'lastName', 'email', 'formationTitle']
+  );
 
-  // Mock data pour les inscriptions - basé sur le formulaire d'inscription
+  // Mock data pour les inscriptions
   const mockInscriptions: InscriptionFormationOuverte[] = [
     {
       id: '1',
-      candidateId: 'FO001',
-      firstName: 'Marie',
-      lastName: 'KOUASSI',
-      candidateName: 'KOUASSI Marie',
-      email: 'marie.kouassi@email.com',
+      firstName: 'Adjoa',
+      lastName: 'MENSAH',
+      email: 'adjoa.mensah@gmail.com',
       phone: '+228 90 12 34 56',
-      formation: 'anglais',
-      formationLabel: 'Anglais',
-      price: '15,000',
-      level: 'debutant',
-      motivation: 'Je souhaite améliorer mon anglais pour mon travail et pour pouvoir communiquer avec des clients internationaux.',
-      applicationDate: '2024-12-15',
-      status: 'pending',
-      paymentReceipt: {
-        uploaded: true,
-        filename: 'recu_orange_money_marie.jpg',
-        verified: false
-      },
-      paymentMethod: 'mobile_money',
-      feePaid: false,
-      notes: 'Candidature complète, en attente de vérification du paiement',
+      dateOfBirth: '1995-06-15',
+      gender: 'F',
+      nationality: 'Togolaise',
+      address: '123 Rue de la Paix, Tokoin',
+      city: 'Lomé',
+      
+      formationId: '1',
+      formationTitle: 'Formation en Intelligence Artificielle et Machine Learning',
+      formationPrice: 250000,
+      
+      currentJob: 'Développeuse Web',
+      company: 'TechCorp Togo',
+      workExperience: 3,
+      motivation: 'Souhait de me spécialiser dans l\'IA pour évoluer dans ma carrière',
+      expectations: 'Acquérir des compétences pratiques en ML et développer des projets concrets',
+      
+      educationLevel: 'bac+3',
+      previousTrainings: ['JavaScript Avancé', 'Python pour débutants'],
+      
+      registrationDate: '2024-12-15',
+      status: 'approved',
+      paymentStatus: 'completed',
+      amountPaid: 250000,
+      
+      processedBy: 'Admin CREC',
+      processedDate: '2024-12-18',
+      
+      documents: [
+        {
+          id: '1',
+          name: 'CV_Adjoa_MENSAH.pdf',
+          type: 'cv',
+          url: '/documents/cv_adjoa.pdf',
+          uploadDate: '2024-12-15',
+          verified: true
+        },
+        {
+          id: '2',
+          name: 'Diplome_Licence_Informatique.pdf',
+          type: 'diploma',
+          url: '/documents/diplome_adjoa.pdf',
+          uploadDate: '2024-12-15',
+          verified: true
+        }
+      ],
+      
       createdAt: '2024-12-15',
-      updatedAt: '2024-12-20'
+      updatedAt: '2024-12-18'
     },
     {
       id: '2',
-      candidateId: 'FO002',
-      firstName: 'Jean',
-      lastName: 'ABLODÉ',
-      candidateName: 'ABLODÉ Jean',
-      email: 'jean.ablode@email.com',
+      firstName: 'Kossi',
+      lastName: 'ADJA',
+      email: 'kossi.adja@outlook.com',
       phone: '+228 91 23 45 67',
-      formation: 'informatique',
-      formationLabel: 'Informatique de base',
-      price: '20,000',
-      level: 'debutant',
-      motivation: 'Je veux apprendre les bases de l\'informatique pour pouvoir utiliser un ordinateur au travail.',
-      applicationDate: '2024-12-10',
-      status: 'approved',
-      paymentReceipt: {
-        uploaded: true,
-        filename: 'virement_boa_jean.pdf',
-        verified: true
-      },
-      paymentMethod: 'bank',
-      feePaid: true,
-      notes: 'Paiement vérifié, inscription confirmée pour la session de janvier',
-      processedBy: 'Admin CREC',
+      dateOfBirth: '1988-03-22',
+      gender: 'M',
+      nationality: 'Togolaise',
+      address: '456 Boulevard du 13 Janvier, Bè',
+      city: 'Lomé',
+      
+      formationId: '2',
+      formationTitle: 'Développement Web Full-Stack (React & Node.js)',
+      formationPrice: 300000,
+      
+      currentJob: 'Chef de projet IT',
+      company: 'Digital Solutions SARL',
+      workExperience: 8,
+      motivation: 'Besoin de mise à jour technique pour mieux encadrer mon équipe',
+      expectations: 'Comprendre les technologies modernes de développement web',
+      
+      educationLevel: 'bac+5',
+      previousTrainings: ['Gestion de projet Agile', 'HTML/CSS'],
+      
+      registrationDate: '2024-12-10',
+      status: 'pending',
+      paymentStatus: 'partial',
+      amountPaid: 150000,
+      
+      documents: [
+        {
+          id: '3',
+          name: 'CV_Kossi_ADJA.pdf',
+          type: 'cv',
+          url: '/documents/cv_kossi.pdf',
+          uploadDate: '2024-12-10',
+          verified: false
+        }
+      ],
+      
       createdAt: '2024-12-10',
-      updatedAt: '2024-12-18'
+      updatedAt: '2024-12-10'
     },
     {
       id: '3',
-      candidateId: 'FO003',
-      firstName: 'Akossiwa',
-      lastName: 'TOGNON',
-      candidateName: 'TOGNON Akossiwa',
-      email: 'akossiwa.tognon@email.com',
+      firstName: 'Marie',
+      lastName: 'ABLODE',
+      email: 'marie.ablode@yahoo.fr',
       phone: '+228 92 34 56 78',
-      formation: 'bureautique',
-      formationLabel: 'Bureautique (Word, Excel, PowerPoint)',
-      price: '18,000',
-      level: 'intermediaire',
-      motivation: 'J\'ai besoin de perfectionner mes compétences en bureautique pour mon nouveau poste de secrétaire.',
-      applicationDate: '2024-12-08',
-      status: 'completed',
-      paymentReceipt: {
-        uploaded: true,
-        filename: 'mtn_momo_akossiwa.jpg',
-        verified: true
-      },
-      paymentMethod: 'mobile_money',
-      feePaid: true,
-      notes: 'Formation terminée avec succès, certificat délivré',
-      processedBy: 'Admin CREC',
-      createdAt: '2024-12-08',
-      updatedAt: '2024-12-19'
-    },
-    {
-      id: '4',
-      candidateId: 'FO004',
-      firstName: 'Emmanuel',
-      lastName: 'KODJO',
-      candidateName: 'KODJO Emmanuel',
-      email: 'emmanuel.kodjo@email.com',
-      phone: '+228 93 45 67 89',
-      formation: 'entrepreneuriat',
-      formationLabel: 'Entrepreneuriat',
-      price: '25,000',
-      level: 'avance',
-      motivation: 'Je veux développer mon projet d\'entreprise et apprendre les techniques modernes de gestion.',
-      applicationDate: '2024-12-12',
-      status: 'rejected',
-      paymentReceipt: {
-        uploaded: false,
-        verified: false
-      },
-      paymentMethod: 'offline',
-      feePaid: false,
-      notes: 'Reçu de paiement non fourni dans les délais impartis',
-      processedBy: 'Admin CREC',
-      createdAt: '2024-12-12',
-      updatedAt: '2024-12-18'
+      dateOfBirth: '1992-11-08',
+      gender: 'F',
+      nationality: 'Togolaise',
+      address: '789 Rue des Palmiers, Adidogomé',
+      city: 'Lomé',
+      
+      formationId: '3',
+      formationTitle: 'Leadership et Management Éthique',
+      formationPrice: 180000,
+      
+      currentJob: 'Responsable RH',
+      company: 'Ministère de la Santé',
+      workExperience: 6,
+      motivation: 'Développer mes compétences en leadership pour améliorer la gestion de mon équipe',
+      expectations: 'Apprendre les techniques de management éthique basées sur les valeurs',
+      
+      educationLevel: 'bac+5',
+      previousTrainings: ['Formation en GRH', 'Communication interpersonnelle'],
+      
+      registrationDate: '2024-12-05',
+      status: 'approved',
+      paymentStatus: 'completed',
+      amountPaid: 180000,
+      
+      processedBy: 'P. Pierre ADOM, SJ',
+      processedDate: '2024-12-08',
+      
+      documents: [
+        {
+          id: '4',
+          name: 'CV_Marie_ABLODE.pdf',
+          type: 'cv',
+          url: '/documents/cv_marie.pdf',
+          uploadDate: '2024-12-05',
+          verified: true
+        },
+        {
+          id: '5',
+          name: 'Master_GRH.pdf',
+          type: 'diploma',
+          url: '/documents/master_marie.pdf',
+          uploadDate: '2024-12-05',
+          verified: true
+        }
+      ],
+      
+      createdAt: '2024-12-05',
+      updatedAt: '2024-12-08'
     }
   ];
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setInscriptions(mockInscriptions);
-      setFilteredInscriptions(mockInscriptions);
       setLoading(false);
     }, 1000);
 
     return () => clearTimeout(timer);
   }, []);
 
-  // Filtrage
-  useEffect(() => {
-    let filtered = inscriptions;
-
-    if (searchTerm) {
-      filtered = filtered.filter(inscription =>
-        inscription.candidateName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        inscription.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        inscription.candidateId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        inscription.formationLabel.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+  // Configuration des statistiques
+  const stats = [
+    {
+      title: 'Total Inscriptions',
+      value: inscriptions.length,
+      icon: UserCheck,
+      color: 'text-blue-600',
+      description: '+8 ce mois'
+    },
+    {
+      title: 'En Attente',
+      value: inscriptions.filter(i => i.status === 'pending').length,
+      icon: Clock,
+      color: 'text-orange-600',
+      description: 'À traiter'
+    },
+    {
+      title: 'Approuvées',
+      value: inscriptions.filter(i => i.status === 'approved').length,
+      icon: CheckCircle,
+      color: 'text-green-600',
+      description: 'Validées'
+    },
+    {
+      title: 'Chiffre d\'Affaires',
+      value: inscriptions.filter(i => i.paymentStatus === 'completed').reduce((sum, i) => sum + i.amountPaid, 0),
+      icon: Users,
+      color: 'text-purple-600',
+      description: 'FCFA ce mois',
+      format: 'currency'
     }
+  ];
 
-    if (filterStatus !== 'all') {
-      filtered = filtered.filter(inscription => inscription.status === filterStatus);
+  // Configuration des filtres
+  const filterConfigs = [
+    {
+      key: 'formationTitle',
+      label: 'Formation',
+      placeholder: 'Filtrer par formation',
+      options: [
+        { value: 'Formation en Intelligence Artificielle et Machine Learning', label: 'IA & ML' },
+        { value: 'Développement Web Full-Stack (React & Node.js)', label: 'Dev Web Full-Stack' },
+        { value: 'Leadership et Management Éthique', label: 'Leadership Éthique' },
+        { value: 'Data Science et Analyse de Données', label: 'Data Science' }
+      ]
+    },
+    {
+      key: 'educationLevel',
+      label: 'Niveau d\'études',
+      placeholder: 'Filtrer par niveau',
+      options: [
+        { value: 'bac', label: 'Baccalauréat' },
+        { value: 'bac+2', label: 'Bac+2' },
+        { value: 'bac+3', label: 'Bac+3' },
+        { value: 'bac+5', label: 'Bac+5' },
+        { value: 'plus', label: 'Bac+5 et plus' }
+      ]
+    },
+    {
+      key: 'paymentStatus',
+      label: 'Paiement',
+      placeholder: 'Filtrer par paiement',
+      options: [
+        { value: 'pending', label: 'En attente' },
+        { value: 'partial', label: 'Partiel' },
+        { value: 'completed', label: 'Complet' },
+        { value: 'refunded', label: 'Remboursé' }
+      ]
+    },
+    {
+      key: 'city',
+      label: 'Ville',
+      placeholder: 'Filtrer par ville',
+      options: [
+        { value: 'Lomé', label: 'Lomé' },
+        { value: 'Kara', label: 'Kara' },
+        { value: 'Sokodé', label: 'Sokodé' },
+        { value: 'Kpalimé', label: 'Kpalimé' }
+      ]
     }
+  ];
 
-    if (filterFormation !== 'all') {
-      filtered = filtered.filter(inscription => inscription.formation === filterFormation);
+  // Configuration des colonnes
+  const columns = [
+    { 
+      key: 'name', 
+      label: 'Nom Complet',
+      render: (value: any, item: InscriptionFormationOuverte) => `${item.firstName} ${item.lastName}`
+    },
+    { key: 'email', label: 'Email' },
+    { key: 'phone', label: 'Téléphone' },
+    { key: 'formationTitle', label: 'Formation' },
+    { key: 'educationLevel', label: 'Niveau', type: 'badge' as const, badgeType: 'level' as const },
+    { 
+      key: 'workExperience', 
+      label: 'Expérience', 
+      render: (value: number) => `${value} an${value > 1 ? 's' : ''}`
+    },
+    { 
+      key: 'paymentStatus', 
+      label: 'Paiement', 
+      type: 'badge' as const, 
+      badgeType: 'status' as const,
+      render: (value: string, item: InscriptionFormationOuverte) => (
+        <div>
+          <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getBadgeColor(value, 'status')}`}>
+            {value === 'pending' ? 'En attente' : 
+             value === 'partial' ? 'Partiel' : 
+             value === 'completed' ? 'Complet' : 'Remboursé'}
+          </div>
+          <div className="text-sm text-muted-foreground mt-1">
+            {item.amountPaid.toLocaleString()} / {item.formationPrice.toLocaleString()} FCFA
+          </div>
+        </div>
+      )
+    },
+    { key: 'status', label: 'Statut', type: 'badge' as const, badgeType: 'status' as const },
+    { key: 'actions', label: 'Actions', type: 'actions' as const }
+  ];
+
+  // Actions personnalisées
+  const customActions = [
+    {
+      label: 'Approuver',
+      onClick: (inscription: InscriptionFormationOuverte) => {
+        setInscriptions(prev => 
+          prev.map(i => i.id === inscription.id ? { 
+            ...i, 
+            status: 'approved', 
+            processedDate: new Date().toISOString(),
+            processedBy: 'Admin CREC'
+          } : i)
+        );
+      },
+      variant: 'default' as const,
+      icon: CheckCircle
+    },
+    {
+      label: 'Rejeter',
+      onClick: (inscription: InscriptionFormationOuverte) => {
+        const reason = prompt('Raison du rejet:');
+        if (reason) {
+          setInscriptions(prev => 
+            prev.map(i => i.id === inscription.id ? { 
+              ...i, 
+              status: 'rejected',
+              rejectionReason: reason,
+              processedDate: new Date().toISOString(),
+              processedBy: 'Admin CREC'
+            } : i)
+          );
+        }
+      },
+      variant: 'destructive' as const,
+      icon: XCircle
     }
+  ];
 
-    setFilteredInscriptions(filtered);
-  }, [inscriptions, searchTerm, filterStatus, filterFormation]);
+  // Configuration du formulaire (vue détaillée)
+  const formFields = [
+    { name: 'firstName', label: 'Prénom', type: 'text' as const, required: true },
+    { name: 'lastName', label: 'Nom', type: 'text' as const, required: true },
+    { name: 'email', label: 'Email', type: 'email' as const, required: true },
+    { name: 'phone', label: 'Téléphone', type: 'text' as const, required: true },
+    { name: 'dateOfBirth', label: 'Date de naissance', type: 'date' as const, required: true },
+    { 
+      name: 'gender', 
+      label: 'Genre', 
+      type: 'select' as const, 
+      required: true,
+      options: [
+        { value: 'M', label: 'Masculin' },
+        { value: 'F', label: 'Féminin' }
+      ]
+    },
+    { name: 'nationality', label: 'Nationalité', type: 'text' as const, required: true },
+    { name: 'address', label: 'Adresse', type: 'textarea' as const, required: true },
+    { name: 'city', label: 'Ville', type: 'text' as const, required: true },
+    { name: 'currentJob', label: 'Poste actuel', type: 'text' as const },
+    { name: 'company', label: 'Entreprise', type: 'text' as const },
+    { name: 'workExperience', label: 'Années d\'expérience', type: 'number' as const },
+    { 
+      name: 'educationLevel', 
+      label: 'Niveau d\'études', 
+      type: 'select' as const, 
+      required: true,
+      options: filterConfigs[1].options
+    }
+  ];
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      pending: { color: 'bg-yellow-100 text-yellow-800', label: 'En attente', icon: Clock },
-      approved: { color: 'bg-green-100 text-green-800', label: 'Approuvée', icon: CheckCircle },
-      rejected: { color: 'bg-red-100 text-red-800', label: 'Rejetée', icon: XCircle },
-      completed: { color: 'bg-blue-100 text-blue-800', label: 'Terminée', icon: Award }
-    };
-    const config = statusConfig[status as keyof typeof statusConfig];
-    const IconComponent = config.icon;
-    return (
-      <Badge className={config.color}>
-        <IconComponent className="w-3 h-3 mr-1" />
-        {config.label}
-      </Badge>
-    );
+  // Gestionnaires d'événements
+  const handleAdd = () => {
+    setSelectedInscription(null);
+    setIsFormOpen(true);
   };
 
-  const getLevelBadge = (level: string) => {
-    const levelConfig = {
-      'debutant': { color: 'bg-green-100 text-green-800', label: 'Débutant' },
-      'intermediaire': { color: 'bg-yellow-100 text-yellow-800', label: 'Intermédiaire' },
-      'avance': { color: 'bg-red-100 text-red-800', label: 'Avancé' }
-    };
-    const config = levelConfig[level as keyof typeof levelConfig];
-    return <Badge className={config.color}>{config.label}</Badge>;
-  };
-
-  const getPaymentBadge = (paymentReceipt: any, feePaid: boolean) => {
-    if (feePaid) {
-      return <Badge className="bg-green-100 text-green-800">✓ Payé</Badge>;
-    } else if (paymentReceipt.uploaded && paymentReceipt.verified) {
-      return <Badge className="bg-blue-100 text-blue-800">✓ Vérifié</Badge>;
-    } else if (paymentReceipt.uploaded) {
-      return <Badge className="bg-yellow-100 text-yellow-800">⏳ En vérification</Badge>;
-    } else {
-      return <Badge className="bg-red-100 text-red-800">✗ Non fourni</Badge>;
-    }
-  };
-
-  const handleStatusChange = (inscriptionId: string, newStatus: string) => {
-    setInscriptions(prev => prev.map(inscription => 
-      inscription.id === inscriptionId 
-        ? { ...inscription, status: newStatus as any, updatedAt: new Date().toISOString() }
-        : inscription
-    ));
-  };
-
-  const openDetailDialog = (inscription: InscriptionFormationOuverte) => {
+  const handleEdit = (inscription: InscriptionFormationOuverte) => {
     setSelectedInscription(inscription);
-    setIsDetailDialogOpen(true);
+    setIsFormOpen(true);
+  };
+
+  const handleDelete = (inscription: InscriptionFormationOuverte) => {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette inscription ?')) {
+      setInscriptions(prev => prev.filter(i => i.id !== inscription.id));
+    }
+  };
+
+  const handleView = (inscription: InscriptionFormationOuverte) => {
+    setSelectedInscription(inscription);
+    setIsFormOpen(true);
+  };
+
+  const handleSubmit = (data: Record<string, any>) => {
+    if (selectedInscription) {
+      setInscriptions(prev => 
+        prev.map(i => i.id === selectedInscription.id ? { ...i, ...data } : i)
+      );
+    } else {
+      const newInscription: InscriptionFormationOuverte = {
+        id: Date.now().toString(),
+        firstName: data.firstName || '',
+        lastName: data.lastName || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        dateOfBirth: data.dateOfBirth || '',
+        gender: data.gender || 'M',
+        nationality: data.nationality || '',
+        address: data.address || '',
+        city: data.city || '',
+        formationId: '1',
+        formationTitle: 'Formation à définir',
+        formationPrice: 0,
+        currentJob: data.currentJob || '',
+        company: data.company || '',
+        workExperience: Number(data.workExperience) || 0,
+        motivation: '',
+        expectations: '',
+        educationLevel: data.educationLevel || 'bac',
+        previousTrainings: [],
+        registrationDate: new Date().toISOString(),
+        status: 'pending',
+        paymentStatus: 'pending',
+        amountPaid: 0,
+        documents: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      setInscriptions(prev => [...prev, newInscription]);
+    }
+    setIsFormOpen(false);
+  };
+
+  const handleExport = () => {
+    const exportData = filteredData.map(inscription => ({
+      Prénom: inscription.firstName,
+      Nom: inscription.lastName,
+      Email: inscription.email,
+      Téléphone: inscription.phone,
+      Formation: inscription.formationTitle,
+      'Niveau études': inscription.educationLevel,
+      'Expérience (ans)': inscription.workExperience,
+      'Date inscription': formatDate(inscription.registrationDate),
+      'Montant payé': inscription.amountPaid,
+      'Prix formation': inscription.formationPrice,
+      'Statut paiement': inscription.paymentStatus,
+      Statut: inscription.status
+    }));
+    
+    exportToCSV(
+      exportData, 
+      'inscriptions-formations-ouvertes-' + new Date().toISOString().split('T')[0], 
+      Object.keys(exportData[0] || {})
+    );
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* En-tête */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between mb-8"
-      >
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <BookOpen className="h-8 w-8 text-crec-gold" />
-            Inscriptions Formations Ouvertes
-          </h1>
-          <p className="text-gray-600 mt-1">Gestion des candidatures aux formations continues</p>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Exporter
-          </Button>
-        </div>
-      </motion.div>
+    <AdminPageLayout
+      title="Inscriptions Formations Ouvertes"
+      description="Gérez les inscriptions aux formations ouvertes au grand public"
+      stats={stats}
+      searchTerm={searchTerm}
+      onSearchChange={setSearchTerm}
+      onAdd={handleAdd}
+      onExport={handleExport}
+      filters={
+        <AdminFilters
+          filters={filterConfigs}
+          activeFilters={filters}
+          onFilterChange={updateFilter}
+          onClearFilters={clearFilters}
+        />
+      }
+      tabs={[
+        { id: 'all', label: 'Toutes', count: inscriptions.length },
+        { id: 'pending', label: 'En attente', count: inscriptions.filter(i => i.status === 'pending').length },
+        { id: 'approved', label: 'Approuvées', count: inscriptions.filter(i => i.status === 'approved').length },
+        { id: 'rejected', label: 'Rejetées', count: inscriptions.filter(i => i.status === 'rejected').length }
+      ]}
+      activeTab={activeTab}
+      onTabChange={(tab) => setActiveTab(tab as 'all' | 'pending' | 'approved' | 'rejected')}
+    >
+      <AdminTable
+        columns={columns}
+        data={filteredData}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onView={handleView}
+        customActions={customActions}
+      />
 
-      {/* Statistiques */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Inscriptions</CardTitle>
-              <FileText className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-700">{inscriptions.length}</div>
-              <p className="text-xs text-blue-600">
-                Ce mois
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Approuvées</CardTitle>
-              <UserCheck className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-700">
-                {inscriptions.filter(i => i.status === 'approved').length}
-              </div>
-              <p className="text-xs text-green-600">
-                Confirmées
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">En Attente</CardTitle>
-              <Clock className="h-4 w-4 text-yellow-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-yellow-700">
-                {inscriptions.filter(i => i.status === 'pending').length}
-              </div>
-              <p className="text-xs text-yellow-600">
-                À traiter
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Terminées</CardTitle>
-              <Award className="h-4 w-4 text-purple-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-purple-700">
-                {inscriptions.filter(i => i.status === 'completed').length}
-              </div>
-              <p className="text-xs text-purple-600">
-                Certifiées
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-
-      {/* Filtres et recherche */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-lg">Filtres et Recherche</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Rechercher par nom, email ou formation..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              
-              <div className="flex gap-4">
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Statut" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tous les statuts</SelectItem>
-                    <SelectItem value="pending">En attente</SelectItem>
-                    <SelectItem value="approved">Approuvées</SelectItem>
-                    <SelectItem value="completed">Terminées</SelectItem>
-                    <SelectItem value="rejected">Rejetées</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={filterFormation} onValueChange={setFilterFormation}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Formation" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Toutes les formations</SelectItem>
-                    {formations.map((formation) => (
-                      <SelectItem key={formation.value} value={formation.value}>
-                        {formation.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Liste des inscriptions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Inscriptions Formations Ouvertes ({filteredInscriptions.length})</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Candidat</TableHead>
-                    <TableHead>Formation</TableHead>
-                    <TableHead>Niveau</TableHead>
-                    <TableHead>Statut</TableHead>
-                    <TableHead>Paiement</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredInscriptions.map((inscription) => (
-                    <TableRow key={inscription.id}>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="font-medium">{inscription.candidateName}</div>
-                          <div className="text-sm text-gray-500 flex items-center gap-1">
-                            <Mail className="w-3 h-3" />
-                            {inscription.email}
-                          </div>
-                          <div className="text-xs text-gray-400 flex items-center gap-1">
-                            <Phone className="w-3 h-3" />
-                            {inscription.phone}
-                          </div>
-                          <div className="text-xs text-gray-400">
-                            ID: {inscription.candidateId}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="text-sm font-medium">{inscription.formationLabel}</div>
-                          <div className="text-xs text-gray-500">
-                            {inscription.price} FCFA
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {getLevelBadge(inscription.level)}
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(inscription.status)}
-                      </TableCell>
-                      <TableCell>
-                        {getPaymentBadge(inscription.paymentReceipt, inscription.feePaid)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {new Date(inscription.applicationDate).toLocaleDateString('fr-FR')}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openDetailDialog(inscription)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          
-                          {inscription.status === 'pending' && (
-                            <>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-green-600 hover:text-green-700"
-                                onClick={() => handleStatusChange(inscription.id, 'approved')}
-                              >
-                                <CheckCircle className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-red-600 hover:text-red-700"
-                                onClick={() => handleStatusChange(inscription.id, 'rejected')}
-                              >
-                                <XCircle className="h-4 w-4" />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              
-              {filteredInscriptions.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  Aucune inscription trouvée avec ces critères.
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Dialog de détails */}
-      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Détails de l'inscription</DialogTitle>
-            <DialogDescription>
-              Informations complètes sur le candidat
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedInscription && (
-            <div className="space-y-6">
-              {/* Informations personnelles */}
+      {selectedInscription && (
+        <AdminForm
+          title="Détails de l'inscription"
+          description="Consultez et modifiez les informations de l'inscription"
+          fields={formFields}
+          data={selectedInscription}
+          isOpen={isFormOpen}
+          onClose={() => setIsFormOpen(false)}
+          onSubmit={handleSubmit}
+          isLoading={loading}
+          customContent={
+            <div className="space-y-4">
               <div>
-                <h3 className="font-semibold mb-3">Informations personnelles</h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div><strong>Prénom:</strong> {selectedInscription.firstName}</div>
-                  <div><strong>Nom:</strong> {selectedInscription.lastName}</div>
-                  <div><strong>Email:</strong> {selectedInscription.email}</div>
-                  <div><strong>Téléphone:</strong> {selectedInscription.phone}</div>
-                  <div><strong>ID Candidat:</strong> {selectedInscription.candidateId}</div>
-                </div>
+                <h4 className="font-semibold mb-2">Motivation</h4>
+                <p className="text-sm text-muted-foreground bg-gray-50 p-3 rounded">
+                  {selectedInscription.motivation}
+                </p>
               </div>
-
-              {/* Formation */}
               <div>
-                <h3 className="font-semibold mb-3">Formation</h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div><strong>Formation:</strong> {selectedInscription.formationLabel}</div>
-                  <div><strong>Prix:</strong> {selectedInscription.price} FCFA</div>
-                  <div><strong>Niveau:</strong> {selectedInscription.level}</div>
-                  <div><strong>Statut:</strong> {selectedInscription.status}</div>
-                </div>
+                <h4 className="font-semibold mb-2">Attentes</h4>
+                <p className="text-sm text-muted-foreground bg-gray-50 p-3 rounded">
+                  {selectedInscription.expectations}
+                </p>
               </div>
-
-              {/* Motivation */}
-              {selectedInscription.motivation && (
-                <div>
-                  <h3 className="font-semibold mb-3">Motivation</h3>
-                  <p className="text-sm bg-gray-50 p-3 rounded">{selectedInscription.motivation}</p>
-                </div>
-              )}
-
-              {/* Paiement */}
               <div>
-                <h3 className="font-semibold mb-3">Informations de paiement</h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div><strong>Méthode de paiement:</strong> {selectedInscription.paymentMethod}</div>
-                  <div><strong>Statut du paiement:</strong> {selectedInscription.feePaid ? 'Payé' : 'Non payé'}</div>
-                  <div><strong>Reçu téléchargé:</strong> {selectedInscription.paymentReceipt.uploaded ? 'Oui' : 'Non'}</div>
-                  <div><strong>Reçu vérifié:</strong> {selectedInscription.paymentReceipt.verified ? 'Oui' : 'Non'}</div>
-                  {selectedInscription.paymentReceipt.filename && (
-                    <div className="col-span-2">
-                      <strong>Fichier:</strong> {selectedInscription.paymentReceipt.filename}
+                <h4 className="font-semibold mb-2">Documents soumis</h4>
+                <div className="space-y-2">
+                  {selectedInscription.documents.map(doc => (
+                    <div key={doc.id} className="flex items-center justify-between p-2 border rounded">
+                      <span className="text-sm">{doc.name}</span>
+                      <span className={`text-xs px-2 py-1 rounded ${doc.verified ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}`}>
+                        {doc.verified ? 'Vérifié' : 'À vérifier'}
+                      </span>
                     </div>
-                  )}
+                  ))}
                 </div>
               </div>
-
-              {/* Notes administratives */}
-              {selectedInscription.notes && (
-                <div>
-                  <h3 className="font-semibold mb-3">Notes administratives</h3>
-                  <p className="text-sm bg-gray-50 p-3 rounded">{selectedInscription.notes}</p>
-                  {selectedInscription.processedBy && (
-                    <p className="text-xs text-gray-500 mt-2">Traité par: {selectedInscription.processedBy}</p>
-                  )}
-                </div>
-              )}
             </div>
-          )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailDialogOpen(false)}>
-              Fermer
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+          }
+        />
+      )}
+    </AdminPageLayout>
   );
 };
 

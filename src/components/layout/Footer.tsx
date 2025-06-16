@@ -21,13 +21,18 @@ const Footer = () => {
               Centre de Recherche, d'Étude et de Créativité
             </p>
             <p className="mt-4 text-sm text-gray-300">
-            Godomey-Salamey, Maison des Pères Jésuites,<br />
-             Lot N°2 du lotissement de Godomey Sud,<br />
-              tranche B. -  B.P. 307 Godomey
+              Maison des Pères Jésuites<br />
+              Godomey - Salamèy<br />
+              Lot n° 2, Godomey Sud,<br />
+              Tranche B.
             </p>
             <div className="mt-4 text-sm text-gray-300">
-              <p>contact@crec-education.org</p>
-              <p>+33 (0)1 23 45 67 89</p>
+              <p>crecjesuitesbenin@gmail.com</p>
+              <p>crecjscontact@gmail.com</p>
+              <p>jesuites-benin@gmail.com</p>
+              <p>Fixe: +229 01 20 22 23 03</p>
+              <p>Mobile: +229 01 67 76 15 15</p>
+              <p>Mobile: +229 01 91 50 88 88</p>
             </div>
           </div>
 
@@ -77,7 +82,7 @@ const Footer = () => {
               <a href="#" className="bg-crec-blue hover:bg-crec-lightblue p-2 rounded transition" aria-label="Youtube">
                 <Linkedin size={18} />
               </a>
-              <a href="mailto:contact@crec-education.org" className="bg-crec-blue hover:bg-crec-lightblue p-2 rounded transition" aria-label="Email">
+              <a href="mailto:crecjesuitesbenin@gmail.com" className="bg-crec-blue hover:bg-crec-lightblue p-2 rounded transition" aria-label="Email">
                 <Mail size={18} />
               </a>
               

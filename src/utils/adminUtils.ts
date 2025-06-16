@@ -173,3 +173,165 @@ export interface AdminAction {
   variant?: 'default' | 'destructive' | 'outline';
   disabled?: boolean;
 }
+
+// Fonction pour exporter des données en CSV
+export const exportToCSV = (data: any[], filename: string, columns: string[]) => {
+  const csvContent = [
+    columns.join(','),
+    ...data.map(row => 
+      columns.map(col => {
+        const value = row[col];
+        // Échapper les guillemets et virgules
+        if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+          return `"${value.replace(/"/g, '""')}"`;
+        }
+        return value || '';
+      }).join(',')
+    )
+  ].join('\n');
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  
+  if (link.download !== undefined) {
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${filename}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+};
+
+// Fonction pour valider les données de formulaire
+export const validateFormData = (
+  data: Record<string, any>,
+  rules: Record<string, {
+    required?: boolean;
+    type?: 'email' | 'number' | 'string';
+    min?: number;
+    max?: number;
+    pattern?: RegExp;
+  }>
+): { isValid: boolean; errors: Record<string, string> } => {
+  const errors: Record<string, string> = {};
+
+  Object.entries(rules).forEach(([field, rule]) => {
+    const value = data[field];
+
+    if (rule.required && (!value || value.toString().trim() === '')) {
+      errors[field] = 'Ce champ est requis';
+      return;
+    }
+
+    if (value && rule.type) {
+      switch (rule.type) {
+        case 'email':
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(value)) {
+            errors[field] = 'Format d\'email invalide';
+          }
+          break;
+        case 'number':
+          if (isNaN(Number(value))) {
+            errors[field] = 'Doit être un nombre';
+          }
+          break;
+      }
+    }
+
+    if (value && rule.min && value.toString().length < rule.min) {
+      errors[field] = `Minimum ${rule.min} caractères`;
+    }
+
+    if (value && rule.max && value.toString().length > rule.max) {
+      errors[field] = `Maximum ${rule.max} caractères`;
+    }
+
+    if (value && rule.pattern && !rule.pattern.test(value)) {
+      errors[field] = 'Format invalide';
+    }
+  });
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors
+  };
+};
+
+// Fonction pour formater les dates avec options
+export const formatDateAdvanced = (date: string | Date, format: 'short' | 'long' | 'time' = 'short'): string => {
+  const d = new Date(date);
+  
+  switch (format) {
+    case 'long':
+      return d.toLocaleDateString('fr-FR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    case 'time':
+      return d.toLocaleString('fr-FR', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    default:
+      return d.toLocaleDateString('fr-FR');
+  }
+};
+
+// Fonction pour générer des couleurs de graphiques
+export const generateChartColors = (count: number): string[] => {
+  const baseColors = [
+    '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+    '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6366F1'
+  ];
+  
+  const colors: string[] = [];
+  for (let i = 0; i < count; i++) {
+    colors.push(baseColors[i % baseColors.length] as string);
+  }
+  
+  return colors;
+};
+
+// Fonction pour calculer des statistiques
+export const calculateStats = (data: any[], config: {
+  total?: boolean;
+  byStatus?: boolean;
+  byCategory?: boolean;
+  statusField?: string;
+  categoryField?: string;
+}) => {
+  const stats: any = {};
+
+  if (config.total) {
+    stats.total = data.length;
+  }
+
+  if (config.byStatus && config.statusField) {
+    stats.byStatus = data.reduce((acc, item) => {
+      const status = item[config.statusField as string];
+      if (status !== undefined) {
+        acc[status] = (acc[status] || 0) + 1;
+      }
+      return acc;
+    }, {});
+  }
+
+  if (config.byCategory && config.categoryField) {
+    stats.byCategory = data.reduce((acc, item) => {
+      const category = item[config.categoryField as string];
+      if (category !== undefined) {
+        acc[category] = (acc[category] || 0) + 1;
+      }
+      return acc;
+    }, {});
+  }
+
+  return stats;
+};

@@ -63,28 +63,66 @@ interface InscriptionISTMR {
   phone: string;
   dateOfBirth: string;
   nationality: string;
+  gender: 'M' | 'F';
+  address: string;
+  city: string;
+  
+  // Éducation précédente
   previousEducation: string;
+  lastDiploma: string;
+  lastSchool: string;
+  graduationYear: string;
+  grades: string; // mention ou notes
+  
+  // Formation choisie
   formationId: string;
   formationTitle: string;
   formationType: 'licence' | 'master' | 'specialisation';
-  applicationDate: string;
-  status: 'pending' | 'approved' | 'rejected' | 'waitlisted';
+  
+  // Documents requis
   documents: {
-    cv: boolean;
-    transcript: boolean;
-    motivationLetter: boolean;
-    idCard: boolean;
-    diploma: boolean;
-    recommendationLetter?: boolean;
+    cv: { submitted: boolean; url?: string; verified: boolean; };
+    transcript: { submitted: boolean; url?: string; verified: boolean; };
+    motivationLetter: { submitted: boolean; url?: string; verified: boolean; };
+    idCard: { submitted: boolean; url?: string; verified: boolean; };
+    diploma: { submitted: boolean; url?: string; verified: boolean; };
+    birthCertificate: { submitted: boolean; url?: string; verified: boolean; };
+    photos: { submitted: boolean; url?: string; verified: boolean; };
+    paymentReceipt: { submitted: boolean; url?: string; verified: boolean; };
+    recommendationLetter?: { submitted: boolean; url?: string; verified: boolean; };
   };
-  notes?: string;
-  interviewDate?: string;
-  interviewNotes?: string;
+  
+  // Inscription
+  applicationDate: string;
+  status: 'pending' | 'approved' | 'rejected' | 'waitlisted' | 'archived';
   academicYear: string;
   semester: string;
-  tuitionPaid: number;
-  tuitionTotal: number;
-  scholarship?: string;
+  
+  // Paiement
+  fraisInscription: number;
+  montantPaye: number;
+  statutPaiement: 'pending' | 'partial' | 'complete';
+  
+  // Suivi administratif
+  notes?: string;
+  adminNotes?: string;
+  processedBy?: string;
+  processedDate?: string;
+  rejectionReason?: string;
+  
+  // Entretien (optionnel)
+  interviewDate?: string;
+  interviewNotes?: string;
+  interviewScore?: number;
+  
+  // Bourse (optionnel)
+  scholarship?: {
+    applied: boolean;
+    type?: string;
+    amount?: number;
+    status?: 'pending' | 'approved' | 'rejected';
+  };
+  
   createdAt: string;
   updatedAt: string;
 }

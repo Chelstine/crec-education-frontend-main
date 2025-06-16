@@ -43,15 +43,15 @@ const FablabInscriptionPage = () => {
     {
       type: "Mobile Money",
       accounts: [
-        { name: "Orange Money", number: "+237 6XX XXX XXX", account: "CREC-OM-001" },
-        { name: "MTN MoMo", number: "+237 6XX XXX XXX", account: "CREC-MTN-001" }
+        { name: "Orange Money", number: "+229 01 67 76 15 15", account: "CREC-OM-001" },
+        { name: "MTN MoMo", number: "+229 01 91 50 88 88", account: "CREC-MTN-001" }
       ]
     },
     {
       type: "Banque",
       accounts: [
-        { name: "Afriland First Bank", number: "40001 00000 12345678901 23", account: "CREC EDUCATION" },
-        { name: "UBA Cameroun", number: "10033 00000 12345678901 45", account: "CREC EDUCATION" }
+        { name: "Bank of Africa (BOA)", number: "40001 00000 12345678901 23", account: "CREC EDUCATION" },
+        { name: "UBA Bénin", number: "10033 00000 12345678901 45", account: "CREC EDUCATION" }
       ]
     }
   ];

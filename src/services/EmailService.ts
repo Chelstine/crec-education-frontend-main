@@ -6,10 +6,10 @@ export class EmailService {
   private emailConfiguration: EmailConfiguration = {
     smtpHost: "smtp.gmail.com",
     smtpPort: 587,
-    smtpUser: process.env.NEXT_PUBLIC_SMTP_USER || "noreply@crec.edu",
+    smtpUser: process.env.NEXT_PUBLIC_SMTP_USER || "noreply@crecbenin.org",
     smtpPassword: process.env.NEXT_PUBLIC_SMTP_PASSWORD || "",
     fromName: "CREC Education",
-    fromEmail: "noreply@crec.edu"
+    fromEmail: "noreply@crecbenin.org"
   };
 
   private notificationSettings: NotificationSettings = {
@@ -21,8 +21,8 @@ export class EmailService {
     enableBulkEmails: true,
     emailFrequencyLimit: 5,
     emailCooldownHours: 1,
-    staffNotificationEmail: "staff@crec.edu",
-    ccEmails: ["admissions@crec.edu"],
+    staffNotificationEmail: "crecjscontact@gmail.com",
+    ccEmails: ["crecjesuitesbenin@gmail.com"],
     bccEmails: []
   };
 
@@ -91,8 +91,8 @@ export class EmailService {
                 La référence de paiement fournie : <strong>{{paymentReference}}</strong></p>
               </div>
               
-              <p>Si vous avez des questions, n'hésitez pas à nous contacter à l'adresse 
-              <a href="mailto:admissions@crec.edu">admissions@crec.edu</a> ou au +229 90 00 00 00.</p>
+              <p>                Si vous avez des questions, n'hésitez pas à nous contacter à l'adresse 
+              <a href="mailto:crecjesuitesbenin@gmail.com">crecjesuitesbenin@gmail.com</a> ou au +229 01 20 22 23 03.</p>
               
               <p>Nous vous remercions pour votre intérêt pour le CREC et vous souhaitons bonne chance pour la suite du processus.</p>
               
@@ -103,7 +103,7 @@ export class EmailService {
             
             <div class="footer">
               <p><small>Cet email a été envoyé automatiquement. Merci de ne pas y répondre directement.</small></p>
-              <p><small>CREC - Cotonou, Bénin | www.crec.edu | contact@crec.edu</small></p>
+              <p><small>CREC - Godomey, Bénin | www.crec.edu | crecjesuitesbenin@gmail.com</small></p>
             </div>
           </div>
         </body>
@@ -129,7 +129,7 @@ export class EmailService {
         Assurez-vous que votre paiement des frais d'inscription ({{inscriptionFee}} FCFA) est bien effectué. 
         La référence de paiement fournie : {{paymentReference}}
         
-        Si vous avez des questions, contactez-nous à admissions@crec.edu ou au +229 90 00 00 00.
+        Si vous avez des questions, contactez-nous à crecjesuitesbenin@gmail.com ou au +229 01 20 22 23 03.
         
         Cordialement,
         L'équipe des admissions
@@ -209,9 +209,10 @@ export class EmailService {
               
               <p>Pour toute question, notre équipe est à votre disposition :</p>
               <ul>
-                <li>Email : <a href="mailto:admissions@crec.edu">admissions@crec.edu</a></li>
-                <li>Téléphone : +229 90 00 00 00</li>
-                <li>WhatsApp : +229 91 00 00 00</li>
+                <li>Email : <a href="mailto:crecjesuitesbenin@gmail.com">crecjesuitesbenin@gmail.com</a></li>
+                <li>Téléphone : +229 01 20 22 23 03</li>
+                <li>Mobile : +229 01 67 76 15 15</li>
+                <li>Mobile : +229 01 91 50 88 88</li>
               </ul>
               
               <p>Nous avons hâte de vous accueillir et de vous accompagner dans cette nouvelle aventure académique !</p>
@@ -223,7 +224,7 @@ export class EmailService {
             
             <div class="footer">
               <p><small>Félicitations encore pour cette réussite !</small></p>
-              <p><small>CREC - Cotonou, Bénin | www.crec.edu | contact@crec.edu</small></p>
+              <p><small>CREC - Godomey, Bénin | www.crec.edu | crecjesuitesbenin@gmail.com</small></p>
             </div>
           </div>
         </body>
@@ -249,9 +250,10 @@ export class EmailService {
         - Frais de scolarité annuels : {{tuitionFee}} FCFA
         
         Pour toute question :
-        - Email : admissions@crec.edu
-        - Téléphone : +229 90 00 00 00
-        - WhatsApp : +229 91 00 00 00
+        - Email : crecjesuitesbenin@gmail.com
+        - Téléphone : +229 01 20 22 23 03
+        - Mobile : +229 01 67 76 15 15
+        - Mobile : +229 01 91 50 88 88
         
         Nous avons hâte de vous accueillir !
         
@@ -335,8 +337,8 @@ export class EmailService {
             </div>
             
             <div class="footer">
-              <p><small>Pour toute question : admissions@crec.edu | +229 90 00 00 00</small></p>
-              <p><small>CREC - Cotonou, Bénin | www.crec.edu | contact@crec.edu</small></p>
+              <p><small>Pour toute question : crecjesuitesbenin@gmail.com | +229 01 20 22 23 03</small></p>
+              <p><small>CREC - Godomey, Bénin | www.crec.edu | crecjesuitesbenin@gmail.com</small></p>
             </div>
           </div>
         </body>
@@ -364,7 +366,7 @@ export class EmailService {
         L'équipe des admissions
         CREC - Centre de Recherche et d'Éducation Catholique
         
-        Contact : admissions@crec.edu | +229 90 00 00 00
+        Contact : crecjesuitesbenin@gmail.com | +229 01 20 22 23 03
       `,
       isActive: true,
       category: "rejection"
@@ -421,8 +423,8 @@ export class EmailService {
               
               <h3>Méthodes de paiement disponibles :</h3>
               <ul>
-                <li><strong>Orange Money :</strong> +229 91 00 00 00 (CREC-OM-001)</li>
-                <li><strong>MTN MoMo :</strong> +229 96 00 00 00 (CREC-MTN-001)</li>
+                <li><strong>Orange Money :</strong> +229 01 67 76 15 15 (CREC-OM-001)</li>
+                <li><strong>MTN MoMo :</strong> +229 01 91 50 88 88 (CREC-MTN-001)</li>
                 <li><strong>Virement bancaire :</strong> Voir détails dans votre espace étudiant</li>
               </ul>
               
@@ -434,8 +436,8 @@ export class EmailService {
               votre place pourra être attribuée à un autre candidat.</p>
               
               <p>Si vous rencontrez des difficultés ou avez besoin d'un étalement de paiement, 
-              contactez-nous rapidement à <a href="mailto:finance@crec.edu">finance@crec.edu</a> 
-              ou au +229 90 00 00 00.</p>
+              contactez-nous rapidement à <a href="mailto:crecjesuitesbenin@gmail.com">crecjesuitesbenin@gmail.com</a> 
+              ou au +229 01 20 22 23 03.</p>
               
               <p>Nous avons hâte de vous accueillir au CREC !</p>
               
@@ -446,7 +448,7 @@ export class EmailService {
             
             <div class="footer">
               <p><small>Cet email de rappel vous a été envoyé automatiquement.</small></p>
-              <p><small>CREC - Cotonou, Bénin | www.crec.edu | contact@crec.edu</small></p>
+              <p><small>CREC - Godomey, Bénin | www.crec.edu | crecjesuitesbenin@gmail.com</small></p>
             </div>
           </div>
         </body>
@@ -467,15 +469,15 @@ export class EmailService {
         - Référence : {{paymentReference}}
         
         Méthodes de paiement :
-        - Orange Money : +229 91 00 00 00 (CREC-OM-001)
-        - MTN MoMo : +229 96 00 00 00 (CREC-MTN-001)
+        - Orange Money : +229 01 67 76 15 15 (CREC-OM-001)
+        - MTN MoMo : +229 01 91 50 88 88 (CREC-MTN-001)
         - Virement bancaire : Voir votre espace étudiant
         
         Lien de paiement : {{paymentLink}}
         
         IMPORTANT : Sans paiement avant la date limite, votre place pourra être attribuée à un autre candidant.
         
-        Pour difficultés ou étalement : finance@crec.edu | +229 90 00 00 00
+        Pour difficultés ou étalement : crecjesuitesbenin@gmail.com | +229 01 20 22 23 03
         
         Cordialement,
         L'équipe des admissions

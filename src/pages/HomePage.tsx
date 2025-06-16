@@ -105,7 +105,7 @@ const HomePage = () => {
         subtitle="Formation, Recherche et Accompagnement pour une éducation intégrale fondée sur des valeurs chrétiennes."
         bgImages={[
           '/img/crec1.jpg',
-          '/img/crec2.jpeg',
+          '/img/crec2.png',
           '/img/crec3.jpg'
         ]}
         ctaText="Découvrir nos formations"
@@ -146,7 +146,7 @@ tradition que le CREC (Centre de Recherche d'Étude et de Créativité) a été 
             <div className="relative">
               <div className="rounded-lg overflow-hidden shadow-xl">
                 <img 
-                src='/img/eglise.png'
+                src='/img/crec2.png'
                   alt="Église Jésuite" 
                   className="w-full h-96 object-cover"
                 />

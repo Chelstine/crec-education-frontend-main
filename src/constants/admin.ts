@@ -119,23 +119,83 @@ export const NOTIFICATION_TYPES = {
   INFO: 'info'
 } as const;
 
+// Statuts des événements
+export const EVENEMENT_STATUS = {
+  UPCOMING: 'upcoming',
+  ONGOING: 'ongoing',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled'
+} as const;
+
+// Types d'événements
+export const EVENEMENT_TYPES = {
+  CONFERENCE: 'conference',
+  WORKSHOP: 'workshop',
+  SEMINAR: 'seminar',
+  CEREMONY: 'ceremony',
+  CULTURAL: 'cultural',
+  RELIGIOUS: 'religious'
+} as const;
+
+// Types de machines FabLab
+export const MACHINE_TYPES = {
+  IMPRIMANTE_3D: 'imprimante-3d',
+  LASER: 'laser',
+  CNC: 'cnc',
+  ELECTRONIQUE: 'electronique',
+  AUTRE: 'autre'
+} as const;
+
+// Statuts des machines
+export const MACHINE_STATUS = {
+  AVAILABLE: 'available',
+  MAINTENANCE: 'maintenance',
+  BROKEN: 'broken',
+  RESERVED: 'reserved'
+} as const;
+
+// Statuts des actualités
+export const ACTUALITE_STATUS = {
+  PUBLISHED: 'published',
+  DRAFT: 'draft',
+  ARCHIVED: 'archived'
+} as const;
+
+// Types d'actualités
+export const ACTUALITE_TYPES = {
+  NEWS: 'news',
+  ANNOUNCEMENT: 'announcement',
+  EVENT: 'event',
+  ACADEMIC: 'academic'
+} as const;
+
+// Types d'utilisateurs
+export const USER_TYPES = {
+  ADMIN: 'admin',
+  STUDENT: 'student',
+  TEACHER: 'teacher',
+  STAFF: 'staff',
+  MEMBER: 'member'
+} as const;
+
 // Rôles d'administration
 export const ADMIN_ROLES = {
+  SUPER_ADMIN: 'super_admin',
   ADMIN: 'admin',
-  SUPER_ADMIN: 'super-admin',
-  MODERATOR: 'moderator'
+  MODERATOR: 'moderator',
+  EDITOR: 'editor'
 } as const;
 
-// Extensions de fichiers autorisées
-export const ALLOWED_FILE_EXTENSIONS = {
-  IMAGES: ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
-  DOCUMENTS: ['.pdf', '.doc', '.docx', '.txt'],
-  SPREADSHEETS: ['.xls', '.xlsx', '.csv']
+// Priorités
+export const PRIORITY_LEVELS = {
+  LOW: 'low',
+  MEDIUM: 'medium',
+  HIGH: 'high',
+  URGENT: 'urgent'
 } as const;
 
-// Taille maximale des fichiers (en bytes)
-export const MAX_FILE_SIZES = {
-  IMAGE: 5 * 1024 * 1024, // 5MB
-  DOCUMENT: 10 * 1024 * 1024, // 10MB
-  SPREADSHEET: 15 * 1024 * 1024 // 15MB
+// Langues supportées
+export const SUPPORTED_LANGUAGES = {
+  FR: 'fr',
+  EN: 'en'
 } as const;

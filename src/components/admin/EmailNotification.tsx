@@ -84,8 +84,9 @@ L'équipe d'admission CREC
 
 ---
 Centre de Recherche et d'Excellence Créative
-Email: admission@crec.edu
-Téléphone: +33 1 23 45 67 89`
+Email: crecjesuitesbenin@gmail.com
+Téléphone: +229 01 20 22 23 03
+Mobile: +229 01 67 76 15 15`
         },
         formation: {
           subject: `Inscription confirmée - Formation ${applicationData?.programName || '[Formation]'}`,

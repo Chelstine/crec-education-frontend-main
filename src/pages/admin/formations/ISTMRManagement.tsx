@@ -50,9 +50,13 @@ interface Filiere {
   profil: string;
   type: 'licence' | 'master' | 'specialisation';
   duree: string;
+  prix: number;
+  prerequis: string[];
+  status: 'active' | 'inactive';
+  dateCreation: string;
+  nombreEtudiants: number;
   inscrits: number;
   fraisInscription: number;
-  statut: 'active' | 'inactive';
 }
 
 interface SectionAbout {
@@ -84,7 +88,7 @@ const ISTMRManagement: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingFiliere, setEditingFiliere] = useState<Filiere | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const [studentAdjustments, setStudentAdjustments] = useState<{[key: string]: number}>({});
+  const [studentAdjustments, setStudentAdjustments] = useState<{[key: string]: number | undefined}>({});
   const [newFiliere, setNewFiliere] = useState<Partial<Filiere>>({
     title: '',
     description: '',
@@ -94,9 +98,12 @@ const ISTMRManagement: React.FC = () => {
     profil: '',
     type: 'licence',
     duree: '3 ans',
+    prix: 450000,
+    prerequis: [],
+    status: 'active',
+    nombreEtudiants: 0,
     inscrits: 0,
-    fraisInscription: 450000,
-    statut: 'active'
+    fraisInscription: 450000
   });
 
   // Données des filières
@@ -111,9 +118,13 @@ const ISTMRManagement: React.FC = () => {
       profil: 'Passionné par la logique, la structure et le travail collaboratif.',
       type: 'licence',
       duree: '3 ans',
+      prix: 450000,
+      prerequis: ['Baccalauréat scientifique', 'Bases en mathématiques'],
+      status: 'active',
+      dateCreation: '2024-01-15',
+      nombreEtudiants: 28,
       inscrits: 28,
-      fraisInscription: 450000,
-      statut: 'active'
+      fraisInscription: 450000
     },
     {
       id: 'F002',
@@ -125,9 +136,13 @@ const ISTMRManagement: React.FC = () => {
       profil: 'Créatif, visuel, et motivé par la concrétisation rapide d\'idées.',
       type: 'licence',
       duree: '3 ans',
+      prix: 450000,
+      prerequis: ['Baccalauréat', 'Bases en design', 'Créativité'],
+      status: 'active',
+      dateCreation: '2024-01-20',
+      nombreEtudiants: 23,
       inscrits: 23,
-      fraisInscription: 450000,
-      statut: 'active'
+      fraisInscription: 450000
     },
     {
       id: 'F003',
@@ -139,9 +154,13 @@ const ISTMRManagement: React.FC = () => {
       profil: 'Curieux, analytique, et attiré par les solutions basées sur les données.',
       type: 'licence',
       duree: '3 ans',
+      prix: 480000,
+      prerequis: ['Baccalauréat scientifique', 'Excellentes bases en mathématiques', 'Logique'],
+      status: 'active',
+      dateCreation: '2024-02-01',
+      nombreEtudiants: 18,
       inscrits: 18,
-      fraisInscription: 480000,
-      statut: 'active'
+      fraisInscription: 480000
     }
   ]);
 
@@ -177,7 +196,7 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
     lieu: 'Campus ISTMR - Godomey-Salamey',
     position: 'avant',
     priority: 1,
-    contacts: ['admission@istmr.edu.bj', '+229 21 30 15 84'],
+    contacts: ['crecjesuitesbenin@gmail.com', '+229 01 20 22 23 03', '+229 01 67 76 15 15'],
     lastModified: '2024-01-20'
   });
 
@@ -198,8 +217,8 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
     }
   };
 
-  const getStatusColor = (statut: string) => {
-    switch (statut) {
+  const getStatusColor = (status: string) => {
+    switch (status) {
       case 'active': return 'bg-green-100 text-green-800';
       case 'inactive': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
@@ -251,7 +270,7 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
       duree: filiere.duree,
       inscrits: filiere.inscrits,
       fraisInscription: filiere.fraisInscription,
-      statut: filiere.statut
+      status: filiere.status
     });
     setShowEditModal(true);
   };
@@ -274,7 +293,7 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
       duree: newFiliere.duree!,
       inscrits: newFiliere.inscrits || 0,
       fraisInscription: newFiliere.fraisInscription || 450000,
-      statut: (newFiliere.statut as 'active' | 'inactive') || 'active'
+      status: (newFiliere.status as 'active' | 'inactive') || 'active'
     };
 
     setFilieres(filieres.map(f => f.id === editingFiliere.id ? updatedFiliere : f));
@@ -291,7 +310,7 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
       duree: '3 ans',
       inscrits: 0,
       fraisInscription: 450000,
-      statut: 'active'
+      status: 'active'
     });
   };
 
@@ -309,7 +328,7 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
       duree: '3 ans',
       inscrits: 0,
       fraisInscription: 450000,
-      statut: 'active'
+      status: 'active'
     });
   };
 
@@ -341,9 +360,13 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
       profil: newFiliere.profil!,
       type: (newFiliere.type as 'licence' | 'master' | 'specialisation') || 'licence',
       duree: newFiliere.duree!,
+      prix: newFiliere.prix || 450000,
+      prerequis: newFiliere.prerequis || [],
+      status: (newFiliere.status as 'active' | 'inactive') || 'active',
+      dateCreation: new Date().toISOString().split('T')[0],
+      nombreEtudiants: 0,
       inscrits: 0,
-      fraisInscription: newFiliere.fraisInscription || 450000,
-      statut: (newFiliere.statut as 'active' | 'inactive') || 'active'
+      fraisInscription: newFiliere.fraisInscription || 450000
     };
 
     setFilieres([...filieres, filiereToAdd]);
@@ -359,7 +382,7 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
       duree: '3 ans',
       inscrits: 0,
       fraisInscription: 450000,
-      statut: 'active'
+      status: 'active'
     });
   };
 
@@ -376,7 +399,7 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
       duree: '3 ans',
       inscrits: 0,
       fraisInscription: 450000,
-      statut: 'active'
+      status: 'active'
     });
   };
 
@@ -575,8 +598,8 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
                           <Badge className={getTypeColor(filiere.type)}>
                             {filiere.type}
                           </Badge>
-                          <Badge className={getStatusColor(filiere.statut)}>
-                            {filiere.statut}
+                          <Badge className={getStatusColor(filiere.status)}>
+                            {filiere.status}
                           </Badge>
                         </div>
                         
@@ -1123,8 +1146,8 @@ Sous l'égide du Centre de Recherche d'Étude et de Créativité (CREC), l'ISTMR
                     Statut
                   </label>
                   <select
-                    value={newFiliere.statut}
-                    onChange={(e) => setNewFiliere({...newFiliere, statut: e.target.value as 'active' | 'inactive'})}
+                    value={newFiliere.status}
+                    onChange={(e) => setNewFiliere({...newFiliere, status: e.target.value as 'active' | 'inactive'})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     title="Statut de la formation"
                     aria-label="Sélectionner le statut de la formation"

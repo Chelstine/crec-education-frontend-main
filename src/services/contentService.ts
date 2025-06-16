@@ -52,11 +52,11 @@ class ContentService {
       'fablab_mission_description': 'Guidé par la cura personalis et le magis, le FabLab propose des formations, un accès autonome supervisé, et des services assistés pour concrétiser vos projets. Notre communauté dynamique favorise le partage de savoir-faire et l\'innovation sociale, en soutenant le développement local et durable.',
 
       // Contact
-      'contact_address': 'Godomey-Salamey, Maison des Pères Jésuites, Lot N°2 du lotissement de Godomey Sud, tranche B. - B.P. 307 Godomey',
-      'contact_email': 'contact@crec-education.org',
-      'contact_phone': '+33 (0)1 23 45 67 89',
-      'contact_phone_benin': '+229 XX XX XX XX',
-      'contact_hours': 'Lundi - Vendredi: 8h00 - 17h00',
+      'contact_address': 'Maison des Pères Jésuites, Godomey - Salamèy, Lot n° 2, Godomey Sud, Tranche B.',
+      'contact_email': 'crecjesuitesbenin@gmail.com',
+      'contact_phone': 'Fixe: +229 01 20 22 23 03',
+      'contact_phone_benin': 'Mobile: +229 01 67 76 15 15, +229 01 91 50 88 88',
+      'contact_hours': 'Lundi - Vendredi: 8h00 - 17h30, Samedi: 9h00 - 13h00',
 
       // Teachers
       'teacher_1_name': 'Dr. Marie Dubois',

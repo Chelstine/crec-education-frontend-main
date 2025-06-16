@@ -157,8 +157,10 @@ const ContactPage = () => {
                       <div>
                         <h3 className="font-semibold">Adresse</h3>
                         <p className="text-gray-600">
-                          Lot N°2 du lotissement de Godomey Sud, Tranche B<br />
-                          Maison des Pères Jésuites – B.P. 307 Godomey, Bénin
+                          Maison des Pères Jésuites<br />
+                          Godomey - Salamèy<br />
+                          Lot n° 2, Godomey Sud,<br />
+                          Tranche B.
                         </p>
                       </div>
                     </div>
@@ -167,7 +169,11 @@ const ContactPage = () => {
                       <Phone className="w-6 h-6 text-crec-gold mr-3 mt-1" />
                       <div>
                         <h3 className="font-semibold">Téléphone</h3>
-                        <p className="text-gray-600">+229 97 21 77 45</p>
+                        <p className="text-gray-600">
+                          Fixe: +229 01 20 22 23 03<br />
+                          Mobile: +229 01 67 76 15 15<br />
+                          Mobile: +229 01 91 50 88 88
+                        </p>
                       </div>
                     </div>
 
@@ -175,7 +181,11 @@ const ContactPage = () => {
                       <Mail className="w-6 h-6 text-crec-gold mr-3 mt-1" />
                       <div>
                         <h3 className="font-semibold">Email</h3>
-                        <p className="text-gray-600">contact@crec-benin.org</p>
+                        <p className="text-gray-600">
+                          crecjesuitesbenin@gmail.com<br />
+                          crecjscontact@gmail.com<br />
+                          jesuites-benin@gmail.com
+                        </p>
                       </div>
                     </div>
 

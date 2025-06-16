@@ -96,13 +96,13 @@ const SubscriptionPage = () => {
     mobile: [
       {
         operator: 'Orange Money',
-        number: '62 05 05 05',
+        number: '+229 01 67 76 15 15',
         code: '#150*4*9#',
         name: 'CREC BENIN'
       },
       {
         operator: 'MTN MoMo',
-        number: '96 00 00 00',
+        number: '+229 01 91 50 88 88',
         code: '*126#',
         name: 'CREC BENIN'
       }

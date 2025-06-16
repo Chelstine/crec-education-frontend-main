@@ -13,23 +13,28 @@ import {
   User,
   GraduationCap,
   BookOpen,
-  Wrench
+  Wrench,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
+import { authService, useAuth } from '@/services/authService';
 import '../styles/admin.css';
 
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [expandedMenus, setExpandedMenus] = useState<{[key: string]: boolean}>({});
   const location = useLocation();
+  const { logout, getCurrentUser, recordActivity } = useAuth();
 
-  // Vérifier l'authentification admin
-  const adminToken = localStorage.getItem('adminToken');
-  
-  if (!adminToken) {
+  // Vérifier l'authentification avec le nouveau service
+  if (!authService.isAuthenticated()) {
     return <Navigate to="/admin/login" replace />;
   }
+
+  const currentUser = getCurrentUser();
 
   // Vérifier si on est sur mobile
   useEffect(() => {
@@ -43,42 +48,101 @@ const AdminLayout = () => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
-  }, []);  const menuItems = [
+  }, []);
+
+  // Démarrer la surveillance de session
+  useEffect(() => {
+    authService.startSessionMonitoring();
+    return () => {
+      authService.stopSessionMonitoring();
+    };
+  }, []);
+
+  // Enregistrer l'activité sur chaque changement de route
+  useEffect(() => {
+    recordActivity();
+  }, [location.pathname, recordActivity]);
+
+  // Auto-expand menus based on current route
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const newExpandedMenus = { ...expandedMenus };
+    
+    if (currentPath.startsWith('/admin/formations')) {
+      newExpandedMenus['Formations'] = true;
+    }
+    if (currentPath.startsWith('/admin/inscriptions')) {
+      newExpandedMenus['Inscriptions'] = true;
+    }
+    
+    setExpandedMenus(newExpandedMenus);
+  }, [location.pathname]);
+
+  // Toggle menu expansion
+  const toggleMenu = (menuName: string, hasSubmenu: boolean) => {
+    if (hasSubmenu) {
+      setExpandedMenus(prev => ({
+        ...prev,
+        [menuName]: !prev[menuName]
+      }));
+    }
+  };  const menuItems = [
+    { 
+      name: 'Tableau de bord', 
+      icon: Home, 
+      path: '/admin',
+      description: 'Vue d\'ensemble',
+      badge: null
+    },
     { 
       name: 'Formations', 
       icon: BookOpen, 
-      path: '/admin/formations',
+      path: '#', // Pas de lien direct car il y a un sous-menu
       description: 'Gérer les formations',
       badge: null,
       submenu: [
         { name: 'ISTMR', icon: GraduationCap, path: '/admin/formations/istmr', badge: null },
-        { name: 'FabLab', icon: Wrench, path: '/admin/formations/fablab', badge: null },
         { name: 'Formations Ouvertes', icon: BookOpen, path: '/admin/formations/ouvertes', badge: null },
-        { name: 'Gestion Inscriptions ISTMR', icon: Users, path: '/admin/inscriptions/istmr', badge: null },
-        { name: 'Gestion Inscriptions FabLab', icon: Users, path: '/admin/inscriptions/fablab', badge: null },
-        { name: 'Gestion Inscriptions Ouvertes', icon: Users, path: '/admin/inscriptions/ouvertes', badge: null }
+        { name: 'FabLab', icon: Wrench, path: '/admin/formations/fablab', badge: null }
+      ]
+    },
+    { 
+      name: 'Inscriptions', 
+      icon: Users, 
+      path: '#', // Pas de lien direct car il y a un sous-menu
+      description: 'Gérer les inscriptions',
+      badge: null,
+      submenu: [
+        { name: 'Inscriptions ISTMR', icon: GraduationCap, path: '/admin/inscriptions/istmr', badge: null },
+        { name: 'Inscriptions Formations Ouvertes', icon: BookOpen, path: '/admin/inscriptions/ouvertes', badge: null },
+        { name: 'Inscriptions FabLab', icon: Wrench, path: '/admin/inscriptions/fablab', badge: null }
       ]
     },
     { 
       name: 'Événements', 
       icon: Calendar, 
-      path: '/admin/evenements',
+      path: '/admin/events',
       description: 'Gérer les événements',
       badge: null
     },
     { 
-      name: 'Actualités', 
-      icon: FileText, 
-      path: '/admin/actualites',
-      description: 'Articles et news',
+      name: 'Machines & Réservations', 
+      icon: Wrench, 
+      path: '/admin/reservations/fablab',
+      description: 'Gestion du FabLab',
+      badge: null
+    },
+    { 
+      name: 'Paramètres', 
+      icon: Settings, 
+      path: '/admin/settings',
+      description: 'Configuration',
       badge: null
     }
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminUser');
-    window.location.href = '/admin/login';
+    logout();
   };
 
   const getCurrentPageTitle = () => {
@@ -147,43 +211,79 @@ const AdminLayout = () => {
             <nav className="mt-4 px-2 flex-1 overflow-y-auto">
               {menuItems.map((item) => (
                 <div key={item.name} className="mb-2">
-                  <Link
-                    to={item.path}
-                    className={`admin-menu-item flex items-center p-3 rounded-lg transition-all duration-200 group relative ${
-                      location.pathname === item.path || location.pathname.startsWith(item.path + '/')
+                  {/* Menu principal */}
+                  <div
+                    className={`admin-menu-item flex items-center p-3 rounded-lg transition-all duration-200 group relative cursor-pointer ${
+                      (location.pathname === item.path || location.pathname.startsWith(item.path + '/')) && !item.submenu
                         ? 'bg-crec-gold text-black shadow-lg active'
+                        : location.pathname.startsWith('/admin/formations') && item.name === 'Formations'
+                        ? 'bg-crec-gold/20 text-crec-gold'
+                        : location.pathname.startsWith('/admin/inscriptions') && item.name === 'Inscriptions'
+                        ? 'bg-crec-gold/20 text-crec-gold'
                         : 'hover:bg-slate-700 text-gray-300 hover:text-white'
                     }`}
+                    onClick={() => {
+                      if (item.submenu) {
+                        toggleMenu(item.name, true);
+                      }
+                    }}
                   >
-                    <item.icon className="w-5 h-5 flex-shrink-0" />
-                    <div className={`ml-3 flex-1 transition-all duration-300 overflow-hidden ${
-                      isSidebarOpen ? 'opacity-100 max-w-full' : 'opacity-0 max-w-0'
-                    }`}>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <span className="font-medium whitespace-nowrap">{item.name}</span>
-                          <p className="text-xs opacity-75 whitespace-nowrap">{item.description}</p>
+                    {item.submenu ? (
+                      <>
+                        <item.icon className="w-5 h-5 flex-shrink-0" />
+                        <div className={`ml-3 flex-1 transition-all duration-300 overflow-hidden ${
+                          isSidebarOpen ? 'opacity-100 max-w-full' : 'opacity-0 max-w-0'
+                        }`}>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="font-medium whitespace-nowrap">{item.name}</span>
+                              <p className="text-xs opacity-75 whitespace-nowrap">{item.description}</p>
+                            </div>
+                            {isSidebarOpen && (
+                              expandedMenus[item.name] ? 
+                                <ChevronDown className="w-4 h-4 ml-2 flex-shrink-0" /> :
+                                <ChevronRight className="w-4 h-4 ml-2 flex-shrink-0" />
+                            )}
+                          </div>
                         </div>
-                        {item.badge && (
-                          <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center ml-2">
+                      </>
+                    ) : (
+                      <Link
+                        to={item.path}
+                        className="flex items-center w-full"
+                      >
+                        <item.icon className="w-5 h-5 flex-shrink-0" />
+                        <div className={`ml-3 flex-1 transition-all duration-300 overflow-hidden ${
+                          isSidebarOpen ? 'opacity-100 max-w-full' : 'opacity-0 max-w-0'
+                        }`}>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="font-medium whitespace-nowrap">{item.name}</span>
+                              <p className="text-xs opacity-75 whitespace-nowrap">{item.description}</p>
+                            </div>
+                            {item.badge && (
+                              <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center ml-2">
+                                {item.badge}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {!isSidebarOpen && item.badge && (
+                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                             {item.badge}
                           </span>
                         )}
-                      </div>
-                    </div>
-                    {!isSidebarOpen && item.badge && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                        {item.badge}
-                      </span>
+                      </Link>
                     )}
-                  </Link>
+                  </div>
                   
-                  {/* Sous-menu pour Inscriptions */}
-                  {item.submenu && isSidebarOpen && location.pathname.startsWith(item.path) && (
+                  {/* Sous-menu */}
+                  {item.submenu && isSidebarOpen && expandedMenus[item.name] && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
-                      transition={{ duration: 0.2 }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3 }}
                       className="ml-6 mt-2 space-y-1 overflow-hidden"
                     >
                       {item.submenu.map((subItem) => (
@@ -192,8 +292,8 @@ const AdminLayout = () => {
                           to={subItem.path}
                           className={`flex items-center justify-between p-2 rounded-md text-sm transition-all duration-200 ${
                             location.pathname === subItem.path
-                              ? 'bg-crec-gold/20 text-crec-gold border-l-2 border-crec-gold'
-                              : 'hover:bg-slate-600 text-gray-400 hover:text-white'
+                              ? 'bg-crec-gold text-black border-l-4 border-crec-gold shadow-sm'
+                              : 'hover:bg-slate-600 text-gray-400 hover:text-white border-l-4 border-transparent hover:border-slate-500'
                           }`}
                         >
                           <div className="flex items-center">
@@ -221,8 +321,8 @@ const AdminLayout = () => {
                     <User className="w-4 h-4 text-black" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">Admin CREC</p>
-                    <p className="text-xs text-gray-400 truncate">admin@crec.edu</p>
+                    <p className="text-sm font-medium truncate">{currentUser?.name || 'Admin CREC'}</p>
+                    <p className="text-xs text-gray-400 truncate">{currentUser?.email || 'admin@crec.edu'}</p>
                   </div>
                 </div>
               </div>
