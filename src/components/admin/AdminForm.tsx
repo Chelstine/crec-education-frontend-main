@@ -84,6 +84,7 @@ export const AdminForm: React.FC<AdminFormProps> = ({
             value={value}
             onChange={(e) => handleChange(field.name, e.target.value)}
             required={field.required}
+            className="responsive-input min-h-[80px] md:min-h-[100px]"
           />
         );
       
@@ -93,10 +94,10 @@ export const AdminForm: React.FC<AdminFormProps> = ({
             value={value}
             onValueChange={(value) => handleChange(field.name, value)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="responsive-input">
               <SelectValue placeholder={field.placeholder} />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="responsive-max-h-60 overflow-auto">
               {field.options?.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
@@ -113,6 +114,7 @@ export const AdminForm: React.FC<AdminFormProps> = ({
             value={value}
             onChange={(e) => handleChange(field.name, e.target.value)}
             required={field.required}
+            className="responsive-input"
           />
         );
       
@@ -122,6 +124,7 @@ export const AdminForm: React.FC<AdminFormProps> = ({
             type="file"
             onChange={(e) => handleChange(field.name, e.target.files?.[0])}
             required={field.required}
+            className="responsive-input"
           />
         );
       
@@ -132,6 +135,7 @@ export const AdminForm: React.FC<AdminFormProps> = ({
             value={value}
             onChange={(e) => handleChange(field.name, e.target.value)}
             required={field.required}
+            className="responsive-input"
           />
         );
       
@@ -143,9 +147,9 @@ export const AdminForm: React.FC<AdminFormProps> = ({
               id={field.name}
               checked={value || false}
               onChange={(e) => handleChange(field.name, e.target.checked)}
-              className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary"
+              className="responsive-checkbox"
             />
-            <label htmlFor={field.name} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            <label htmlFor={field.name} className="responsive-text-body peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               {field.label}
             </label>
           </div>
@@ -162,6 +166,7 @@ export const AdminForm: React.FC<AdminFormProps> = ({
             min={field.validation?.min}
             max={field.validation?.max}
             pattern={field.validation?.pattern}
+            className="responsive-input"
           />
         );
     }
@@ -169,38 +174,40 @@ export const AdminForm: React.FC<AdminFormProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+      <DialogContent className="responsive-max-w-2xl responsive-max-h-80vh overflow-y-auto responsive-p-4">
+        <DialogHeader className="responsive-pb-4">
+          <DialogTitle className="responsive-title text-lg md:text-xl">{title}</DialogTitle>
           {description && (
-            <DialogDescription>{description}</DialogDescription>
+            <DialogDescription className="responsive-text-body">{description}</DialogDescription>
           )}
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="responsive-space-y-4">
           {fields.map((field) => (
-            <div key={field.name} className="space-y-2">
+            <div key={field.name} className="responsive-space-y-2">
               {field.type !== 'checkbox' && (
-                <Label htmlFor={field.name}>
+                <Label htmlFor={field.name} className="responsive-label">
                   {field.label}
-                  {field.required && <span className="text-red-500">*</span>}
+                  {field.required && <span className="text-red-500 ml-1">*</span>}
                 </Label>
               )}
-              {renderField(field)}
+              <div className="w-full">
+                {renderField(field)}
+              </div>
             </div>
           ))}
           
           {customContent && (
-            <div className="mt-4 pt-4 border-t">
+            <div className="responsive-mt-4 responsive-pt-4 border-t">
               {customContent}
             </div>
           )}
           
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
+          <DialogFooter className="responsive-flex-col sm:responsive-flex-row responsive-gap-2 responsive-pt-4">
+            <Button type="button" variant="outline" onClick={onClose} className="responsive-btn w-full sm:w-auto">
               Annuler
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading} className="responsive-btn-primary w-full sm:w-auto">
               {isLoading ? 'Enregistrement...' : submitLabel}
             </Button>
           </DialogFooter>

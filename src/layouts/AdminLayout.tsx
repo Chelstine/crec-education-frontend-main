@@ -74,6 +74,9 @@ const AdminLayout = () => {
     if (currentPath.startsWith('/admin/inscriptions')) {
       newExpandedMenus['Inscriptions'] = true;
     }
+    if (currentPath.startsWith('/admin/events')) {
+      newExpandedMenus['Événements'] = true;
+    }
     
     setExpandedMenus(newExpandedMenus);
   }, [location.pathname]);
@@ -121,9 +124,14 @@ const AdminLayout = () => {
     { 
       name: 'Événements', 
       icon: Calendar, 
-      path: '/admin/events',
+      path: '#', // Pas de lien direct car il y a un sous-menu
       description: 'Gérer les événements',
-      badge: null
+      badge: null,
+      submenu: [
+        { name: 'Tous les Événements', icon: Calendar, path: '/admin/events', badge: null },
+        { name: 'Conférences', icon: Users, path: '/admin/events/conferences', badge: null },
+        { name: 'Ateliers', icon: Wrench, path: '/admin/events/ateliers', badge: null }
+      ]
     },
     { 
       name: 'Machines & Réservations', 
@@ -155,6 +163,9 @@ const AdminLayout = () => {
     if (currentPath.includes('/inscriptions/formations')) return 'Formations Ouvertes';
     if (currentPath.includes('/inscriptions/fablab')) return 'Abonnements FabLab';
     if (currentPath.includes('/inscriptions')) return 'Gestion des Inscriptions';
+    if (currentPath.includes('/events/conferences')) return 'Gestion des Conférences';
+    if (currentPath.includes('/events/ateliers')) return 'Gestion des Ateliers';
+    if (currentPath.includes('/events')) return 'Gestion des Événements';
     if (currentPath.includes('/pages')) return 'Gestion des Pages';
     if (currentPath.includes('/settings')) return 'Paramètres';
     return 'Administration';
@@ -219,6 +230,8 @@ const AdminLayout = () => {
                         : location.pathname.startsWith('/admin/formations') && item.name === 'Formations'
                         ? 'bg-crec-gold/20 text-crec-gold'
                         : location.pathname.startsWith('/admin/inscriptions') && item.name === 'Inscriptions'
+                        ? 'bg-crec-gold/20 text-crec-gold'
+                        : location.pathname.startsWith('/admin/events') && item.name === 'Événements'
                         ? 'bg-crec-gold/20 text-crec-gold'
                         : 'hover:bg-slate-700 text-gray-300 hover:text-white'
                     }`}

@@ -326,7 +326,7 @@ const EvenementsManagement: React.FC = () => {
   }
 
   return (
-    <div className="px-1 sm:px-2 md:px-4 lg:px-8 w-full">
+    <div className="responsive-container">
       <AdminPageLayout
         title="Gestion des Événements"
         description="Créez et gérez les conférences, ateliers, séminaires et formations"
@@ -336,7 +336,7 @@ const EvenementsManagement: React.FC = () => {
         onAdd={handleAddEvent}
         onExport={handleExport}
         filters={
-          <div className="w-full md:w-auto px-2 md:px-0">
+          <div className="responsive-filters-wrapper">
             <AdminFilters
               filters={filterConfigs}
               activeFilters={filters}
@@ -360,12 +360,11 @@ const EvenementsManagement: React.FC = () => {
 
         {/* Formulaire pour événements */}
         {isFormOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 px-2 md:px-0">
-            <div className="w-full max-w-2xl text-xs md:text-sm">
-              <AdminForm
-                title={selectedEvent ? "Modifier l'événement" : "Nouvel événement"}
-                description="Saisissez les informations de l'événement"
-                fields={[
+          <div className="responsive-form-overlay">
+            <AdminForm
+              title={selectedEvent ? "Modifier l'événement" : "Nouvel événement"}
+              description="Saisissez les informations de l'événement"
+              fields={[
                   { name: 'title', label: 'Titre', type: 'text', required: true },
                   { name: 'description', label: 'Description', type: 'textarea', required: true },
                   { 
@@ -398,7 +397,6 @@ const EvenementsManagement: React.FC = () => {
                 onSubmit={handleSubmit}
                 isLoading={loading}
               />
-            </div>
           </div>
         )}
       </AdminPageLayout>

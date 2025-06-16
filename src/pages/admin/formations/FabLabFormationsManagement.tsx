@@ -50,7 +50,6 @@ import {
   Lightbulb,
   TrendingUp,
   Zap,
-  Monitor,
   Wifi,
   UserCheck
 } from 'lucide-react';
@@ -68,24 +67,6 @@ interface Project {
   image?: string;
   instructions: string;
   status: 'active' | 'inactive' | 'draft';
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Machine {
-  id: string;
-  name: string;
-  type: string;
-  brand: string;
-  model: string;
-  description: string;
-  specifications: string[];
-  location: string;
-  status: 'available' | 'maintenance' | 'broken' | 'reserved';
-  lastMaintenance: string;
-  nextMaintenance: string;
-  price: number;
-  image?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -122,13 +103,14 @@ interface Tariff {
 const FabLabFormationsManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState('projects');
   const [projects, setProjects] = useState<Project[]>([]);
-  const [machines, setMachines] = useState<Machine[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [tariffs, setTariffs] = useState<Tariff[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [subscriberCount, setSubscriberCount] = useState(0);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isCreateServiceDialogOpen, setIsCreateServiceDialogOpen] = useState(false);
+  const [isCreateTariffDialogOpen, setIsCreateTariffDialogOpen] = useState(false);
 
   // Mock data pour le FabLab
   const mockProjects: Project[] = [
@@ -159,41 +141,6 @@ const FabLabFormationsManagement: React.FC = () => {
       status: 'active',
       createdAt: '2024-11-15',
       updatedAt: '2024-12-18'
-    }
-  ];
-
-  const mockMachines: Machine[] = [
-    {
-      id: '1',
-      name: 'Imprimante 3D Ender 3 Pro',
-      type: 'Impression 3D',
-      brand: 'Creality',
-      model: 'Ender 3 Pro',
-      description: 'Imprimante 3D FDM populaire et fiable',
-      specifications: ['Volume: 220x220x250mm', 'Résolution: 0.1mm', 'Filament: PLA, ABS, PETG'],
-      location: 'Zone Impression 3D',
-      status: 'available',
-      lastMaintenance: '2024-12-01',
-      nextMaintenance: '2025-01-01',
-      price: 25000,
-      createdAt: '2024-01-01',
-      updatedAt: '2024-12-20'
-    },
-    {
-      id: '2',
-      name: 'Découpeuse Laser CO2',
-      type: 'Découpe Laser',
-      brand: 'LaserCut',
-      model: 'LC-1290',
-      description: 'Découpeuse laser CO2 pour matériaux divers',
-      specifications: ['Surface: 1200x900mm', 'Puissance: 80W', 'Matériaux: Bois, Acrylique, Cuir'],
-      location: 'Zone Découpe',
-      status: 'maintenance',
-      lastMaintenance: '2024-12-15',
-      nextMaintenance: '2024-12-25',
-      price: 50000,
-      createdAt: '2024-02-01',
-      updatedAt: '2024-12-15'
     }
   ];
 
@@ -259,7 +206,6 @@ const FabLabFormationsManagement: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setProjects(mockProjects);
-      setMachines(mockMachines);
       setServices(mockServices);
       setTariffs(mockTariffs);
       setSubscriberCount(147); // Nombre d'abonnés fictif
@@ -270,11 +216,10 @@ const FabLabFormationsManagement: React.FC = () => {
   }, []);
 
   // Filtrage
-  const getFilteredData = (): (Project | Machine | Service | Tariff)[] => {
-    const getData = (): (Project | Machine | Service | Tariff)[] => {
+  const getFilteredData = (): (Project | Service | Tariff)[] => {
+    const getData = (): (Project | Service | Tariff)[] => {
       switch (activeTab) {
         case 'projects': return projects.filter(Boolean);
-        case 'machines': return machines.filter(Boolean);
         case 'services': return services.filter(Boolean);
         case 'tariffs': return tariffs.filter(Boolean);
         default: return [];
@@ -330,29 +275,29 @@ const FabLabFormationsManagement: React.FC = () => {
   const filteredData = getFilteredData();
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="responsive-container">
       {/* En-tête avec compteur d'abonnés */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between mb-8"
+        className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Wrench className="h-8 w-8 text-crec-gold" />
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <Wrench className="h-6 w-6 sm:h-8 sm:w-8 text-crec-gold" />
             Gestion FabLab
           </h1>
-          <p className="text-gray-600 mt-1">Administration des équipements et services</p>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Administration des équipements et services</p>
         </div>
         
         {/* Compteur d'abonnés */}
-        <Card className="bg-gradient-to-br from-crec-gold to-crec-lightgold text-white">
+        <Card className="bg-gradient-to-br from-crec-gold to-crec-lightgold text-white w-full sm:w-auto">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Abonnés FabLab</CardTitle>
             <UserCheck className="h-4 w-4" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{subscriberCount}</div>
+            <div className="text-xl sm:text-2xl font-bold">{subscriberCount}</div>
             <p className="text-xs opacity-80">
               Membres actifs
             </p>
@@ -361,7 +306,7 @@ const FabLabFormationsManagement: React.FC = () => {
       </motion.div>
 
       {/* Statistiques générales */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="responsive-stats-grid mb-8">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -376,25 +321,6 @@ const FabLabFormationsManagement: React.FC = () => {
               <div className="text-2xl font-bold text-blue-700">{projects.length}</div>
               <p className="text-xs text-blue-600">
                 Guides disponibles
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Machines</CardTitle>
-              <Monitor className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-700">{machines.length}</div>
-              <p className="text-xs text-green-600">
-                Équipements disponibles
               </p>
             </CardContent>
           </Card>
@@ -470,14 +396,10 @@ const FabLabFormationsManagement: React.FC = () => {
         transition={{ delay: 0.4 }}
       >
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="projects" className="flex items-center gap-2">
               <Lightbulb className="h-4 w-4" />
               Projets
-            </TabsTrigger>
-            <TabsTrigger value="machines" className="flex items-center gap-2">
-              <Monitor className="h-4 w-4" />
-              Machines
             </TabsTrigger>
             <TabsTrigger value="services" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
@@ -501,35 +423,93 @@ const FabLabFormationsManagement: React.FC = () => {
                       Nouveau Projet
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
+                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Créer un nouveau projet</DialogTitle>
                       <DialogDescription>
                         Ajoutez un nouveau guide de projet au FabLab
                       </DialogDescription>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <label className="text-right">Titre</label>
-                        <Input className="col-span-3" placeholder="Nom du projet" />
+                    <div className="grid gap-6 py-4">
+                      {/* Informations de base */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Titre *</label>
+                          <Input placeholder="Nom du projet" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Catégorie *</label>
+                          <Select>
+                            <SelectTrigger aria-label="Sélectionner une catégorie de projet">
+                              <SelectValue placeholder="Sélectionner une catégorie" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="iot">IoT</SelectItem>
+                              <SelectItem value="3d">Impression 3D</SelectItem>
+                              <SelectItem value="laser">Découpe Laser</SelectItem>
+                              <SelectItem value="electronics">Électronique</SelectItem>
+                              <SelectItem value="programmation">Programmation</SelectItem>
+                              <SelectItem value="robotique">Robotique</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <label className="text-right">Catégorie</label>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Difficulté *</label>
+                          <Select>
+                            <SelectTrigger aria-label="Sélectionner le niveau de difficulté">
+                              <SelectValue placeholder="Niveau de difficulté" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="beginner">Débutant</SelectItem>
+                              <SelectItem value="intermediate">Intermédiaire</SelectItem>
+                              <SelectItem value="advanced">Avancé</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Durée estimée *</label>
+                          <Input placeholder="ex: 2-3 heures, 1 jour" />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Description *</label>
+                        <Textarea placeholder="Description détaillée du projet" className="min-h-[100px]" />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Instructions complètes</label>
+                        <Textarea placeholder="Guide étape par étape pour réaliser le projet" className="min-h-[120px]" />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Matériaux nécessaires</label>
+                          <Textarea placeholder="Listez les matériaux séparés par des virgules" className="min-h-[80px]" />
+                          <p className="text-xs text-gray-500">ex: Arduino Uno, LED, Résistances 220Ω</p>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Outils requis</label>
+                          <Textarea placeholder="Listez les outils séparés par des virgules" className="min-h-[80px]" />
+                          <p className="text-xs text-gray-500">ex: Fer à souder, Multimètre, Tournevis</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Statut</label>
                         <Select>
-                          <SelectTrigger className="col-span-3" aria-label="Sélectionner une catégorie de projet">
-                            <SelectValue placeholder="Sélectionner une catégorie" />
+                          <SelectTrigger aria-label="Sélectionner le statut">
+                            <SelectValue placeholder="Statut du projet" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="iot">IoT</SelectItem>
-                            <SelectItem value="3d">Impression 3D</SelectItem>
-                            <SelectItem value="laser">Découpe Laser</SelectItem>
-                            <SelectItem value="electronics">Électronique</SelectItem>
+                            <SelectItem value="active">Actif</SelectItem>
+                            <SelectItem value="draft">Brouillon</SelectItem>
+                            <SelectItem value="inactive">Inactif</SelectItem>
                           </SelectContent>
                         </Select>
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <label className="text-right">Description</label>
-                        <Textarea className="col-span-3" placeholder="Description du projet" />
                       </div>
                     </div>
                     <DialogFooter>
@@ -544,122 +524,58 @@ const FabLabFormationsManagement: React.FC = () => {
                 </Dialog>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Projet</TableHead>
-                      <TableHead>Catégorie</TableHead>
-                      <TableHead>Difficulté</TableHead>
-                      <TableHead>Durée</TableHead>
-                      <TableHead>Statut</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {(filteredData as Project[]).map((project) => (
-                      <TableRow key={project.id}>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{project.title}</div>
-                            <div className="text-sm text-gray-500">{project.description}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{project.category}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          {getDifficultyBadge(project.difficulty)}
-                        </TableCell>
-                        <TableCell>{project.duration}</TableCell>
-                        <TableCell>
-                          {getStatusBadge(project.status)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" title="Voir les détails du projet" aria-label="Voir les détails">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button variant="outline" size="sm" title="Modifier le projet" aria-label="Modifier">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="outline" size="sm" className="text-red-600" title="Supprimer le projet" aria-label="Supprimer">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                <div className="responsive-table-wrapper">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Projet</TableHead>
+                        <TableHead className="hidden sm:table-cell">Catégorie</TableHead>
+                        <TableHead className="hidden md:table-cell">Difficulté</TableHead>
+                        <TableHead className="hidden lg:table-cell">Durée</TableHead>
+                        <TableHead>Statut</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Contenu des onglets Machines */}
-          <TabsContent value="machines">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Machines ({machines.length})</CardTitle>
-                <Button className="bg-crec-gold hover:bg-crec-lightgold">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Nouvelle Machine
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Machine</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Localisation</TableHead>
-                      <TableHead>Statut</TableHead>
-                      <TableHead>Prix/h</TableHead>
-                      <TableHead>Maintenance</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {(filteredData as Machine[]).map((machine) => (
-                      <TableRow key={machine.id}>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{machine.name}</div>
-                            <div className="text-sm text-gray-500">{machine.brand} {machine.model}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{machine.type}</Badge>
-                        </TableCell>
-                        <TableCell>{machine.location}</TableCell>
-                        <TableCell>
-                          {getStatusBadge(machine.status)}
-                        </TableCell>
-                        <TableCell>
-                          {machine.price ? machine.price.toLocaleString() : '0'} FCFA
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm">
-                            <div>Dernier: {machine.lastMaintenance ? new Date(machine.lastMaintenance).toLocaleDateString('fr-FR') : 'N/A'}</div>
-                            <div className="text-gray-500">Prochain: {machine.nextMaintenance ? new Date(machine.nextMaintenance).toLocaleDateString('fr-FR') : 'N/A'}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" title="Voir les détails de la machine" aria-label="Voir les détails">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button variant="outline" size="sm" title="Modifier la machine" aria-label="Modifier">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="outline" size="sm" className="text-red-600" title="Supprimer la machine" aria-label="Supprimer">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>                    <TableBody>
+                      {(filteredData as Project[]).map((project) => (
+                        <TableRow key={project.id}>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium text-sm sm:text-base">{project.title}</div>
+                              <div className="text-xs sm:text-sm text-gray-500">{project.description}</div>
+                              <div className="flex flex-wrap gap-2 mt-2 sm:hidden">
+                                <Badge variant="outline" className="text-xs">{project.category}</Badge>
+                                {getDifficultyBadge(project.difficulty)}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell">
+                            <Badge variant="outline">{project.category}</Badge>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            {getDifficultyBadge(project.difficulty)}
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell">{project.duration}</TableCell>
+                          <TableCell>
+                            {getStatusBadge(project.status)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="responsive-actions">
+                              <Button variant="outline" size="sm" title="Voir les détails du projet" aria-label="Voir les détails">
+                                <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                              <Button variant="outline" size="sm" title="Modifier le projet" aria-label="Modifier">
+                                <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                              <Button variant="outline" size="sm" className="text-red-600" title="Supprimer le projet" aria-label="Supprimer">
+                                <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -669,59 +585,150 @@ const FabLabFormationsManagement: React.FC = () => {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Services ({services.length})</CardTitle>
-                <Button className="bg-crec-gold hover:bg-crec-lightgold">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Nouveau Service
-                </Button>
+                <Dialog open={isCreateServiceDialogOpen} onOpenChange={setIsCreateServiceDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="bg-crec-gold hover:bg-crec-lightgold">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Nouveau Service
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Créer un nouveau service</DialogTitle>
+                      <DialogDescription>
+                        Ajoutez un nouveau service du FabLab
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Nom du service *</label>
+                          <Input placeholder="ex: Formation Arduino" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Catégorie *</label>
+                          <Select>
+                            <SelectTrigger aria-label="Sélectionner une catégorie">
+                              <SelectValue placeholder="Type de service" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="formation">Formation</SelectItem>
+                              <SelectItem value="prototypage">Prototypage</SelectItem>
+                              <SelectItem value="conseil">Conseil</SelectItem>
+                              <SelectItem value="maintenance">Maintenance</SelectItem>
+                              <SelectItem value="assistance">Assistance technique</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Description *</label>
+                        <Textarea placeholder="Description détaillée du service" className="min-h-[80px]" />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Durée *</label>
+                          <Input placeholder="ex: 2 jours, 1-5 jours" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Prix (FCFA) *</label>
+                          <Input type="number" placeholder="ex: 75000" />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Inclus dans le service</label>
+                        <Textarea placeholder="Listez les éléments inclus séparés par des virgules" className="min-h-[60px]" />
+                        <p className="text-xs text-gray-500">ex: Cours théorique, Travaux pratiques, Kit Arduino, Certificat</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Prérequis</label>
+                        <Textarea placeholder="Prérequis nécessaires séparés par des virgules" className="min-h-[60px]" />
+                        <p className="text-xs text-gray-500">ex: Connaissances de base en électronique</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Statut</label>
+                        <Select>
+                          <SelectTrigger aria-label="Sélectionner le statut">
+                            <SelectValue placeholder="Statut du service" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="active">Actif</SelectItem>
+                            <SelectItem value="inactive">Inactif</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setIsCreateServiceDialogOpen(false)}>
+                        Annuler
+                      </Button>
+                      <Button className="bg-crec-gold hover:bg-crec-lightgold">
+                        Créer
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Service</TableHead>
-                      <TableHead>Catégorie</TableHead>
-                      <TableHead>Durée</TableHead>
-                      <TableHead>Prix</TableHead>
-                      <TableHead>Statut</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {(filteredData as Service[]).map((service) => (
-                      <TableRow key={service.id}>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{service.name}</div>
-                            <div className="text-sm text-gray-500">{service.description}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{service.category}</Badge>
-                        </TableCell>
-                        <TableCell>{service.duration}</TableCell>
-                        <TableCell>
-                          {service.price ? service.price.toLocaleString() : '0'} FCFA
-                        </TableCell>
-                        <TableCell>
-                          {getStatusBadge(service.status)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" title="Voir les détails du service" aria-label="Voir les détails">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button variant="outline" size="sm" title="Modifier le service" aria-label="Modifier">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="outline" size="sm" className="text-red-600" title="Supprimer le service" aria-label="Supprimer">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                <div className="responsive-table-wrapper">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Service</TableHead>
+                        <TableHead className="hidden sm:table-cell">Catégorie</TableHead>
+                        <TableHead className="hidden md:table-cell">Durée</TableHead>
+                        <TableHead className="hidden lg:table-cell">Prix</TableHead>
+                        <TableHead>Statut</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {(filteredData as Service[]).map((service) => (
+                        <TableRow key={service.id}>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium text-sm sm:text-base">{service.name}</div>
+                              <div className="text-xs sm:text-sm text-gray-500">{service.description}</div>
+                              <div className="flex flex-wrap gap-2 mt-2 sm:hidden">
+                                <Badge variant="outline" className="text-xs">{service.category}</Badge>
+                                <span className="text-xs text-gray-600">{service.duration}</span>
+                                <span className="text-xs font-medium">{service.price ? service.price.toLocaleString() : '0'} FCFA</span>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell">
+                            <Badge variant="outline">{service.category}</Badge>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">{service.duration}</TableCell>
+                          <TableCell className="hidden lg:table-cell">
+                            {service.price ? service.price.toLocaleString() : '0'} FCFA
+                          </TableCell>
+                          <TableCell>
+                            {getStatusBadge(service.status)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="responsive-actions">
+                              <Button variant="outline" size="sm" title="Voir les détails du service" aria-label="Voir les détails">
+                                <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                              <Button variant="outline" size="sm" title="Modifier le service" aria-label="Modifier">
+                                <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                              <Button variant="outline" size="sm" className="text-red-600" title="Supprimer le service" aria-label="Supprimer">
+                                <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -731,59 +738,153 @@ const FabLabFormationsManagement: React.FC = () => {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Tarifs ({tariffs.length})</CardTitle>
-                <Button className="bg-crec-gold hover:bg-crec-lightgold">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Nouveau Tarif
-                </Button>
+                <Dialog open={isCreateTariffDialogOpen} onOpenChange={setIsCreateTariffDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="bg-crec-gold hover:bg-crec-lightgold">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Nouveau Tarif
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Créer un nouveau tarif</DialogTitle>
+                      <DialogDescription>
+                        Ajoutez une nouvelle grille tarifaire
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Nom du tarif *</label>
+                          <Input placeholder="ex: Abonnement Mensuel Étudiant" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Type *</label>
+                          <Select>
+                            <SelectTrigger aria-label="Sélectionner le type de tarif">
+                              <SelectValue placeholder="Type de tarif" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="membership">Abonnement</SelectItem>
+                              <SelectItem value="hourly">Tarif horaire</SelectItem>
+                              <SelectItem value="project">Tarif projet</SelectItem>
+                              <SelectItem value="material">Matériau</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Description *</label>
+                        <Textarea placeholder="Description détaillée du tarif" className="min-h-[80px]" />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Prix (FCFA) *</label>
+                          <Input type="number" placeholder="ex: 25000" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Unité *</label>
+                          <Input placeholder="ex: mois, heure, projet" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Durée</label>
+                          <Input placeholder="ex: 1 mois" />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Avantages inclus</label>
+                        <Textarea placeholder="Listez les avantages séparés par des virgules" className="min-h-[60px]" />
+                        <p className="text-xs text-gray-500">ex: Accès 24h/24, Formation incluse, Support technique</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Restrictions</label>
+                        <Textarea placeholder="Listez les restrictions séparées par des virgules" className="min-h-[60px]" />
+                        <p className="text-xs text-gray-500">ex: Justificatif étudiant requis, Supervision obligatoire</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Statut</label>
+                        <Select>
+                          <SelectTrigger aria-label="Sélectionner le statut">
+                            <SelectValue placeholder="Statut du tarif" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="active">Actif</SelectItem>
+                            <SelectItem value="inactive">Inactif</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setIsCreateTariffDialogOpen(false)}>
+                        Annuler
+                      </Button>
+                      <Button className="bg-crec-gold hover:bg-crec-lightgold">
+                        Créer
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Tarif</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Prix</TableHead>
-                      <TableHead>Unité</TableHead>
-                      <TableHead>Statut</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {(filteredData as Tariff[]).map((tariff) => (
-                      <TableRow key={tariff.id}>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{tariff.name}</div>
-                            <div className="text-sm text-gray-500">{tariff.description}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{tariff.type}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          {tariff.price ? tariff.price.toLocaleString() : '0'} FCFA
-                        </TableCell>
-                        <TableCell>{tariff.unit}</TableCell>
-                        <TableCell>
-                          {getStatusBadge(tariff.status)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" title="Voir les détails du tarif" aria-label="Voir les détails">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button variant="outline" size="sm" title="Modifier le tarif" aria-label="Modifier">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="outline" size="sm" className="text-red-600" title="Supprimer le tarif" aria-label="Supprimer">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                <div className="responsive-table-wrapper">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Tarif</TableHead>
+                        <TableHead className="hidden sm:table-cell">Type</TableHead>
+                        <TableHead className="hidden md:table-cell">Prix</TableHead>
+                        <TableHead className="hidden lg:table-cell">Unité</TableHead>
+                        <TableHead>Statut</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {(filteredData as Tariff[]).map((tariff) => (
+                        <TableRow key={tariff.id}>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium text-sm sm:text-base">{tariff.name}</div>
+                              <div className="text-xs sm:text-sm text-gray-500">{tariff.description}</div>
+                              <div className="flex flex-wrap gap-2 mt-2 sm:hidden">
+                                <Badge variant="outline" className="text-xs">{tariff.type}</Badge>
+                                <span className="text-xs font-medium">{tariff.price ? tariff.price.toLocaleString() : '0'} FCFA</span>
+                                <span className="text-xs text-gray-600">/{tariff.unit}</span>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell">
+                            <Badge variant="outline">{tariff.type}</Badge>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            {tariff.price ? tariff.price.toLocaleString() : '0'} FCFA
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell">{tariff.unit}</TableCell>
+                          <TableCell>
+                            {getStatusBadge(tariff.status)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="responsive-actions">
+                              <Button variant="outline" size="sm" title="Voir les détails du tarif" aria-label="Voir les détails">
+                                <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                              <Button variant="outline" size="sm" title="Modifier le tarif" aria-label="Modifier">
+                                <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                              <Button variant="outline" size="sm" className="text-red-600" title="Supprimer le tarif" aria-label="Supprimer">
+                                <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

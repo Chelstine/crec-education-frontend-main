@@ -1,0 +1,86 @@
+/* Responsive utility classes for admin interface */
+
+/* Container with responsive padding */
+.responsive-container {
+  @apply px-1 sm:px-2 md:px-4 lg:px-8 w-full;
+}
+
+/* Responsive form overlay for mobile-friendly modals */
+.responsive-form-overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 px-2 md:px-0;
+}
+
+.responsive-form-overlay > * {
+  @apply w-full max-w-2xl text-xs md:text-sm;
+}
+
+/* Responsive filters wrapper */
+.responsive-filters-wrapper {
+  @apply w-full md:w-auto px-2 md:px-0;
+}
+
+/* Responsive button group */
+.responsive-button-group {
+  @apply flex flex-col sm:flex-row gap-2 sm:gap-3;
+}
+
+.responsive-button-group > button {
+  @apply w-full sm:w-auto;
+}
+
+/* Responsive table wrapper */
+.responsive-table-wrapper {
+  @apply overflow-x-auto -mx-1 sm:mx-0;
+}
+
+/* Responsive stats grid */
+.responsive-stats-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4;
+}
+
+/* Responsive card */
+.responsive-card {
+  @apply bg-white rounded-lg shadow-sm border p-3 sm:p-4 md:p-6;
+}
+
+/* Responsive form grid */
+.responsive-form-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4;
+}
+
+.responsive-form-grid-full {
+  @apply col-span-1 sm:col-span-2;
+}
+
+/* Responsive text sizes */
+.responsive-text-sm {
+  @apply text-xs sm:text-sm;
+}
+
+.responsive-text-base {
+  @apply text-sm sm:text-base;
+}
+
+/* Responsive spacing */
+.responsive-spacing {
+  @apply p-2 sm:p-4 md:p-6;
+}
+
+/* Responsive modal content */
+.responsive-modal-content {
+  @apply max-h-[90vh] overflow-y-auto;
+}
+
+/* Responsive dropdown menu */
+.responsive-dropdown {
+  @apply absolute left-0 mt-1 w-full md:w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10;
+}
+
+/* Responsive action buttons */
+.responsive-actions {
+  @apply flex flex-col sm:flex-row gap-1 sm:gap-2;
+}
+
+.responsive-actions > button {
+  @apply w-full sm:w-auto text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2;
+}

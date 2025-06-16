@@ -1,480 +1,358 @@
 import React, { useState, useEffect } from 'react';
-import { AdminPageLayout, AdminTable, AdminForm, AdminFilters } from '../../../components/admin';
-import { useFilteredData } from '../../../hooks/useAdmin';
-import { 
-  getBadgeColor, 
-  exportToCSV, 
-  formatDate 
-} from '../../../utils/adminUtils';
-import { 
-  BookOpen,
-  Users,
-  Calendar,
-  Star,
-  Clock,
-  Award
-} from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Users, Clock, Calendar } from 'lucide-react';
+import { AdminForm } from '../../../components/admin/AdminForm';
 
-// Types pour les formations ouvertes
 interface FormationOuverte {
   id: string;
-  title: string;
+  name: string;
+  instructor: string;
   description: string;
-  category: string;
-  level: 'debutant' | 'intermediaire' | 'avance';
-  duration: number; // en heures
   startDate: string;
   endDate: string;
-  schedule: string;
-  instructor: string;
-  capacity: number;
-  enrolled: number;
+  maxParticipants: number;
+  currentParticipants: number;
   price: number;
-  status: 'open' | 'closed' | 'completed' | 'cancelled';
-  prerequisites: string[];
-  objectives: string[];
-  certification: boolean;
-  mode: 'presentiel' | 'distanciel' | 'hybride';
-  location?: string;
-  materials: string[];
-  image?: string;
-  fraisInscription: number;
-  createdAt: string;
-  updatedAt: string;
+  status: 'active' | 'completed' | 'cancelled';
+  level: 'beginner' | 'intermediate' | 'advanced';
 }
 
 const FormationsOuvertesManagement: React.FC = () => {
   const [formations, setFormations] = useState<FormationOuverte[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredFormations, setFilteredFormations] = useState<FormationOuverte[]>([]);
   const [selectedFormation, setSelectedFormation] = useState<FormationOuverte | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const {
-    searchTerm,
-    setSearchTerm,
-    filters,
-    updateFilter,
-    clearFilters,
-    filteredData
-  } = useFilteredData(formations, ['title', 'category', 'instructor']);
-
-  // Mock data pour les formations ouvertes
-  const mockFormations: FormationOuverte[] = [
-    {
-      id: '1',
-      title: 'Formation en Intelligence Artificielle et Machine Learning',
-      description: 'Formation complète sur les concepts fondamentaux de l\'IA et du ML avec des projets pratiques',
-      category: 'Technologie',
-      level: 'intermediaire',
-      duration: 60,
-      startDate: '2025-02-01',
-      endDate: '2025-05-30',
-      schedule: 'Samedi 9h-13h',
-      instructor: 'Dr. Kofi AMEGBE',
-      capacity: 25,
-      enrolled: 18,
-      price: 250000,
-      status: 'open',
-      prerequisites: ['Bases en programmation', 'Mathématiques niveau Bac+2'],
-      objectives: [
-        'Comprendre les concepts de base de l\'IA',
-        'Implémenter des algorithmes de ML',
-        'Développer des projets concrets',
-        'Maîtriser les outils modernes (Python, TensorFlow)'
-      ],
-      certification: true,
-      mode: 'hybride',
-      location: 'Campus CREC + Plateforme en ligne',
-      materials: ['Ordinateur portable', 'Accès Internet', 'Supports de cours fournis'],
-      image: '/images/formations/ia-ml.jpg',
-      fraisInscription: 25000,
-      createdAt: '2024-11-15',
-      updatedAt: '2024-12-20'
-    },
-    {
-      id: '2',
-      title: 'Développement Web Full-Stack (React & Node.js)',
-      description: 'Apprenez à créer des applications web complètes avec les technologies modernes',
-      category: 'Développement Web',
-      level: 'intermediaire',
-      duration: 80,
-      startDate: '2025-01-15',
-      endDate: '2025-06-15',
-      schedule: 'Mardi et Jeudi 18h-21h',
-      instructor: 'M. Jean-Claude TOGNON',
-      capacity: 20,
-      enrolled: 15,
-      price: 300000,
-      status: 'open',
-      prerequisites: ['HTML/CSS de base', 'JavaScript fondamental'],
-      objectives: [
-        'Maîtriser React et ses écosystèmes',
-        'Développer des APIs avec Node.js',
-        'Gérer les bases de données',
-        'Déployer des applications en production'
-      ],
-      certification: true,
-      mode: 'presentiel',
-      location: 'Salle Informatique B2',
-      materials: ['Ordinateur portable', 'Éditeur de code', 'Git installé'],
-      fraisInscription: 20000,
-      createdAt: '2024-10-20',
-      updatedAt: '2024-12-18'
-    },
-    {
-      id: '3',
-      title: 'Leadership et Management Éthique',
-      description: 'Formation sur les principes du leadership éthique basé sur les valeurs ignatiennes',
-      category: 'Management',
-      level: 'avance',
-      duration: 40,
-      startDate: '2025-03-01',
-      endDate: '2025-04-30',
-      schedule: 'Weekend intensif (2 fois/mois)',
-      instructor: 'P. Pierre ADOM, SJ',
-      capacity: 30,
-      enrolled: 22,
-      price: 180000,
-      status: 'open',
-      prerequisites: ['Expérience professionnelle minimum 3 ans'],
-      objectives: [
-        'Développer un leadership authentique',
-        'Intégrer l\'éthique dans la prise de décision',
-        'Gérer les équipes avec discernement',
-        'Promouvoir la justice sociale en entreprise'
-      ],
-      certification: true,
-      mode: 'presentiel',
-      location: 'Salle de Conférence A',
-      materials: ['Support de cours', 'Études de cas', 'Bibliographie spécialisée'],
-      createdAt: '2024-12-01',
-      updatedAt: '2024-12-20'
-    },
-    {
-      id: '4',
-      title: 'Data Science et Analyse de Données',
-      description: 'Maîtrisez l\'analyse de données avec Python, R et les outils de visualisation',
-      category: 'Data Science',
-      level: 'intermediaire',
-      duration: 70,
-      startDate: '2025-01-20',
-      endDate: '2025-05-20',
-      schedule: 'Lundi et Mercredi 19h-22h',
-      instructor: 'Dr. Akossiwa KOFFI',
-      capacity: 22,
-      enrolled: 12,
-      price: 280000,
-      status: 'open',
-      prerequisites: ['Statistiques de base', 'Programmation (Python ou R)'],
-      objectives: [
-        'Manipuler et nettoyer les données',
-        'Créer des visualisations efficaces',
-        'Appliquer des modèles statistiques',
-        'Présenter des insights business'
-      ],
-      certification: true,
-      mode: 'hybride',
-      location: 'Lab Data Science + Online',
-      materials: ['Python/R installé', 'Jupyter Notebook', 'Datasets fournis'],
-      createdAt: '2024-11-30',
-      updatedAt: '2024-12-19'
-    }
-  ];
-
+  // Mock data for demo
   useEffect(() => {
-    const timer = setTimeout(() => {
+    setTimeout(() => {
+      const mockFormations: FormationOuverte[] = [
+        {
+          id: '1',
+          name: 'Formation React Avancée',
+          instructor: 'Marie Dupont',
+          description: 'Formation approfondie sur React et ses écosystèmes',
+          startDate: '2024-03-15',
+          endDate: '2024-03-30',
+          maxParticipants: 20,
+          currentParticipants: 15,
+          price: 450,
+          status: 'active',
+          level: 'advanced'
+        },
+        {
+          id: '2',
+          name: 'JavaScript pour Débutants',
+          instructor: 'Pierre Martin',
+          description: 'Introduction au JavaScript et programmation web',
+          startDate: '2024-03-20',
+          endDate: '2024-04-05',
+          maxParticipants: 25,
+          currentParticipants: 18,
+          price: 350,
+          status: 'active',
+          level: 'beginner'
+        },
+        {
+          id: '3',
+          name: 'Design UX/UI',
+          instructor: 'Sophie Bernard',
+          description: 'Conception d\'interfaces utilisateur modernes',
+          startDate: '2024-04-01',
+          endDate: '2024-04-15',
+          maxParticipants: 15,
+          currentParticipants: 12,
+          price: 500,
+          status: 'active',
+          level: 'intermediate'
+        }
+      ];
       setFormations(mockFormations);
+      setFilteredFormations(mockFormations);
       setLoading(false);
     }, 1000);
-
-    return () => clearTimeout(timer);
   }, []);
 
-  // Configuration des statistiques
-  const stats = [
-    {
-      title: 'Total Formations',
-      value: formations.length,
-      icon: BookOpen,
-      color: 'text-blue-600',
-      description: '+2 ce trimestre'
-    },
-    {
-      title: 'Apprenants Inscrits',
-      value: formations.reduce((sum, formation) => sum + formation.enrolled, 0),
-      icon: Users,
-      color: 'text-green-600',
-      description: '+25% ce mois'
-    },
-    {
-      title: 'Formations Ouvertes',
-      value: formations.filter(f => f.status === 'open').length,
-      icon: Calendar,
-      color: 'text-orange-600',
-      description: 'Inscriptions ouvertes'
-    },
-    {
-      title: 'Avec Certification',
-      value: formations.filter(f => f.certification).length,
-      icon: Award,
-      color: 'text-purple-600',
-      description: 'Certifiantes'
-    }
-  ];
+  // Filter formations based on search term
+  useEffect(() => {
+    const filtered = formations.filter(formation =>
+      formation.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      formation.instructor.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredFormations(filtered);
+  }, [searchTerm, formations]);
 
-  // Configuration des filtres
-  const filterConfigs = [
-    {
-      key: 'category',
-      label: 'Catégorie',
-      placeholder: 'Filtrer par catégorie',
-      options: [
-        { value: 'Technologie', label: 'Technologie' },
-        { value: 'Développement Web', label: 'Développement Web' },
-        { value: 'Data Science', label: 'Data Science' },
-        { value: 'Management', label: 'Management' },
-        { value: 'Design', label: 'Design' },
-        { value: 'Marketing', label: 'Marketing' }
-      ]
-    },
-    {
-      key: 'level',
-      label: 'Niveau',
-      placeholder: 'Filtrer par niveau',
-      options: [
-        { value: 'debutant', label: 'Débutant' },
-        { value: 'intermediaire', label: 'Intermédiaire' },
-        { value: 'avance', label: 'Avancé' }
-      ]
-    },
-    {
-      key: 'status',
-      label: 'Statut',
-      placeholder: 'Filtrer par statut',
-      options: [
-        { value: 'open', label: 'Ouverte' },
-        { value: 'closed', label: 'Fermée' },
-        { value: 'completed', label: 'Terminée' },
-        { value: 'cancelled', label: 'Annulée' }
-      ]
-    },
-    {
-      key: 'mode',
-      label: 'Mode',
-      placeholder: 'Filtrer par mode',
-      options: [
-        { value: 'presentiel', label: 'Présentiel' },
-        { value: 'distanciel', label: 'Distanciel' },
-        { value: 'hybride', label: 'Hybride' }
-      ]
-    }
-  ];
-
-  // Configuration des colonnes
-  const columns = [
-    { key: 'title', label: 'Titre' },
-    { key: 'category', label: 'Catégorie', type: 'badge' as const, badgeType: 'category' as const },
-    { key: 'level', label: 'Niveau', type: 'badge' as const, badgeType: 'level' as const },
-    { key: 'instructor', label: 'Formateur' },
-    { 
-      key: 'duration', 
-      label: 'Durée', 
-      render: (value: number) => `${value}h`
-    },
-    {
-      key: 'enrolled',
-      label: 'Inscrits',
-      render: (value: number, item: FormationOuverte) => (
-        <div>
-          <div className="font-medium">{value}/{item.capacity}</div>
-          <div className="text-sm text-muted-foreground">
-            {Math.round((value / item.capacity) * 100)}% rempli
-          </div>
-        </div>
-      )
-    },
-    { 
-      key: 'price', 
-      label: 'Prix', 
-      render: (value: number) => `${value.toLocaleString()} FCFA`
-    },
-    { key: 'mode', label: 'Mode', type: 'badge' as const, badgeType: 'category' as const },
-    { key: 'status', label: 'Statut', type: 'badge' as const, badgeType: 'status' as const },
-    { key: 'actions', label: 'Actions', type: 'actions' as const }
-  ];
-
-  // Configuration du formulaire
-  const formFields = [
-    { name: 'title', label: 'Titre de la formation', type: 'text' as const, required: true },
-    { name: 'description', label: 'Description', type: 'textarea' as const, required: true },
-    { 
-      name: 'category', 
-      label: 'Catégorie', 
-      type: 'select' as const, 
-      required: true,
-      options: filterConfigs[0].options
-    },
-    { 
-      name: 'level', 
-      label: 'Niveau', 
-      type: 'select' as const, 
-      required: true,
-      options: filterConfigs[1].options
-    },
-    { name: 'duration', label: 'Durée (heures)', type: 'number' as const, required: true },
-    { name: 'startDate', label: 'Date de début', type: 'date' as const, required: true },
-    { name: 'endDate', label: 'Date de fin', type: 'date' as const, required: true },
-    { name: 'schedule', label: 'Planning', type: 'text' as const, required: true },
-    { name: 'instructor', label: 'Formateur', type: 'text' as const, required: true },
-    { name: 'capacity', label: 'Capacité maximum', type: 'number' as const, required: true },
-    { name: 'price', label: 'Prix (FCFA)', type: 'number' as const, required: true },
-    { 
-      name: 'mode', 
-      label: 'Mode de formation', 
-      type: 'select' as const, 
-      required: true,
-      options: filterConfigs[3].options
-    },
-    { name: 'location', label: 'Lieu (si présentiel)', type: 'text' as const },
-    { name: 'prerequisites', label: 'Prérequis (séparés par des virgules)', type: 'textarea' as const },
-    { name: 'objectives', label: 'Objectifs (séparés par des virgules)', type: 'textarea' as const },
-    { name: 'materials', label: 'Matériel requis (séparé par des virgules)', type: 'textarea' as const }
-  ];
-
-  // Gestionnaires d'événements
-  const handleAdd = () => {
+  const handleAddFormation = () => {
     setSelectedFormation(null);
-    setIsFormOpen(true);
+    setShowForm(true);
   };
 
-  const handleEdit = (formation: FormationOuverte) => {
+  const handleEditFormation = (formation: FormationOuverte) => {
     setSelectedFormation(formation);
-    setIsFormOpen(true);
+    setShowForm(true);
   };
 
-  const handleDelete = (formation: FormationOuverte) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette formation ?')) {
-      setFormations(prev => prev.filter(f => f.id !== formation.id));
+  const handleDeleteFormation = (id: string) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette formation ?')) {
+      setFormations(formations.filter(f => f.id !== id));
     }
   };
 
-  const handleView = (formation: FormationOuverte) => {
-    console.log('Voir formation:', formation);
-  };
-
-  const handleSubmit = (data: Record<string, any>) => {
+  const handleSubmitForm = (formData: any) => {
     if (selectedFormation) {
-      // Mise à jour
-      setFormations(prev => 
-        prev.map(f => f.id === selectedFormation.id ? { 
-          ...f, 
-          ...data,
-          prerequisites: data.prerequisites ? data.prerequisites.split(',').map((p: string) => p.trim()) : [],
-          objectives: data.objectives ? data.objectives.split(',').map((o: string) => o.trim()) : [],
-          materials: data.materials ? data.materials.split(',').map((m: string) => m.trim()) : [],
-          updatedAt: new Date().toISOString() 
-        } : f)
-      );
+      // Update existing formation
+      setFormations(formations.map(f => 
+        f.id === selectedFormation.id 
+          ? { ...f, ...formData }
+          : f
+      ));
     } else {
-      // Création
+      // Add new formation
       const newFormation: FormationOuverte = {
         id: Date.now().toString(),
-        title: data.title || '',
-        description: data.description || '',
-        category: data.category || '',
-        level: data.level || 'debutant',
-        duration: Number(data.duration) || 0,
-        startDate: data.startDate || '',
-        endDate: data.endDate || '',
-        schedule: data.schedule || '',
-        instructor: data.instructor || '',
-        capacity: Number(data.capacity) || 0,
-        enrolled: 0,
-        price: Number(data.price) || 0,
-        status: 'open',
-        prerequisites: data.prerequisites ? data.prerequisites.split(',').map((p: string) => p.trim()) : [],
-        objectives: data.objectives ? data.objectives.split(',').map((o: string) => o.trim()) : [],
-        certification: true,
-        mode: data.mode || 'presentiel',
-        location: data.location || '',
-        materials: data.materials ? data.materials.split(',').map((m: string) => m.trim()) : [],
-        fraisInscription: Number(data.fraisInscription) || 0,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        ...formData
       };
-      setFormations(prev => [...prev, newFormation]);
+      setFormations([...formations, newFormation]);
     }
-    setIsFormOpen(false);
+    setShowForm(false);
   };
 
-  const handleExport = () => {
-    const exportData = filteredData.map(formation => ({
-      Titre: formation.title,
-      Catégorie: formation.category,
-      Niveau: formation.level,
-      Formateur: formation.instructor,
-      'Durée (h)': formation.duration,
-      'Date début': formatDate(formation.startDate),
-      'Date fin': formatDate(formation.endDate),
-      Inscrits: formation.enrolled,
-      Capacité: formation.capacity,
-      'Prix (FCFA)': formation.price,
-      Mode: formation.mode,
-      Statut: formation.status
-    }));
-    
-    exportToCSV(
-      exportData, 
-      'formations-ouvertes-' + new Date().toISOString().split('T')[0], 
-      Object.keys(exportData[0] || {})
-    );
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'text-green-600 bg-green-100';
+      case 'completed':
+        return 'text-blue-600 bg-blue-100';
+      case 'cancelled':
+        return 'text-red-600 bg-red-100';
+      default:
+        return 'text-gray-600 bg-gray-100';
+    }
   };
+
+  const getLevelColor = (level: string) => {
+    switch (level) {
+      case 'beginner':
+        return 'text-green-600 bg-green-100';
+      case 'intermediate':
+        return 'text-yellow-600 bg-yellow-100';
+      case 'advanced':
+        return 'text-red-600 bg-red-100';
+      default:
+        return 'text-gray-600 bg-gray-100';
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('fr-FR');
+  };
+
+  const formFields = [
+    {
+      name: 'name',
+      label: 'Nom de la formation',
+      type: 'text' as const,
+      required: true,
+      value: selectedFormation?.name || ''
+    },
+    {
+      name: 'instructor',
+      label: 'Instructeur',
+      type: 'text' as const,
+      required: true,
+      value: selectedFormation?.instructor || ''
+    },
+    {
+      name: 'description',
+      label: 'Description',
+      type: 'textarea' as const,
+      required: true,
+      value: selectedFormation?.description || ''
+    },
+    {
+      name: 'startDate',
+      label: 'Date de début',
+      type: 'date' as const,
+      required: true,
+      value: selectedFormation?.startDate || ''
+    },
+    {
+      name: 'endDate',
+      label: 'Date de fin',
+      type: 'date' as const,
+      required: true,
+      value: selectedFormation?.endDate || ''
+    },
+    {
+      name: 'maxParticipants',
+      label: 'Nombre maximum de participants',
+      type: 'number' as const,
+      required: true,
+      value: selectedFormation?.maxParticipants || 0
+    },
+    {
+      name: 'price',
+      label: 'Prix (€)',
+      type: 'number' as const,
+      required: true,
+      value: selectedFormation?.price || 0
+    },
+    {
+      name: 'level',
+      label: 'Niveau',
+      type: 'select' as const,
+      required: true,
+      options: [
+        { value: 'beginner', label: 'Débutant' },
+        { value: 'intermediate', label: 'Intermédiaire' },
+        { value: 'advanced', label: 'Avancé' }
+      ],
+      value: selectedFormation?.level || 'beginner'
+    },
+    {
+      name: 'status',
+      label: 'Statut',
+      type: 'select' as const,
+      required: true,
+      options: [
+        { value: 'active', label: 'Actif' },
+        { value: 'completed', label: 'Terminé' },
+        { value: 'cancelled', label: 'Annulé' }
+      ],
+      value: selectedFormation?.status || 'active'
+    }
+  ];
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="responsive-container">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
       </div>
     );
   }
 
   return (
-    <AdminPageLayout
-      title="Gestion des Formations Ouvertes"
-      description="Gérez les formations ouvertes au grand public et aux professionnels"
-      stats={stats}
-      searchTerm={searchTerm}
-      onSearchChange={setSearchTerm}
-      onAdd={handleAdd}
-      onExport={handleExport}
-      filters={
-        <AdminFilters
-          filters={filterConfigs}
-          activeFilters={filters}
-          onFilterChange={updateFilter}
-          onClearFilters={clearFilters}
-        />
-      }
-    >
-      <AdminTable
-        columns={columns}
-        data={filteredData}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onView={handleView}
-      />
+    <div className="responsive-container">
+      <div className="responsive-header">
+        <h1 className="responsive-title">Gestion des Formations Ouvertes</h1>
+        
+        {/* Search and Add Button */}
+        <div className="responsive-controls">
+          <div className="responsive-search-container">
+            <Search className="responsive-search-icon" />
+            <input
+              type="text"
+              placeholder="Rechercher par nom de formation ou instructeur..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="responsive-search-input"
+            />
+          </div>
+          <button
+            onClick={handleAddFormation}
+            className="responsive-primary-button"
+          >
+            <Plus className="w-5 h-5" />
+            <span className="hidden sm:inline">Ajouter Formation</span>
+          </button>
+        </div>
+      </div>
 
+      {/* Formations List */}
+      <div className="responsive-grid">
+        {filteredFormations.length === 0 ? (
+          <div className="responsive-empty-state">
+            <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500 text-lg">
+              {searchTerm ? 'Aucune formation trouvée pour cette recherche' : 'Aucune formation disponible'}
+            </p>
+          </div>
+        ) : (
+          filteredFormations.map((formation) => (
+            <div key={formation.id} className="responsive-card">
+              <div className="responsive-card-header">
+                <h3 className="responsive-card-title">{formation.name}</h3>
+                <div className="responsive-card-actions">
+                  <button
+                    onClick={() => handleEditFormation(formation)}
+                    className="responsive-icon-button"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteFormation(formation.id)}
+                    className="responsive-icon-button text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="responsive-card-content">
+                <p className="text-gray-600 mb-3">{formation.description}</p>
+                
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm">Instructeur: {formation.instructor}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm">
+                      {formatDate(formation.startDate)} - {formatDate(formation.endDate)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm">
+                      Participants: {formation.currentParticipants}/{formation.maxParticipants}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <span className={`responsive-badge ${getStatusColor(formation.status)}`}>
+                    {formation.status === 'active' ? 'Actif' : 
+                     formation.status === 'completed' ? 'Terminé' : 'Annulé'}
+                  </span>
+                  <span className={`responsive-badge ${getLevelColor(formation.level)}`}>
+                    {formation.level === 'beginner' ? 'Débutant' :
+                     formation.level === 'intermediate' ? 'Intermédiaire' : 'Avancé'}
+                  </span>
+                </div>
+
+                <div className="responsive-card-footer">
+                  <span className="font-semibold text-lg text-blue-600">
+                    {formation.price}€
+                  </span>
+                  <div className="flex-1 bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${(formation.currentParticipants / formation.maxParticipants) * 100}%`
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Formation Form Modal */}
       <AdminForm
-        title={selectedFormation ? 'Modifier la formation' : 'Nouvelle formation'}
-        description={selectedFormation ? 'Modifiez les informations de la formation' : 'Créez une nouvelle formation ouverte'}
+        title={selectedFormation ? 'Modifier la Formation' : 'Nouvelle Formation'}
         fields={formFields}
         data={selectedFormation || {}}
-        isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        onSubmit={handleSubmit}
-        isLoading={loading}
+        isOpen={showForm}
+        onClose={() => setShowForm(false)}
+        onSubmit={handleSubmitForm}
       />
-    </AdminPageLayout>
+    </div>
   );
 };
 

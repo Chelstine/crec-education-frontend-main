@@ -74,6 +74,8 @@ const InscriptionsFormationsOuvertes = lazy(() => import('@/pages/admin/inscript
 
 // Gestion des événements
 const EvenementsManagement = lazy(() => import('@/pages/admin/events/EvenementsManagement'));
+const ConferencesManagement = lazy(() => import('@/pages/admin/events/ConferencesManagement'));
+const AteliersManagement = lazy(() => import('@/pages/admin/events/AteliersManagement'));
 
 // Gestion des réservations
 const ReservationsFabLabManagement = lazy(() => import('@/pages/admin/reservations/ReservationsFabLabManagement'));
@@ -311,6 +313,22 @@ const routes: RouteObject[] = [
         element: (
           <ProtectedRoute adminRequired={true} permissions={['manage_events']}>
             {withSuspense(EvenementsManagement)}
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'events/conferences',
+        element: (
+          <ProtectedRoute adminRequired={true} permissions={['manage_events']}>
+            {withSuspense(ConferencesManagement)}
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'events/ateliers',
+        element: (
+          <ProtectedRoute adminRequired={true} permissions={['manage_events']}>
+            {withSuspense(AteliersManagement)}
           </ProtectedRoute>
         ),
       },

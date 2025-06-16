@@ -342,6 +342,7 @@ L'équipe FabLab CREC`
             <button
               onClick={onClose}
               className="p-2 text-gray-400 hover:text-gray-600 rounded-lg"
+              title="Fermer"
             >
               <X className="h-5 w-5" />
             </button>
