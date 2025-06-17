@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
   DialogContent,
@@ -89,7 +90,8 @@ interface FabLabInscription {
   accessKey?: string;
 }
 
-const InscriptionsFabLabModern: React.FC = () => {
+const InscriptionsFabLab: React.FC = () => {
+  const { toast } = useToast();
   const [inscriptions, setInscriptions] = useState<FabLabInscription[]>([]);
   const [filteredInscriptions, setFilteredInscriptions] = useState<FabLabInscription[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -282,9 +284,18 @@ const InscriptionsFabLabModern: React.FC = () => {
           }
         : i
     ));
+    
+    toast({
+      title: "Inscription approuvée",
+      description: `L'inscription de ${inscription.candidateName} a été approuvée avec succès. Clé d'accès: ${accessKey}`,
+      variant: "default",
+    });
   };
 
   const handleReject = (id: string) => {
+    const inscription = inscriptions.find(i => i.id === id);
+    if (!inscription) return;
+
     setInscriptions(prev => prev.map(i => 
       i.id === id 
         ? { 
@@ -294,6 +305,12 @@ const InscriptionsFabLabModern: React.FC = () => {
           }
         : i
     ));
+    
+    toast({
+      title: "Inscription rejetée",
+      description: `L'inscription de ${inscription.candidateName} a été rejetée.`,
+      variant: "destructive",
+    });
   };
 
   const stats = {
@@ -790,4 +807,4 @@ const InscriptionsFabLabModern: React.FC = () => {
   );
 };
 
-export default InscriptionsFabLabModern;
+export default InscriptionsFabLab;
