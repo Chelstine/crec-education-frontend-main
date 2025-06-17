@@ -181,6 +181,73 @@ const AdminSettings: React.FC = () => {
     return status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
   };
 
+  // Action handlers
+  const handleDeleteUser = async (userId: string) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+      setAdminUsers(prev => prev.filter(user => user.id !== userId));
+      // Ici vous pourriez appeler une API pour supprimer l'utilisateur
+      console.log('Utilisateur supprimé:', userId);
+    }
+  };
+
+  const handleDeleteTemplate = async (templateId: string) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce template ?')) {
+      setEmailTemplates(prev => prev.filter(template => template.id !== templateId));
+      // Ici vous pourriez appeler une API pour supprimer le template
+      console.log('Template supprimé:', templateId);
+    }
+  };
+
+  const handleViewUser = (user: AdminUser) => {
+    // Ouvrir une modal ou naviguer vers les détails de l'utilisateur
+    alert(`Détails de l'utilisateur: ${user.name}\nEmail: ${user.email}\nRôle: ${user.role}`);
+  };
+
+  const handleExportSettings = () => {
+    const settings = {
+      general: generalSettings,
+      pricing: pricing,
+      security: securitySettings
+    };
+    
+    const dataStr = JSON.stringify(settings, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `crec-settings-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportUsers = () => {
+    const headers = ['Name', 'Email', 'Role', 'Status', 'Last Login'];
+    const csvContent = [
+      headers.join(','),
+      ...adminUsers.map(user => [
+        user.name,
+        user.email,
+        user.role,
+        user.status,
+        new Date(user.lastLogin).toLocaleDateString()
+      ].join(','))
+    ].join('\n');
+
+    const dataBlob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `admin-users-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -197,14 +264,23 @@ const AdminSettings: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
           <p className="text-gray-600">Manage system configuration and preferences</p>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-        >
-          <Save className="h-4 w-4" />
-          <span>{saving ? 'Saving...' : 'Save Changes'}</span>
-        </button>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={handleExportSettings}
+            className="flex items-center space-x-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+          >
+            <Database className="h-4 w-4" />
+            <span>Export Settings</span>
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          >
+            <Save className="h-4 w-4" />
+            <span>{saving ? 'Saving...' : 'Save Changes'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -250,6 +326,8 @@ const AdminSettings: React.FC = () => {
                     value={generalSettings.siteName}
                     onChange={(e) => setGeneralSettings(prev => ({ ...prev, siteName: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Site Name"
+                    aria-label="Site Name"
                   />
                 </div>
                 <div>
@@ -259,6 +337,8 @@ const AdminSettings: React.FC = () => {
                     value={generalSettings.contactEmail}
                     onChange={(e) => setGeneralSettings(prev => ({ ...prev, contactEmail: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Contact Email"
+                    aria-label="Contact Email"
                   />
                 </div>
                 <div>
@@ -268,6 +348,8 @@ const AdminSettings: React.FC = () => {
                     value={generalSettings.contactPhone}
                     onChange={(e) => setGeneralSettings(prev => ({ ...prev, contactPhone: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Phone"
+                    aria-label="Phone"
                   />
                 </div>
                 <div>
@@ -276,6 +358,8 @@ const AdminSettings: React.FC = () => {
                     value={generalSettings.timezone}
                     onChange={(e) => setGeneralSettings(prev => ({ ...prev, timezone: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    aria-label="Timezone"
+                    title="Timezone"
                   >
                     <option value="Europe/Paris">Europe/Paris</option>
                     <option value="Europe/London">Europe/London</option>
@@ -291,6 +375,8 @@ const AdminSettings: React.FC = () => {
                   onChange={(e) => setGeneralSettings(prev => ({ ...prev, siteDescription: e.target.value }))}
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Site Description"
+                  aria-label="Site Description"
                 />
               </div>
 
@@ -301,6 +387,8 @@ const AdminSettings: React.FC = () => {
                   onChange={(e) => setGeneralSettings(prev => ({ ...prev, address: e.target.value }))}
                   rows={2}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Address"
+                  aria-label="Address"
                 />
               </div>
 
@@ -342,16 +430,25 @@ const AdminSettings: React.FC = () => {
             >
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Admin Users</h3>
-                <button
-                  onClick={() => {
-                    setSelectedUser(null);
-                    setShowUserModal(true);
-                  }}
-                  className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Add User</span>
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={handleExportUsers}
+                    className="flex items-center space-x-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+                  >
+                    <Database className="h-4 w-4" />
+                    <span>Export Users</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedUser(null);
+                      setShowUserModal(true);
+                    }}
+                    className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Add User</span>
+                  </button>
+                </div>
               </div>
 
               <div className="overflow-hidden border border-gray-200 rounded-lg">
@@ -404,11 +501,26 @@ const AdminSettings: React.FC = () => {
                               setShowUserModal(true);
                             }}
                             className="text-blue-600 hover:text-blue-900"
+                            aria-label="Edit user"
+                            title="Edit user"
                           >
                             <Edit className="h-4 w-4" />
                           </button>
-                          <button className="text-red-600 hover:text-red-900">
+                          <button
+                            onClick={() => handleDeleteUser(user.id)}
+                            className="text-red-600 hover:text-red-900"
+                            aria-label="Delete user"
+                            title="Delete user"
+                          >
                             <Trash2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleViewUser(user)}
+                            className="text-green-600 hover:text-green-900"
+                            aria-label="View user"
+                            title="View user"
+                          >
+                            <Eye className="h-4 w-4" />
                           </button>
                         </td>
                       </tr>
@@ -440,6 +552,8 @@ const AdminSettings: React.FC = () => {
                         university: { ...prev.university, application_fee: Number(e.target.value) }
                       }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Application Fee (€)"
+                      aria-label="Application Fee (€)"
                     />
                   </div>
                   <div>
@@ -452,6 +566,8 @@ const AdminSettings: React.FC = () => {
                         university: { ...prev.university, tuition_semester: Number(e.target.value) }
                       }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Semester Tuition (€)"
+                      aria-label="Semester Tuition (€)"
                     />
                   </div>
                   <div>
@@ -464,6 +580,8 @@ const AdminSettings: React.FC = () => {
                         university: { ...prev.university, tuition_year: Number(e.target.value) }
                       }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Annual Tuition (€)"
+                      aria-label="Annual Tuition (€)"
                     />
                   </div>
                 </div>
@@ -483,6 +601,8 @@ const AdminSettings: React.FC = () => {
                         fablab: { ...prev.fablab, monthly: Number(e.target.value) }
                       }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Monthly (€)"
+                      aria-label="Monthly (€)"
                     />
                   </div>
                   <div>
@@ -495,6 +615,8 @@ const AdminSettings: React.FC = () => {
                         fablab: { ...prev.fablab, quarterly: Number(e.target.value) }
                       }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Quarterly (€)"
+                      aria-label="Quarterly (€)"
                     />
                   </div>
                   <div>
@@ -507,6 +629,8 @@ const AdminSettings: React.FC = () => {
                         fablab: { ...prev.fablab, annual: Number(e.target.value) }
                       }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Annual (€)"
+                      aria-label="Annual (€)"
                     />
                   </div>
                   <div>
@@ -519,6 +643,8 @@ const AdminSettings: React.FC = () => {
                         fablab: { ...prev.fablab, student_discount: Number(e.target.value) }
                       }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Student Discount (%)"
+                      aria-label="Student Discount (%)"
                     />
                   </div>
                 </div>
@@ -538,6 +664,8 @@ const AdminSettings: React.FC = () => {
                         formations: { ...prev.formations, base_price: Number(e.target.value) }
                       }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Base Price (€)"
+                      aria-label="Base Price (€)"
                     />
                   </div>
                   <div>
@@ -551,6 +679,8 @@ const AdminSettings: React.FC = () => {
                         formations: { ...prev.formations, premium_multiplier: Number(e.target.value) }
                       }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Premium Multiplier"
+                      aria-label="Premium Multiplier"
                     />
                   </div>
                 </div>
@@ -594,10 +724,17 @@ const AdminSettings: React.FC = () => {
                             setShowEmailModal(true);
                           }}
                           className="text-blue-600 hover:text-blue-900"
+                          aria-label="Edit template"
+                          title="Edit template"
                         >
                           <Edit className="h-4 w-4" />
                         </button>
-                        <button className="text-red-600 hover:text-red-900">
+                        <button
+                          onClick={() => handleDeleteTemplate(template.id)}
+                          className="text-red-600 hover:text-red-900"
+                          aria-label="Delete template"
+                          title="Delete template"
+                        >
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
@@ -636,6 +773,8 @@ const AdminSettings: React.FC = () => {
                       value={securitySettings.passwordMinLength}
                       onChange={(e) => setSecuritySettings(prev => ({ ...prev, passwordMinLength: Number(e.target.value) }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Minimum Length"
+                      aria-label="Minimum Length"
                     />
                   </div>
                   <div>
@@ -645,6 +784,8 @@ const AdminSettings: React.FC = () => {
                       value={securitySettings.maxLoginAttempts}
                       onChange={(e) => setSecuritySettings(prev => ({ ...prev, maxLoginAttempts: Number(e.target.value) }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Max Login Attempts"
+                      aria-label="Max Login Attempts"
                     />
                   </div>
                 </div>
@@ -698,6 +839,8 @@ const AdminSettings: React.FC = () => {
                     value={securitySettings.sessionTimeout}
                     onChange={(e) => setSecuritySettings(prev => ({ ...prev, sessionTimeout: Number(e.target.value) }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Session Timeout (hours)"
+                    aria-label="Session Timeout (hours)"
                   />
                 </div>
               </div>

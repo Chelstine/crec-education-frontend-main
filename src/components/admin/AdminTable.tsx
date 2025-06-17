@@ -79,6 +79,8 @@ export const AdminTable: React.FC<AdminTableProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => onView(item)}
+                aria-label="View details"
+                title="View details"
               >
                 <Eye className="h-4 w-4" />
               </Button>
@@ -88,6 +90,8 @@ export const AdminTable: React.FC<AdminTableProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => onEdit(item)}
+                aria-label="Edit item"
+                title="Edit item"
               >
                 <Edit className="h-4 w-4" />
               </Button>
@@ -97,6 +101,8 @@ export const AdminTable: React.FC<AdminTableProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => onDelete(item)}
+                aria-label="Delete item"
+                title="Delete item"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -115,7 +121,12 @@ export const AdminTable: React.FC<AdminTableProps> = ({
             {actions.length > 0 && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    aria-label="More actions"
+                    title="More actions"
+                  >
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>

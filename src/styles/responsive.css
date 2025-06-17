@@ -84,3 +84,12 @@
 .responsive-actions > button {
   @apply w-full sm:w-auto text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2;
 }
+
+/* Progress bar width utility using data-progress attribute */
+.progress-bar-width {
+  width: 0%;
+  transition: width 0.3s ease;
+}
+.progress-bar-width[data-progress] {
+  width: calc(attr(data-progress number) * 1%);
+}

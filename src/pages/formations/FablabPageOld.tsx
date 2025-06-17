@@ -6,6 +6,17 @@ import { Printer, Wrench, MapPin, Clock, Lightbulb, Users, BookOpen, Cpu, Zap, C
 import { motion } from 'framer-motion';
 import { useFabLab } from '@/contexts/FabLabContext';
 
+// Define TypeScript interface for machines (compatibility)
+interface Machine {
+  name: string;
+  code: string;
+  features: string[];
+  reference: string;
+  monthlyPrice: number;
+  yearlyPrice: number;
+  image: string;
+}
+
 const FablabPage = () => {
   // State pour le filtrage des projets
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
@@ -31,6 +42,54 @@ const FablabPage = () => {
     ? projects 
     : getProjectsByCategory(selectedFilter);
 
+  const machines: Machine[] = [
+    {
+      name: 'Creality Ender-5 S1',
+      code: 'FAB IMP 01',
+      features: ['250mm/s Grande Vitesse', '300°C Haute Température', 'Détection de Filaments', 'CR Touch Auto-Nivellement', '220x220x280mm'],
+      reference: 'B0BQJCX9HC',
+      monthlyPrice: 10000,
+      yearlyPrice: 100000,
+      image: '/img/machines/creality-ender5-s1.jpg',
+    },
+    {
+      name: 'Creality Ender-3',
+      code: 'FAB IMP 02',
+      features: ['Protection de l’Alimentation', 'Impression de Reprise', '220x220x250mm'],
+      reference: 'B07BR3F9N6',
+      monthlyPrice: 8000,
+      yearlyPrice: 80000,
+      image: '/img/machines/creality-ender3.jpg',
+    },
+    {
+      name: 'Creality Ender-3',
+      code: 'FAB IMP 03',
+      features: ['Protection de l’Alimentation', 'Impression de Reprise', '220x220x250mm'],
+      reference: 'B07BR3F9N6',
+      monthlyPrice: 7200,
+      yearlyPrice: 80000,
+      image: '/img/machines/creality-ender3.jpg',
+    },
+    {
+      name: 'Anycubic Kobra',
+      code: 'FAB IMP 04',
+      features: ['500mm/s Grande Vitesse', 'Pro', 'Nivellement de Auto LeviQ 2.0', '220x220x250mm'],
+      reference: 'B0CDVX32X4',
+      monthlyPrice: 12500,
+      yearlyPrice: 120000,
+      image: '/img/machines/anycubic-kobra.jpg',
+    },
+    {
+      name: 'Latilool F50 Laser Engraver',
+      code: 'FAB GRAV',
+      features: ['50W Puissance', 'Protection des Yeux', '400x400mm', 'Gravure sur Bois, Métal, Verre, Acrylique'],
+      reference: 'B0B6NG84VF',
+      monthlyPrice: 15000,
+      yearlyPrice: 150000,
+      image: '/img/machines/latilool-f50.jpg',
+    },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col font-sans text-[15pt] bg-gradient-to-b from-amber-50 to-white">
       {/* Hero Section */}
@@ -45,9 +104,9 @@ const FablabPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">{description.title}</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">FabLab CREC</h1>
             <p className="text-xl md:text-2xl mb-6 leading-relaxed">
-              {description.subtitle}
+              Un espace jésuite d’innovation numérique pour créer, apprendre et collaborer au service du Bénin.
             </p>
             <motion.div
               className="flex flex-col sm:flex-row justify-center items-center gap-4"
@@ -86,10 +145,10 @@ const FablabPage = () => {
         >
           <h2 className="text-3xl md:text-4xl font-bold text-center text-amber-800 mb-8">Le FabLab CREC : Un espace pour innover</h2>
           <p className="text-jesuit-darkgray text-lg leading-relaxed">
-            {description.description}
+            Le FabLab du Centre de Recherche d’Étude et de Créativité (CREC) est un atelier collaboratif situé à Godomey, Bénin, inspiré par la mission jésuite de promouvoir l’excellence et le service. Ouvert à tous — étudiants, entrepreneurs, artisans — il offre un accès à des imprimantes 3D et un graveur laser pour transformer vos idées en prototypes.
           </p>
           <p className="text-jesuit-darkgray text-lg leading-relaxed">
-            {description.mission}
+            Guidé par la <em>cura personalis</em> et le <em>magis</em>, le FabLab propose des formations, un accès autonome supervisé, et des services assistés pour concrétiser vos projets. Notre communauté dynamique favorise le partage de savoir-faire et l’innovation sociale, en soutenant le développement local et durable.
           </p>
         </motion.div>
       </section>
@@ -234,11 +293,11 @@ const FablabPage = () => {
                 <Card className="h-full overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 bg-white/90 backdrop-blur-sm">
                   <div className="relative overflow-hidden">
                     {/* Support vidéo/image avec indicateur */}
-                    {project.videoUrl ? (
+                    {project.type === 'video' || project.mediaType === 'video' ? (
                       <div className="relative">
                         <img
-                          src={project.image || "/img/placeholder-project.jpg"}
-                          alt={project.title}
+                          src={project.fichierUrl || project.mediaUrl || "/img/placeholder-project.jpg"}
+                          alt={project.titre}
                           className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
                         />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/30">
@@ -247,8 +306,8 @@ const FablabPage = () => {
                       </div>
                     ) : (
                       <img
-                        src={project.image || "/img/placeholder-project.jpg"}
-                        alt={project.title}
+                        src={project.fichierUrl || project.mediaUrl || "/img/placeholder-project.jpg"}
+                        alt={project.titre}
                         className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
                       />
                     )}
@@ -266,7 +325,7 @@ const FablabPage = () => {
                       </span>
                     </div>
                     {/* Indicateur vidéo */}
-                    {project.videoUrl && (
+                    {(project.type === 'video' || project.mediaType === 'video') && (
                       <div className="absolute top-2 left-2">
                         <span className="px-2 py-1 bg-red-500 text-white rounded-full text-xs font-medium">
                           🎥 Vidéo
@@ -276,7 +335,7 @@ const FablabPage = () => {
                   </div>
                   <CardContent className="p-4">
                     <h3 className="font-bold text-lg text-jesuit-dark mb-2 line-clamp-2">
-                      {project.title}
+                      {project.titre}
                     </h3>
                     <p className="text-sm text-jesuit-darkgray mb-3 line-clamp-3">
                       {project.description}
@@ -284,33 +343,33 @@ const FablabPage = () => {
                     
                     {/* Informations enrichies */}
                     <div className="space-y-3">
+                      
+                      
                       <div>
                         <h4 className="text-xs font-semibold text-jesuit-dark uppercase tracking-wide mb-1">
                           Technologies utilisées
                         </h4>
                         <div className="flex flex-wrap gap-1">
-                          {project.tags.slice(0, 4).map((tag, tagIndex) => (
+                          {project.technologies.slice(0, 4).map((tech, techIndex) => (
                             <span
-                              key={tagIndex}
+                              key={techIndex}
                               className="px-2 py-1 bg-jesuit-light text-jesuit-dark text-xs rounded-md font-medium"
                             >
-                              {tag}
+                              {tech}
                             </span>
                           ))}
-                          {project.tags.length > 4 && (
+                          {project.technologies.length > 4 && (
                             <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">
-                              +{project.tags.length - 4}
+                              +{project.technologies.length - 4}
                             </span>
                           )}
                         </div>
                       </div>
                       
                       {/* Auteur */}
-                      {project.author && (
-                        <div className="text-xs text-gray-500">
-                          <span className="font-medium">Par:</span> {project.author}
-                        </div>
-                      )}
+                      <div className="text-xs text-gray-500">
+                        <span className="font-medium">Par:</span> {project.auteur || project.author}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -358,7 +417,7 @@ const FablabPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {machines.map((machine, i) => (
               <motion.div
-                key={machine.id}
+                key={machine.code}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -403,7 +462,7 @@ const FablabPage = () => {
             Services et tarifs
           </motion.h2>
           
-          {/* Abonnements (tariffs de type membership) */}
+          {/* Abonnements */}
           <motion.div 
             className="mb-16"
             initial={{ opacity: 0 }}
@@ -413,48 +472,71 @@ const FablabPage = () => {
           >
             <h3 className="text-2xl font-semibold text-jesuit-dark mb-8 text-center">Abonnements FabLab</h3>
             <div className="grid md:grid-cols-3 gap-6">
-              {tariffs.filter(t => t.type === 'membership').map((tariff, index) => (
-                <Card key={tariff.id} className={`bg-white shadow-lg border-2 ${
-                  index === 1 ? 'border-purple-500 relative' : 
-                  index === 0 ? 'border-jesuit-gold' : 'border-gray-200'
-                }`}>
-                  {index === 1 && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <span className="bg-purple-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                        Populaire
-                      </span>
-                    </div>
-                  )}
-                  <CardContent className="p-6 text-center">
-                    <Users className={`w-12 h-12 mx-auto mb-4 ${
-                      index === 1 ? 'text-purple-500' : 
-                      index === 0 ? 'text-jesuit-gold' : 'text-blue-500'
-                    }`} />
-                    <h4 className="text-xl font-bold text-jesuit-dark mb-2">{tariff.name}</h4>
-                    <div className={`text-3xl font-bold mb-4 ${
-                      index === 1 ? 'text-purple-500' : 
-                      index === 0 ? 'text-jesuit-gold' : 'text-blue-500'
-                    }`}>
-                      {tariff.price === 0 ? 'Devis' : `${tariff.price.toLocaleString()} FCFA`}
-                    </div>
-                    <p className="text-sm text-jesuit-darkgray mb-6">{tariff.unit}</p>
-                    <ul className="text-sm text-jesuit-darkgray space-y-2 mb-6 text-left">
-                      {tariff.benefits.map((benefit, idx) => (
-                        <li key={idx}>✓ {benefit}</li>
-                      ))}
-                    </ul>
-                    <Link to={tariff.price === 0 ? "/contact" : "/formations/fablab/inscription"} className="block">
-                      <Button className={`w-full ${
-                        index === 1 ? 'bg-purple-500 hover:bg-purple-600' :
-                        index === 0 ? 'bg-jesuit-gold hover:bg-jesuit-gold/90' :
-                        'border-blue-500 text-blue-500 hover:bg-blue-50'
-                      }`} variant={index === 2 ? 'outline' : 'default'}>
-                        {tariff.price === 0 ? 'Nous contacter' : 'S\'abonner'}
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
+              <Card className="bg-white shadow-lg border-2 border-jesuit-gold">
+                <CardContent className="p-6 text-center">
+                  <Users className="w-12 h-12 text-jesuit-gold mx-auto mb-4" />
+                  <h4 className="text-xl font-bold text-jesuit-dark mb-2">Étudiant</h4>
+                  <div className="text-3xl font-bold text-jesuit-gold mb-4">15,000 FCFA</div>
+                  <p className="text-sm text-jesuit-darkgray mb-6">par mois</p>
+                  <ul className="text-sm text-jesuit-darkgray space-y-2 mb-6 text-left">
+                    <li>✓ Accès illimité aux machines</li>
+                    <li>✓ Formations de base incluses</li>
+                    <li>✓ Support technique</li>
+                    <li>✓ Stockage de projets</li>
+                  </ul>
+                  <Link to="/formations/fablab/inscription" className="block">
+                    <Button className="w-full bg-jesuit-gold hover:bg-jesuit-gold/90">
+                      S'abonner
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white shadow-lg border-2 border-purple-500 relative">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-purple-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                    Populaire
+                  </span>
+                </div>
+                <CardContent className="p-6 text-center">
+                  <Lightbulb className="w-12 h-12 text-purple-500 mx-auto mb-4" />
+                  <h4 className="text-xl font-bold text-jesuit-dark mb-2">Professionnel</h4>
+                  <div className="text-3xl font-bold text-purple-500 mb-4">25,000 FCFA</div>
+                  <p className="text-sm text-jesuit-darkgray mb-6">par mois</p>
+                  <ul className="text-sm text-jesuit-darkgray space-y-2 mb-6 text-left">
+                    <li>✓ Tout de l'abonnement Étudiant</li>
+                    <li>✓ Accès prioritaire aux machines</li>
+                    <li>✓ Formations avancées incluses</li>
+                    <li>✓ Projets commerciaux autorisés</li>
+                    <li>✓ Support technique prioritaire</li>
+                  </ul>
+                  <Link to="/formations/fablab/inscription" className="block">
+                    <Button className="w-full bg-purple-500 hover:bg-purple-600">
+                      S'abonner
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white shadow-lg">
+                <CardContent className="p-6 text-center">
+                  <Cog className="w-12 h-12 text-blue-500 mx-auto mb-4" />
+                  <h4 className="text-xl font-bold text-jesuit-dark mb-2">Sur mesure</h4>
+                  <div className="text-3xl font-bold text-blue-500 mb-4">Devis</div>
+                  <p className="text-sm text-jesuit-darkgray mb-6">personnalisé</p>
+                  <ul className="text-sm text-jesuit-darkgray space-y-2 mb-6 text-left">
+                    <li>✓ Formation sur mesure</li>
+                    <li>✓ Accompagnement projet</li>
+                    <li>✓ Tarifs préférentiels</li>
+                    <li>✓ Support dédié</li>
+                  </ul>
+                  <Link to="/contact" className="block">
+                    <Button variant="outline" className="w-full border-blue-500 text-blue-500 hover:bg-blue-50">
+                      Nous contacter
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
             </div>
           </motion.div>
 
@@ -468,23 +550,89 @@ const FablabPage = () => {
           >
             <h3 className="text-2xl font-semibold text-jesuit-dark mb-8 text-center">Formations et Services</h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {services.map((service) => (
-                <Card key={service.id} className="bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all">
-                  <CardContent className="p-6">
-                    <Printer className="w-8 h-8 text-jesuit-gold mb-3" />
-                    <h4 className="text-lg font-semibold text-jesuit-dark mb-2">{service.name}</h4>
-                    <p className="text-jesuit-darkgray text-sm mb-4">
-                      {service.description}
-                    </p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-jesuit-gold">
-                        {service.price === 0 ? 'Sur devis' : `${service.price.toLocaleString()} FCFA`}
-                      </span>
-                      <span className="text-sm text-jesuit-darkgray">{service.duration}</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              <Card className="bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all">
+                <CardContent className="p-6">
+                  <Printer className="w-8 h-8 text-jesuit-gold mb-3" />
+                  <h4 className="text-lg font-semibold text-jesuit-dark mb-2">Formation Impression 3D</h4>
+                  <p className="text-jesuit-darkgray text-sm mb-4">
+                    Apprenez les bases de l'impression 3D et la conception pour la fabrication additive
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-jesuit-gold">25,000 FCFA</span>
+                    <span className="text-sm text-jesuit-darkgray">4h</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all">
+                <CardContent className="p-6">
+                  <Cpu className="w-8 h-8 text-jesuit-gold mb-3" />
+                  <h4 className="text-lg font-semibold text-jesuit-dark mb-2">Arduino & IoT</h4>
+                  <p className="text-jesuit-darkgray text-sm mb-4">
+                    Découvrez l'électronique et programmez vos premiers objets connectés
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-jesuit-gold">30,000 FCFA</span>
+                    <span className="text-sm text-jesuit-darkgray">6h</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all">
+                <CardContent className="p-6">
+                  <Wrench className="w-8 h-8 text-jesuit-gold mb-3" />
+                  <h4 className="text-lg font-semibold text-jesuit-dark mb-2">Prototypage Rapide</h4>
+                  <p className="text-jesuit-darkgray text-sm mb-4">
+                    Service complet de prototypage pour vos projets innovants
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-jesuit-gold">Sur devis</span>
+                    <span className="text-sm text-jesuit-darkgray">1-5j</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all">
+                <CardContent className="p-6">
+                  <Lightbulb className="w-8 h-8 text-jesuit-gold mb-3" />
+                  <h4 className="text-lg font-semibold text-jesuit-dark mb-2">Consultation Projet</h4>
+                  <p className="text-jesuit-darkgray text-sm mb-4">
+                    Conseil personnalisé pour votre projet de fabrication numérique
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-jesuit-gold">15,000 FCFA</span>
+                    <span className="text-sm text-jesuit-darkgray">1h</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all">
+                <CardContent className="p-6">
+                  <Users className="w-8 h-8 text-jesuit-gold mb-3" />
+                  <h4 className="text-lg font-semibold text-jesuit-dark mb-2">Utilisation Supervisée</h4>
+                  <p className="text-jesuit-darkgray text-sm mb-4">
+                    Accès aux machines avec supervision pour les non-abonnés
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-jesuit-gold">5,000 FCFA</span>
+                    <span className="text-sm text-jesuit-darkgray">/heure</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all">
+                <CardContent className="p-6">
+                  <Cog className="w-8 h-8 text-jesuit-gold mb-3" />
+                  <h4 className="text-lg font-semibold text-jesuit-dark mb-2">Service Assisté</h4>
+                  <p className="text-jesuit-darkgray text-sm mb-4">
+                    Nous réalisons votre projet selon vos spécifications
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-jesuit-gold">15,000 FCFA</span>
+                    <span className="text-sm text-jesuit-darkgray">/heure</span>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </motion.div>
 
@@ -497,15 +645,37 @@ const FablabPage = () => {
           >
             <h3 className="text-2xl font-semibold text-jesuit-dark mb-8 text-center">Tarifs des Matériaux</h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {tariffs.filter(t => t.type === 'material').map((tariff) => (
-                <Card key={tariff.id} className="bg-white shadow-md">
-                  <CardContent className="p-4 text-center">
-                    <h4 className="font-semibold text-jesuit-dark mb-2">{tariff.name}</h4>
-                    <div className="text-xl font-bold text-jesuit-gold">{tariff.price.toLocaleString()} FCFA</div>
-                    <p className="text-sm text-jesuit-darkgray">par {tariff.unit}</p>
-                  </CardContent>
-                </Card>
-              ))}
+              <Card className="bg-white shadow-md">
+                <CardContent className="p-4 text-center">
+                  <h4 className="font-semibold text-jesuit-dark mb-2">Filament PLA</h4>
+                  <div className="text-xl font-bold text-jesuit-gold">500 FCFA</div>
+                  <p className="text-sm text-jesuit-darkgray">par gramme</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white shadow-md">
+                <CardContent className="p-4 text-center">
+                  <h4 className="font-semibold text-jesuit-dark mb-2">Filament ABS</h4>
+                  <div className="text-xl font-bold text-jesuit-gold">600 FCFA</div>
+                  <p className="text-sm text-jesuit-darkgray">par gramme</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white shadow-md">
+                <CardContent className="p-4 text-center">
+                  <h4 className="font-semibold text-jesuit-dark mb-2">Plaque Acrylique</h4>
+                  <div className="text-xl font-bold text-jesuit-gold">2,000 FCFA</div>
+                  <p className="text-sm text-jesuit-darkgray">par dm²</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white shadow-md">
+                <CardContent className="p-4 text-center">
+                  <h4 className="font-semibold text-jesuit-dark mb-2">Contreplaqué</h4>
+                  <div className="text-xl font-bold text-jesuit-gold">1,500 FCFA</div>
+                  <p className="text-sm text-jesuit-darkgray">par dm²</p>
+                </CardContent>
+              </Card>
             </div>
           </motion.div>
         </div>
@@ -586,7 +756,7 @@ const FablabPage = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            Créez, innovez et collaborez dans un espace dédié à l'excellence et au service.
+            Créez, innovez et collaborez dans un espace dédié à l’excellence et au service.
           </motion.p>
           <motion.div
             className="flex flex-col sm:flex-row justify-center items-center gap-4"

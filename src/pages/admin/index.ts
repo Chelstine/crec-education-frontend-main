@@ -4,8 +4,6 @@
 export { default as AdminDashboard } from './AdminDashboard';
 export { default as AdminLogin } from './AdminLogin';
 export { default as AdminSettings } from './AdminSettings';
-export { default as EvenementsManagement } from './EvenementsManagement';
-export { default as FabLabManagement } from './FabLabManagement';
 
 // Gestion des formations
 export * from './formations';

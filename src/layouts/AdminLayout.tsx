@@ -9,7 +9,6 @@ import {
   Settings, 
   LogOut, 
   Menu,
-  Bell,
   User,
   GraduationCap,
   BookOpen,
@@ -20,7 +19,9 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { authService, useAuth } from '@/services/authService';
+import { NotificationDropdown } from '@/components/admin/NotificationDropdown';
 import '../styles/admin.css';
+import '../styles/notifications.css';
 
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -389,12 +390,7 @@ const AdminLayout = () => {
             </div>
             
             <div className="flex items-center space-x-3">
-              <Button variant="ghost" size="sm" className="relative">
-                <Bell className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-                  3
-                </span>
-              </Button>
+              <NotificationDropdown />
             </div>
           </div>
         </header>

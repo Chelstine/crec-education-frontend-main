@@ -474,6 +474,8 @@ const AbonnementsFabLab: React.FC = () => {
                           setSelectedAbonnement(abonnement);
                           setIsDetailDialogOpen(true);
                         }}
+                        aria-label="View subscription details"
+                        title="View subscription details"
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
@@ -482,6 +484,8 @@ const AbonnementsFabLab: React.FC = () => {
                           variant="outline"
                           size="sm"
                           onClick={() => handleViewReceipt(abonnement)}
+                          aria-label="View payment receipt"
+                          title="View payment receipt"
                         >
                           <FileText className="h-4 w-4" />
                         </Button>
@@ -493,6 +497,8 @@ const AbonnementsFabLab: React.FC = () => {
                             size="sm"
                             onClick={() => handleApprove(abonnement.id)}
                             className="bg-green-600 hover:bg-green-700"
+                            aria-label="Approve subscription"
+                            title="Approve subscription"
                           >
                             <CheckCircle className="h-4 w-4" />
                           </Button>
@@ -503,6 +509,8 @@ const AbonnementsFabLab: React.FC = () => {
                               const reason = prompt('Raison du refus:');
                               if (reason) handleReject(abonnement.id, reason);
                             }}
+                            aria-label="Reject subscription"
+                            title="Reject subscription"
                           >
                             <XCircle className="h-4 w-4" />
                           </Button>

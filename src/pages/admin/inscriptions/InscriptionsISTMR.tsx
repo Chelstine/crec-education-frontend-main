@@ -102,6 +102,8 @@ interface InscriptionISTMR {
   fraisInscription: number;
   montantPaye: number;
   statutPaiement: 'pending' | 'partial' | 'complete';
+  tuitionPaid: number;
+  tuitionTotal: number;
   
   // Suivi administratif
   notes?: string;
@@ -157,26 +159,39 @@ const InscriptionsISTMR: React.FC = () => {
       phone: '+228 90 12 34 56',
       dateOfBirth: '1995-03-15',
       nationality: 'Togolaise',
+      gender: 'M',
+      address: '123 Rue de la Paix',
+      city: 'Lomé',
       previousEducation: 'Baccalauréat Série D',
+      lastDiploma: 'Baccalauréat',
+      lastSchool: 'Lycée de Lomé',
+      graduationYear: '2014',
+      grades: 'Mention Bien',
       formationId: '1',
       formationTitle: 'Licence en Théologie Fondamentale',
       formationType: 'licence',
       applicationDate: '2024-11-15',
       status: 'pending',
       documents: {
-        cv: true,
-        transcript: true,
-        motivationLetter: true,
-        idCard: true,
-        diploma: true,
+        cv: { submitted: true, url: '/uploads/cv-kouakou.pdf', verified: true },
+        transcript: { submitted: true, url: '/uploads/transcript-kouakou.pdf', verified: true },
+        motivationLetter: { submitted: true, url: '/uploads/motivation-kouakou.pdf', verified: true },
+        idCard: { submitted: true, url: '/uploads/id-kouakou.pdf', verified: true },
+        diploma: { submitted: true, url: '/uploads/diploma-kouakou.pdf', verified: true },
+        birthCertificate: { submitted: true, url: '/uploads/birth-kouakou.pdf', verified: false },
+        photos: { submitted: true, url: '/uploads/photos-kouakou.pdf', verified: true },
+        paymentReceipt: { submitted: false, verified: false },
       },
       notes: 'Candidat très motivé avec un excellent dossier académique',
       academicYear: '2025-2026',
       semester: '1er semestre',
+      fraisInscription: 50000,
+      montantPaye: 0,
+      statutPaiement: 'pending' as const,
       tuitionPaid: 0,
       tuitionTotal: 500000,
       createdAt: '2024-11-15',
-      updatedAt: '2024-12-20',
+      updatedAt: '2024-11-15',
     },
     {
       id: '2',
@@ -186,30 +201,48 @@ const InscriptionsISTMR: React.FC = () => {
       phone: '+228 91 23 45 67',
       dateOfBirth: '1992-08-22',
       nationality: 'Togolaise',
+      gender: 'F',
+      address: '456 Avenue des Fleurs',
+      city: 'Lomé',
       previousEducation: 'Licence en Philosophie',
+      lastDiploma: 'Licence',
+      lastSchool: 'Université de Lomé',
+      graduationYear: '2013',
+      grades: 'Mention Très Bien',
       formationId: '2',
       formationTitle: 'Master en Théologie Pastorale',
       formationType: 'master',
       applicationDate: '2024-10-20',
       status: 'approved',
       documents: {
-        cv: true,
-        transcript: true,
-        motivationLetter: true,
-        idCard: true,
-        diploma: true,
-        recommendationLetter: true,
+        cv: { submitted: true, url: '/uploads/cv-ablode.pdf', verified: true },
+        transcript: { submitted: true, url: '/uploads/transcript-ablode.pdf', verified: true },
+        motivationLetter: { submitted: true, url: '/uploads/motivation-ablode.pdf', verified: true },
+        idCard: { submitted: true, url: '/uploads/id-ablode.pdf', verified: true },
+        diploma: { submitted: true, url: '/uploads/diploma-ablode.pdf', verified: true },
+        birthCertificate: { submitted: true, url: '/uploads/birth-ablode.pdf', verified: true },
+        photos: { submitted: true, url: '/uploads/photos-ablode.pdf', verified: true },
+        paymentReceipt: { submitted: true, url: '/uploads/payment-ablode.pdf', verified: true },
+        recommendationLetter: { submitted: true, url: '/uploads/recommendation-ablode.pdf', verified: true },
       },
       notes: 'Candidature exceptionnelle. Expérience pastorale antérieure.',
       interviewDate: '2024-11-05',
       interviewNotes: 'Excellent entretien. Vocation claire et projet pastoral bien défini.',
       academicYear: '2025-2026',
       semester: '1er semestre',
+      fraisInscription: 75000,
+      montantPaye: 75000,
+      statutPaiement: 'complete' as const,
       tuitionPaid: 750000,
       tuitionTotal: 750000,
-      scholarship: 'Bourse d\'excellence ignatienne',
+      scholarship: {
+        applied: true,
+        type: "Bourse d'excellence ignatienne",
+        amount: 500000,
+        status: 'approved',
+      },
       createdAt: '2024-10-20',
-      updatedAt: '2024-12-18',
+      updatedAt: '2024-11-05',
     },
     {
       id: '3',
@@ -219,27 +252,40 @@ const InscriptionsISTMR: React.FC = () => {
       phone: '+228 92 34 56 78',
       dateOfBirth: '1988-12-10',
       nationality: 'Béninoise',
+      gender: 'M',
+      address: '789 Rue des Collines',
+      city: 'Cotonou',
       previousEducation: 'Master en Théologie',
+      lastDiploma: 'Master',
+      lastSchool: "Université d'Abomey-Calavi",
+      graduationYear: '2012',
+      grades: 'Mention Bien',
       formationId: '3',
       formationTitle: 'Spécialisation en Théologie Africaine',
       formationType: 'specialisation',
       applicationDate: '2024-12-01',
       status: 'waitlisted',
       documents: {
-        cv: true,
-        transcript: true,
-        motivationLetter: true,
-        idCard: true,
-        diploma: true,
-        recommendationLetter: true,
+        cv: { submitted: true, url: '/uploads/cv-agbo.pdf', verified: true },
+        transcript: { submitted: true, url: '/uploads/transcript-agbo.pdf', verified: true },
+        motivationLetter: { submitted: true, url: '/uploads/motivation-agbo.pdf', verified: true },
+        idCard: { submitted: true, url: '/uploads/id-agbo.pdf', verified: true },
+        diploma: { submitted: true, url: '/uploads/diploma-agbo.pdf', verified: true },
+        birthCertificate: { submitted: true, url: '/uploads/birth-agbo.pdf', verified: true },
+        photos: { submitted: true, url: '/uploads/photos-agbo.pdf', verified: true },
+        paymentReceipt: { submitted: false, verified: false },
+        recommendationLetter: { submitted: true, url: '/uploads/recommendation-agbo.pdf', verified: true },
       },
       notes: 'Bon dossier mais places limitées. En attente de désistement.',
       academicYear: '2025-2026',
       semester: '2ème semestre',
+      fraisInscription: 60000,
+      montantPaye: 0,
+      statutPaiement: 'pending' as const,
       tuitionPaid: 0,
-      tuitionTotal: 400000,
+      tuitionTotal: 600000,
       createdAt: '2024-12-01',
-      updatedAt: '2024-12-20',
+      updatedAt: '2024-12-10',
     },
     {
       id: '4',
@@ -249,22 +295,35 @@ const InscriptionsISTMR: React.FC = () => {
       phone: '+228 93 45 67 89',
       dateOfBirth: '1990-05-18',
       nationality: 'Togolaise',
+      gender: 'F',
+      address: '321 Rue du Marché',
+      city: 'Kpalimé',
       previousEducation: 'Baccalauréat Série A',
+      lastDiploma: 'Baccalauréat',
+      lastSchool: 'Lycée de Kpalimé',
+      graduationYear: '2010',
+      grades: 'Passable',
       formationId: '1',
       formationTitle: 'Licence en Théologie Fondamentale',
       formationType: 'licence',
       applicationDate: '2024-09-30',
       status: 'rejected',
       documents: {
-        cv: false,
-        transcript: true,
-        motivationLetter: true,
-        idCard: true,
-        diploma: false,
+        cv: { submitted: false, verified: false },
+        transcript: { submitted: true, url: '/uploads/transcript-tognon.pdf', verified: true },
+        motivationLetter: { submitted: true, url: '/uploads/motivation-tognon.pdf', verified: true },
+        idCard: { submitted: true, url: '/uploads/id-tognon.pdf', verified: true },
+        diploma: { submitted: false, verified: false },
+        birthCertificate: { submitted: false, verified: false },
+        photos: { submitted: false, verified: false },
+        paymentReceipt: { submitted: false, verified: false },
       },
       notes: 'Dossier incomplet. Documents manquants non fournis dans les délais.',
       academicYear: '2025-2026',
       semester: '1er semestre',
+      fraisInscription: 50000,
+      montantPaye: 0,
+      statutPaiement: 'pending' as const,
       tuitionPaid: 0,
       tuitionTotal: 500000,
       createdAt: '2024-09-30',
@@ -351,7 +410,7 @@ const InscriptionsISTMR: React.FC = () => {
 
   const calculateDocumentCompleteness = (documents: InscriptionISTMR['documents']) => {
     const required = ['cv', 'transcript', 'motivationLetter', 'idCard', 'diploma'];
-    const completed = required.filter((doc) => documents[doc]).length;
+    const completed = required.filter((doc) => documents[doc as keyof typeof documents]?.submitted).length;
     return Math.round((completed / required.length) * 100);
   };
 
@@ -687,7 +746,9 @@ const InscriptionsISTMR: React.FC = () => {
                             {inscription.scholarship && (
                               <div className="text-xs text-green-600">
                                 <Award className="inline w-3 h-3 mr-1" />
-                                {inscription.scholarship}
+                                {typeof inscription.scholarship === 'string' 
+                                  ? inscription.scholarship 
+                                  : inscription.scholarship.type}
                               </div>
                             )}
                           </div>
@@ -696,6 +757,8 @@ const InscriptionsISTMR: React.FC = () => {
                           <Button
                             variant="outline"
                             size="sm"
+                            aria-label="View inscription details"
+                            title="View inscription details"
                             onClick={() => {
                               setSelectedInscription(inscription);
                               setIsReviewDialogOpen(true);
@@ -767,6 +830,8 @@ const InscriptionsISTMR: React.FC = () => {
                             <Button
                               variant="outline"
                               size="sm"
+                              aria-label="View inscription details"
+                              title="View inscription details"
                               onClick={() => {
                                 setSelectedInscription(inscription);
                                 setIsReviewDialogOpen(true);
@@ -838,6 +903,8 @@ const InscriptionsISTMR: React.FC = () => {
                             <Button
                               variant="outline"
                               size="sm"
+                              aria-label="View inscription details"
+                              title="View inscription details"
                               onClick={() => {
                                 setSelectedInscription(inscription);
                                 setIsReviewDialogOpen(true);
@@ -909,6 +976,8 @@ const InscriptionsISTMR: React.FC = () => {
                             <Button
                               variant="outline"
                               size="sm"
+                              aria-label="View inscription details"
+                              title="View inscription details"
                               onClick={() => {
                                 setSelectedInscription(inscription);
                                 setIsReviewDialogOpen(true);
@@ -980,6 +1049,8 @@ const InscriptionsISTMR: React.FC = () => {
                             <Button
                               variant="outline"
                               size="sm"
+                              aria-label="View inscription details"
+                              title="View inscription details"
                               onClick={() => {
                                 setSelectedInscription(inscription);
                                 setIsReviewDialogOpen(true);
@@ -1062,18 +1133,23 @@ const InscriptionsISTMR: React.FC = () => {
               </TabsContent>
               <TabsContent value="documents">
                 <div className="space-y-4">
-                  {Object.entries(selectedInscription.documents).map(([doc, provided]) => (
+                  {Object.entries(selectedInscription.documents).map(([doc, docInfo]) => (
                     <div key={doc} className="flex items-center justify-between border-b pb-2">
                       <div className="flex items-center gap-2">
-                        {provided ? (
+                        {docInfo.submitted ? (
                           <CheckCircle className="w-4 h-4 text-green-500" />
                         ) : (
                           <XCircle className="w-4 h-4 text-red-500" />
                         )}
                         <span className="text-sm capitalize">{doc.replace(/([A-Z])/g, ' $1')}</span>
+                        {docInfo.verified && (
+                          <Badge variant="outline" className="text-green-600">
+                            Vérifié
+                          </Badge>
+                        )}
                       </div>
-                      {provided && (
-                        <Button variant="outline" size="sm" disabled>
+                      {docInfo.submitted && docInfo.url && (
+                        <Button variant="outline" size="sm">
                           <FileDown className="mr-2 h-4 w-4" />
                           Télécharger
                         </Button>
@@ -1092,7 +1168,11 @@ const InscriptionsISTMR: React.FC = () => {
                   </div>
                   {selectedInscription.scholarship && (
                     <div className="col-span-2">
-                      <strong>Bourse:</strong> {selectedInscription.scholarship}
+                      <strong>Bourse:</strong> {
+                        typeof selectedInscription.scholarship === 'string' 
+                          ? selectedInscription.scholarship 
+                          : `${selectedInscription.scholarship.type} - ${selectedInscription.scholarship.amount?.toLocaleString()} FCFA (${selectedInscription.scholarship.status})`
+                      }
                     </div>
                   )}
                 </div>

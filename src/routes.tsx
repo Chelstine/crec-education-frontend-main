@@ -352,6 +352,19 @@ const routes: RouteObject[] = [
           </ProtectedRoute>
         ),
       },
+
+      // Page notifications
+      {
+        path: 'notifications',
+        element: (
+          <ProtectedRoute adminRequired={true}>
+            <div className="p-6">
+              <h1 className="text-2xl font-bold mb-4">Toutes les notifications</h1>
+              <p className="text-gray-600">Page en développement - Toutes les notifications seront affichées ici</p>
+            </div>
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
 ];

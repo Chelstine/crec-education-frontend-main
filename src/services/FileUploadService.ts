@@ -39,10 +39,10 @@ export class FileUploadService {
 
     // Check file size
     const fileSizeInKB = file.size / 1024;
-    if (fileSizeInKB < rules.minSize) {
+    if (rules.minSize !== undefined && fileSizeInKB < rules.minSize) {
       errors.push(`Le fichier est trop petit. Taille minimale: ${rules.minSize} KB`);
     }
-    if (fileSizeInKB > rules.maxSize) {
+    if (rules.maxSize !== undefined && fileSizeInKB > rules.maxSize) {
       errors.push(`Le fichier est trop volumineux. Taille maximale: ${rules.maxSize} KB`);
     }
 
@@ -428,6 +428,201 @@ export class FileUploadService {
         img.src = e.target?.result as string;
       };
       reader.readAsDataURL(file);
+    });
+  }
+
+  // Méthodes spécifiques pour les médias FabLab
+  async uploadProjectImage(
+    file: File,
+    projectId: string,
+    onProgress?: (progress: UploadProgress) => void
+  ): Promise<UploadResult> {
+    // Validation spécifique pour les images de projet
+    const validation = this.validateProjectImage(file);
+    if (!validation.isValid) {
+      return {
+        success: false,
+        error: 'Fichier invalide',
+        validationErrors: validation.errors
+      };
+    }
+
+    const uploadId = `project-${projectId}-image-${Date.now()}`;
+    const abortController = new AbortController();
+    this.uploadQueue.set(uploadId, abortController);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'project-image');
+      formData.append('projectId', projectId);
+
+      const result = await this.simulateMediaUpload(file, formData, onProgress, abortController.signal);
+      
+      this.uploadQueue.delete(uploadId);
+      return result;
+
+    } catch (error) {
+      this.uploadQueue.delete(uploadId);
+      if (error instanceof Error) {
+        return {
+          success: false,
+          error: `Erreur lors de l'upload: ${error.message}`
+        };
+      }
+      return {
+        success: false,
+        error: 'Erreur inconnue lors de l\'upload'
+      };
+    }
+  }
+
+  async uploadProjectVideo(
+    file: File,
+    projectId: string,
+    onProgress?: (progress: UploadProgress) => void
+  ): Promise<UploadResult> {
+    // Validation spécifique pour les vidéos de projet
+    const validation = this.validateProjectVideo(file);
+    if (!validation.isValid) {
+      return {
+        success: false,
+        error: 'Fichier invalide',
+        validationErrors: validation.errors
+      };
+    }
+
+    const uploadId = `project-${projectId}-video-${Date.now()}`;
+    const abortController = new AbortController();
+    this.uploadQueue.set(uploadId, abortController);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'project-video');
+      formData.append('projectId', projectId);
+
+      const result = await this.simulateMediaUpload(file, formData, onProgress, abortController.signal);
+      
+      this.uploadQueue.delete(uploadId);
+      return result;
+
+    } catch (error) {
+      this.uploadQueue.delete(uploadId);
+      if (error instanceof Error) {
+        return {
+          success: false,
+          error: `Erreur lors de l'upload: ${error.message}`
+        };
+      }
+      return {
+        success: false,
+        error: 'Erreur inconnue lors de l\'upload'
+      };
+    }
+  }
+
+  private validateProjectImage(file: File): FileValidationResult {
+    const errors: string[] = [];
+    
+    // Vérification du type de fichier
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      errors.push('Format de fichier non supporté. Utilisez JPG, PNG ou WebP.');
+    }
+
+    // Vérification de la taille (5MB max)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      errors.push('Le fichier est trop volumineux. Taille maximum: 5MB.');
+    }
+
+    // Vérification du nom de fichier
+    if (file.name.length > 100) {
+      errors.push('Le nom du fichier est trop long (maximum 100 caractères).');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+
+  private validateProjectVideo(file: File): FileValidationResult {
+    const errors: string[] = [];
+    
+    // Vérification du type de fichier
+    const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime'];
+    if (!allowedTypes.includes(file.type)) {
+      errors.push('Format de fichier non supporté. Utilisez MP4, WebM ou MOV.');
+    }
+
+    // Vérification de la taille (50MB max)
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    if (file.size > maxSize) {
+      errors.push('Le fichier est trop volumineux. Taille maximum: 50MB.');
+    }
+
+    // Vérification du nom de fichier
+    if (file.name.length > 100) {
+      errors.push('Le nom du fichier est trop long (maximum 100 caractères).');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+
+  private async simulateMediaUpload(
+    file: File,
+    formData: FormData,
+    onProgress?: (progress: UploadProgress) => void,
+    signal?: AbortSignal
+  ): Promise<UploadResult> {
+    return new Promise((resolve, reject) => {
+      let loaded = 0;
+      const total = file.size;
+      const chunkSize = Math.max(1024, Math.floor(total / 100)); // Au moins 1KB par chunk
+
+      const interval = setInterval(() => {
+        if (signal?.aborted) {
+          clearInterval(interval);
+          reject(new Error('Upload annulé'));
+          return;
+        }
+
+        loaded = Math.min(loaded + chunkSize, total);
+        const percentage = Math.round((loaded / total) * 100);
+
+        if (onProgress) {
+          onProgress({ loaded, total, percentage });
+        }
+
+        if (loaded >= total) {
+          clearInterval(interval);
+          
+          // Simuler une réponse réussie avec URL de fichier
+          const timestamp = Date.now();
+          const extension = file.name.split('.').pop();
+          const type = formData.get('type') as string;
+          const projectId = formData.get('projectId') as string;
+          
+          let fileUrl: string;
+          if (type === 'project-image') {
+            fileUrl = `/img/projects/${projectId}-${timestamp}.${extension}`;
+          } else {
+            fileUrl = `/videos/projects/${projectId}-${timestamp}.${extension}`;
+          }
+
+          resolve({
+            success: true,
+            fileId: `${type}-${timestamp}`,
+            fileName: file.name,
+            fileUrl: fileUrl
+          });
+        }
+      }, 50); // Update progress every 50ms
     });
   }
 }

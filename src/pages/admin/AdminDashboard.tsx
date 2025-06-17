@@ -213,11 +213,11 @@ const AdminDashboard: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" aria-label="Download report" title="Download report">
             <Download className="mr-2 h-4 w-4" />
             Rapport
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" aria-label="Open settings" title="Open settings">
             <Settings className="h-4 w-4" />
           </Button>
         </div>
