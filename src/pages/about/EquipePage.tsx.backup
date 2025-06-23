@@ -1,73 +1,39 @@
 import React from 'react';
-/* ====== COMMENTAIRES PÉDAGOGIQUES ====== */
-/*
- * OBJECTIF D'APPRENTISSAGE :
- * Ce fichier illustre l'architecture React moderne avec TypeScript
- * 
- * CONCEPTS COUVERTS :
- * - Organisation et structure des imports React
- * - Typage TypeScript avec interfaces et types
- * - Hooks React (useState, useEffect, hooks personnalisés)
- * - Gestion d'état local et global
- * - Composition de composants et props
- * - Navigation avec React Router
- * - Patterns de développement modernes
- * 
- * STRUCTURE RECOMMANDÉE :
- * 1. Imports organisés par catégorie (React, Navigation, UI, etc.)
- * 2. Définition des types et interfaces TypeScript
- * 3. Composant principal avec logique métier
- * 4. Fonctions utilitaires et handlers d'événements
- * 5. Rendu JSX avec structure sémantique HTML
- */
-
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { MapPin, Users, Book, Heart, Leaf } from 'lucide-react';
+import { Users, Heart, Book, Globe, Leaf } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const CommunautesPage = () => {
-  const communautes = [
+const EquipePage = () => {
+  const equipe = [
     {
       id: 1,
-      name: 'Communauté du CREC',
-      location: 'Cotonou, Bénin',
-      description: 'Centre de recherche et de formation, le CREC forme des leaders chrétiens et soutient la recherche théologique en Afrique de l’Ouest.',
-      icon: Book,
-      image: '/img/communautes/crec.jpg'
+      name: 'Père Jean Dupont',
+      role: 'Provincial',
+      description: 'Dirige la Province jésuite d’Afrique de l’Ouest, supervisant 1 712 membres dans 12 pays, avec un accent sur l’éducation et la justice sociale.',
+      image: '/img/team/provincial.jpg'
     },
     {
       id: 2,
-      name: 'Communauté de Parakou',
-      location: 'Parakou, Bénin',
-      description: 'Engagée dans le service pastoral, l’accompagnement spirituel et des projets sociaux pour les communautés rurales.',
-      icon: Heart,
-      image: '/img/communautes/parakou.jpg'
+      name: 'Père Pierre Martin',
+      role: 'Vicaire Provincial',
+      description: 'Soutient le Provincial dans la coordination des missions et des communautés jésuites dans la région.',
+      image: '/img/team/vicaire.jpg'
     },
     {
       id: 3,
-      name: 'Communauté de Porto-Novo',
-      location: 'Porto-Novo, Bénin',
-      description: 'Centre dédié à la formation des jeunes et à l’animation de retraites ignatiennes pour les laïcs et les religieux.',
-      icon: Users,
-      image: '/img/communautes/porto-novo.jpg'
+      name: 'Père Marie Laurent',
+      role: 'Économe Provincial',
+      description: 'Gère les finances et les ressources pour soutenir les œuvres éducatives, sociales et spirituelles de la Province.',
+      image: '/img/team/econome.jpg'
     },
     {
       id: 4,
-      name: 'Communauté de Lomé',
-      location: 'Lomé, Togo',
-      description: 'Active dans le service pastoral, l’éducation et l’engagement social, notamment auprès des plus démunis dans la capitale togolaise.',
-      icon: MapPin,
-      image: '/img/communautes/lome.jpg'
-    },
-    {
-      id: 5,
-      name: 'Communauté d’Abidjan',
-      location: 'Abidjan, Côte d’Ivoire',
-      description: 'Siège de l’Institut de Théologie de la Compagnie de Jésus (ITCJ), formant prêtres et laïcs pour le ministère en Afrique.',
-      icon: Book,
-      image: '/img/communautes/abidjan.jpg'
+      name: 'Père Thomas Bernard',
+      role: 'Responsable de la Formation',
+      description: 'Supervise la formation des 583 novices et 2 587 scolastiques, préparant la prochaine génération de jésuites.',
+      image: '/img/team/formation.jpg'
     }
   ];
 
@@ -75,22 +41,22 @@ const CommunautesPage = () => {
     {
       icon: Book,
       title: 'Éducation',
-      description: 'Gestion d’écoles, collèges et centres de formation, comme le CREC et l’ITCJ, pour une éducation intégrale.'
+      description: 'Supervision d’écoles et d’universités comme l’Institut de Théologie de la Compagnie de Jésus à Abidjan, formant des leaders africains.'
     },
     {
       icon: Heart,
-      title: 'Accompagnement Spirituel',
-      description: 'Animation de retraites ignatiennes et guidance spirituelle pour des milliers de personnes chaque année.'
+      title: 'Justice Sociale',
+      description: 'Soutien aux marginalisés via des initiatives comme le Jesuit Refugee Service, actif dans les camps de réfugiés en Afrique de l’Ouest.'
     },
     {
       icon: Leaf,
-      title: 'Engagement Écologique',
-      description: 'Projets de sensibilisation et de reforestation, inspirés par Laudato Si’, pour protéger l’environnement.'
+      title: 'Écologie',
+      description: 'Promotion de l’écologie intégrale, inspirée par Laudato Si’, pour protéger l’environnement en Afrique.'
     },
     {
-      icon: Users,
-      title: 'Justice Sociale',
-      description: 'Soutien aux marginalisés via des initiatives comme le Jesuit Refugee Service et des programmes communautaires.'
+      icon: Globe,
+      title: 'Dialogue Interreligieux',
+      description: 'Encouragement du dialogue avec les communautés musulmanes et traditionnelles pour la paix et la réconciliation.'
     }
   ];
 
@@ -101,9 +67,9 @@ const CommunautesPage = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70" />
         <div className="min-h-[400px] flex flex-col items-center justify-center text-center relative text-white p-6 bg-a-propos">
           <div className="max-w-3xl mx-auto bg-black/50 p-8 rounded-lg backdrop-blur-sm">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Nos Communautés</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Le Provincial et son Équipe</h1>
             <p className="text-xl md:text-2xl mb-8">
-              Des lieux de vie fraternelle et de mission au cœur de l’Afrique de l’Ouest, au service de la foi et de la justice.
+              Dirigeant la Province jésuite d’Afrique de l’Ouest, une équipe dévouée guide la mission ignatienne dans 12 pays.
             </p>
           </div>
         </div>
@@ -118,7 +84,7 @@ const CommunautesPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
           >
-            Nos Maisons
+            Notre Équipe de Direction
           </motion.h2>
           <motion.div
             className="space-y-8"
@@ -127,9 +93,9 @@ const CommunautesPage = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             {[
-              `Les communautés jésuites de la Province d’Afrique de l’Ouest sont des foyers de vie fraternelle où les jésuites vivent, prient et servent ensemble. Présentes dans des pays comme le Bénin, le Togo et la Côte d’Ivoire, elles incarnent la spiritualité ignatienne dans des contextes variés.`,
-              `Chaque communauté a une mission unique, allant de l’éducation (CREC à Cotonou, ITCJ à Abidjan) à l’accompagnement spirituel et à l’engagement social. En 2022, ces communautés soutiennent des milliers de personnes à travers des retraites, des écoles et des projets sociaux.`,
-              `Guidées par la devise <em>Ad majorem Dei gloriam</em>, elles travaillent en réseau avec la Famille ignatienne pour répondre aux défis contemporains, comme l’éducation des jeunes, la justice sociale et la sauvegarde de la création.`
+              `La Province jésuite d’Afrique de l’Ouest, couvrant 12 pays (dont le Nigeria, le Ghana, et la Côte d’Ivoire), est dirigée par une équipe de leaders jésuites sous la conduite du Père Provincial. En 2022, la Province compte 1 712 membres, dont 583 novices et 2 587 scolastiques.`,
+              `Cette équipe coordonne des œuvres variées, de l’éducation (comme l’Institut de Théologie d’Abidjan) à l’accompagnement spirituel, en passant par des projets de justice sociale via le Jesuit Refugee Service (JRS), qui soutient les réfugiés dans des zones de conflit.`,
+              `Guidée par la spiritualité ignatienne et les préférences apostoliques (2019-2029), l’équipe promeut la foi, la justice, et l’écologie intégrale, tout en renforçant les liens avec l’Église locale et les communautés interreligieuses.`
             ].map((text, index) => (
               <p
                 key={index}
@@ -169,12 +135,12 @@ const CommunautesPage = () => {
         </div>
         <div className="bg-amber-50 py-8 text-center relative z-10">
           <p className="text-xl italic text-amber-800">
-            "Vivre en communauté, c’est prier et servir ensemble."
+            "Servir avec humilité pour la gloire de Dieu."
           </p>
         </div>
       </div>
 
-      {/* Communautés */}
+      {/* Équipe */}
       <section className="py-20 bg-jesuit-light">
         <div className="max-w-6xl mx-auto px-4">
           <motion.h2
@@ -184,26 +150,25 @@ const CommunautesPage = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            Nos Communautés
+            Les Membres de l’Équipe
           </motion.h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {communautes.map((communaute) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {equipe.map((membre) => (
               <Card
-                key={communaute.id}
+                key={membre.id}
                 className="hover:shadow-xl transition-shadow duration-300 rounded-xl bg-white"
               >
                 <CardContent className="p-4 flex flex-col items-center">
                   <div className="w-full h-64 bg-white flex items-center justify-center overflow-hidden rounded-lg mb-4 shadow-sm">
                     <img
-                      src={communaute.image}
-                      alt={communaute.name}
+                      src={membre.image}
+                      alt={membre.name}
                       className="max-h-full max-w-full object-contain"
                     />
                   </div>
-                  <h3 className="text-xl font-bold text-center mb-2">{communaute.name}</h3>
-                  <p className="text-jesuit-darkgray text-base leading-relaxed text-center">{communaute.location}</p>
-                  <p className="text-jesuit-darkgray text-base leading-relaxed text-justify">{communaute.description}</p>
-                  <communaute.icon className="w-8 h-8 text-jesuit-gold mt-4" />
+                  <h3 className="text-xl font-bold text-center mb-2">{membre.name}</h3>
+                  <p className="text-jesuit-darkgray text-base leading-relaxed text-center">{membre.role}</p>
+                  <p className="text-jesuit-darkgray text-base leading-relaxed text-justify">{membre.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -239,7 +204,7 @@ const CommunautesPage = () => {
         </div>
       </section>
 
-      {/* Impact Local */}
+      {/* Impact Régional */}
       <section className="py-20 bg-jesuit-light">
         <div className="max-w-4xl mx-auto px-4">
           <motion.h2
@@ -249,7 +214,7 @@ const CommunautesPage = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            Impact Local
+            Impact en Afrique de l’Ouest
           </motion.h2>
           <motion.div
             className="space-y-8 text-jesuit-darkgray text-justify"
@@ -259,13 +224,13 @@ const CommunautesPage = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <p className="bg-white/80 rounded-xl shadow-md p-6 hover:shadow-lg transition duration-300 backdrop-blur-sm">
-              La communauté du CREC à Cotonou forme des centaines de leaders chrétiens chaque année, soutenant la recherche théologique et l’éducation des jeunes dans un contexte multiculturel.
+              La Province gère des institutions éducatives, comme l’Institut de Théologie de la Compagnie de Jésus (ITCJ) à Abidjan, qui forme des prêtres et laïcs pour le ministère et le leadership en Afrique.
             </p>
             <p className="bg-white/80 rounded-xl shadow-md p-6 hover:shadow-lg transition duration-300 backdrop-blur-sm">
-              À Parakou, les jésuites travaillent avec les communautés rurales pour promouvoir l’agriculture durable et l’accès à l’éducation, en lien avec les initiatives écologiques de la Province.
+              À travers le Jesuit Refugee Service, la Province soutient les réfugiés et déplacés dans des pays comme le Nigeria et le Ghana, offrant éducation, aide alimentaire et accompagnement psychologique.
             </p>
             <p className="bg-white/80 rounded-xl shadow-md p-6 hover:shadow-lg transition duration-300 backdrop-blur-sm">
-              À Abidjan, l’ITCJ forme des prêtres et laïcs pour le ministère, renforçant l’Église locale à travers des programmes de discernement ignatien et de dialogue interreligieux.
+              Les initiatives écologiques, inspirées par <em>Laudato Si’</em>, incluent des projets de reforestation et de sensibilisation environnementale, notamment dans les zones rurales du Sénégal et du Togo.
             </p>
           </motion.div>
         </div>
@@ -274,9 +239,9 @@ const CommunautesPage = () => {
       {/* CTA */}
       <section className="bg-gray-50 py-12 text-center">
         <div className="max-w-3xl mx-auto text-center px-4">
-          <h2 className="text-2xl font-bold mb-4">Rejoignez Nos Communautés</h2>
+          <h2 className="text-2xl font-bold mb-4">Contactez Notre Équipe</h2>
           <p className="text-gray-700 mb-6">
-            Découvrez la vie communautaire jésuite et participez à notre mission en Afrique de l’Ouest.
+            Notre équipe provinciale est à votre disposition pour répondre à vos questions et vous accompagner dans la mission ignatienne.
           </p>
           <div className="flex flex-col md:flex-row gap-4 justify-center">
             <Button
@@ -289,7 +254,7 @@ const CommunautesPage = () => {
               className="bg-white border-2 border-[#FCA311] text-[#FCA311] hover:bg-[#FCA311] hover:text-white rounded-full px-6 py-2 transition shadow-md"
               asChild
             >
-              <Link to="/about/jesuites">En savoir plus sur les Jésuites</Link>
+              <Link to="/about/communautes">Découvrir nos communautés</Link>
             </Button>
           </div>
         </div>
@@ -298,4 +263,4 @@ const CommunautesPage = () => {
   );
 };
 
-export default CommunautesPage;
+export default EquipePage;

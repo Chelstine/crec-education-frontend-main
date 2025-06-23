@@ -87,3 +87,22 @@
 .admin-logout:hover {
   animation: pulse-red 2s infinite;
 }
+
+/* Ajout d'une classe CSS pour la barre de progression dynamique */
+.progress-bar {
+  height: 0.5rem; /* h-2 */
+  border-radius: 9999px; /* rounded-full */
+  transition: width 0.3s ease;
+}
+
+.progress-bar.green {
+  background-color: #22c55e; /* bg-green-500 */
+}
+
+.progress-bar.yellow {
+  background-color: #eab308; /* bg-yellow-500 */
+}
+
+.progress-bar.red {
+  background-color: #ef4444; /* bg-red-500 */
+}

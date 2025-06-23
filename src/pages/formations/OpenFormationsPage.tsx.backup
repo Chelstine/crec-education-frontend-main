@@ -1,26 +1,4 @@
 import { Button } from "@/components/ui/button";
-/* ====== COMMENTAIRES PÉDAGOGIQUES ====== */
-/*
- * OBJECTIF D'APPRENTISSAGE :
- * Ce fichier illustre l'architecture React moderne avec TypeScript
- * 
- * CONCEPTS COUVERTS :
- * - Organisation et structure des imports React
- * - Typage TypeScript avec interfaces et types
- * - Hooks React (useState, useEffect, hooks personnalisés)
- * - Gestion d'état local et global
- * - Composition de composants et props
- * - Navigation avec React Router
- * - Patterns de développement modernes
- * 
- * STRUCTURE RECOMMANDÉE :
- * 1. Imports organisés par catégorie (React, Navigation, UI, etc.)
- * 2. Définition des types et interfaces TypeScript
- * 3. Composant principal avec logique métier
- * 4. Fonctions utilitaires et handlers d'événements
- * 5. Rendu JSX avec structure sémantique HTML
- */
-
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

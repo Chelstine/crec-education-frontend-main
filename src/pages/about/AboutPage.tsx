@@ -1,8 +1,33 @@
-import React, { useState } from 'react';
+/* ====== IMPORTS REACT ET HOOKS ====== */
+import React, { useState } from 'react'; 
+// - React : bibliothèque principale pour créer des composants
+// - useState : hook pour gérer l'état local (ex: onglet actif, contenu affiché)
+
+/* ====== IMPORTS COMPOSANTS UI ====== */
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Users, Book, Heart, Globe, Target, Lightbulb, Star, UserCheck, MapPin, Calendar, Mail, Phone } from 'lucide-react';
+// Composants Card pour structurer le contenu en cartes visuelles
+
+/* ====== IMPORTS NAVIGATION ====== */
+import { Link } from 'react-router-dom'; // Composant Link pour la navigation interne
+
+/* ====== IMPORTS COMPOSANTS UI ====== */
+import { Button } from '@/components/ui/button'; // Composant Button stylisé réutilisable
+
+/* ====== IMPORTS ICÔNES ====== */
+import { 
+  Users,     // Icône groupe pour l'équipe
+  Book,      // Icône livre pour l'éducation
+  Heart,     // Icône cœur pour la solidarité
+  Globe,     // Icône globe pour l'international
+  Target,    // Icône cible pour les objectifs
+  Lightbulb, // Icône ampoule pour l'innovation
+  Star,      // Icône étoile pour l'excellence
+  UserCheck, // Icône utilisateur validé pour le soin personnalisé
+  MapPin,    // Icône marqueur pour la localisation
+  Calendar,  // Icône calendrier pour les dates
+  Mail,      // Icône email pour les contacts
+  Phone      // Icône téléphone pour les contacts
+} from 'lucide-react';
 
 const AboutPage = () => {
   const valeurs = [

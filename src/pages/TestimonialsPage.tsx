@@ -1,9 +1,25 @@
-import React, { useState, useEffect } from 'react';
+/* ====== IMPORTS REACT ET HOOKS ====== */
+import React, { useState, useEffect } from 'react'; 
+// - React : bibliothèque principale pour créer des composants
+// - useState : hook pour gérer l'état local du composant
+// - useEffect : hook pour les effets de bord (chargement de données, etc.)
+
+/* ====== IMPORTS COMPOSANTS UI ====== */
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+// Composants Card pour créer des cartes d'affichage élégantes
+
 import { Button } from '@/components/ui/button';
+// Composant Button stylisé réutilisable
+
 import { Input } from '@/components/ui/input';
+// Composant Input pour les champs de saisie text
+
 import { Textarea } from '@/components/ui/textarea';
+// Composant Textarea pour les zones de texte multilignes
+
 import { Badge } from '@/components/ui/badge';
+// Composant Badge pour afficher des étiquettes colorées
+
 import { 
   Dialog, 
   DialogContent, 
@@ -11,7 +27,11 @@ import {
   DialogTitle, 
   DialogTrigger 
 } from '@/components/ui/dialog';
+// Composants Dialog pour créer des modales/popups interactives
+
 import { Label } from '@/components/ui/label';
+// Composant Label pour les étiquettes de formulaire
+
 import { 
   Select, 
   SelectContent, 
@@ -19,16 +39,22 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
+// Composants Select pour créer des listes déroulantes
+
+/* ====== IMPORTS ICÔNES ====== */
 import { 
-  Star, 
-  Quote, 
-  User, 
-  GraduationCap, 
-  Briefcase,
-  Plus,
-  Calendar
+  Star,      // Icône étoile pour les notes
+  Quote,     // Icône guillemets pour les témoignages
+  User,      // Icône utilisateur
+  GraduationCap,  // Icône chapeau de diplômé
+  Briefcase, // Icône mallette pour le travail
+  Plus,      // Icône plus pour ajouter
+  Calendar   // Icône calendrier pour les dates
 } from 'lucide-react';
+
+/* ====== IMPORTS TYPES ====== */
 import { Testimonial } from '@/types';
+// Type TypeScript définissant la structure d'un témoignage
 
 const TestimonialsPage: React.FC = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -161,7 +187,7 @@ const TestimonialsPage: React.FC = () => {
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700" aria-label="Partager mon témoignage">
                 <Plus className="w-5 h-5 mr-2" />
                 Partager mon témoignage
               </Button>
@@ -267,6 +293,7 @@ const TestimonialsPage: React.FC = () => {
                       <button
                         key={i}
                         type="button"
+                        aria-label={`Donner une note de ${i+1} sur 5`}
                         onClick={() => setNewTestimonial(prev => ({
                           ...prev,
                           rating: i + 1
@@ -284,10 +311,10 @@ const TestimonialsPage: React.FC = () => {
                 </div>
 
                 <div className="flex justify-end gap-2 pt-4">
-                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)} aria-label="Annuler">
                     Annuler
                   </Button>
-                  <Button onClick={handleSubmitTestimonial}>
+                  <Button onClick={handleSubmitTestimonial} aria-label="Soumettre le témoignage">
                     Soumettre le témoignage
                   </Button>
                 </div>
@@ -368,6 +395,7 @@ const TestimonialsPage: React.FC = () => {
             <Button 
               size="lg" 
               className="bg-white text-blue-600 hover:bg-gray-100"
+              aria-label="Découvrir nos Formations"
             >
               Découvrir nos Formations
             </Button>
@@ -375,6 +403,7 @@ const TestimonialsPage: React.FC = () => {
               size="lg" 
               variant="outline" 
               className="border-white text-white hover:bg-white hover:text-blue-600"
+              aria-label="Prendre Rendez-vous"
             >
               Prendre Rendez-vous
             </Button>

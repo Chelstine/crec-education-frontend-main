@@ -1,73 +1,42 @@
 import React from 'react';
-/* ====== COMMENTAIRES PÉDAGOGIQUES ====== */
-/*
- * OBJECTIF D'APPRENTISSAGE :
- * Ce fichier illustre l'architecture React moderne avec TypeScript
- * 
- * CONCEPTS COUVERTS :
- * - Organisation et structure des imports React
- * - Typage TypeScript avec interfaces et types
- * - Hooks React (useState, useEffect, hooks personnalisés)
- * - Gestion d'état local et global
- * - Composition de composants et props
- * - Navigation avec React Router
- * - Patterns de développement modernes
- * 
- * STRUCTURE RECOMMANDÉE :
- * 1. Imports organisés par catégorie (React, Navigation, UI, etc.)
- * 2. Définition des types et interfaces TypeScript
- * 3. Composant principal avec logique métier
- * 4. Fonctions utilitaires et handlers d'événements
- * 5. Rendu JSX avec structure sémantique HTML
- */
-
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { MapPin, Users, Book, Heart, Leaf } from 'lucide-react';
+import { Users, Heart, Book, Globe, Leaf, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { X as Cross } from 'lucide-react'
 
-const CommunautesPage = () => {
-  const communautes = [
+const FamilleIgnatiennePage = () => {
+  const membres = [
     {
       id: 1,
-      name: 'Communauté du CREC',
-      location: 'Cotonou, Bénin',
-      description: 'Centre de recherche et de formation, le CREC forme des leaders chrétiens et soutient la recherche théologique en Afrique de l’Ouest.',
-      icon: Book,
-      image: '/img/communautes/crec.jpg'
+      title: 'Compagnie de Jésus',
+      description: 'Fondée par saint Ignace de Loyola en 1540, les Jésuites forment le noyau de la Famille ignatienne, avec 14 439 membres en 2022, œuvrant dans l’éducation, les missions et la justice sociale.',
+      icon: Users
     },
     {
       id: 2,
-      name: 'Communauté de Parakou',
-      location: 'Parakou, Bénin',
-      description: 'Engagée dans le service pastoral, l’accompagnement spirituel et des projets sociaux pour les communautés rurales.',
-      icon: Heart,
-      image: '/img/communautes/parakou.jpg'
+      title: 'Sœurs de la Sainte Famille de Nazareth',
+      description: 'Fondées en 1875 par Frances Siedliska, elles adoptent la spiritualité ignatienne pour leurs missions éducatives et caritatives dans 14 pays.',
+      icon: Heart
     },
     {
       id: 3,
-      name: 'Communauté de Porto-Novo',
-      location: 'Porto-Novo, Bénin',
-      description: 'Centre dédié à la formation des jeunes et à l’animation de retraites ignatiennes pour les laïcs et les religieux.',
-      icon: Users,
-      image: '/img/communautes/porto-novo.jpg'
+      title: 'Communauté de Vie Chrétienne (CVX)',
+      description: 'Mouvement laïc mondial présent dans 59 pays, la CVX vit les Exercices Spirituels pour guider les laïcs dans leur vie quotidienne.',
+      icon: Book
     },
     {
       id: 4,
-      name: 'Communauté de Lomé',
-      location: 'Lomé, Togo',
-      description: 'Active dans le service pastoral, l’éducation et l’engagement social, notamment auprès des plus démunis dans la capitale togolaise.',
-      icon: MapPin,
-      image: '/img/communautes/lome.jpg'
+      title: 'Réseau Ignatien',
+      description: 'Réseau mondial d’institutions (universités, écoles, centres sociaux) comme Fe y Alegría, qui éduque les défavorisés dans 22 pays.',
+      icon: Globe
     },
     {
       id: 5,
-      name: 'Communauté d’Abidjan',
-      location: 'Abidjan, Côte d’Ivoire',
-      description: 'Siège de l’Institut de Théologie de la Compagnie de Jésus (ITCJ), formant prêtres et laïcs pour le ministère en Afrique.',
-      icon: Book,
-      image: '/img/communautes/abidjan.jpg'
+      title: 'Mouvement Eucharistique des Jeunes (MEJ)',
+      description: 'Mouvement pour les jeunes dans 80 pays, inspiré par la spiritualité ignatienne pour former des leaders chrétiens.',
+      icon: Star
     }
   ];
 
@@ -75,22 +44,22 @@ const CommunautesPage = () => {
     {
       icon: Book,
       title: 'Éducation',
-      description: 'Gestion d’écoles, collèges et centres de formation, comme le CREC et l’ITCJ, pour une éducation intégrale.'
+      description: 'Formation intégrale via des institutions comme les universités jésuites (Georgetown, Saint-Joseph) et Fe y Alegría, touchant des millions d’élèves.'
     },
     {
       icon: Heart,
-      title: 'Accompagnement Spirituel',
-      description: 'Animation de retraites ignatiennes et guidance spirituelle pour des milliers de personnes chaque année.'
+      title: 'Justice Sociale',
+      description: 'Engagement auprès des marginalisés, inspiré par Laudato Si’ et les préférences apostoliques jésuites (2019-2029).'
     },
     {
       icon: Leaf,
-      title: 'Engagement Écologique',
-      description: 'Projets de sensibilisation et de reforestation, inspirés par Laudato Si’, pour protéger l’environnement.'
+      title: 'Écologie',
+      description: 'Promotion de l’écologie intégrale pour protéger la "Maison commune" à travers des initiatives mondiales.'
     },
     {
-      icon: Users,
-      title: 'Justice Sociale',
-      description: 'Soutien aux marginalisés via des initiatives comme le Jesuit Refugee Service et des programmes communautaires.'
+      icon: Cross,
+      title: 'Accompagnement Spirituel',
+      description: 'Guidance des personnes via les Exercices Spirituels et le discernement ignatien pour une vie alignée sur la foi.'
     }
   ];
 
@@ -101,9 +70,9 @@ const CommunautesPage = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70" />
         <div className="min-h-[400px] flex flex-col items-center justify-center text-center relative text-white p-6 bg-a-propos">
           <div className="max-w-3xl mx-auto bg-black/50 p-8 rounded-lg backdrop-blur-sm">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Nos Communautés</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">La Famille Ignatienne</h1>
             <p className="text-xl md:text-2xl mb-8">
-              Des lieux de vie fraternelle et de mission au cœur de l’Afrique de l’Ouest, au service de la foi et de la justice.
+              Un réseau mondial uni par la spiritualité ignatienne, au service de la foi, de la justice et de la création.
             </p>
           </div>
         </div>
@@ -118,7 +87,7 @@ const CommunautesPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
           >
-            Nos Maisons
+            Une Grande Famille
           </motion.h2>
           <motion.div
             className="space-y-8"
@@ -127,9 +96,9 @@ const CommunautesPage = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             {[
-              `Les communautés jésuites de la Province d’Afrique de l’Ouest sont des foyers de vie fraternelle où les jésuites vivent, prient et servent ensemble. Présentes dans des pays comme le Bénin, le Togo et la Côte d’Ivoire, elles incarnent la spiritualité ignatienne dans des contextes variés.`,
-              `Chaque communauté a une mission unique, allant de l’éducation (CREC à Cotonou, ITCJ à Abidjan) à l’accompagnement spirituel et à l’engagement social. En 2022, ces communautés soutiennent des milliers de personnes à travers des retraites, des écoles et des projets sociaux.`,
-              `Guidées par la devise <em>Ad majorem Dei gloriam</em>, elles travaillent en réseau avec la Famille ignatienne pour répondre aux défis contemporains, comme l’éducation des jeunes, la justice sociale et la sauvegarde de la création.`
+              `La Famille ignatienne regroupe des congrégations religieuses, des mouvements laïcs et des institutions partageant la spiritualité de saint Ignace de Loyola. Fondée sur les <em>Exercices Spirituels</em>, elle incarne une vision de foi active et de service universel.`,
+              `Depuis la création de la Compagnie de Jésus en 1540, cette famille s’est élargie pour inclure des organisations comme la Communauté de Vie Chrétienne (CVX), présente dans 59 pays, et le Réseau Ignatien, qui touche des millions de personnes via l’éducation et la justice sociale.`,
+              `Guidée par la devise <em>Ad majorem Dei gloriam</em>, la Famille ignatienne travaille en réseau pour répondre aux défis contemporains, de l’écologie intégrale à l’accompagnement des jeunes et des marginalisés.`
             ].map((text, index) => (
               <p
                 key={index}
@@ -150,7 +119,7 @@ const CommunautesPage = () => {
               asChild
             >
               <a href="https://www.jesuits.global" target="_blank" rel="noopener noreferrer">
-                En savoir plus sur la Compagnie de Jésus
+                En savoir plus sur la spiritualité ignatienne
               </a>
             </Button>
           </motion.div>
@@ -169,12 +138,12 @@ const CommunautesPage = () => {
         </div>
         <div className="bg-amber-50 py-8 text-center relative z-10">
           <p className="text-xl italic text-amber-800">
-            "Vivre en communauté, c’est prier et servir ensemble."
+            "En tout, aimer et servir."
           </p>
         </div>
       </div>
 
-      {/* Communautés */}
+      {/* Membres */}
       <section className="py-20 bg-jesuit-light">
         <div className="max-w-6xl mx-auto px-4">
           <motion.h2
@@ -184,26 +153,20 @@ const CommunautesPage = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            Nos Communautés
+            Les Membres de la Famille
           </motion.h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {communautes.map((communaute) => (
+            {membres.map((membre) => (
               <Card
-                key={communaute.id}
+                key={membre.id}
                 className="hover:shadow-xl transition-shadow duration-300 rounded-xl bg-white"
               >
-                <CardContent className="p-4 flex flex-col items-center">
-                  <div className="w-full h-64 bg-white flex items-center justify-center overflow-hidden rounded-lg mb-4 shadow-sm">
-                    <img
-                      src={communaute.image}
-                      alt={communaute.name}
-                      className="max-h-full max-w-full object-contain"
-                    />
+                <CardContent className="p-4 flex items-start">
+                  <membre.icon className="w-12 h-12 text-jesuit-gold mr-4" />
+                  <div>
+                    <h3 className="text-xl font-bold mb-2">{membre.title}</h3>
+                    <p className="text-jesuit-darkgray text-base leading-relaxed">{membre.description}</p>
                   </div>
-                  <h3 className="text-xl font-bold text-center mb-2">{communaute.name}</h3>
-                  <p className="text-jesuit-darkgray text-base leading-relaxed text-center">{communaute.location}</p>
-                  <p className="text-jesuit-darkgray text-base leading-relaxed text-justify">{communaute.description}</p>
-                  <communaute.icon className="w-8 h-8 text-jesuit-gold mt-4" />
                 </CardContent>
               </Card>
             ))}
@@ -211,7 +174,7 @@ const CommunautesPage = () => {
         </div>
       </section>
 
-      {/* Missions */}
+      {/* Missions Communes */}
       <section className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <motion.h2
@@ -221,7 +184,7 @@ const CommunautesPage = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            Nos Missions
+            Missions Communes
           </motion.h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {missions.map((mission, i) => (
@@ -239,7 +202,7 @@ const CommunautesPage = () => {
         </div>
       </section>
 
-      {/* Impact Local */}
+      {/* Collaboration */}
       <section className="py-20 bg-jesuit-light">
         <div className="max-w-4xl mx-auto px-4">
           <motion.h2
@@ -249,7 +212,7 @@ const CommunautesPage = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            Impact Local
+            Travailler Ensemble
           </motion.h2>
           <motion.div
             className="space-y-8 text-jesuit-darkgray text-justify"
@@ -259,13 +222,13 @@ const CommunautesPage = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <p className="bg-white/80 rounded-xl shadow-md p-6 hover:shadow-lg transition duration-300 backdrop-blur-sm">
-              La communauté du CREC à Cotonou forme des centaines de leaders chrétiens chaque année, soutenant la recherche théologique et l’éducation des jeunes dans un contexte multiculturel.
+              La Famille ignatienne excelle dans la collaboration mondiale, unissant ses membres pour maximiser leur impact. Par exemple, le Jesuit Refugee Service (JRS) travaille avec la CVX pour soutenir les réfugiés dans plus de 50 pays, offrant éducation et aide humanitaire.
             </p>
             <p className="bg-white/80 rounded-xl shadow-md p-6 hover:shadow-lg transition duration-300 backdrop-blur-sm">
-              À Parakou, les jésuites travaillent avec les communautés rurales pour promouvoir l’agriculture durable et l’accès à l’éducation, en lien avec les initiatives écologiques de la Province.
+              Les institutions éducatives, comme les 800 écoles et 70 universités du Réseau Ignatien, partagent ressources et bonnes pratiques pour former des leaders engagés. Les retraites ignatiennes, animées par des centres spirituels, attirent 26 000 participants annuels en Europe francophone.
             </p>
             <p className="bg-white/80 rounded-xl shadow-md p-6 hover:shadow-lg transition duration-300 backdrop-blur-sm">
-              À Abidjan, l’ITCJ forme des prêtres et laïcs pour le ministère, renforçant l’Église locale à travers des programmes de discernement ignatien et de dialogue interreligieux.
+              Cette collaboration se traduit par des projets communs, comme les initiatives écologiques inspirées par <em>Laudato Si’</em>, et par un dialogue interreligieux pour promouvoir la paix et la réconciliation.
             </p>
           </motion.div>
         </div>
@@ -274,22 +237,24 @@ const CommunautesPage = () => {
       {/* CTA */}
       <section className="bg-gray-50 py-12 text-center">
         <div className="max-w-3xl mx-auto text-center px-4">
-          <h2 className="text-2xl font-bold mb-4">Rejoignez Nos Communautés</h2>
+          <h2 className="text-2xl font-bold mb-4">Rejoignez la Famille Ignatienne</h2>
           <p className="text-gray-700 mb-6">
-            Découvrez la vie communautaire jésuite et participez à notre mission en Afrique de l’Ouest.
+            Participez à une mission mondiale pour la foi, la justice et la sauvegarde de la création.
           </p>
           <div className="flex flex-col md:flex-row gap-4 justify-center">
             <Button
               className="bg-[#FCA311] hover:bg-[#fcb930] text-white rounded-full px-6 py-2 shadow-md"
               asChild
             >
-              <Link to="/contact">Nous contacter</Link>
+              <a href="https://www.jesuits.global" target="_blank" rel="noopener noreferrer">
+                Découvrir la spiritualité ignatienne
+              </a>
             </Button>
             <Button
               className="bg-white border-2 border-[#FCA311] text-[#FCA311] hover:bg-[#FCA311] hover:text-white rounded-full px-6 py-2 transition shadow-md"
               asChild
             >
-              <Link to="/about/jesuites">En savoir plus sur les Jésuites</Link>
+              <Link to="/contact">Nous contacter</Link>
             </Button>
           </div>
         </div>
@@ -298,4 +263,4 @@ const CommunautesPage = () => {
   );
 };
 
-export default CommunautesPage;
+export default FamilleIgnatiennePage;

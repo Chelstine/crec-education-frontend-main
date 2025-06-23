@@ -1,9 +1,19 @@
-import React from 'react';
-import PageWrapper from '@/components/common/PageWrapper';
-import SectionTitle from '@/components/common/SectionTitle';
-import { Calendar } from '@/components/ui/calendar';
+/* ====== IMPORTS REACT ET HOOKS ====== */
+import React from 'react'; // Import de React pour créer des composants JSX
 
+/* ====== IMPORTS COMPOSANTS COMMUNS ====== */
+import PageWrapper from '@/components/common/PageWrapper'; // Wrapper de page avec layout standardisé
+import SectionTitle from '@/components/common/SectionTitle'; // Composant pour les titres de section
+
+/* ====== IMPORTS COMPOSANTS UI ====== */
+import { Calendar } from '@/components/ui/calendar'; // Composant calendrier interactif
+
+/* ====== COMPOSANT PRINCIPAL ====== */
+// Composant fonctionnel pour la page calendrier des événements
+// Affiche un calendrier interactif avec les événements du CREC
 const CalendarPage = () => {
+  // État local pour gérer la date sélectionnée dans le calendrier
+  // useState avec type Date | undefined pour permettre aucune sélection
   const [date, setDate] = React.useState<Date | undefined>(new Date());
 
   return (

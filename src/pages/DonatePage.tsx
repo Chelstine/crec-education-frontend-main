@@ -1,10 +1,24 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/common/Card';
-import { Link } from 'react-router-dom';
+/* ====== IMPORTS REACT ET HOOKS ====== */
+import React from 'react'; // Import de React pour créer des composants JSX
+
+/* ====== IMPORTS COMPOSANTS UI ====== */
+import { Button } from '@/components/ui/button'; // Composant Button stylisé réutilisable
+import { Card } from '@/components/common/Card'; // Composant Card personnalisé du projet
+
+/* ====== IMPORTS NAVIGATION ====== */
+import { Link } from 'react-router-dom'; // Composant Link pour la navigation interne
+
+/* ====== IMPORTS ICÔNES ====== */
 import { Heart, Users, GraduationCap, Leaf, Building2 } from 'lucide-react';
-import Banner from '@/components/common/Banner';
-import SectionTitle from '@/components/common/SectionTitle';
+// - Heart : icône cœur pour les dons
+// - Users : icône groupe d'utilisateurs  
+// - GraduationCap : icône chapeau de diplômé pour l'éducation
+// - Leaf : icône feuille pour l'écologie/développement durable
+// - Building2 : icône bâtiment pour l'institution
+
+/* ====== IMPORTS COMPOSANTS COMMUNS ====== */
+import Banner from '@/components/common/Banner'; // Composant Banner pour les en-têtes de page
+import SectionTitle from '@/components/common/SectionTitle'; // Composant pour les titres de section
 
 const DonatePage = () => {
   const donationOptions = [

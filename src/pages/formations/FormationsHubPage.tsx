@@ -1,10 +1,29 @@
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "framer-motion";
-import { Calendar, FileText, Users, GraduationCap, BookOpen, Code, ArrowRight } from "lucide-react";
+/* ====== IMPORTS COMPOSANTS UI ====== */
+import { Button } from "@/components/ui/button"; // Composant Button stylisé réutilisable
+import { Card, CardContent } from "@/components/ui/card"; // Composants Card pour les cartes d'affichage
 
+/* ====== IMPORTS NAVIGATION ====== */
+import { Link } from "react-router-dom"; // Composant Link pour la navigation interne
+
+/* ====== IMPORTS ANIMATIONS ====== */
+import { motion } from "framer-motion"; // Bibliothèque d'animations pour React
+
+/* ====== IMPORTS ICÔNES ====== */
+import { 
+  Calendar,      // Icône calendrier
+  FileText,      // Icône document/fichier texte
+  Users,         // Icône groupe d'utilisateurs
+  GraduationCap, // Icône chapeau de diplômé pour formations universitaires
+  BookOpen,      // Icône livre ouvert pour formations ouvertes
+  Code,          // Icône code pour FabLab/programmation
+  ArrowRight     // Icône flèche droite pour navigation
+} from "lucide-react";
+
+/* ====== COMPOSANT PRINCIPAL ====== */
+// Composant fonctionnel pour la page hub des formations
+// Cette page présente les trois types de formations disponibles au CREC
 const FormationsHubPage = () => {
+  // Données statiques des formations (en production, cela viendrait d'une API)
   const formations = [
     {
       id: 1,

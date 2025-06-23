@@ -1,30 +1,60 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Book, Users, Heart, Globe, Leaf, Star, Target, Cross, MapPin, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+/* ====== IMPORTS REACT ET HOOKS ====== */
+import React, { useState } from 'react'; // React avec hook useState pour gérer l'état local
 
-// Define interface for openSections state
+/* ====== IMPORTS NAVIGATION ====== */
+import { Link } from 'react-router-dom'; // Composant Link pour la navigation interne
+
+/* ====== IMPORTS COMPOSANTS UI ====== */
+import { Button } from '@/components/ui/button'; // Composant Button stylisé réutilisable
+import { Card, CardContent } from '@/components/ui/card'; // Composants Card pour structurer le contenu
+
+/* ====== IMPORTS ICÔNES ====== */
+import { 
+  Book,        // Icône livre pour l'éducation/publication
+  Users,       // Icône groupe pour la communauté
+  Heart,       // Icône cœur pour l'amour/charité
+  Globe,       // Icône globe pour le rayonnement mondial
+  Leaf,        // Icône feuille pour l'écologie
+  Star,        // Icône étoile pour l'excellence
+  Target,      // Icône cible pour les objectifs
+  Cross,       // Icône croix pour la spiritualité
+  MapPin,      // Icône marqueur pour la localisation
+  Calendar,    // Icône calendrier pour les dates
+  ChevronDown, // Icône chevron bas pour déplier
+  ChevronUp    // Icône chevron haut pour replier
+} from 'lucide-react';
+
+/* ====== IMPORTS ANIMATIONS ====== */
+import { motion, AnimatePresence } from 'framer-motion'; // Bibliothèque d'animations
+
+/* ====== DÉFINITION DES TYPES TYPESCRIPT ====== */
+// Interface pour typer l'état des sections dépliables/repliables
+// Définit quelles sections sont ouvertes ou fermées dans l'interface
 interface SectionsState {
-  stats: boolean;
-  publications: boolean;
-  controversies: boolean;
+  stats: boolean;        // Section des statistiques
+  publications: boolean; // Section des publications
+  controversies: boolean; // Section des controverses historiques
 }
 
+/* ====== COMPOSANT PRINCIPAL ====== */
+// Composant fonctionnel pour la page sur les Jésuites
+// Présente l'histoire, les figures importantes et l'héritage de la Compagnie de Jésus
 const JesuitsPage = () => {
-  // Initialize state with typed default values
+  // État local pour gérer l'ouverture/fermeture des sections extensibles
+  // Utilisé pour créer un effet accordion sur certaines parties du contenu
   const [openSections, setOpenSections] = useState<SectionsState>({
-    stats: false,
-    publications: false,
-    controversies: false,
+    stats: false,        // Statistiques fermées par défaut
+    publications: false, // Publications fermées par défaut
+    controversies: false, // Controverses fermées par défaut
   });
 
+  // Fonction pour basculer l'état d'ouverture d'une section
+  // Utilise le type keyof pour s'assurer que seules les clés valides sont acceptées
   const toggleSection = (section: keyof SectionsState) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
-  // Data for sections
+  // Données des figures importantes des Jésuites (fondateurs et saints)
   const figures = [
     { title: 'Saint Ignace de Loyola', desc: 'Fondateur de la Compagnie en 1540, ancien soldat basque, maître des Exercices spirituels (1491-1556).', image: '/img/saint-ignac.jpeg' },
     { title: 'Saint François Xavier', desc: 'Missionnaire en Asie (Inde, Japon, Chine), patron des missions (1506-1552).', image: '/img/francois-xavier.jpeg' },
