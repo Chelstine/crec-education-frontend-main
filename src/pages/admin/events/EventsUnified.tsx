@@ -533,15 +533,15 @@ const EventsUnified: React.FC = () => {
                             {event.registered}/{event.capacity}
                           </p>
                           <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className={`h-2 rounded-full ${
+                            <div
+                              className={`progress-bar ${
                                 event.registered / event.capacity > 0.8 
-                                  ? 'bg-red-500' 
+                                  ? 'red' 
                                   : event.registered / event.capacity > 0.6 
-                                  ? 'bg-yellow-500' 
-                                  : 'bg-green-500'
+                                  ? 'yellow' 
+                                  : 'green'
                               }`}
-                              style={{ width: `${(event.registered / event.capacity) * 100}%` }}
+                              data-progress-width={`${(event.registered / event.capacity) * 100}%`}
                             ></div>
                           </div>
                         </div>

@@ -93,16 +93,22 @@
   height: 0.5rem; /* h-2 */
   border-radius: 9999px; /* rounded-full */
   transition: width 0.3s ease;
+  width: 0%;
 }
 
-.progress-bar.green {
-  background-color: #22c55e; /* bg-green-500 */
+.progress-bar.red {
+  background-color: #ef4444; /* bg-red-500 */
 }
 
 .progress-bar.yellow {
   background-color: #eab308; /* bg-yellow-500 */
 }
 
-.progress-bar.red {
-  background-color: #ef4444; /* bg-red-500 */
+.progress-bar.green {
+  background-color: #22c55e; /* bg-green-500 */
+}
+
+/* Ajout d'une règle pour appliquer la largeur dynamique via l'attribut data-progress-width */
+.progress-bar[data-progress-width] {
+  width: attr(data-progress-width);
 }
