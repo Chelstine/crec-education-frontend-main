@@ -19,14 +19,10 @@ const LegalPage = lazy(() => import('@/pages/LegalPage'));
 const PrivacyPage = lazy(() => import('@/pages/PrivacyPage'));
 const ContactPage = lazy(() => import('@/pages/ContactPage'));
 
-// Pages À propos
-const AboutPage = lazy(() => import('@/pages/about/AboutPage'));
-const JesuitesPage = lazy(() => import('@/pages/about/JesuitesPage'));
-const IgnacePage = lazy(() => import('@/pages/about/IgnacePage'));
-const SaintsPage = lazy(() => import('@/pages/about/SaintsPage'));
-const FamilleIgnatiennePage = lazy(() => import('@/pages/about/FamilleIgnatiennePage'));
-const EquipePage = lazy(() => import('@/pages/about/EquipePage'));
-const CommunautesPage = lazy(() => import('@/pages/about/CommunautesPage'));
+// Pages À propos - Structures modernisées et optimisées (seulement 3 pages conservées)
+const AboutPage = lazy(() => import('@/pages/about/AboutPage')); // Qui sommes-nous
+const JesuitesPage = lazy(() => import('@/pages/about/JesuitesPage')); // Histoire Jésuite complète
+const EquipePage = lazy(() => import('@/pages/about/EquipePage')); // Notre équipe
 
 // Pages Formations
 const FormationsHubPage = lazy(() => import('@/pages/formations/FormationsHubPage'));
@@ -114,7 +110,7 @@ const routes: RouteObject[] = [
         element: withSuspense(DonatePage),
       },
 
-      // Pages À propos
+      // Pages À propos - Optimisées et modernisées
       {
         path: 'about',
         element: withSuspense(AboutPage),
@@ -124,24 +120,8 @@ const routes: RouteObject[] = [
         element: withSuspense(JesuitesPage),
       },
       {
-        path: 'about/ignace',
-        element: withSuspense(IgnacePage),
-      },
-      {
-        path: 'about/saints',
-        element: withSuspense(SaintsPage),
-      },
-      {
-        path: 'about/famille-ignatienne',
-        element: withSuspense(FamilleIgnatiennePage),
-      },
-      {
         path: 'about/equipe',
         element: withSuspense(EquipePage),
-      },
-      {
-        path: 'about/communautes',
-        element: withSuspense(CommunautesPage),
       },
 
       // Pages Formations

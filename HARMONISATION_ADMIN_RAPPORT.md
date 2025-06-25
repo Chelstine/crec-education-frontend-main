@@ -1,6 +1,6 @@
 # Rapport Final - Harmonisation Frontend Admin CREC Education
 
-## ✅ TÂCHES ACCOMPLIES
+## ✅ TÂCHES ACCOMPLIS
 
 ### 1. Création de composants admin centralisés
 - **AdminPageLayout.tsx** : Layout standardisé pour toutes les pages admin

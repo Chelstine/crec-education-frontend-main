@@ -109,38 +109,54 @@ const UniversityPage = () => {
 
 	return (
 		<div className="min-h-screen flex flex-col font-sans bg-gray-50">
-			{/* Hero Section */}
-			<section className="relative w-full h-[320px] md:h-[420px] overflow-hidden">
+			{/* Hero Section - Style harmonisé */}
+			<section className="relative w-full min-h-[420px] md:min-h-[500px] overflow-hidden">
 				<div className="absolute inset-0">
 					<img
 						src="/img/crec3.jpg"
 						alt="Campus CREC - ISTMR"
 						className="w-full h-full object-cover"
+						style={{ filter: 'brightness(0.8) contrast(1.1)' }}
 					/>
-					<div className="absolute inset-0 bg-black/60"></div>
+					<div className="absolute inset-0 bg-gradient-to-b from-crec-darkblue/80 to-black/70"></div>
 				</div>
-				<div className="relative z-10 flex items-center justify-center h-full text-center px-4">
-					<div className="bg-white/70 backdrop-blur-md p-3 md:p-5 rounded-2xl shadow-lg max-w-lg mx-auto my-2">
-						<h1 className="text-2xl md:text-4xl font-bold text-blue-900 mb-2">
-							{content.istmr_hero_title || 'ISTMR'}
+				<div className="relative z-10 flex items-center justify-center h-full text-center px-4 py-16">
+					<motion.div 
+						initial={{ opacity: 0, y: -20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.8 }}
+						className="max-w-2xl mx-auto bg-gradient-to-br from-black/50 to-crec-darkblue/40 p-10 rounded-xl backdrop-blur-md border border-white/10 shadow-2xl"
+					>
+						<div className="text-crec-gold text-sm uppercase tracking-widest mb-2">Excellence Académique</div>
+						<h1 className="text-3xl md:text-5xl font-bold mb-4">
+							<span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
+								{content.istmr_hero_title || 'ISTMR'}
+							</span>
 						</h1>
-						<h2 className="text-base md:text-lg font-semibold text-amber-600 mb-1">
+						<div className="w-20 h-1 bg-crec-gold mx-auto mb-6"></div>
+						<h2 className="text-xl font-medium text-blue-200 mb-3">
 							{content.istmr_hero_subtitle ||
 								'Institut des Sciences et Technologies Matteo Ricci'}
 						</h2>
-						<p className="text-base md:text-lg text-blue-900 mb-2 leading-relaxed">
+						<p className="text-lg text-slate-100 mb-8 leading-relaxed">
 							{content.istmr_hero_description ||
 								"Formez-vous au numérique avec une éducation jésuite d'excellence, ancrée dans la foi, le service et l'innovation technologique au cœur de l'Afrique."}
 						</p>
-						<div className="flex flex-col sm:flex-row gap-4 justify-center mt-2">
+						<div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
 							<Link
 								to="/formations/university/inscription"
-								className="px-6 py-3 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-all duration-300"
+								className="px-6 py-3 bg-crec-gold text-white font-medium rounded-full hover:bg-amber-500 transition-all duration-300 shadow-lg hover:shadow-xl"
 							>
 								S'inscrire maintenant
 							</Link>
+							<Link
+								to="/contact"
+								className="px-6 py-3 border border-white/70 text-white hover:bg-white/20 rounded-full transition-all duration-300"
+							>
+								Nous contacter
+							</Link>
 						</div>
-					</div>
+					</motion.div>
 				</div>
 			</section>
 

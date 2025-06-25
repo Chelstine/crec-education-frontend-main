@@ -91,19 +91,27 @@ const AboutPage = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* Hero Banner */}
-      <section className="relative w-full">
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70" />
+    <div className="min-h-screen flex flex-col bg-slate-50">
+      {/* Hero Banner Amélioré */}
+      <section className="relative w-full overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-crec-darkblue/80 via-crec-darkblue/60 to-crec-darkblue/80 z-10" />
+        <div className="absolute inset-0">
+          <img src="/img/crec3.jpg" alt="CREC Campus" className="w-full h-full object-cover" />
+        </div>
         <div
-          className="min-h-[300px] flex flex-col items-center justify-center text-center relative text-white p-6 bg-a-propos"
+          className="min-h-[350px] flex flex-col items-center justify-center text-center relative text-white p-6 z-20"
           role="banner"
         >
-          <div className="max-w-3xl mx-auto bg-black/50 p-8 rounded-lg backdrop-blur-sm">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">À propos du CREC</h1>
-            <p className="text-lg md:text-xl mb-8">
+          <div className="max-w-3xl mx-auto bg-gradient-to-br from-black/70 via-black/40 to-crec-darkblue/60 p-8 rounded-lg backdrop-blur-sm border border-white/10">
+            <h1 className="text-3xl md:text-5xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-white to-amber-200 bg-clip-text text-transparent">
+                À propos du CREC
+              </span>
+            </h1>
+            <p className="text-lg md:text-xl mb-6 text-slate-100">
               Centre de Recherche, d'Étude et de Créativité - Une institution d'excellence au service de l'éducation
             </p>
+            <div className="w-24 h-1 bg-crec-gold mb-6 mx-auto rounded-full"></div>
             <div className="flex items-center justify-center space-x-4 text-sm">
               <MapPin className="w-4 h-4" />
               <span>Godomey-Salamey, Bénin</span>

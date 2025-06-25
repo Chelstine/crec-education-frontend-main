@@ -1,396 +1,838 @@
-/* ====== IMPORTS REACT ET HOOKS ====== */
-import React, { useState } from 'react'; // React avec hook useState pour gérer l'état local
+/**
+ * JesuitesPage.tsx
+ * 
+ * Page complète sur l'histoire et l'héritage des Jésuites
+ * Cette page intègre tout le contenu relatif aux jésuites :
+ * - Histoire et fondation
+ * - Saint Ignace de Loyola et autres saints jésuites
+ * - Communautés jésuites et la famille ignatienne
+ * - Spiritualité et mission
+ * 
+ * Source principale: jesuites.global
+ */
 
-/* ====== IMPORTS NAVIGATION ====== */
-import { Link } from 'react-router-dom'; // Composant Link pour la navigation interne
-
-/* ====== IMPORTS COMPOSANTS UI ====== */
-import { Button } from '@/components/ui/button'; // Composant Button stylisé réutilisable
-import { Card, CardContent } from '@/components/ui/card'; // Composants Card pour structurer le contenu
-
-/* ====== IMPORTS ICÔNES ====== */
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Book,        // Icône livre pour l'éducation/publication
-  Users,       // Icône groupe pour la communauté
-  Heart,       // Icône cœur pour l'amour/charité
-  Globe,       // Icône globe pour le rayonnement mondial
-  Leaf,        // Icône feuille pour l'écologie
-  Star,        // Icône étoile pour l'excellence
-  Target,      // Icône cible pour les objectifs
-  Cross,       // Icône croix pour la spiritualité
-  MapPin,      // Icône marqueur pour la localisation
-  Calendar,    // Icône calendrier pour les dates
-  ChevronDown, // Icône chevron bas pour déplier
-  ChevronUp    // Icône chevron haut pour replier
+  Book,        // Éducation/publication
+  Users,       // Communauté
+  Heart,       // Amour/charité
+  Globe,       // Rayonnement mondial
+  Leaf,        // Écologie
+  Star,        // Excellence
+  Target,      // Objectifs
+  Cross,       // Spiritualité
+  MapPin,      // Localisation
+  Calendar,    // Dates/histoire
+  ChevronDown, // Interface - déplier
+  ChevronUp,   // Interface - replier
+  Home,        // Maison/communauté
+  BookOpen,    // Livre ouvert/enseignement
+  FileText,    // Documents/publications
+  Award,       // Récompense/reconnaissance
+  Feather      // Plume/écriture
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-/* ====== IMPORTS ANIMATIONS ====== */
-import { motion, AnimatePresence } from 'framer-motion'; // Bibliothèque d'animations
-
-/* ====== DÉFINITION DES TYPES TYPESCRIPT ====== */
-// Interface pour typer l'état des sections dépliables/repliables
-// Définit quelles sections sont ouvertes ou fermées dans l'interface
+// Types pour les sections extensibles
 interface SectionsState {
-  stats: boolean;        // Section des statistiques
-  publications: boolean; // Section des publications
-  controversies: boolean; // Section des controverses historiques
+  stats: boolean;
+  publications: boolean;
+  controversies: boolean;
 }
 
-/* ====== COMPOSANT PRINCIPAL ====== */
-// Composant fonctionnel pour la page sur les Jésuites
-// Présente l'histoire, les figures importantes et l'héritage de la Compagnie de Jésus
-const JesuitsPage = () => {
-  // État local pour gérer l'ouverture/fermeture des sections extensibles
-  // Utilisé pour créer un effet accordion sur certaines parties du contenu
+// Type pour les onglets principaux
+type TabType = 'histoire' | 'saints' | 'communautes' | 'spiritualite';
+
+/**
+ * Composant principal JesuitesPage
+ * Page complète et détaillée sur les Jésuites fusionnant le contenu 
+ * de plusieurs anciennes pages (ignace, saints, communautés)
+ */
+const JesuitesPage = () => {
+  // Gestion des sections dépliables
   const [openSections, setOpenSections] = useState<SectionsState>({
-    stats: false,        // Statistiques fermées par défaut
-    publications: false, // Publications fermées par défaut
-    controversies: false, // Controverses fermées par défaut
+    stats: false,
+    publications: false,
+    controversies: false,
   });
+  
+  // Onglets pour la navigation dans le contenu fusionné
+  const [activeTab, setActiveTab] = useState<TabType>('histoire');
 
   // Fonction pour basculer l'état d'ouverture d'une section
-  // Utilise le type keyof pour s'assurer que seules les clés valides sont acceptées
   const toggleSection = (section: keyof SectionsState) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
-  // Données des figures importantes des Jésuites (fondateurs et saints)
+  // SECTION HISTOIRE - Figures importantes des Jésuites
   const figures = [
-    { title: 'Saint Ignace de Loyola', desc: 'Fondateur de la Compagnie en 1540, ancien soldat basque, maître des Exercices spirituels (1491-1556).', image: '/img/saint-ignac.jpeg' },
-    { title: 'Saint François Xavier', desc: 'Missionnaire en Asie (Inde, Japon, Chine), patron des missions (1506-1552).', image: '/img/francois-xavier.jpeg' },
-    { title: 'Saint Pierre Favre', desc: 'Cofondateur, théologien de la douceur, premier prêtre jésuite (1506-1546).', image: '/img/pierre-favre.jpeg' },
-    { title: 'Pape François', desc: 'Premier pape jésuite (2013-2025), promoteur de la simplicité et de la justice (né en 1936).', image: '/img/pape-francois.jpeg' },
-    { title: 'Pedro Arrupe', desc: 'Supérieur général (1965-1983), pionnier de la justice sociale (1907-1991).', image: '/img/pedro-arrupe.jpeg' },
+    { 
+      title: 'Saint Ignace de Loyola', 
+      desc: 'Fondateur de la Compagnie en 1540, ancien soldat basque, maître des Exercices spirituels (1491-1556).', 
+      image: '/img/saint-ignac.jpeg' 
+    },
+    { 
+      title: 'Saint François Xavier', 
+      desc: 'Missionnaire en Asie (Inde, Japon, Chine), patron des missions (1506-1552).', 
+      image: '/img/francois-xavier.jpeg' 
+    },
+    { 
+      title: 'Saint Pierre Favre', 
+      desc: 'Cofondateur, théologien de la douceur, premier prêtre jésuite (1506-1546).', 
+      image: '/img/pierre-favre.jpeg' 
+    },
+    { 
+      title: 'Pape François', 
+      desc: 'Premier pape jésuite (2013-présent), promoteur de la simplicité et de la justice sociale (né en 1936).', 
+      image: '/img/pape-francois.jpeg' 
+    },
+    { 
+      title: 'Pedro Arrupe', 
+      desc: 'Supérieur général (1965-1983), pionnier de la justice sociale moderne et du service auprès des réfugiés (1907-1991).', 
+      image: '/img/pedro-arrupe.jpeg' 
+    },
   ];
 
+  // Spiritualité et valeurs jésuites
   const values = [
-    { icon: Star, title: 'Magis', desc: 'Rechercher l’excellence pour la gloire de Dieu, en visant le "davantage" dans chaque action.' },
-    { icon: Target, title: 'Discernement', desc: 'Prendre des décisions éclairées par la prière et la réflexion spirituelle.' },
-    { icon: Heart, title: 'Solidarité', desc: 'Servir les pauvres et les exclus avec un amour enraciné dans la justice.' },
-    { icon: Cross, title: 'Service', desc: 'Se consacrer au Christ et à l’Église avec générosité et obéissance.' },
+    { 
+      icon: Star, 
+      title: 'Magis', 
+      desc: 'Rechercher l'excellence pour la plus grande gloire de Dieu, en visant le "davantage" dans chaque action.' 
+    },
+    { 
+      icon: Target, 
+      title: 'Discernement', 
+      desc: 'Prendre des décisions éclairées par la prière et la réflexion spirituelle pour rechercher la volonté divine.' 
+    },
+    { 
+      icon: Heart, 
+      title: 'Solidarité', 
+      desc: 'Servir les pauvres et les exclus avec un amour enraciné dans la justice et la dignité humaine.' 
+    },
+    { 
+      icon: Cross, 
+      title: 'Service', 
+      desc: 'Se consacrer au Christ et à l'Église universelle avec générosité et obéissance.' 
+    },
   ];
 
+  // Préférences apostoliques universelles
   const missions = [
-    { icon: Cross, title: 'Chemin vers Dieu', desc: 'Guider les âmes à travers les Exercices spirituels et le discernement ignatien.' },
-    { icon: Heart, title: 'Marcher avec les exclus', desc: 'Promouvoir la réconciliation et la justice auprès des pauvres et des marginalisés.' },
-    { icon: Users, title: 'Accompagner les jeunes', desc: 'Former une jeunesse porteuse d’espoir pour un avenir meilleur.' },
-    { icon: Leaf, title: 'Sauvegarde de la Création', desc: 'Protéger la "Maison commune" via une écologie intégrale (Laudato Si’).' },
+    { 
+      icon: Cross, 
+      title: 'Chemin vers Dieu', 
+      desc: 'Guider les âmes à travers les Exercices spirituels et le discernement ignatien.' 
+    },
+    { 
+      icon: Heart, 
+      title: 'Marcher avec les exclus', 
+      desc: 'Promouvoir la réconciliation et la justice auprès des pauvres et des marginalisés.' 
+    },
+    { 
+      icon: Users, 
+      title: 'Accompagner les jeunes', 
+      desc: 'Former une jeunesse porteuse d'espoir pour un avenir meilleur.' 
+    },
+    { 
+      icon: Leaf, 
+      title: 'Sauvegarde de la Création', 
+      desc: 'Protéger la "Maison commune" via une écologie intégrale (Laudato Si').' 
+    },
   ];
 
+  // Chronologie historique
   const timelineEvents = [
-    { year: '1540', desc: 'Fondation de la Compagnie de Jésus par Ignace de Loyola à Paris, approuvée par la bulle Regimini militantis Ecclesiae.' },
-    { year: '1773', desc: 'Dissolution de l’ordre par Clément XIV sous pressions politiques.' },
-    { year: '1814', desc: 'Rétablissement des Jésuites par Pie VII.' },
-    { year: '2013', desc: 'Élection du pape François, premier jésuite à devenir pape.' },
-    { year: '2021-2022', desc: 'Année ignatienne célébrant les 500 ans de la conversion d’Ignace.' },
-    { year: '2025', desc: 'Élection du pape Léon XIV, Arturo Sosa réaffirme l’engagement jésuite.' },
+    { 
+      year: '1491', 
+      desc: 'Naissance d'Ignace de Loyola au château de Loyola, dans le Pays basque espagnol.' 
+    },
+    { 
+      year: '1521', 
+      desc: 'Blessure d'Ignace à la bataille de Pampelune, début de sa conversion spirituelle pendant sa convalescence.' 
+    },
+    { 
+      year: '1522-1523', 
+      desc: 'Retraite à Manrèse où Ignace vit une expérience spirituelle profonde et commence à rédiger les Exercices Spirituels.' 
+    },
+    { 
+      year: '1534', 
+      desc: 'Vœux de Montmartre à Paris avec ses premiers compagnons (Xavier, Favre, etc.).' 
+    },
+    { 
+      year: '1540', 
+      desc: 'Fondation officielle de la Compagnie de Jésus, approuvée par la bulle Regimini militantis Ecclesiae du pape Paul III.' 
+    },
+    { 
+      year: '1548', 
+      desc: 'Publication officielle des Exercices Spirituels d'Ignace, approuvés par le pape Paul III.' 
+    },
+    { 
+      year: '1556', 
+      desc: 'Mort d'Ignace de Loyola à Rome, la Compagnie compte déjà plus de 1000 membres.' 
+    },
+    { 
+      year: '1773', 
+      desc: 'Suppression de la Compagnie de Jésus par le pape Clément XIV sous pressions politiques.' 
+    },
+    { 
+      year: '1814', 
+      desc: 'Rétablissement des Jésuites par le pape Pie VII.' 
+    },
+    { 
+      year: '2013', 
+      desc: 'Élection du pape François, premier jésuite à devenir pape.' 
+    },
+    { 
+      year: '2021-2022', 
+      desc: 'Année ignatienne célébrant les 500 ans de la conversion d'Ignace.' 
+    },
   ];
+
+  // SECTION SAINTS - Liste des saints et bienheureux jésuites importants
+  const saints = [
+    {
+      id: 1,
+      name: 'Saint Ignace de Loyola',
+      title: 'Fondateur de la Compagnie de Jésus',
+      description: 'Fondateur de la Compagnie en 1540, auteur des Exercices Spirituels, il guida des générations vers le discernement spirituel (1491-1556). Canonisé en 1622.',
+      image: '/img/saint-ignac.jpeg'
+    },
+    {
+      id: 2,
+      name: 'Saint François Xavier',
+      title: 'Apôtre des Indes',
+      description: 'Missionnaire en Asie (Inde, Japon, Chine), il baptisa des milliers de personnes et établit des communautés chrétiennes. Canonisé en 1622 (1506-1552).',
+      image: '/img/francois-xavier.jpeg'
+    },
+    {
+      id: 3,
+      name: 'Saint Pierre Canisius',
+      title: 'Docteur de l'Église',
+      description: 'Théologien et éducateur, il fortifia la foi catholique en Allemagne et en Europe centrale pendant la Contre-Réforme. Canonisé en 1925 (1521-1597).',
+      image: '/img/pierre-favre.jpeg'
+    },
+    {
+      id: 4,
+      name: 'Saint Robert Bellarmin',
+      title: 'Cardinal et Docteur de l'Église',
+      description: 'Théologien brillant et défenseur de la foi pendant la Contre-Réforme. Il fut un soutien important de Galilée malgré leurs désaccords. Canonisé en 1930 (1542-1621).',
+      image: '/img/saints/bellarmin.jpg'
+    },
+    {
+      id: 5,
+      name: 'Saint Jean de Brébeuf',
+      title: 'Martyr du Canada',
+      description: 'Missionnaire auprès des Hurons au Canada, il fut martyrisé en 1649. Son respect pour la culture amérindienne et son courage face au martyre sont exemplaires. Canonisé en 1930.',
+      image: '/img/saints/brebeuf.jpg'
+    },
+    {
+      id: 6,
+      name: 'Saint Pierre Claver',
+      title: 'Esclave des esclaves',
+      description: 'Missionnaire à Carthagène (Colombie), il se consacra au service des esclaves africains débarquant dans le port. Canonisé en 1888 (1580-1654).',
+      image: '/img/saints/claver.jpg'
+    }
+  ];
+
+  // Héritage spirituel de Saint Ignace
+  const spiritualLegacy = [
+    {
+      icon: Book,
+      title: 'Exercices Spirituels',
+      description: 'Méthode de discernement spirituel pour découvrir la volonté de Dieu dans sa vie à travers la méditation, la contemplation et la prière.'
+    },
+    {
+      icon: Heart,
+      title: 'Contemplation dans l'Action',
+      description: 'Trouver Dieu dans toutes choses et toutes choses en Dieu, unissant vie active et contemplative.'
+    },
+    {
+      icon: Globe,
+      title: 'Service de la Foi et Promotion de la Justice',
+      description: 'Une foi qui fait la justice, engagement concret pour transformer les structures injustes.'
+    },
+    {
+      icon: Cross,
+      title: 'Ad Majorem Dei Gloriam',
+      description: '"Pour la plus grande gloire de Dieu" - devise qui inspire chaque œuvre et mission jésuite.'
+    }
+  ];
+
+  // SECTION COMMUNAUTÉS - Communautés jésuites importantes
+  const communautes = [
+    {
+      id: 1,
+      name: 'Communauté du CREC',
+      location: 'Cotonou, Bénin',
+      description: 'Centre de recherche et de formation, le CREC forme des leaders chrétiens et soutient la recherche théologique en Afrique de l'Ouest.',
+      icon: Book,
+      image: '/img/crec2.png'
+    },
+    {
+      id: 2,
+      name: 'Province d'Europe Occidentale Francophone',
+      location: 'France, Belgique, Luxembourg',
+      description: 'Regroupant plus de 500 jésuites, cette province coordonne des œuvres éducatives, pastorales et sociales dans l'espace francophone européen.',
+      icon: Globe,
+      image: '/img/eglise.png'
+    },
+    {
+      id: 3,
+      name: 'Province de l'Afrique de l'Ouest',
+      location: 'Afrique de l'Ouest',
+      description: 'Couvrant 12 pays, cette province dynamique mène des missions éducatives, spirituelles et sociales adaptées aux réalités africaines contemporaines.',
+      icon: Users,
+      image: '/img/crec3.jpg'
+    },
+    {
+      id: 4,
+      name: 'Curie Généralice',
+      location: 'Rome, Italie',
+      description: 'Siège du gouvernement central de la Compagnie de Jésus, où réside le Supérieur Général, actuellement le Père Arturo Sosa.',
+      icon: Home,
+      image: '/img/crec1.jpg'
+    }
+  ];
+
+  // SECTION FAMILLE IGNATIENNE - Famille spirituelle ignatienne
+  const familleIgnatienne = [
+    {
+      id: 1,
+      name: 'Communauté de Vie Chrétienne (CVX)',
+      description: 'Mouvement international de laïcs ignatiens présent dans plus de 60 pays, vivant la spiritualité ignatienne au quotidien.',
+      image: '/img/formation.png'
+    },
+    {
+      id: 2,
+      name: 'Mouvement Eucharistique des Jeunes (MEJ)',
+      description: 'Propose aux jeunes de 7 à 18 ans un chemin de croissance humaine et spirituelle dans l'esprit ignatien.',
+      image: '/img/accompagnement.png'
+    },
+    {
+      id: 3,
+      name: 'Réseau Magis',
+      description: 'Réseau international pour les jeunes adultes (18-35 ans) proposant expériences pastorales et spiritualité ignatienne.',
+      image: '/img/universite.png'
+    },
+    {
+      id: 4,
+      name: 'Congrégations Religieuses Ignatiennes',
+      description: 'Nombreuses congrégations féminines et masculines partageant la spiritualité ignatienne comme les Religieuses du Sacré-Cœur.',
+      image: '/img/formation.png'
+    }
+  ];
+
+  // Animation variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
 
   return (
-    <div className="min-h-screen flex flex-col font-sans text-[15pt]">
-      {/* Hero Section */}
-      <section className="relative w-full">
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70" />
-        <div className="min-h-[400px] flex flex-col items-center justify-center text-center relative text-white p-6 bg-a-propos">
-          <div className="max-w-3xl mx-auto bg-black/50 p-8 rounded-lg backdrop-blur-sm">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">La Compagnie de Jésus</h1>
-            <p className="text-xl md:text-2xl mb-8">
-              Fondée en 1540, les Jésuites servent la foi, l’éducation et la justice dans 112 pays, sous la devise <em>Ad majorem Dei gloriam</em>.
+    <div className="bg-slate-50 min-h-screen">
+      {/* Hero Section amélioré avec fond et titre */}
+      <section className="relative w-full overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-crec-darkblue/90 via-crec-darkblue/70 to-black/80" />
+        <div className="min-h-[450px] flex flex-col items-center justify-center text-center relative text-white p-6">
+          <div className="absolute inset-0 z-[-1]">
+            <img 
+              src="/img/eglise.png" 
+              alt="Compagnie de Jésus" 
+              className="w-full h-full object-cover"
+              style={{ filter: 'brightness(0.7) contrast(1.1)' }}
+            />
+          </div>
+          <div className="max-w-3xl mx-auto bg-gradient-to-br from-black/60 to-crec-darkblue/50 p-10 rounded-xl backdrop-blur-sm border border-white/10 shadow-2xl">
+            <div className="text-crec-gold text-sm uppercase tracking-widest mb-2">Ad Majorem Dei Gloriam</div>
+            <h1 className="text-4xl md:text-5xl font-bold mb-5">
+              <span className="bg-gradient-to-r from-white via-amber-100 to-white bg-clip-text text-transparent">
+                La Compagnie de Jésus
+              </span>
+            </h1>
+            <div className="w-20 h-1 bg-crec-gold mx-auto mb-6"></div>
+            <p className="text-xl md:text-2xl mb-4 text-slate-100">
+              Fondée en 1540, les Jésuites servent la foi, l'éducation et la justice dans 112 pays, sous la devise <em>Ad majorem Dei gloriam</em>.
             </p>
-          </div>
-        </div>
-      </section>
-
- {/* Origine et Mission */}
-<section className="py-20 bg-gradient-to-b from-amber-50 to-white text-slate-800 px-4">
-  <div className="max-w-4xl mx-auto space-y-12 text-justify">
-    <motion.h2 
-      className="text-4xl font-bold text-center mb-4 text-amber-800"
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-    >
-      Origine et Mission
-    </motion.h2>
-
-    <motion.div 
-      className="space-y-8"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8, delay: 0.2 }}
-    >
-      {[
-        `La Compagnie de Jésus, fondée en 1540 à Paris par saint Ignace de Loyola, un ancien soldat basque, et ses compagnons (Pierre Favre, François Xavier, Diego Lainez, Alfonso Salmeron, Nicolás Bobadilla, Simao Rodrigues), a été approuvée par le pape Paul III via la bulle *Regimini militantis Ecclesiae*. Le terme "Compagnie" reflète une camaraderie spirituelle et une discipline quasi militaire.`,
-        `Guidés par la devise *Ad majorem Dei gloriam* ("Pour la plus grande gloire de Dieu"), les Jésuites promeuvent la réconciliation des hommes avec Dieu, entre eux, et avec la création. Leur spiritualité ignatienne, basée sur les *Exercices spirituels*, met l’accent sur le discernement, le *magis* (rechercher le "davantage"), et une vision positive du monde.`,
-        `Les membres prononcent quatre vœux : pauvreté, chasteté, obéissance, et un vœu spécial d’obéissance au pape pour les missions, symbolisant leur engagement universel.`,
-      ].map((text, index) => (
-        <p
-          key={index}
-          className="relative pl-6 before:absolute before:left-0 before:top-1 before:w-1 before:h-full before:bg-amber-500 before:rounded-full"
-        >
-          <span dangerouslySetInnerHTML={{ __html: text }} />
-        </p>
-      ))}
-    </motion.div>
-
-    <motion.div 
-      className="text-center"
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.6, delay: 0.4 }}
-    >
-      <Button 
-        className="bg-amber-600 hover:bg-amber-700 text-white rounded-full px-8 py-3 shadow-md transition-transform transform hover:scale-105"
-        asChild
-      >
-        <a href="https://www.jesuits.global" target="_blank" rel="noopener noreferrer">
-          En savoir plus sur la spiritualité ignatienne
-        </a>
-      </Button>
-    </motion.div>
-  </div>
-</section>
-
-{/* Transition graphique + citation */}
-<div className="relative">
-  <div className="absolute top-0 left-0 w-full overflow-hidden leading-none rotate-180">
-    <svg className="relative block w-full h-16 text-amber-50" viewBox="0 0 1440 320" preserveAspectRatio="none">
-      <path fill="currentColor" d="M0,64L48,74.7C96,85,192,107,288,117.3C384,128,480,128,576,144C672,160,768,192,864,186.7C960,181,1056,139,1152,122.7C1248,107,1344,117,1392,122.7L1440,128V0H1392C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0H0Z" />
-    </svg>
-  </div>
-  <div className="bg-amber-50 py-8 text-center relative z-10">
-    <p className="text-xl italic text-amber-800">"Un feu allumé en un seul cœur peut embraser le monde entier."</p>
-  </div>
-</div>
-
-{/* Organisation Mondiale */}
-<section className="py-20 bg-gradient-to-b from-jesuit-light to-white">
-  <div className="max-w-5xl mx-auto px-4">
-    <motion.h2 
-      className="text-3xl md:text-4xl font-bold text-center mb-12 text-jesuit-dark"
-      initial={{ opacity: 0, y: -30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.6 }}
-    >
-      Organisation Mondiale
-    </motion.h2>
-
-    <motion.div 
-      className="space-y-10 text-justify text-jesuit-darkgray"
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.8, delay: 0.2 }}
-    >
-      <p className="bg-white/80 rounded-xl shadow-md p-6 hover:shadow-lg transition duration-300 backdrop-blur-sm">
-        En 2022, la Compagnie de Jésus compte <strong>14 439 membres</strong> répartis dans <strong>112 pays</strong> et <strong>80 provinces</strong> :
-        583 novices, 2 587 scolastiques, 837 frères et 10 432 prêtres. Elle est dirigée par <strong>Arturo Sosa</strong> depuis 2016, avec un siège situé à Rome, près du Vatican.
-      </p>
-
-      <motion.div 
-        className="bg-gradient-to-r from-white via-amber-50 to-white rounded-xl shadow-lg p-6 border border-amber-100"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.7, delay: 0.4 }}
-      >
-        <h3 className="text-2xl font-semibold mb-4 text-jesuit-darkblue border-b border-amber-300 pb-2">
-          Répartition géographique
-        </h3>
-        <ul className="list-disc pl-6 space-y-2 text-base leading-relaxed">
-          <li><strong>Asie du Sud</strong> : 3 955 membres</li>
-          <li><strong>Europe</strong> : 3 386 membres</li>
-          <li><strong>Amérique du Nord</strong> : 2 046 membres</li>
-          <li><strong>Amérique latine</strong> : 1 859 membres</li>
-          <li><strong>Afrique</strong> : 1 712 membres</li>
-          <li><strong>Asie-Pacifique</strong> : 1 481 membres</li>
-        </ul>
-        <p className="mt-4 italic text-sm text-slate-600">
-          La <strong>Province d’Europe occidentale francophone</strong> (France, Belgique, Luxembourg, Grèce, Océan Indien) compte environ <strong>530 membres</strong>.
-        </p>
-      </motion.div>
-    </motion.div>
-  </div>
-</section>
-
-
-      {/* Historical Role */}
-      <section className="py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-12 text-center text-jesuit-dark">Rôle Historique</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="min-w-[300px] hover:shadow-lg">
-              <CardContent className="p-4">
-                <Book className="w-12 h-12 text-jesuit-gold mb-4" />
-                <h3 className="text-xl font-bold mb-4">Contre-Réforme</h3>
-                <p className="text-jesuit-darkgray text-base leading-relaxed text-justify">
-                  Au XVIe siècle, les Jésuites ont joué un rôle clé dans la réforme catholique, luttant contre le protestantisme via l’éducation et les missions.
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="min-w-[300px] hover:shadow-lg">
-              <CardContent className="p-4">
-                <Globe className="w-12 h-12 text-jesuit-gold mb-4" />
-                <h3 className="text-xl font-bold mb-4">Missions Internationales</h3>
-                <p className="text-jesuit-darkgray text-base leading-relaxed text-justify">
-                  Dès le XVIe siècle, les Jésuites ont évangélisé en Asie (Chine, Japon), Afrique et Amériques, s’adaptant aux cultures locales.
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="min-w-[300px] hover:shadow-lg">
-              <CardContent className="p-4">
-                <MapPin className="w-12 h-12 text-jesuit-gold mb-4" />
-                <h3 className="text-xl font-bold mb-4">Éducation Pionnière</h3>
-                <p className="text-jesuit-darkgray text-base leading-relaxed text-justify">
-                  Fondateurs de collèges (Lycée Louis-le-Grand, Paris) et universités (Córdoba, Argentine), formant des générations de leaders.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-{/* Figures Inspirantes */}
-<section className="py-20 bg-jesuit-light">
-  <div className="max-w-6xl mx-auto px-4">
-    <h2 className="text-3xl font-bold mb-12 text-center text-jesuit-dark">Figures Inspirantes</h2>
-
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      {figures.map((figure, i) => (
-        <Card 
-          key={i} 
-          className="hover:shadow-xl transition-shadow duration-300 rounded-xl bg-white"
-        >
-          <CardContent className="p-4 flex flex-col items-center">
-            <div className="w-full h-64 bg-white flex items-center justify-center overflow-hidden rounded-lg mb-4 shadow-sm">
-              <img 
-                src={figure.image} 
-                alt={figure.title} 
-                className="max-h-full max-w-full object-contain"
-              />
+            <div className="flex justify-center mt-6">
+              <Cross className="text-crec-gold h-8 w-8 opacity-75" />
             </div>
-            <h3 className="text-xl font-bold text-center mb-2">{figure.title}</h3>
-            <p className="text-jesuit-darkgray text-base leading-relaxed text-justify">{figure.desc}</p>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  </div>
-</section>
-
-
-      {/* Missions */}
-      <section className="py-16 bg-jesuit-light">
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-12 text-center text-jesuit-dark">Préférences Apostoliques (2019-2029)</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {missions.map((mission, i) => (
-              <Card key={i} className="hover:shadow-lg">
-                <CardContent className="p-4 flex items-start">
-                  <mission.icon className="w-12 h-12 text-jesuit-gold mr-4" />
-                  <div>
-                    <h3 className="text-xl font-bold mb-2">{mission.title}</h3>
-                    <p className="text-jesuit-darkgray text-base leading-relaxed">{mission.desc}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
           </div>
         </div>
       </section>
 
-      {/* Current Activities */}
-      <section className="py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-12 text-center text-jesuit-dark">Impact Actuel</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="min-w-[300px] hover:shadow-lg">
-              <CardContent className="p-4">
-                <Book className="w-12 h-12 text-jesuit-gold mb-4" />
-                <h3 className="text-xl font-bold mb-4">Éducation</h3>
-                <p className="text-jesuit-darkgray text-base leading-relaxed text-justify">
-                  Gestion d’universités (ex. : Saint-Joseph, Beyrouth) et d’initiatives comme <em>Fe y Alegría</em> pour l’éducation des défavorisés en Amérique latine. En Europe francophone, 22 établissements scolaires et 5 centres spirituels accueillent 26 000 retraitants par an.
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="min-w-[300px] hover:shadow-lg">
-              <CardContent className="p-4">
-                <Heart className="w-12 h-12 text-jesuit-gold mb-4" />
-                <h3 className="text-xl font-bold mb-4">Justice Sociale</h3>
-                <p className="text-jesuit-darkgray text-base leading-relaxed text-justify">
-                  Engagement auprès des marginalisés, comme les femmes Mapuches au Chili, pour promouvoir la dignité et la réconciliation.
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="min-w-[300px] hover:shadow-lg">
-              <CardContent className="p-4">
-                <Leaf className="w-12 h-12 text-jesuit-gold mb-4" />
-                <h3 className="text-xl font-bold mb-4">Écologie</h3>
-                <p className="text-jesuit-darkgray text-base leading-relaxed text-justify">
-                  Mise en œuvre de l’écologie intégrale, inspirée par <em>Laudato Si’</em>, pour protéger la création.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
+      {/* Système d'onglets principal */}
+      <section className="py-10 container mx-auto px-4">
+        <Tabs 
+          defaultValue="histoire" 
+          className="w-full"
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as TabType)}
+        >
+          <TabsList className="grid grid-cols-2 md:grid-cols-4 mb-8 w-full">
+            <TabsTrigger value="histoire" className="text-base">
+              <Calendar className="w-5 h-5 mr-2" /> 
+              Histoire
+            </TabsTrigger>
+            <TabsTrigger value="saints" className="text-base">
+              <Award className="w-5 h-5 mr-2" />
+              Saints et Figures
+            </TabsTrigger>
+            <TabsTrigger value="communautes" className="text-base">
+              <Users className="w-5 h-5 mr-2" />
+              Communautés
+            </TabsTrigger>
+            <TabsTrigger value="spiritualite" className="text-base">
+              <Star className="w-5 h-5 mr-2" />
+              Spiritualité
+            </TabsTrigger>
+          </TabsList>
 
-           {/* Timeline */}
-      <section className="py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center text-jesuit-blue mb-4">Moments Clés</h2>
-          <p className="text-center max-w-2xl mx-auto text-lg text-jesuit-darkgray mb-12">
-            Découvrez les grandes étapes qui ont marqué l’histoire de la Compagnie de Jésus, depuis sa fondation jusqu’à son rayonnement mondial aujourd’hui.
-          </p>
-          <div className="relative">
-            {/* Ligne verticale centrale visible */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-black"></div>
-            <div className="space-y-12">
-              {timelineEvents.map((event, i) => (
-                <div
-                  key={i}
-                  className={`relative flex flex-col md:flex-row items-center ${i % 2 === 0 ? 'md:justify-start' : 'md:justify-end'} md:gap-8`}
+          {/* CONTENU ONGLET 1: HISTOIRE */}
+          <TabsContent value="histoire" className="space-y-12">
+            {/* Origine et Mission */}
+            <section className="bg-gradient-to-b from-amber-50 to-white text-slate-800 px-4 py-12 rounded-xl">
+              <div className="max-w-4xl mx-auto space-y-8 text-justify">
+                <motion.h2 
+                  className="text-3xl font-bold text-center mb-6 text-amber-800"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
                 >
-                  <div className={`md:w-1/2 ${i % 2 === 0 ? 'md:pr-8' : 'md:pl-8'} w-full`}> 
-                    <Card className="bg-white border border-orange-200 shadow-md">
-                      <CardContent className="p-4 flex items-start">
-                        <Calendar className="w-8 h-8 text-jesuit-gold mr-4" />
-                        <div>
-                          <h3 className="text-xl font-semibold text-jesuit-dark mb-2">{event.year}</h3>
-                          <p className="text-base text-jesuit-darkgray leading-relaxed">{event.desc}</p>
+                  Origine et Mission
+                </motion.h2>
+
+                <motion.div 
+                  className="space-y-6"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                >
+                  {[
+                    `La Compagnie de Jésus, fondée en 1540 à Paris par saint Ignace de Loyola, un ancien soldat basque, et ses compagnons (Pierre Favre, François Xavier, Diego Lainez, Alfonso Salmeron, Nicolás Bobadilla, Simao Rodrigues), a été approuvée par le pape Paul III via la bulle *Regimini militantis Ecclesiae*. Le terme "Compagnie" reflète une camaraderie spirituelle et une discipline quasi militaire.`,
+                    `Guidés par la devise *Ad majorem Dei gloriam* ("Pour la plus grande gloire de Dieu"), les Jésuites promeuvent la réconciliation des hommes avec Dieu, entre eux, et avec la création. Leur spiritualité ignatienne, basée sur les *Exercices spirituels*, met l'accent sur le discernement, le *magis* (rechercher le "davantage"), et une vision positive du monde.`,
+                    `Les membres prononcent quatre vœux : pauvreté, chasteté, obéissance, et un vœu spécial d'obéissance au pape pour les missions, symbolisant leur engagement universel.`,
+                  ].map((text, index) => (
+                    <p
+                      key={index}
+                      className="relative pl-6 before:absolute before:left-0 before:top-1 before:w-1 before:h-full before:bg-amber-500 before:rounded-full"
+                    >
+                      <span dangerouslySetInnerHTML={{ __html: text }} />
+                    </p>
+                  ))}
+                </motion.div>
+              </div>
+            </section>
+
+            {/* Organisation Mondiale */}
+            <section className="bg-white py-12 rounded-xl shadow-md">
+              <div className="max-w-5xl mx-auto px-4">
+                <motion.h2 
+                  className="text-3xl font-bold text-center mb-8 text-slate-800"
+                  initial={fadeInUp.hidden}
+                  whileInView={fadeInUp.visible}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6 }}
+                >
+                  Organisation Mondiale
+                </motion.h2>
+
+                <motion.div 
+                  className="space-y-6 text-justify text-slate-700"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                >
+                  <p className="bg-slate-50 rounded-xl shadow-sm p-6 hover:shadow-md transition duration-300">
+                    En 2022, la Compagnie de Jésus compte <strong>14 439 membres</strong> répartis dans <strong>112 pays</strong> et <strong>80 provinces</strong> :
+                    583 novices, 2 587 scolastiques, 837 frères et 10 432 prêtres. Elle est dirigée par <strong>Arturo Sosa</strong> depuis 2016, avec un siège situé à Rome, près du Vatican.
+                  </p>
+
+                  <motion.div 
+                    className="bg-gradient-to-r from-white via-amber-50 to-white rounded-xl shadow-md p-6 border border-amber-100"
+                    initial={fadeInUp.hidden}
+                    whileInView={fadeInUp.visible}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.7, delay: 0.4 }}
+                  >
+                    <h3 className="text-2xl font-semibold mb-4 text-amber-800 border-b border-amber-300 pb-2">
+                      Répartition géographique
+                    </h3>
+                    <ul className="list-disc pl-6 space-y-2 text-base leading-relaxed">
+                      <li><strong>Asie du Sud</strong> : 3 955 membres</li>
+                      <li><strong>Europe</strong> : 3 386 membres</li>
+                      <li><strong>Amérique du Nord</strong> : 2 046 membres</li>
+                      <li><strong>Amérique latine</strong> : 1 859 membres</li>
+                      <li><strong>Afrique</strong> : 1 712 membres</li>
+                      <li><strong>Asie-Pacifique</strong> : 1 481 membres</li>
+                    </ul>
+                    <p className="mt-4 italic text-sm text-slate-600">
+                      La <strong>Province d'Europe occidentale francophone</strong> (France, Belgique, Luxembourg, Grèce, Océan Indien) compte environ <strong>530 membres</strong>.
+                    </p>
+                  </motion.div>
+                </motion.div>
+              </div>
+            </section>
+
+            {/* Chronologie */}
+            <section className="py-12">
+              <div className="max-w-6xl mx-auto px-4">
+                <h2 className="text-3xl font-bold text-center text-slate-800 mb-8">Moments Clés</h2>
+                <p className="text-center max-w-2xl mx-auto text-lg text-slate-600 mb-10">
+                  Les grandes étapes qui ont marqué l'histoire de la Compagnie de Jésus, depuis sa fondation jusqu'à son rayonnement mondial aujourd'hui.
+                </p>
+                
+                <div className="relative">
+                  {/* Ligne verticale centrale */}
+                  <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-amber-500 rounded-full"></div>
+                  
+                  <div className="space-y-12">
+                    {timelineEvents.map((event, i) => (
+                      <div
+                        key={i}
+                        className={`relative flex flex-col md:flex-row items-center ${i % 2 === 0 ? 'md:justify-start' : 'md:justify-end'} md:gap-8`}
+                      >
+                        <div className={`md:w-1/2 ${i % 2 === 0 ? 'md:pr-8 md:text-right' : 'md:pl-8'} w-full`}> 
+                          <Card className="bg-white border border-amber-200 shadow-md">
+                            <CardContent className="p-4">
+                              <h3 className="text-xl font-semibold text-amber-800 mb-2">{event.year}</h3>
+                              <p className="text-base text-slate-700 leading-relaxed">{event.desc}</p>
+                            </CardContent>
+                          </Card>
                         </div>
-                      </CardContent>
-                    </Card>
+                        
+                        {/* Point de jonction sur la ligne */}
+                        <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 bg-amber-600 w-4 h-4 rounded-full border-4 border-white shadow-md"></div>
+                      </div>
+                    ))}
                   </div>
-                  {/* Point de jonction sur la ligne */}
-                  <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 bg-jesuit-gold w-4 h-4 rounded-full border-4 border-white"></div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
+              </div>
+            </section>
+
+            {/* Figures Inspirantes */}
+            <section className="py-12 bg-slate-100 rounded-xl">
+              <div className="max-w-6xl mx-auto px-4">
+                <h2 className="text-3xl font-bold mb-12 text-center text-slate-800">Figures Inspirantes</h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {figures.map((figure, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: i * 0.1 }}
+                      viewport={{ once: true }}
+                    >
+                      <Card className="hover:shadow-xl transition-shadow duration-300 rounded-xl bg-white h-full">
+                        <CardContent className="p-4 flex flex-col h-full">
+                          <div className="w-full h-64 bg-white flex items-center justify-center overflow-hidden rounded-lg mb-4 shadow-sm">
+                            <img 
+                              src={figure.image} 
+                              alt={figure.title} 
+                              className="max-h-full max-w-full object-contain"
+                            />
+                          </div>
+                          <h3 className="text-xl font-bold text-center mb-2 text-slate-800">{figure.title}</h3>
+                          <p className="text-slate-600 text-base leading-relaxed text-center">{figure.desc}</p>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </TabsContent>
+
+          {/* CONTENU ONGLET 2: SAINTS */}
+          <TabsContent value="saints" className="space-y-12">
+            <section className="bg-gradient-to-b from-blue-50 to-white py-10 rounded-xl">
+              <div className="container mx-auto px-4">
+                <h2 className="text-3xl md:text-4xl font-bold text-center mb-6 text-blue-800">
+                  Saints et Bienheureux Jésuites
+                </h2>
+                <p className="text-center text-slate-600 max-w-2xl mx-auto mb-12">
+                  À travers les siècles, la Compagnie de Jésus a inspiré de nombreuses figures qui ont été reconnues pour leur sainteté et leur contribution exemplaire à l'Église et au monde.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {saints.map((saint) => (
+                    <motion.div 
+                      key={saint.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: saint.id * 0.1 }}
+                      className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                    >
+                      <div className="h-48 overflow-hidden">
+                        <img 
+                          src={saint.image} 
+                          alt={saint.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="p-5">
+                        <h3 className="text-xl font-bold text-blue-800 mb-1">{saint.name}</h3>
+                        <p className="text-sm font-medium text-blue-600 mb-3">{saint.title}</p>
+                        <p className="text-slate-600">{saint.description}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Héritage spirituel de Saint Ignace */}
+            <section className="py-12">
+              <div className="max-w-6xl mx-auto px-4">
+                <h2 className="text-3xl font-bold text-center text-slate-800 mb-10">
+                  L'héritage spirituel d'Ignace
+                </h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {spiritualLegacy.map((item, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                      className="bg-white rounded-xl p-6 shadow-md border border-slate-200"
+                    >
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="bg-amber-100 p-3 rounded-full">
+                          <item.icon className="h-8 w-8 text-amber-600" />
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-800">{item.title}</h3>
+                      </div>
+                      <p className="text-slate-600 leading-relaxed">
+                        {item.description}
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+                
+                <div className="mt-12 text-center">
+                  <Button asChild variant="default" size="lg" className="bg-amber-600 hover:bg-amber-700 text-white">
+                    <a 
+                      href="https://www.jesuites.com/qui-sont-les-jesuites/spiritualite-ignatienne/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center"
+                    >
+                      En savoir plus sur la spiritualité ignatienne
+                      <ChevronDown className="ml-2 h-4 w-4" />
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            </section>
+          </TabsContent>
+
+          {/* CONTENU ONGLET 3: COMMUNAUTÉS */}
+          <TabsContent value="communautes" className="space-y-12">
+            {/* Communautés jésuites */}
+            <section className="bg-gradient-to-b from-slate-100 to-white py-12 rounded-xl">
+              <div className="container mx-auto px-4">
+                <h2 className="text-3xl font-bold text-center mb-6 text-slate-800">
+                  Nos Communautés
+                </h2>
+                <p className="text-center text-slate-600 max-w-2xl mx-auto mb-12">
+                  Présente dans 112 pays à travers le monde, la Compagnie de Jésus anime des communautés locales qui s'engagent dans des missions éducatives, pastorales et sociales.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {communautes.map((communaute) => (
+                    <motion.div 
+                      key={communaute.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: communaute.id * 0.1 }}
+                      className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col md:flex-row h-full"
+                    >
+                      <div className="md:w-2/5 h-48 md:h-auto overflow-hidden">
+                        <img 
+                          src={communaute.image} 
+                          alt={communaute.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="p-5 md:w-3/5 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <MapPin className="h-5 w-5 text-slate-500" />
+                            <span className="text-sm text-slate-500">{communaute.location}</span>
+                          </div>
+                          <h3 className="text-xl font-bold text-slate-800 mb-2">{communaute.name}</h3>
+                          <p className="text-slate-600">{communaute.description}</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Famille ignatienne */}
+            <section className="py-12 bg-blue-50 rounded-xl">
+              <div className="max-w-6xl mx-auto px-4">
+                <h2 className="text-3xl font-bold text-center text-blue-800 mb-10">
+                  La Famille Ignatienne
+                </h2>
+                <p className="text-center text-slate-600 max-w-2xl mx-auto mb-12">
+                  La spiritualité ignatienne s'étend bien au-delà de la Compagnie de Jésus à travers de nombreux mouvements et congrégations qui partagent l'héritage de Saint Ignace.
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {familleIgnatienne.map((item, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                      className="bg-white rounded-xl overflow-hidden shadow-md"
+                    >
+                      <div className="h-48 overflow-hidden">
+                        <img 
+                          src={item.image} 
+                          alt={item.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="p-5">
+                        <h3 className="text-xl font-bold text-blue-800 mb-3">{item.name}</h3>
+                        <p className="text-slate-600 leading-relaxed">
+                          {item.description}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </TabsContent>
+
+          {/* CONTENU ONGLET 4: SPIRITUALITÉ */}
+          <TabsContent value="spiritualite" className="space-y-12">
+            {/* Valeurs et principes */}
+            <section className="bg-gradient-to-b from-emerald-50 to-white py-12 rounded-xl">
+              <div className="container mx-auto px-4">
+                <h2 className="text-3xl font-bold text-center mb-6 text-emerald-800">
+                  Valeurs et Principes
+                </h2>
+                <p className="text-center text-slate-600 max-w-2xl mx-auto mb-12">
+                  La spiritualité ignatienne repose sur des valeurs fondamentales qui guident l'action des Jésuites et de ceux qui s'inspirent de Saint Ignace.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {values.map((value, index) => (
+                    <motion.div 
+                      key={index}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 p-6"
+                    >
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="bg-emerald-100 p-3 rounded-full">
+                          <value.icon className="h-6 w-6 text-emerald-600" />
+                        </div>
+                        <h3 className="text-xl font-bold text-emerald-800">{value.title}</h3>
+                      </div>
+                      <p className="text-slate-600 leading-relaxed">{value.desc}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Préférences apostoliques */}
+            <section className="py-12 bg-white rounded-xl shadow-md">
+              <div className="max-w-6xl mx-auto px-4">
+                <h2 className="text-3xl font-bold text-center text-slate-800 mb-10">
+                  Préférences Apostoliques Universelles (2019-2029)
+                </h2>
+                <p className="text-center text-slate-600 max-w-2xl mx-auto mb-10">
+                  Ces quatre orientations majeures guident l'action des Jésuites dans le monde entier pour les dix prochaines années.
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {missions.map((mission, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                      className="bg-gradient-to-r from-slate-50 to-white rounded-xl p-6 shadow-md border border-slate-200"
+                    >
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="bg-blue-100 p-3 rounded-full">
+                          <mission.icon className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-800">{mission.title}</h3>
+                      </div>
+                      <p className="text-slate-600 leading-relaxed">
+                        {mission.desc}
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Citation et CTA */}
+            <section className="py-12 bg-gradient-to-r from-amber-100 to-amber-50 rounded-xl">
+              <div className="max-w-4xl mx-auto px-4 text-center">
+                <blockquote className="text-xl italic text-amber-800 mb-6">
+                  "Un feu allumé en un seul cœur peut embraser le monde entier."
+                </blockquote>
+                <p className="text-right text-amber-700 font-medium mb-10">— Saint Ignace de Loyola</p>
+                
+                <div className="flex flex-col md:flex-row gap-4 justify-center">
+                  <Button asChild variant="default" className="bg-amber-600 hover:bg-amber-700 text-white">
+                    <a 
+                      href="https://www.jesuits.global" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center"
+                    >
+                      Site officiel des Jésuites
+                      <Globe className="ml-2 h-4 w-4" />
+                    </a>
+                  </Button>
+                  <Button asChild variant="outline" className="border-amber-600 text-amber-600 hover:bg-amber-600 hover:text-white">
+                    <Link to="/contact">
+                      Nous contacter
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </section>
+          </TabsContent>
+        </Tabs>
       </section>
 
-
-      {/* Legacy and CTA */}
-      <section className="bg-gray-50 py-12 text-center">
+      {/* Footer / Legacy section */}
+      <section className="bg-slate-100 py-12 text-center">
         <div className="max-w-3xl mx-auto text-center px-4">
-          <h2 className="text-2xl font-bold mb-4">Héritage Jésuite</h2>
-          <p className="text-gray-700 mb-6">
-            Les Jésuites influencent le monde par leur rigueur intellectuelle et leur engagement, inspirant des mouvements comme la Communauté de Vie Chrétienne (59 pays) et le Mouvement Eucharistique des Jeunes (80 pays). Découvrez plus à propos de la compagnie.
+          <h2 className="text-2xl font-bold mb-4 text-slate-800">Héritage Jésuite</h2>
+          <p className="text-slate-600 mb-6">
+            Les Jésuites influencent le monde par leur rigueur intellectuelle et leur engagement, inspirant des millions de personnes à travers leurs œuvres éducatives, pastorales et sociales. Leur héritage continue de se développer à travers de nombreuses institutions et mouvements dans le monde entier.
           </p>
-          <div className="flex flex-col md:flex-row gap-4 justify-center">
-            <Button className="bg-[#FCA311] hover:bg-[#fcb930] text-white rounded-full px-6 py-2 shadow-md" asChild>
-              <a href="https://www.jesuits.global" target="_blank" rel="noopener noreferrer">Site officiel de la compagnie Jesuite</a>
-            </Button>
-            <Button className="bg-white border-2 border-[#FCA311] text-[#FCA311] hover:bg-[#FCA311] hover:text-white rounded-full px-6 py-2 transition shadow-md" asChild>
-              <Link to="/contact">Nous contacter</Link>
-            </Button>
-          </div>
         </div>
       </section>
     </div>
   );
 };
 
-export default JesuitsPage;
+export default JesuitesPage;

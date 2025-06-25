@@ -1,6 +1,6 @@
 # RAPPORT FINAL - CONSOLIDATION ADMIN ÉVÉNEMENTS ET RÉSERVATIONS
 
-## TÂCHES ACCOMPLIES
+## TÂCHES ACCOMPLIS
 
 ### 1. CONSOLIDATION DES RÉSERVATIONS
 **Objectif** : Fusionner la gestion FabLab, salles et équipements en une seule page

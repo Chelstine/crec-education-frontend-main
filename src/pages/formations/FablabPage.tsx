@@ -33,72 +33,82 @@ const FablabPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col font-sans text-[15pt] bg-gradient-to-b from-amber-50 to-white">
-      {/* Hero Section */}
-      <section className="relative w-full">
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/70" />
-        <div
-          className="min-h-[400px] flex flex-col items-center justify-center text-center relative text-white p-6 fablab-hero-bg"
-        >
-          <motion.div
-            className="max-w-3xl mx-auto bg-black/60 p-10 rounded-2xl backdrop-blur-md shadow-2xl"
+      {/* Hero Section - Style harmonisé */}
+      <section className="relative w-full min-h-[420px] md:min-h-[500px] overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="/img/fablab.png"
+            alt="FabLab CREC"
+            className="w-full h-full object-cover"
+            style={{ filter: 'brightness(0.9) contrast(1.1)' }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-crec-darkblue/80 via-amber-900/50 to-black/70"></div>
+        </div>
+        <div className="relative z-10 flex items-center justify-center h-full text-center px-4 py-16">
+          <motion.div 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
+            transition={{ duration: 0.8 }}
+            className="max-w-2xl mx-auto bg-gradient-to-br from-black/50 to-amber-900/40 p-10 rounded-xl backdrop-blur-md border border-white/10 shadow-2xl"
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">{description.title}</h1>
-            <p className="text-xl md:text-2xl mb-6 leading-relaxed">
+            <div className="text-crec-gold text-sm uppercase tracking-widest mb-2">Innovation & Technologie</div>
+            <h1 className="text-3xl md:text-5xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-white via-amber-100 to-white bg-clip-text text-transparent">
+                {description.title}
+              </span>
+            </h1>
+            <div className="w-20 h-1 bg-crec-gold mx-auto mb-6"></div>
+            <p className="text-lg text-slate-100 mb-8 leading-relaxed">
               {description.subtitle}
             </p>
-            <motion.div
-              className="flex flex-col sm:flex-row justify-center items-center gap-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-            >
-              <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
-                <Button
-                  className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-blue-600 to-amber-500 hover:from-blue-700 hover:to-amber-600 text-white rounded-full shadow-md hover:shadow-lg transition-all text-lg font-semibold"
-                  asChild
-                >
-                  <Link to="/subscription-verification">Réserver une machine</Link>
-                </Button>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
-                <Button
-                  className="w-full sm:w-auto px-6 py-3 border-2 border-white text-white hover:text-amber-600 hover:bg-white rounded-full text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
-                  asChild
-                >
-                  <Link to="/contact">Nous contacter</Link>
-                </Button>
-              </motion.div>
-            </motion.div>
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-4">
+              <Link
+                to="/subscription-verification"
+                className="px-6 py-3 bg-crec-gold text-white font-medium rounded-full hover:bg-amber-500 transition-all duration-300 shadow-lg hover:shadow-xl"
+              >
+                Réserver une machine
+              </Link>
+              <Link
+                to="/contact"
+                className="px-6 py-3 border border-white/70 text-white hover:bg-white/20 rounded-full transition-all duration-300"
+              >
+                Nous contacter
+              </Link>
+            </div>
           </motion.div>
         </div>
       </section>
 
       {/* À propos */}
-      <section className="py-16 px-4">
-        <motion.div
-          className="max-w-5xl mx-auto space-y-8 text-justify"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-amber-800 mb-8">Le FabLab CREC : Un espace pour innover</h2>
-          <p className="text-jesuit-darkgray text-lg leading-relaxed">
-            {description.description}
-          </p>
-          <p className="text-jesuit-darkgray text-lg leading-relaxed">
-            {description.mission}
-          </p>
-        </motion.div>
+      <section id="about" className="py-16 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <motion.h2
+            className="text-3xl md:text-4xl font-bold text-center text-amber-900 mb-8"
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            Le FabLab CREC : Un espace pour innover
+          </motion.h2>
+          <motion.div
+            className="space-y-6 text-gray-700 text-lg leading-relaxed text-justify"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <p>{description.description}</p>
+            <p>{description.mission}</p>
+          </motion.div>
+        </div>
       </section>
 
       {/* Nos valeurs */}
-      <section className="py-16 bg-jesuit-light">
-        <div className="max-w-5xl mx-auto px-4">
+      <section className="py-16 bg-amber-50">
+        <div className="max-w-6xl mx-auto px-4">
           <motion.h2
-            className="text-3xl font-bold mb-12 text-center text-jesuit-dark"
+            className="text-3xl md:text-4xl font-bold text-center text-amber-900 mb-12"
             initial={{ opacity: 0, y: -20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -107,7 +117,7 @@ const FablabPage = () => {
             Nos valeurs
           </motion.h2>
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -130,11 +140,11 @@ const FablabPage = () => {
                 description: 'Développez vos compétences grâce à des formations pratiques et accessibles.',
               },
             ].map((value, i) => (
-              <Card key={i} className="bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg transition">
+              <Card key={i} className="bg-white shadow-md hover:shadow-lg transition border-t-4 border-t-amber-500">
                 <CardContent className="p-6 flex flex-col items-center text-center">
-                  <value.icon className="w-12 h-12 text-jesuit-gold mb-4" />
-                  <h3 className="text-xl font-semibold text-jesuit-dark mb-2">{value.title}</h3>
-                  <p className="text-jesuit-darkgray text-base">{value.description}</p>
+                  <value.icon className="w-12 h-12 text-crec-gold mb-4" />
+                  <h3 className="text-xl font-semibold text-crec-darkblue mb-2">{value.title}</h3>
+                  <p className="text-gray-600 text-base">{value.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -239,7 +249,8 @@ const FablabPage = () => {
                         <img
                           src={project.image || "/img/placeholder-project.jpg"}
                           alt={project.title}
-                          className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+                          className="w-full max-w-full h-32 sm:h-48 md:h-64 object-cover rounded-t-xl group-hover:scale-110 transition-transform duration-300"
+                          style={{display: 'block'}}
                         />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                           <Play className="w-12 h-12 text-white" />
@@ -249,7 +260,8 @@ const FablabPage = () => {
                       <img
                         src={project.image || "/img/placeholder-project.jpg"}
                         alt={project.title}
-                        className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+                        className="w-full max-w-full h-32 sm:h-48 md:h-64 object-cover rounded-t-xl group-hover:scale-110 transition-transform duration-300"
+                        style={{display: 'block'}}
                       />
                     )}
                     <div className="absolute top-2 right-2">
