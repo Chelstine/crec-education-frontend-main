@@ -89,7 +89,7 @@ const DonatePage = () => {
       title: 'Innovation',
       description: 'Équipement et maintenance du FabLab et espaces créatifs',
       icon: Sparkles,
-      image: '/img/fablab.png',
+      image: '/img/fablab.jpeg',
       examples: ['50€ = Outils technologiques', '200€ = Équipement spécialisé', '1000€ = Nouvelle machine']
     },
     {

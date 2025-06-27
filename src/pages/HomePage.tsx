@@ -93,7 +93,7 @@ const HomePage = () => {
       title: "FabLab",
       subtitle: "Centre d'innovation et de créativité",
       description: "Un espace équipé pour transformer vos idées en prototypes et développer des projets technologiques innovants.",
-      image: '/img/fablab.png',
+      image: '/img/fablab.jpeg',
       link: '/formations/fablab',
       icon: <Award className="h-12 w-12 text-emerald-600" />,
       color: "from-emerald-500/20 to-emerald-600/30"

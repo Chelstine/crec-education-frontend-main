@@ -44,20 +44,9 @@ const FablabPage = () => {
   const services = getActiveServices();
   const tariffs = getActiveTariffs().filter(tariff => tariff.type !== 'material');
   
-  // Effect to load machine images from the public folder
+  // Cette partie n'est plus nécessaire car nous ajoutons les machines directement dans le JSX
   useEffect(() => {
-    // This would be replaced by actual API call in production
-    // For now we'll use the machine images we know exist in the public folder
-    const availableImages = [
-      '/img/machines/ANYCUBIC cobra 2 pro.jpeg',
-      '/img/machines/anycubic-kobra.jpg',
-      '/img/machines/creality  ender fab-imp01.jpeg',
-      '/img/machines/creality  ender fab-imp02.jpeg',
-      '/img/machines/creality  ender fab-imp03.jpeg',
-      '/img/machines/decoupe laser.jpeg',
-      '/img/machines/impression sur tissu .jpeg'
-    ];
-    setMachineImages(availableImages);
+    // Aucune action nécessaire, les machines sont codées en dur
   }, []);
 
   // Fonction pour filtrer les projets selon la catégorie sélectionnée
@@ -80,7 +69,7 @@ const FablabPage = () => {
       {/* Hero Section - Style ContactPage */}
       <section className="relative w-full overflow-hidden">
         {/* Background with parallax effect */}
-        <div className="absolute inset-0 bg-[url('/img/fablab.png')] bg-cover bg-center" />
+        <div className="absolute inset-0 bg-[url('/img/fablab.jpeg')] bg-cover bg-center" />
         <div className="absolute inset-0 bg-gradient-to-r from-crec-darkblue/80 via-crec-darkblue/60 to-crec-darkblue/90 backdrop-blur-[2px]" />
         
         {/* Accent elements */}
@@ -167,7 +156,7 @@ const FablabPage = () => {
             Le FabLab CREC : Un espace pour innover
           </motion.h2>
           <motion.div
-            className="space-y-6 text-gray-700 text-lg leading-relaxed text-justify"
+            className="space-y-6 text-gray-700 text-lg leading-relaxed"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -175,54 +164,39 @@ const FablabPage = () => {
           >
             <p>{description.description}</p>
             <p>{description.mission}</p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Nos valeurs */}
-      <section className="py-16 bg-amber-50">
-        <div className="max-w-6xl mx-auto px-4">
-          <motion.h2
-            className="text-3xl md:text-4xl font-bold text-center text-amber-900 mb-12"
-            initial={{ opacity: 0, y: -20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            Nos valeurs
-          </motion.h2>
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            {[
-              {
-                icon: Lightbulb,
-                title: 'Innovation',
-                description: 'Transformez vos idées en réalité avec des outils numériques de pointe.',
-              },
-              {
-                icon: Users,
-                title: 'Collaboration',
-                description: 'Participez à une communauté jésuite unie par la créativité et le partage.',
-              },
-              {
-                icon: BookOpen,
-                title: 'Apprentissage',
-                description: 'Développez vos compétences grâce à des formations pratiques et accessibles.',
-              },
-            ].map((value, i) => (
-              <Card key={i} className="bg-white shadow-md hover:shadow-lg transition border-t-4 border-t-amber-500">
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <value.icon className="w-12 h-12 text-crec-gold mb-4" />
-                  <h3 className="text-xl font-semibold text-crec-darkblue mb-2">{value.title}</h3>
-                  <p className="text-gray-600 text-base">{value.description}</p>
-                </CardContent>
-              </Card>
-            ))}
+            
+            {/* Valeurs intégrées dans la description */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="bg-amber-100 p-2 rounded-full">
+                    <Lightbulb className="w-6 h-6 text-amber-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-crec-darkblue">Innovation</h3>
+                </div>
+                <p className="text-gray-600">Transformez vos idées en réalité avec des outils numériques de pointe.</p>
+              </div>
+              
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="bg-blue-100 p-2 rounded-full">
+                    <Users className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-crec-darkblue">Collaboration</h3>
+                </div>
+                <p className="text-gray-600">Participez à une communauté jésuite unie par la créativité et le partage.</p>
+              </div>
+              
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="bg-green-100 p-2 rounded-full">
+                    <BookOpen className="w-6 h-6 text-green-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-crec-darkblue">Apprentissage</h3>
+                </div>
+                <p className="text-gray-600">Développez vos compétences grâce à des formations pratiques et accessibles.</p>
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>
@@ -260,7 +234,8 @@ const FablabPage = () => {
               { key: 'iot', label: 'IoT & Connecté', icon: Wifi },
               { key: '3d', label: 'Impression 3D', icon: Printer },
               { key: 'electronics', label: 'Électronique', icon: Cpu },
-              { key: 'automation', label: 'Automatisation', icon: Zap }
+              { key: 'automation', label: 'Automatisation', icon: Zap },
+              { key: 'other', label: 'Autres', icon: Wrench }
             ].map((filter) => (
               <Button
                 key={filter.key}
@@ -345,12 +320,14 @@ const FablabPage = () => {
                         project.category === 'iot' ? 'bg-blue-500' :
                         project.category === '3d' ? 'bg-purple-500' :
                         project.category === 'electronics' ? 'bg-green-500' :
-                        'bg-orange-500'
+                        project.category === 'automation' ? 'bg-orange-500' :
+                        'bg-gray-600'
                       }`}>
                         {project.category === 'iot' ? 'IoT' :
                          project.category === '3d' ? '3D' :
                          project.category === 'electronics' ? 'Électronique' :
-                         'Automatisation'}
+                         project.category === 'automation' ? 'Automatisation' :
+                         'Autre'}
                       </span>
                     </div>
                     {/* Indicateur vidéo */}
@@ -435,7 +412,7 @@ const FablabPage = () => {
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <motion.h2
-            className="text-3xl font-bold mb-12 text-center text-jesuit-dark"
+            className="text-3xl font-bold mb-6 text-center text-jesuit-dark"
             initial={{ opacity: 0, y: -20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -443,37 +420,249 @@ const FablabPage = () => {
           >
             Nos équipements
           </motion.h2>
+          <motion.p
+            className="text-lg text-center text-gray-600 max-w-3xl mx-auto mb-12"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            Découvrez notre parc de machines numériques disponibles pour vos projets innovants. Notre équipe est disponible pour vous former et vous accompagner dans leur utilisation.
+          </motion.p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {machines.map((machine, i) => (
-              <motion.div
-                key={machine.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.2 }}
-                className="h-full"
-              >
-                <Card className="h-full hover:shadow-lg transition-all duration-300 flex flex-col">
-                  <CardContent className="p-6 flex-1 flex flex-col">
+            {/* Machine 1: Creality Ender FAB-IMP01 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="h-full"
+            >
+              <Card className="h-full hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden group">                  <div className="relative overflow-hidden">
                     <img
-                      src={machine.image}
-                      alt={machine.name}
-                      className="w-full h-48 object-cover rounded-md mb-6"
-                      onError={(e) => (e.currentTarget.src = '/img/placeholder-machine.jpg')}
+                      src="/img/machines/creality  ender fab-imp01.jpeg"
+                      alt="Creality Ender"
+                      className="w-full h-64 object-contain group-hover:scale-105 transition-transform duration-500"
                     />
-                    <h3 className="text-xl font-bold mb-4 text-jesuit-dark">{machine.name} ({machine.code})</h3>
-                    <ul className="text-jesuit-darkgray text-base leading-relaxed mb-4 list-disc list-inside flex-1">
-                      {machine.features.map((feature, idx) => (
-                        <li key={idx}>{feature}</li>
-                      ))}
+                  <div className="absolute top-3 right-3">
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/80 text-white backdrop-blur-sm">
+                      Impression 3D
+                    </span>
+                  </div>
+                </div>
+                <CardContent className="p-6 flex-1 flex flex-col">
+                  <h3 className="text-xl font-bold mb-3 text-jesuit-dark">Creality Ender 3</h3>
+                  <p className="text-sm text-gray-500 mb-2">FAB-IMP01</p>
+                  <p className="text-jesuit-darkgray text-base mb-4">
+                    Imprimante 3D fiable pour débutants et projets de précision moyenne.
+                  </p>
+                  <div className="mt-auto">
+                    <h4 className="font-medium text-jesuit-dark mb-2">Caractéristiques principales :</h4>
+                    <ul className="text-jesuit-darkgray text-sm leading-relaxed list-disc list-inside">
+                      <li>Volume d'impression: 220x220x250mm</li>
+                      <li>Précision: ±0.1mm</li>
+                      <li>Vitesse max: 150mm/s</li>
+                      <li>Matériaux: PLA, ABS, PETG</li>
                     </ul>
-                    <p className="text-jesuit-darkgray text-sm mt-auto">
-                      <span className="font-medium text-jesuit-dark">Abonnement :</span> {machine.monthlyPrice.toLocaleString()} FCFA/mois ou {machine.yearlyPrice.toLocaleString()} FCFA/an
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+            {/* Machine 2: Creality Ender FAB-IMP02 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="h-full"
+            >
+              <Card className="h-full hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden group">                  <div className="relative overflow-hidden">
+                    <img
+                      src="/img/machines/creality  ender fab-imp02.jpeg"
+                      alt="Creality Ender"
+                      className="w-full h-64 object-contain group-hover:scale-105 transition-transform duration-500"
+                    />
+                  <div className="absolute top-3 right-3">
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/80 text-white backdrop-blur-sm">
+                      Impression 3D
+                    </span>
+                  </div>
+                </div>
+                <CardContent className="p-6 flex-1 flex flex-col">
+                  <h3 className="text-xl font-bold mb-3 text-jesuit-dark">Creality Ender 5</h3>
+                  <p className="text-sm text-gray-500 mb-2">FAB-IMP02</p>
+                  <p className="text-jesuit-darkgray text-base mb-4">
+                    Imprimante 3D avancée pour productions de qualité et durables.
+                  </p>
+                  <div className="mt-auto">
+                    <h4 className="font-medium text-jesuit-dark mb-2">Caractéristiques principales :</h4>
+                    <ul className="text-jesuit-darkgray text-sm leading-relaxed list-disc list-inside">
+                      <li>Volume d'impression: 220x220x300mm</li>
+                      <li>Structure cubique stable</li>
+                      <li>Double axe Z</li>
+                      <li>Auto-nivellement</li>
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+            {/* Machine 3: Creality Ender FAB-IMP03 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="h-full"
+            >
+              <Card className="h-full hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden group">                  <div className="relative overflow-hidden">
+                    <img
+                      src="/img/machines/creality  ender fab-imp03.jpeg"
+                      alt="Creality Ender"
+                      className="w-full h-64 object-contain group-hover:scale-105 transition-transform duration-500"
+                    />
+                  <div className="absolute top-3 right-3">
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/80 text-white backdrop-blur-sm">
+                      Impression 3D
+                    </span>
+                  </div>
+                </div>
+                <CardContent className="p-6 flex-1 flex flex-col">
+                  <h3 className="text-xl font-bold mb-3 text-jesuit-dark">Creality Ender S1</h3>
+                  <p className="text-sm text-gray-500 mb-2">FAB-IMP03</p>
+                  <p className="text-jesuit-darkgray text-base mb-4">
+                    Imprimante 3D haute performance avec double extrusion et contrôle avancé.
+                  </p>
+                  <div className="mt-auto">
+                    <h4 className="font-medium text-jesuit-dark mb-2">Caractéristiques principales :</h4>
+                    <ul className="text-jesuit-darkgray text-sm leading-relaxed list-disc list-inside">
+                      <li>Volume d'impression: 220x220x280mm</li>
+                      <li>Extrudeuse à entraînement direct</li>
+                      <li>CR Touch (nivellement automatique)</li>
+                      <li>Plateau chauffant PEI à démontage rapide</li>
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+            {/* Machine 4: ANYCUBIC Cobra 2 Pro */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="h-full"
+            >
+              <Card className="h-full hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden group">                  <div className="relative overflow-hidden">
+                    <img
+                      src="/img/machines/ANYCUBIC cobra 2 pro.jpeg"
+                      alt="ANYCUBIC Cobra 2 Pro"
+                      className="w-full h-64 object-contain group-hover:scale-105 transition-transform duration-500"
+                    />
+                  <div className="absolute top-3 right-3">
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/80 text-white backdrop-blur-sm">
+                      Impression 3D
+                    </span>
+                  </div>
+                </div>
+                <CardContent className="p-6 flex-1 flex flex-col">
+                  <h3 className="text-xl font-bold mb-3 text-jesuit-dark">ANYCUBIC Cobra 2 Pro</h3>
+                  <p className="text-sm text-gray-500 mb-2">FAB-IMP04</p>
+                  <p className="text-jesuit-darkgray text-base mb-4">
+                    Imprimante 3D ultra-rapide pour la production professionnelle et projets avancés.
+                  </p>
+                  <div className="mt-auto">
+                    <h4 className="font-medium text-jesuit-dark mb-2">Caractéristiques principales :</h4>
+                    <ul className="text-jesuit-darkgray text-sm leading-relaxed list-disc list-inside">
+                      <li>Vitesse d'impression jusqu'à 300mm/s</li>
+                      <li>Cadre en métal intégral et stable</li>
+                      <li>Écran tactile intelligent</li>
+                      <li>Reprise d'impression après coupure</li>
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+            {/* Machine 5: Découpe Laser */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="h-full"
+            >
+              <Card className="h-full hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden group">                  <div className="relative overflow-hidden">
+                    <img
+                      src="/img/machines/decoupe laser.jpeg"
+                      alt="Machine de Découpe Laser"
+                      className="w-full h-64 object-contain group-hover:scale-105 transition-transform duration-500"
+                    />
+                  <div className="absolute top-3 right-3">
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/80 text-white backdrop-blur-sm">
+                      Découpe Laser
+                    </span>
+                  </div>
+                </div>
+                <CardContent className="p-6 flex-1 flex flex-col">
+                  <h3 className="text-xl font-bold mb-3 text-jesuit-dark">Ortur Laser Master 2</h3>
+                  <p className="text-sm text-gray-500 mb-2">FAB-LASER01</p>
+                  <p className="text-jesuit-darkgray text-base mb-4">
+                    Machine de découpe et gravure laser pour bois, acrylique, cuir et autres matériaux.
+                  </p>
+                  <div className="mt-auto">
+                    <h4 className="font-medium text-jesuit-dark mb-2">Caractéristiques principales :</h4>
+                    <ul className="text-jesuit-darkgray text-sm leading-relaxed list-disc list-inside">
+                      <li>Zone de travail: 400 x 430mm</li>
+                      <li>Précision de positionnement: 0.01mm</li>
+                      <li>Compatible avec LightBurn</li>
+                      <li>Puissance: 20W</li>
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+            {/* Machine 6: Impression sur Tissu */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="h-full"
+            >
+              <Card className="h-full hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden group">                  <div className="relative overflow-hidden">
+                    <img
+                      src="/img/machines/impression sur tissu .jpeg"
+                      alt="Machine d'Impression sur Tissu"
+                      className="w-full h-64 object-contain group-hover:scale-105 transition-transform duration-500"
+                    />
+                  <div className="absolute top-3 right-3">
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/80 text-white backdrop-blur-sm">
+                      Impression Textile
+                    </span>
+                  </div>
+                </div>
+                <CardContent className="p-6 flex-1 flex flex-col">
+                  <h3 className="text-xl font-bold mb-3 text-jesuit-dark">Epson SureColor F570</h3>
+                  <p className="text-sm text-gray-500 mb-2">FAB-TEXT01</p>
+                  <p className="text-jesuit-darkgray text-base mb-4">
+                    Imprimante à sublimation pour impression haute qualité sur textiles et objets.
+                  </p>
+                  <div className="mt-auto">
+                    <h4 className="font-medium text-jesuit-dark mb-2">Caractéristiques principales :</h4>
+                    <ul className="text-jesuit-darkgray text-sm leading-relaxed list-disc list-inside">
+                      <li>Largeur d'impression: 60cm</li>
+                      <li>Résolution: jusqu'à 2400 x 1200 DPI</li>
+                      <li>Encres à sublimation UltraChrome DS</li>
+                      <li>Compatible avec de nombreux textiles</li>
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -482,7 +671,7 @@ const FablabPage = () => {
       <section className="py-16 bg-jesuit-light">
         <div className="max-w-6xl mx-auto px-4">
           <motion.h2
-            className="text-3xl font-bold mb-12 text-center text-jesuit-dark"
+            className="text-3xl font-bold mb-6 text-center text-jesuit-dark"
             initial={{ opacity: 0, y: -20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -490,6 +679,15 @@ const FablabPage = () => {
           >
             Services et tarifs
           </motion.h2>
+          <motion.p
+            className="text-lg text-center text-gray-600 max-w-3xl mx-auto mb-12"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            Choisissez une formule adaptée à vos besoins pour profiter pleinement des équipements et de l'expertise de notre FabLab.
+          </motion.p>
           
           {/* Abonnements (tariffs de type membership) */}
           <motion.div 
@@ -548,7 +746,7 @@ const FablabPage = () => {
 
           {/* Services et Formations */}
           <motion.div 
-            className="mb-16"
+            className="mb-8"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -556,44 +754,35 @@ const FablabPage = () => {
           >
             <h3 className="text-2xl font-semibold text-jesuit-dark mb-8 text-center">Formations et Services</h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {services.map((service) => (
+              {services.filter(service => service.category === 'Formation' || service.category === 'Service').map((service, index) => (
                 <Card key={service.id} className="bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all">
                   <CardContent className="p-6">
-                    <Printer className="w-8 h-8 text-jesuit-gold mb-3" />
+                    {service.category === 'Formation' ? 
+                      <BookOpen className="w-8 h-8 text-jesuit-gold mb-3" /> : 
+                      <Wrench className="w-8 h-8 text-jesuit-gold mb-3" />}
+                    <div className="inline-flex px-2 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-medium mb-3">
+                      {service.category}
+                    </div>
                     <h4 className="text-lg font-semibold text-jesuit-dark mb-2">{service.name}</h4>
                     <p className="text-jesuit-darkgray text-sm mb-4">
                       {service.description}
                     </p>
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center mt-auto">
                       <span className="text-lg font-bold text-jesuit-gold">
                         {service.price === 0 ? 'Sur devis' : `${service.price.toLocaleString()} FCFA`}
                       </span>
-                      <span className="text-sm text-jesuit-darkgray">{service.duration}</span>
+                      <span className="text-sm bg-gray-100 px-2 py-1 rounded text-gray-600">{service.duration}</span>
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
-          </motion.div>
-
-          {/* Tarifs des matériaux */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-          >
-            <h3 className="text-2xl font-semibold text-jesuit-dark mb-8 text-center">Tarifs des Matériaux</h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {tariffs.filter(t => t.type === 'material').map((tariff) => (
-                <Card key={tariff.id} className="bg-white shadow-md">
-                  <CardContent className="p-4 text-center">
-                    <h4 className="font-semibold text-jesuit-dark mb-2">{tariff.name}</h4>
-                    <div className="text-xl font-bold text-jesuit-gold">{tariff.price.toLocaleString()} FCFA</div>
-                    <p className="text-sm text-jesuit-darkgray">par {tariff.unit}</p>
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="text-center mt-8">
+              <Link to="/contact">
+                <Button variant="outline" className="border-amber-500 text-amber-700 hover:bg-amber-50">
+                  Demander plus d'informations sur nos services
+                </Button>
+              </Link>
             </div>
           </motion.div>
         </div>
@@ -601,7 +790,7 @@ const FablabPage = () => {
 
       {/* Infos pratiques */}
       <section className="py-16 bg-white">
-        <div className="max-w-5xl mx-auto px-4">
+        <div className="max-w-6xl mx-auto px-4">
           <motion.h2
             className="text-3xl font-bold mb-12 text-center text-jesuit-dark"
             initial={{ opacity: 0, y: -20 }}
@@ -611,82 +800,162 @@ const FablabPage = () => {
           >
             Infos pratiques
           </motion.h2>
-          <motion.div
-            className="space-y-8"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-center text-jesuit-darkgray">
-              <Card className="bg-white/80 backdrop-blur-sm shadow-md">
+          <div className="flex flex-col md:flex-row gap-8">
+            {/* Informations à gauche */}
+            <motion.div
+              className="space-y-6 md:w-5/12"
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <Card className="bg-white shadow-sm border border-gray-100">
                 <CardContent className="p-6">
-                  <Clock className="w-12 h-12 text-jesuit-gold mx-auto mb-4" />
-                  <p className="text-base">Ouvert de 8h à 17h</p>
+                  <div className="flex items-center mb-4">
+                    <div className="bg-amber-100 p-3 rounded-full mr-4">
+                      <Clock className="w-6 h-6 text-amber-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-jesuit-dark">Horaires d'ouverture</h3>
+                      <p className="text-gray-600">Du lundi au vendredi de 8h à 17h</p>
+                      <p className="text-gray-600">Samedi de 9h à 13h (sur rendez-vous)</p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-              <Card className="bg-white/80 backdrop-blur-sm shadow-md">
+              
+              <Card className="bg-white shadow-sm border border-gray-100">
                 <CardContent className="p-6">
-                  <MapPin className="w-12 h-12 text-jesuit-gold mx-auto mb-4" />
-                  <p className="text-base">Godomey, Bénin</p>
+                  <div className="flex items-center mb-4">
+                    <div className="bg-green-100 p-3 rounded-full mr-4">
+                      <MapPin className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-jesuit-dark">Adresse</h3>
+                      <p className="text-gray-600">CREC - Centre Jésuite de Recherche d'Étude et de Créativité</p>
+                      <p className="text-gray-600">Godomey, Bénin</p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-            </div>
-            <iframe
-              title="Localisation CREC"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d26805.608272842124!2d2.305574410839845!3d6.383382500000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x102357caccf1e90d%3A0xbce64d9a20725bcc!2sCentre%20J%C3%A9suite%20De%20Recherche%20D%27Etude%20Et%20De%20Cr%C3%A9ativit%C3%A9!5e1!3m2!1sfr!2sbj!4v1748345292350!5m2!1sfr!2sbj"
-              className="w-full h-64 rounded-lg border border-amber-200"
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              aria-label="Carte de localisation du CREC à Godomey, Bénin"
-            />
-            <p className="text-center text-jesuit-darkgray">
-              <a
-                href="https://maps.app.goo.gl/6hS2iXvG5WjZ8KkD7"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-amber-500 hover:underline transition-colors"
-              >
-                CREC, Godomey, Bénin
-              </a>
-            </p>
-          </motion.div>
+              
+              <Card className="bg-white shadow-sm border border-gray-100">
+                <CardContent className="p-6">
+                  <div className="flex items-center mb-4">
+                    <div className="bg-blue-100 p-3 rounded-full mr-4">
+                      <PhoneCall className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-jesuit-dark">Contact</h3>
+                      <p className="text-gray-600">Téléphone: +229 96 05 33 22</p>
+                      <p className="text-gray-600">Email: contact@crecbenin.org</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white shadow-sm border border-gray-100">
+                <CardContent className="p-6">
+                  <div className="flex items-center mb-4">
+                    <div className="bg-purple-100 p-3 rounded-full mr-4">
+                      <CalendarDays className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-jesuit-dark">Réservation</h3>
+                      <p className="text-gray-600">Réservez votre créneau en ligne ou par téléphone</p>
+                    </div>
+                  </div>
+                  <Link to="/subscription-verification" className="mt-2 inline-flex items-center text-blue-600 hover:text-blue-800">
+                    Réserver une machine <ExternalLink className="w-4 h-4 ml-1" />
+                  </Link>
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+            {/* Carte à droite */}
+            <motion.div 
+              className="md:w-7/12"
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            >
+              <div className="h-full">
+                <iframe
+                  title="Localisation CREC"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d26805.608272842124!2d2.305574410839845!3d6.383382500000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x102357caccf1e90d%3A0xbce64d9a20725bcc!2sCentre%20J%C3%A9suite%20De%20Recherche%20D%27Etude%20Et%20De%20Cr%C3%A9ativit%C3%A9!5e1!3m2!1sfr!2sbj!4v1748345292350!5m2!1sfr!2sbj"
+                  className="w-full h-full min-h-[400px] rounded-lg border-2 border-amber-200 shadow-md"
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  aria-label="Carte de localisation du CREC à Godomey, Bénin"
+                />
+                <div className="mt-4 text-center">
+                  <a
+                    href="https://maps.app.goo.gl/6hS2iXvG5WjZ8KkD7"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-blue-600 hover:text-amber-500 hover:underline transition-colors"
+                  >
+                    <MapPin className="w-4 h-4 mr-1" /> Voir sur Google Maps
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* CTA - Style harmonisé */}
-      <section className="py-16 px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-amber-900 via-amber-800 to-amber-900"></div>
-        <div className="max-w-4xl mx-auto text-center relative z-10">
+      {/* CTA - Style minimaliste */}
+      <section className="py-20 px-4 bg-gray-50">
+        <div className="max-w-4xl mx-auto text-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="bg-gradient-to-br from-black/40 to-transparent p-10 rounded-xl backdrop-blur-sm border border-white/10"
+            transition={{ duration: 0.8 }}
+            className="space-y-8"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">Rejoignez le FabLab CREC</h2>
-            <p className="text-xl mb-8 text-amber-100">
-              Créez, innovez et collaborez dans un espace dédié à l'excellence et au service.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link to="/formations/fablab/inscription" 
-                className="px-8 py-3 bg-crec-gold hover:bg-amber-500 text-white font-medium rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
-                <BookOpen className="w-5 h-5" />
-                S'inscrire aux formations
+            <motion.h2 
+              className="text-3xl md:text-4xl font-bold text-crec-darkblue"
+              initial={{ opacity: 0, y: -20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              Prêt à donner vie à vos idées ?
+            </motion.h2>
+            
+            <motion.p
+              className="text-lg text-gray-600 max-w-2xl mx-auto"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              Le FabLab CREC est ouvert à tous ceux qui souhaitent explorer leur créativité et transformer leurs concepts en prototypes concrets dans un environnement collaboratif et innovant.
+            </motion.p>
+            
+            <motion.div
+              className="flex flex-col sm:flex-row justify-center gap-4 pt-4"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
+              <Link to="/contact">
+                <Button variant="outline" className="min-w-[200px] border-crec-darkblue text-crec-darkblue hover:bg-crec-darkblue hover:text-white group transition-all duration-300">
+                  <Mail className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                  Nous contacter
+                </Button>
               </Link>
-              <Link to="/subscription-verification" 
-                className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
-                <Cpu className="w-5 h-5" />
-                Réserver une machine
+              <Link to="/subscription-verification">
+                <Button className="min-w-[200px] bg-crec-gold hover:bg-amber-500 text-white group transition-all duration-300">
+                  <CalendarDays className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                  Réserver maintenant
+                </Button>
               </Link>
-              <Link to="/contact" 
-                className="px-8 py-3 border border-white/70 text-white hover:bg-white/20 rounded-full transition-all duration-300 flex items-center justify-center gap-2">
-                <Users className="w-5 h-5" />
-                Nous contacter
-              </Link>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>

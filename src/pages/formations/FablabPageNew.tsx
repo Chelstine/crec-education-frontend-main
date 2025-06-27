@@ -36,7 +36,7 @@ const FablabPage = () => {
       {/* Hero Section */}
       <section className="relative w-full overflow-hidden">
         {/* Background with parallax effect */}
-        <div className="absolute inset-0 bg-[url('/img/fablab.png')] bg-cover bg-center" />
+        <div className="absolute inset-0 bg-[url('/img/fablab.jpeg')] bg-cover bg-center" />
         <div className="absolute inset-0 bg-gradient-to-r from-crec-darkblue/80 via-crec-darkblue/60 to-crec-darkblue/90 backdrop-blur-[2px]" />
         
         {/* Accent elements */}
