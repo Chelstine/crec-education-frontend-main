@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, ChevronDown, ChevronUp, Home } from 'lucide-react';
+import { Menu, X, ChevronDown, ChevronUp, Home, Camera } from 'lucide-react';
 import LangSwitcher from '@/components/common/LangSwitcher';
 
 const Header = () => {
@@ -134,9 +134,12 @@ const Header = () => {
             )
           )}
         </nav>
-        {/* Lang icon & mobile menu btn */}
+        {/* Lang icon, Gallery icon & mobile menu btn */}
         <div className="flex items-center gap-2 ml-auto">
           <LangSwitcher />
+          <Link to="/gallery" className="p-2 text-white hover:text-crec-gold transition" aria-label="Galerie photos">
+            <Camera size={20} />
+          </Link>
           <button
             className="lg:hidden p-2 hover:bg-crec-gold rounded-md transition-colors"
             onClick={() => setIsMenuOpen(!isMenuOpen)}

@@ -118,7 +118,8 @@ const HomePage = () => {
       name: "FAO", 
       logo: "/img/fao.png",
       link: "https://www.fao.org/",
-      description: ""
+      description: "Organisation des Nations Unies pour l'alimentation et l'agriculture"
+    }
   ];
 
   // Sections pour la navigation par onglets

@@ -18,6 +18,7 @@ const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const LegalPage = lazy(() => import('@/pages/LegalPage'));
 const PrivacyPage = lazy(() => import('@/pages/PrivacyPage'));
 const ContactPage = lazy(() => import('@/pages/ContactPage'));
+const GalleryPage = lazy(() => import('@/pages/GalleryPage')); // Nouvelle page Galerie
 
 // Pages À propos - Structures modernisées et optimisées (seulement 3 pages conservées)
 const AboutPage = lazy(() => import('@/pages/about/AboutPage')); // Qui sommes-nous
@@ -104,6 +105,10 @@ const routes: RouteObject[] = [
       {
         path: 'privacy',
         element: withSuspense(PrivacyPage),
+      },
+      {
+        path: 'gallery',
+        element: withSuspense(GalleryPage),
       },
       {
         path: 'donate',
