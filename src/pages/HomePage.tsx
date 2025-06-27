@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import Banner from '@/components/common/Banner';
 import SectionTitle from '@/components/common/SectionTitle';
@@ -15,6 +15,24 @@ const HomePage = () => {
   const { scrollYProgress } = useScroll();
   const opacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
   const [activeTab, setActiveTab] = useState(0);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Auto-rotate images every 5 seconds
+  const heroImages = [
+    '/img/crec1.jpg',
+    '/img/crec2.png',
+    '/img/crec3.jpg'
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        (prevIndex + 1) % heroImages.length
+      );
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [heroImages.length]);
 
   // Récupérer le contenu géré par l'admin
   const content = useMultipleContent([
@@ -117,60 +135,65 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white text-slate-900">
-      {/* Hero Banner avec diaporama optimisé et overlay moderne */}
-      <div className="relative">
-        <Banner 
-          title="Centre de Recherche, d'Étude et de Créativité"
-          subtitle="Formation, Recherche et Accompagnement pour une éducation intégrale fondée sur des valeurs chrétiennes."
-          bgImages={[
-            '/img/crec1.jpg',
-            '/img/crec2.png',
-            '/img/crec3.jpg'
-          ]}
-          ctaLink="#formations"
-          size="lg"
-        >
-          {/* Overlay gradient amélioré pour augmenter la lisibilité et la visibilité des images */}
-          <div className="absolute inset-0 bg-gradient-to-b from-crec-darkblue/60 via-crec-darkblue/40 to-transparent z-[2]" />
-          
-          {/* Vignette pour améliorer le contraste et la visibilité */}
-          <div className="absolute inset-0 bg-radial-gradient pointer-events-none z-[2]" />
-          
-          {/* Contour lumineux pour accentuer les images */}
-          <div className="absolute inset-0 border-4 border-white/15 z-[2] m-4 rounded-lg" />
-          
-          {/* Accent lumineux doré */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.5 }}
-            className="absolute right-[-5%] top-[20%] w-[350px] h-[350px] rounded-full bg-crec-gold/35 blur-3xl mix-blend-overlay z-[3]"
-          />
-          
-          {/* Accent lumineux pour améliorer la lisibilité du texte */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 2 }}
-            className="absolute left-[10%] bottom-[30%] w-[250px] h-[250px] rounded-full bg-white/25 blur-3xl z-[2]"
-          />
-          
-          {/* Gradient bas de page pour transition douce */}
-          <motion.div 
-            style={{ opacity }}
-            className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white to-transparent z-[5]"
-          />
-          
-          {/* Boutons avec effet hover amélioré */}
-          <div className="flex flex-col sm:flex-row gap-5 justify-center mt-14">
-            <Button asChild variant="default" size="lg" className="bg-crec-gold hover:bg-amber-500 text-white border border-amber-600/20 shadow-xl shadow-amber-500/30 transform hover:translate-y-[-3px] transition-all">
-              <Link to="#formations">Découvrir nos formations</Link>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="backdrop-blur-sm bg-white/40 text-white border-white hover:bg-white/60 shadow-lg hover:shadow-xl transform hover:translate-y-[-3px] transition-all">
-              <Link to="/about">Notre histoire</Link>
+      {/* Hero totalement repensé, design smooth, soft et élégant */}
+      <div className="relative min-h-[75vh] max-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-white to-slate-50">
+        {/* Diaporama d'images avec transition fluide (crossfade sans blanc) */}
+        <div className="absolute inset-0 w-full h-full">
+          {heroImages.map((img, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: i === currentImageIndex ? 1 : 0 }}
+              animate={{ opacity: i === currentImageIndex ? 1 : 0 }}
+              transition={{ duration: 1.2, ease: 'easeInOut' }}
+              className="absolute inset-0 w-full h-full bg-cover bg-center"
+              style={{ backgroundImage: `url('${img}')`, zIndex: i === currentImageIndex ? 2 : 1 }}
+            />
+          ))}
+          {/* Overlay léger pour préserver la visibilité des images */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
+        </div>
+        {/* Contenu central */}
+        <div className="relative z-10 flex flex-col items-center justify-center w-full px-4 py-16">
+          {/* Badge localité moderne */}
+          <span className="inline-flex items-center px-4 py-1.5 mb-5 rounded-full bg-white/90 shadow-lg backdrop-blur-sm text-slate-800 font-medium text-base tracking-wide border border-white/50">
+            <span className="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
+            GODOMEY, BÉNIN
+          </span>
+          {/* Titre principal élégant */}
+          <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-6 drop-shadow-lg tracking-tight text-center">
+            Centre de Recherche, d'Étude<br className="hidden md:block" />
+            <span className="block text-2xl md:text-4xl font-light text-blue-100 mt-2">et de Créativité</span>
+          </h1>
+          {/* Boutons d'action */}
+          <div className="flex flex-col sm:flex-row gap-4 items-center">
+            <Button
+              asChild
+              size="lg"
+              className="rounded-full px-8 py-4 bg-emerald-500/90 hover:bg-emerald-600 text-white font-semibold shadow-xl border border-emerald-400/30 transition-all duration-300 text-lg backdrop-blur-sm"
+            >
+              <Link to="#formations">
+                Découvrir nos formations
+              </Link>
             </Button>
           </div>
-        </Banner>
+        
+          {/* Indicateurs interactifs du diaporama */}
+          <div className="flex space-x-3 mt-8">
+            {heroImages.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentImageIndex(i)}
+                aria-label={`Voir image ${i + 1}`}
+                title={`Image ${i + 1}`}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  i === currentImageIndex 
+                    ? 'bg-white shadow-lg scale-125' 
+                    : 'bg-white/50 hover:bg-white/70'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Section À propos avec design modernisé */}

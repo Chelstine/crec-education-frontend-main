@@ -1,20 +1,24 @@
 /**
- * JesuitesPage.tsx
+ * JesuitesPage.tsx - Version redesignée et optimisée
  * 
- * Page complète sur l'histoire et l'héritage des Jésuites
- * Cette page intègre tout le contenu relatif aux jésuites :
- * - Histoire et fondation
- * - Saint Ignace de Loyola et autres saints jésuites
- * - Communautés jésuites et la famille ignatienne
- * - Spiritualité et mission
+ * Cette page présente l'histoire et l'héritage de la Compagnie de Jésus (les Jésuites)
+ * Structure de la page :
+ * - Introduction visuelle et spirituelle à la Compagnie de Jésus
+ * - Onglets thématiques pour une navigation claire :
+ *   1. Histoire et mission (chronologie, fondation, évolution)
+ *   2. Figures emblématiques (fondateurs, saints, leaders importants)
+ *   3. Communautés et œuvres (présence mondiale et au Bénin)
+ *   4. Spiritualité ignatienne (valeurs, pratiques, exercices spirituels)
  * 
- * Source principale: jesuites.global
+ * Sources : jesuites.global, jesuites.com, ignatianspirituality.com
+ * 
+ * @version 2.0
+ * @lastUpdate 2025-06-27
  */
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Book,        // Éducation/publication
@@ -33,115 +37,84 @@ import {
   BookOpen,    // Livre ouvert/enseignement
   FileText,    // Documents/publications
   Award,       // Récompense/reconnaissance
-  Feather      // Plume/écriture
+  Flame,       // Flamme spirituelle
+  ExternalLink,// Lien externe
+  Info         // Information
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-
-// Types pour les sections extensibles
-interface SectionsState {
-  stats: boolean;
-  publications: boolean;
-  controversies: boolean;
-}
+import { motion } from 'framer-motion';
 
 // Type pour les onglets principaux
-type TabType = 'histoire' | 'saints' | 'communautes' | 'spiritualite';
+type TabType = 'histoire' | 'figures' | 'communautes' | 'spiritualite';
 
 /**
  * Composant principal JesuitesPage
- * Page complète et détaillée sur les Jésuites fusionnant le contenu 
- * de plusieurs anciennes pages (ignace, saints, communautés)
+ * Version refactorisée sans doublons et avec une structure plus claire
  */
 const JesuitesPage = () => {
-  // Gestion des sections dépliables
-  const [openSections, setOpenSections] = useState<SectionsState>({
-    stats: false,
-    publications: false,
-    controversies: false,
-  });
-  
-  // Onglets pour la navigation dans le contenu fusionné
+  // État pour la navigation par onglets
   const [activeTab, setActiveTab] = useState<TabType>('histoire');
-
-  // Fonction pour basculer l'état d'ouverture d'une section
-  const toggleSection = (section: keyof SectionsState) => {
-    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
+  
+  // Animation variants pour les effets visuels
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+  
+  // Animation pour les éléments de liste
+  const listAnimation = {
+    hidden: { opacity: 0 },
+    visible: (i: number) => ({
+      opacity: 1,
+      transition: { delay: i * 0.1, duration: 0.5 }
+    })
   };
 
-  // SECTION HISTOIRE - Figures importantes des Jésuites
-  const figures = [
-    { 
-      title: 'Saint Ignace de Loyola', 
-      desc: 'Fondateur de la Compagnie en 1540, ancien soldat basque, maître des Exercices spirituels (1491-1556).', 
-      image: '/img/saint-ignac.jpeg' 
-    },
-    { 
-      title: 'Saint François Xavier', 
-      desc: 'Missionnaire en Asie (Inde, Japon, Chine), patron des missions (1506-1552).', 
-      image: '/img/francois-xavier.jpeg' 
-    },
-    { 
-      title: 'Saint Pierre Favre', 
-      desc: 'Cofondateur, théologien de la douceur, premier prêtre jésuite (1506-1546).', 
-      image: '/img/pierre-favre.jpeg' 
-    },
-    { 
-      title: 'Pape François', 
-      desc: 'Premier pape jésuite (2013-présent), promoteur de la simplicité et de la justice sociale (né en 1936).', 
-      image: '/img/pape-francois.jpeg' 
-    },
-    { 
-      title: 'Pedro Arrupe', 
-      desc: 'Supérieur général (1965-1983), pionnier de la justice sociale moderne et du service auprès des réfugiés (1907-1991).', 
-      image: '/img/pedro-arrupe.jpeg' 
-    },
-  ];
-
-  // Spiritualité et valeurs jésuites
-  const values = [
+  // Figures emblématiques des Jésuites 
+  // (fusion des anciennes sections figures, saints et autres mentions)
+  const jesuitValues = [
     { 
       icon: Star, 
       title: "Magis", 
-      desc: "Rechercher l'excellence pour la plus grande gloire de Dieu, en visant le 'davantage' dans chaque action." 
+      description: "Rechercher l'excellence pour la plus grande gloire de Dieu, en visant le 'davantage' dans chaque action." 
     },
     { 
       icon: Target, 
       title: "Discernement", 
-      desc: "Prendre des décisions éclairées par la prière et la réflexion spirituelle pour rechercher la volonté divine." 
+      description: "Prendre des décisions éclairées par la prière et la réflexion spirituelle pour rechercher la volonté divine." 
     },
     { 
       icon: Heart, 
       title: "Solidarité", 
-      desc: "Servir les pauvres et les exclus avec un amour enraciné dans la justice et la dignité humaine." 
+      description: "Servir les pauvres et les exclus avec un amour enraciné dans la justice et la dignité humaine." 
     },
     { 
       icon: Cross, 
       title: "Service", 
-      desc: "Se consacrer au Christ et à l'Église universelle avec générosité et obéissance." 
+      description: "Se consacrer au Christ et à l'Église universelle avec générosité et obéissance." 
     },
   ];
 
-  // Préférences apostoliques universelles
-  const missions = [
+  // Préférences apostoliques universelles - missions actuelles des Jésuites
+  const apostolicPreferences = [
     { 
       icon: Cross, 
       title: "Chemin vers Dieu", 
-      desc: "Guider les âmes à travers les Exercices spirituels et le discernement ignatien." 
+      description: "Guider les âmes à travers les Exercices spirituels et le discernement ignatien." 
     },
     { 
       icon: Heart, 
       title: "Marcher avec les exclus", 
-      desc: "Promouvoir la réconciliation et la justice auprès des pauvres et des marginalisés." 
+      description: "Promouvoir la réconciliation et la justice auprès des pauvres et des marginalisés." 
     },
     { 
       icon: Users, 
       title: "Accompagner les jeunes", 
-      desc: "Former une jeunesse porteuse d'espoir pour un avenir meilleur." 
+      description: "Former une jeunesse porteuse d'espoir pour un avenir meilleur." 
     },
     { 
       icon: Leaf, 
       title: "Sauvegarde de la Création", 
-      desc: "Protéger la 'Maison commune' via une écologie intégrale (Laudato Si)." 
+      description: "Protéger notre 'Maison commune' via une écologie intégrale (Laudato Si)." 
     },
   ];
 
@@ -193,50 +166,69 @@ const JesuitesPage = () => {
     },
   ];
 
-  // SECTION SAINTS - Liste des saints et bienheureux jésuites importants
-  const saints = [
-    {
+  // Figures emblématiques - fusion sans doublons des figures historiques et saints
+  const keyFigures = [
+    { 
       id: 1,
-      name: 'Saint Ignace de Loyola',
-      title: 'Fondateur de la Compagnie de Jésus',
-      description: 'Fondateur de la Compagnie en 1540, auteur des Exercices Spirituels, il guida des générations vers le discernement spirituel (1491-1556). Canonisé en 1622.',
-      image: '/img/saint-ignac.jpeg'
+      name: "Saint Ignace de Loyola", 
+      title: "Fondateur de la Compagnie",
+      dates: "1491-1556",
+      description: "Ancien soldat basque converti après une blessure au combat, il est l'auteur des Exercices Spirituels et le fondateur de la Compagnie de Jésus en 1540. Sa méthode de discernement spirituel a transformé d'innombrables vies.",
+      image: "/img/saint-ignac.jpeg",
+      canonisation: "Canonisé en 1622" 
     },
-    {
+    { 
       id: 2,
-      name: 'Saint François Xavier',
-      title: 'Apôtre des Indes',
-      description: 'Missionnaire en Asie (Inde, Japon, Chine), il baptisa des milliers de personnes et établit des communautés chrétiennes. Canonisé en 1622 (1506-1552).',
-      image: '/img/francois-xavier.jpeg'
+      name: "Saint François Xavier", 
+      title: "Apôtre des Indes",
+      dates: "1506-1552",
+      description: "Missionnaire pionnier en Asie (Inde, Japon, Chine), il a baptisé des milliers de personnes et établi de nombreuses communautés chrétiennes. Patron des missions, il incarne le zèle apostolique jésuite.",
+      image: "/img/francois-xavier.jpeg",
+      canonisation: "Canonisé en 1622" 
     },
-    {
+    { 
       id: 3,
-      name: 'Saint Pierre Canisius',
-      title: "Docteur de l'Église",
-      description: 'Théologien et éducateur, il fortifia la foi catholique en Allemagne et en Europe centrale pendant la Contre-Réforme. Canonisé en 1925 (1521-1597).',
-      image: '/img/pierre-favre.jpeg'
+      name: "Saint Pierre Favre", 
+      title: "Premier prêtre jésuite",
+      dates: "1506-1546",
+      description: "Premier compagnon d'Ignace ordonné prêtre, il était connu pour sa douceur et son talent de guide spirituel. Son journal spirituel reste une référence de la spiritualité ignatienne.",
+      image: "/img/pierre-favre.jpeg",
+      canonisation: "Canonisé en 2013" 
     },
     {
       id: 4,
       name: 'Saint Robert Bellarmin',
       title: "Cardinal et Docteur de l'Église",
-      description: 'Théologien brillant et défenseur de la foi pendant la Contre-Réforme. Il fut un soutien important de Galilée malgré leurs désaccords. Canonisé en 1930 (1542-1621).',
-      image: '/img/saints/bellarmin.jpg'
+      dates: "1542-1621",
+      description: 'Théologien brillant et défenseur de la foi pendant la Contre-Réforme. Il fut un soutien important de Galilée malgré leurs désaccords.',
+      image: '/img/saints/bellarmin.jpg',
+      canonisation: "Canonisé en 1930"
     },
     {
       id: 5,
       name: 'Saint Jean de Brébeuf',
       title: 'Martyr du Canada',
-      description: 'Missionnaire auprès des Hurons au Canada, il fut martyrisé en 1649. Son respect pour la culture amérindienne et son courage face au martyre sont exemplaires. Canonisé en 1930.',
-      image: '/img/saints/brebeuf.jpg'
+      dates: "1593-1649",
+      description: 'Missionnaire auprès des Hurons au Canada, il fut martyrisé en 1649. Son respect pour la culture amérindienne et son courage face au martyre sont exemplaires.',
+      image: '/img/saints/brebeuf.jpg',
+      canonisation: "Canonisé en 1930"
     },
-    {
+    { 
       id: 6,
-      name: 'Saint Pierre Claver',
-      title: 'Esclave des esclaves',
-      description: 'Missionnaire à Carthagène (Colombie), il se consacra au service des esclaves africains débarquant dans le port. Canonisé en 1888 (1580-1654).',
-      image: '/img/saints/claver.jpg'
-    }
+      name: "Pape François", 
+      title: "Premier pape jésuite",
+      dates: "né en 1936",
+      description: "Jorge Mario Bergoglio est le premier jésuite à devenir pape (2013). Il promeut une Église en sortie, proche des pauvres, et défend une écologie intégrale dans la tradition jésuite.",
+      image: "/img/pape-francois.jpeg"
+    },
+    { 
+      id: 7,
+      name: "Pedro Arrupe", 
+      title: "Supérieur général visionnaire",
+      dates: "1907-1991",
+      description: "Figure marquante du renouveau jésuite après Vatican II (1965-1983), il a réorienté la mission jésuite vers le service de la foi et la promotion de la justice sociale.",
+      image: "/img/pedro-arrupe.jpeg"
+    },
   ];
 
   // Héritage spirituel de Saint Ignace
@@ -334,59 +326,119 @@ const JesuitesPage = () => {
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen">
-      {/* Hero Section amélioré avec fond et titre */}
+    <div className="bg-gradient-to-b from-slate-50 to-white min-h-screen">
+      {/* Hero Section modernisé avec parallax et animation */}
       <section className="relative w-full overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-crec-darkblue/90 via-crec-darkblue/70 to-black/80" />
-        <div className="min-h-[450px] flex flex-col items-center justify-center text-center relative text-white p-6">
-          <div className="absolute inset-0 z-[-1]">
-            <img 
-              src="/img/eglise.png" 
-              alt="Compagnie de Jésus" 
-              className="w-full h-full object-cover"
-              style={{ filter: 'brightness(0.7) contrast(1.1)' }}
-            />
-          </div>
-          <div className="max-w-3xl mx-auto bg-gradient-to-br from-black/60 to-crec-darkblue/50 p-10 rounded-xl backdrop-blur-sm border border-white/10 shadow-2xl">
-            <div className="text-crec-gold text-sm uppercase tracking-widest mb-2">Ad Majorem Dei Gloriam</div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-5">
+        <div className="absolute inset-0 bg-gradient-to-br from-crec-darkblue/90 via-crec-darkblue/80 to-black/90" />
+        <div className="min-h-[550px] flex flex-col items-center justify-center text-center relative text-white p-6">
+          <div className="absolute inset-0 z-[-1] bg-[url('/img/eglise.png')] bg-cover bg-center bg-fixed opacity-70" />
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="max-w-3xl mx-auto bg-gradient-to-br from-black/60 to-crec-darkblue/50 p-10 rounded-xl backdrop-blur-sm border border-white/10 shadow-2xl"
+          >
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              className="text-crec-gold text-sm uppercase tracking-widest mb-2 flex items-center justify-center"
+            >
+              <span className="w-12 h-[1px] bg-crec-gold mr-3"></span>
+              Ad Majorem Dei Gloriam
+              <span className="w-12 h-[1px] bg-crec-gold ml-3"></span>
+            </motion.div>
+            
+            <motion.h1 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.7 }}
+              className="text-5xl md:text-6xl font-bold mb-5"
+            >
               <span className="bg-gradient-to-r from-white via-amber-100 to-white bg-clip-text text-transparent">
                 La Compagnie de Jésus
               </span>
-            </h1>
-            <div className="w-20 h-1 bg-crec-gold mx-auto mb-6"></div>
-            <p className="text-xl md:text-2xl mb-4 text-slate-100">
-              Fondée en 1540, les Jésuites servent la foi, l'éducation et la justice dans 112 pays, sous la devise <em>Ad majorem Dei gloriam</em>.
-            </p>
-            <div className="flex justify-center mt-6">
-              <Cross className="text-crec-gold h-8 w-8 opacity-75" />
-            </div>
-          </div>
+            </motion.h1>
+            
+            <div className="w-24 h-1 bg-crec-gold mx-auto mb-6"></div>
+            
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6, duration: 0.8 }}
+              className="text-xl md:text-2xl mb-6 text-slate-100 leading-relaxed"
+            >
+              Fondée en 1540 par Saint Ignace de Loyola, les Jésuites servent la foi, promeuvent la justice et dialoguent avec les cultures dans <strong>112 pays</strong>, sous la devise <em>Pour la plus grande gloire de Dieu</em>.
+            </motion.p>
+            
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8, duration: 0.6 }}
+              className="flex justify-center mt-8"
+            >
+              <Cross className="text-crec-gold h-10 w-10 opacity-85" />
+            </motion.div>
+          </motion.div>
+        </div>
+        
+        {/* Divider décoratif */}
+        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-[60px]" fill="#f8fafc">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.11,130.83,141.14,213.35,56.44Z" />
+          </svg>
         </div>
       </section>
 
-      {/* Système d'onglets principal */}
+      {/* Introduction courte */}
       <section className="py-10 container mx-auto px-4">
+        <div className="max-w-4xl mx-auto text-center mb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="flex items-center justify-center mb-4"
+          >
+            <span className="px-4 py-1.5 rounded-full bg-amber-100 text-amber-800 text-sm font-medium">
+              Une tradition séculaire, une mission moderne
+            </span>
+          </motion.div>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2, duration: 0.7 }}
+            className="text-lg text-slate-700 leading-relaxed"
+          >
+            La Compagnie de Jésus représente le plus grand ordre religieux catholique masculin. Aujourd'hui, plus de <strong>14 000 jésuites</strong> œuvrent dans les domaines de l'éducation, la recherche, l'accompagnement spirituel et l'action sociale à travers le monde, dont au Bénin.
+          </motion.p>
+        </div>
+      </section>
+
+      {/* Système d'onglets principal - modernisé */}
+      <section className="pb-16 container mx-auto px-4">
         <Tabs 
           defaultValue="histoire" 
           className="w-full"
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as TabType)}
         >
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 mb-8 w-full">
-            <TabsTrigger value="histoire" className="text-base">
+          <TabsList className="grid grid-cols-2 md:grid-cols-4 mb-8 w-full rounded-xl bg-slate-100 p-1.5">
+            <TabsTrigger value="histoire" className="text-base rounded-lg">
               <Calendar className="w-5 h-5 mr-2" /> 
               Histoire
             </TabsTrigger>
-            <TabsTrigger value="saints" className="text-base">
+            <TabsTrigger value="figures" className="text-base rounded-lg">
               <Award className="w-5 h-5 mr-2" />
-              Saints et Figures
+              Figures
             </TabsTrigger>
-            <TabsTrigger value="communautes" className="text-base">
+            <TabsTrigger value="communautes" className="text-base rounded-lg">
               <Users className="w-5 h-5 mr-2" />
               Communautés
             </TabsTrigger>
-            <TabsTrigger value="spiritualite" className="text-base">
+            <TabsTrigger value="spiritualite" className="text-base rounded-lg">
               <Star className="w-5 h-5 mr-2" />
               Spiritualité
             </TabsTrigger>
