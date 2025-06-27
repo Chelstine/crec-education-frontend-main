@@ -720,9 +720,15 @@ const HomePage = () => {
                   </ul>
                   
                   <div className="mt-1 pt-2 border-t border-slate-700/30">
-                    <p className="text-xs text-slate-400 italic">
+                    <p className="text-xs text-slate-400 italic mb-4">
                       "Un espace d'exploration intellectuelle et de développement personnel."
                     </p>
+                    <div className="flex justify-end">
+                      <Link to="/bibliotheque" className="group inline-flex items-center gap-1 text-xs font-medium text-blue-300 hover:text-blue-100 transition-colors duration-200">
+                        <span>Visiter notre bibliothèque en ligne</span>
+                        <ChevronRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
+                      </Link>
+                    </div>
                   </div>
                 </motion.div>
               </div>

@@ -104,9 +104,12 @@ const DonatePage = () => {
                 Rejoignez-nous dans notre mission de former la prochaine génération de leaders.
               </motion.p>
               
-              <motion.div variants={fadeInUp}>
+              <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-3 items-center justify-center">
                 <Button size="lg" asChild className="bg-crec-gold hover:bg-crec-gold/90 text-crec-darkblue">
                   <a href="#contact-partenariat">Devenir partenaire</a>
+                </Button>
+                <Button size="sm" variant="outline" asChild className="border-white/30 text-white hover:bg-white/10">
+                  <Link to="/bibliotheque">Bibliothèque en ligne</Link>
                 </Button>
               </motion.div>
             </motion.div>

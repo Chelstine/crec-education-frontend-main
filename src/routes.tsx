@@ -52,30 +52,9 @@ const CalendarPage = lazy(() => import('@/pages/events/CalendarPage'));
 
 // Pages Dons
 const DonatePage = lazy(() => import('@/pages/DonatePage'));
+const BibliothequeEnLignePage = lazy(() => import('@/pages/BibliothequeEnLignePage'));
 
-// Pages Admin - Imports centralisés
-const AdminLogin = lazy(() => import('@/pages/admin/AdminLogin'));
-const AdminLayout = lazy(() => import('@/layouts/AdminLayout'));
-const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
-const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
-
-// Gestion des formations
-const ISTMRManagement = lazy(() => import('@/pages/admin/formations/ISTMRManagement'));
-const FabLabFormationsManagement = lazy(() => import('@/pages/admin/formations/FabLabFormationsManagement'));
-const FormationsOuvertesManagement = lazy(() => import('@/pages/admin/formations/FormationsOuvertesManagement'));
-
-// Gestion des inscriptions
-const InscriptionsISTMR = lazy(() => import('@/pages/admin/inscriptions/InscriptionsISTMR'));
-const InscriptionsFabLab = lazy(() => import('@/pages/admin/inscriptions/InscriptionsFabLab'));
-const InscriptionsFormationsOuvertes = lazy(() => import('@/pages/admin/inscriptions/InscriptionsFormationsOuvertes'));
-
-// Gestion des événements
-const EvenementsManagement = lazy(() => import('@/pages/admin/events/EvenementsManagement'));
-const ConferencesManagement = lazy(() => import('@/pages/admin/events/ConferencesManagement'));
-const AteliersManagement = lazy(() => import('@/pages/admin/events/AteliersManagement'));
-
-// Gestion des réservations
-const ReservationsFabLabManagement = lazy(() => import('@/pages/admin/reservations/ReservationsFabLabManagement'));
+// Imports admin supprimés (à réimplémenter ultérieurement)
 
 // Helper function to wrap lazy components with Suspense
 const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType<any>>) => (
@@ -109,6 +88,10 @@ const routes: RouteObject[] = [
       {
         path: 'gallery',
         element: withSuspense(GalleryPage),
+      },
+      {
+        path: 'bibliotheque',
+        element: withSuspense(BibliothequeEnLignePage),
       },
       {
         path: 'donate',
@@ -223,135 +206,8 @@ const routes: RouteObject[] = [
       },
     ],
   },
-  // Routes Admin
-  {
-    path: '/admin/login',
-    element: withSuspense(AdminLogin),
-  },
-  {
-    path: '/admin',
-    element: (
-      <ProtectedRoute adminRequired={true}>
-        {withSuspense(AdminLayout)}
-      </ProtectedRoute>
-    ),
-    children: [
-      {
-        index: true,
-        element: withSuspense(AdminDashboard),
-      },
-      // Routes formations spécialisées
-      {
-        path: 'formations/istmr',
-        element: (
-          <ProtectedRoute adminRequired={true} permissions={['manage_formations']}>
-            {withSuspense(ISTMRManagement)}
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'formations/fablab',
-        element: (
-          <ProtectedRoute adminRequired={true} permissions={['manage_formations']}>
-            {withSuspense(FabLabFormationsManagement)}
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'formations/ouvertes',
-        element: (
-          <ProtectedRoute adminRequired={true} permissions={['manage_formations']}>
-            {withSuspense(FormationsOuvertesManagement)}
-          </ProtectedRoute>
-        ),
-      },
-
-      // Routes inscriptions spécialisées
-      {
-        path: 'inscriptions/istmr',
-        element: (
-          <ProtectedRoute adminRequired={true} permissions={['manage_inscriptions']}>
-            {withSuspense(InscriptionsISTMR)}
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'inscriptions/fablab',
-        element: (
-          <ProtectedRoute adminRequired={true} permissions={['manage_inscriptions']}>
-            {withSuspense(InscriptionsFabLab)}
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'inscriptions/ouvertes',
-        element: (
-          <ProtectedRoute adminRequired={true} permissions={['manage_inscriptions']}>
-            {withSuspense(InscriptionsFormationsOuvertes)}
-          </ProtectedRoute>
-        ),
-      },
-
-      // Routes événements
-      {
-        path: 'events',
-        element: (
-          <ProtectedRoute adminRequired={true} permissions={['manage_events']}>
-            {withSuspense(EvenementsManagement)}
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'events/conferences',
-        element: (
-          <ProtectedRoute adminRequired={true} permissions={['manage_events']}>
-            {withSuspense(ConferencesManagement)}
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'events/ateliers',
-        element: (
-          <ProtectedRoute adminRequired={true} permissions={['manage_events']}>
-            {withSuspense(AteliersManagement)}
-          </ProtectedRoute>
-        ),
-      },
-
-      // Routes réservations
-      {
-        path: 'reservations/fablab',
-        element: (
-          <ProtectedRoute adminRequired={true} permissions={['manage_reservations']}>
-            {withSuspense(ReservationsFabLabManagement)}
-          </ProtectedRoute>
-        ),
-      },
-
-      // Paramètres
-      {
-        path: 'settings',
-        element: (
-          <ProtectedRoute adminRequired={true} permissions={['manage_settings']}>
-            {withSuspense(AdminSettings)}
-          </ProtectedRoute>
-        ),
-      },
-
-      // Page notifications
-      {
-        path: 'notifications',
-        element: (
-          <ProtectedRoute adminRequired={true}>
-            <div className="p-6">
-              <h1 className="text-2xl font-bold mb-4">Toutes les notifications</h1>
-              <p className="text-gray-600">Page en développement - Toutes les notifications seront affichées ici</p>
-            </div>
-          </ProtectedRoute>
-        ),
-      },
-    ],
-  },
+  // Routes Admin - supprimées pour reconstruction
+  // (espace réservé pour la future implémentation)
 ];
 
 const router = createBrowserRouter(routes);

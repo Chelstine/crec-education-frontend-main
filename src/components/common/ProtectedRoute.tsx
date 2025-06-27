@@ -4,10 +4,11 @@ import { Navigate, useLocation } from 'react-router-dom';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAuth?: boolean;
-  adminRequired?: boolean;
-  permissions?: string[];
+  adminRequired?: boolean; // Conservé pour compatibilité future
+  permissions?: string[]; // Conservé pour compatibilité future
 }
 
+// Version simplifiée de ProtectedRoute en attendant la nouvelle implémentation admin
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
   requireAuth = true,
@@ -16,51 +17,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const location = useLocation();
 
-  // Pour les routes admin
+  // Pour les routes admin - à réimplémenter plus tard
   if (adminRequired) {
-    const adminToken = localStorage.getItem('adminToken');
-    const adminExpiresAt = localStorage.getItem('adminTokenExpiresAt');
-    
-    // Vérifier si l'utilisateur est connecté et si le token n'a pas expiré
-    if (!adminToken || !adminExpiresAt || Date.now() > parseInt(adminExpiresAt)) {
-      // Nettoyer le localStorage si le token a expiré
-      if (adminToken && adminExpiresAt && Date.now() > parseInt(adminExpiresAt)) {
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminTokenExpiresAt');
-        localStorage.removeItem('adminUser');
-        localStorage.removeItem('adminRefreshToken');
-        localStorage.removeItem('adminLastActivity');
-      }
-      
-      return <Navigate to="/admin/login" state={{ from: location }} replace />;
-    }
-
-    // Vérifier les permissions si spécifiées
-    if (permissions.length > 0) {
-      const adminUser = localStorage.getItem('adminUser');
-      if (adminUser) {
-        try {
-          const user = JSON.parse(adminUser);
-          const hasPermission = permissions.some(permission => 
-            user.permissions?.includes(permission)
-          );
-          
-          if (!hasPermission) {
-            // Pour le moment, on va laisser passer tous les admins
-            // Plus tard, on pourra implémenter un système de permissions plus sophistiqué
-            // return <Navigate to="/admin" replace />;
-            console.warn(`User ${user.email} attempted to access ${location.pathname} without required permissions: ${permissions.join(', ')}`);
-          }
-        } catch {
-          return <Navigate to="/admin/login" replace />;
-        }
-      }
-    }
-
-    return <>{children}</>;
+    // Version temporaire - redirection vers une page indiquant que l'admin est en cours de développement
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
-  // Pour les routes de réservation FabLab
+  // Pour les routes protégées non-admin (par exemple réservation)
   if (requireAuth) {
     const subscriberInfo = localStorage.getItem('subscriberInfo');
     const isVerified = subscriberInfo ? JSON.parse(subscriberInfo).verified : false;
