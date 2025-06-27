@@ -891,8 +891,7 @@ const HomePage = () => {
                         <img 
                           src={partner.logo} 
                           alt={partner.name} 
-                          className="h-16 sm:h-20 w-auto max-w-full object-contain"
-                          style={{display: 'block'}}
+                          className="h-16 sm:h-20 w-auto max-w-full object-contain crec-partner-logo-img"
                         />
                       </div>
                       <span className="text-sm text-slate-600 mt-3 text-center font-medium">
@@ -905,8 +904,7 @@ const HomePage = () => {
                         <img 
                           src={partner.logo} 
                           alt={partner.name} 
-                          className="h-16 sm:h-20 w-auto max-w-full object-contain"
-                          style={{display: 'block'}}
+                          className="h-16 sm:h-20 w-auto max-w-full object-contain crec-partner-logo-img"
                         />
                       </div>
                       <span className="text-sm text-slate-600 mt-3 text-center font-medium">

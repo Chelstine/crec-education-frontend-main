@@ -42,6 +42,7 @@ import {
   Info         // Information
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Card, CardContent } from '@/components/ui/card';
 
 // Type pour les onglets principaux
 type TabType = 'histoire' | 'figures' | 'communautes' | 'spiritualite';
@@ -319,12 +320,6 @@ const JesuitesPage = () => {
     }
   ];
 
-  // Animation variants
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
-
   return (
     <div className="bg-gradient-to-b from-slate-50 to-white min-h-screen">
       {/* Hero Section modernisé avec parallax et animation */}
@@ -573,7 +568,7 @@ const JesuitesPage = () => {
                 <h2 className="text-3xl font-bold mb-12 text-center text-slate-800">Figures Inspirantes</h2>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {figures.map((figure, i) => (
+                  {keyFigures.map((figure, i) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, y: 20 }}
@@ -591,7 +586,7 @@ const JesuitesPage = () => {
                             />
                           </div>
                           <h3 className="text-xl font-bold text-center mb-2 text-slate-800">{figure.title}</h3>
-                          <p className="text-slate-600 text-base leading-relaxed text-center">{figure.desc}</p>
+                          <p className="text-slate-600 text-base leading-relaxed text-center">{figure.description}</p>
                         </CardContent>
                       </Card>
                     </motion.div>
@@ -613,7 +608,7 @@ const JesuitesPage = () => {
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {saints.map((saint) => (
+                  {keyFigures.map((saint) => (
                     <motion.div 
                       key={saint.id}
                       initial={{ opacity: 0, y: 30 }}
@@ -785,7 +780,7 @@ const JesuitesPage = () => {
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {values.map((value, index) => (
+                  {jesuitValues.map((value, index) => (
                     <motion.div 
                       key={index}
                       initial={{ opacity: 0, y: 30 }}
@@ -800,7 +795,7 @@ const JesuitesPage = () => {
                         </div>
                         <h3 className="text-xl font-bold text-emerald-800">{value.title}</h3>
                       </div>
-                      <p className="text-slate-600 leading-relaxed">{value.desc}</p>
+                      <p className="text-slate-600 leading-relaxed">{value.description}</p>
                     </motion.div>
                   ))}
                 </div>
@@ -818,7 +813,7 @@ const JesuitesPage = () => {
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {missions.map((mission, index) => (
+                  {apostolicPreferences.map((mission, index) => (
                     <motion.div
                       key={index}
                       initial={{ opacity: 0, y: 20 }}
@@ -834,7 +829,7 @@ const JesuitesPage = () => {
                         <h3 className="text-xl font-bold text-slate-800">{mission.title}</h3>
                       </div>
                       <p className="text-slate-600 leading-relaxed">
-                        {mission.desc}
+                        {mission.description}
                       </p>
                     </motion.div>
                   ))}
