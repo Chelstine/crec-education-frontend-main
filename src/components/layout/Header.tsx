@@ -42,6 +42,7 @@ const Header = () => {
       dropdown: [
         { name: 'Qui sommes-nous', path: '/about' },
         { name: 'Histoire Jésuite', path: '/about/jesuites' },
+        { name: 'Notre équipe', path: '/about/equipe' },
       ],
     },
     { 

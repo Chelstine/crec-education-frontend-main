@@ -17,6 +17,18 @@ const HomePage = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // Fonction pour scroll vers la section formations avec une animation fluide
+  const scrollToFormations = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const formationsSection = document.getElementById('formations');
+    if (formationsSection) {
+      formationsSection.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
   // Auto-rotate images every 5 seconds
   const heroImages = [
     '/img/crec1.jpg',
@@ -99,15 +111,14 @@ const HomePage = () => {
     { 
       name: "PJAO", 
       logo: "/img/pjao.png",
-      link: "https://pjao.org/",
+      link: "https://jesuitespao.com/",
       description: "Province Jésuite de l'Afrique de l'Ouest"
     },
     { 
       name: "FAO", 
       logo: "/img/fao.png",
       link: "https://www.fao.org/",
-      description: "Organisation des Nations Unies pour l'alimentation et l'agriculture"
-    }
+      description: ""
   ];
 
   // Sections pour la navigation par onglets
@@ -135,66 +146,116 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white text-slate-900">
-      {/* Hero totalement repensé, design smooth, soft et élégant */}
-      <div className="relative min-h-[75vh] max-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-white to-slate-50">
-        {/* Diaporama d'images avec transition fluide (crossfade sans blanc) */}
-        <div className="absolute inset-0 w-full h-full">
+      {/* Hero Section - Style de ContactPage avec diaporama */}
+      <section className="relative w-full overflow-hidden">
+        {/* Diaporama d'images en fond avec transitions fluides */}
+        <div className="absolute inset-0">
           {heroImages.map((img, i) => (
             <motion.div
               key={i}
               initial={{ opacity: i === currentImageIndex ? 1 : 0 }}
               animate={{ opacity: i === currentImageIndex ? 1 : 0 }}
               transition={{ duration: 1.2, ease: 'easeInOut' }}
-              className="absolute inset-0 w-full h-full bg-cover bg-center"
-              style={{ backgroundImage: `url('${img}')`, zIndex: i === currentImageIndex ? 2 : 1 }}
-            />
-          ))}
-          {/* Overlay léger pour préserver la visibilité des images */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
-        </div>
-        {/* Contenu central */}
-        <div className="relative z-10 flex flex-col items-center justify-center w-full px-4 py-16">
-          {/* Badge localité moderne */}
-          <span className="inline-flex items-center px-4 py-1.5 mb-5 rounded-full bg-white/90 shadow-lg backdrop-blur-sm text-slate-800 font-medium text-base tracking-wide border border-white/50">
-            <span className="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
-            GODOMEY, BÉNIN
-          </span>
-          {/* Titre principal élégant */}
-          <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-6 drop-shadow-lg tracking-tight text-center">
-            Centre de Recherche, d'Étude<br className="hidden md:block" />
-            <span className="block text-2xl md:text-4xl font-light text-blue-100 mt-2">et de Créativité</span>
-          </h1>
-          {/* Boutons d'action */}
-          <div className="flex flex-col sm:flex-row gap-4 items-center">
-            <Button
-              asChild
-              size="lg"
-              className="rounded-full px-8 py-4 bg-emerald-500/90 hover:bg-emerald-600 text-white font-semibold shadow-xl border border-emerald-400/30 transition-all duration-300 text-lg backdrop-blur-sm"
+              className="absolute inset-0 w-full h-full"
+              style={{ zIndex: i === currentImageIndex ? 2 : 1 }}
             >
-              <Link to="#formations">
-                Découvrir nos formations
-              </Link>
-            </Button>
-          </div>
-        
-          {/* Indicateurs interactifs du diaporama */}
-          <div className="flex space-x-3 mt-8">
-            {heroImages.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentImageIndex(i)}
-                aria-label={`Voir image ${i + 1}`}
-                title={`Image ${i + 1}`}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  i === currentImageIndex 
-                    ? 'bg-white shadow-lg scale-125' 
-                    : 'bg-white/50 hover:bg-white/70'
-                }`}
+              <div 
+                className="absolute inset-0 bg-cover bg-center" 
+                style={{ 
+                  backgroundImage: `url(${img})`,
+                  backgroundPosition: 'center',
+                  backgroundSize: 'cover'
+                }}
               />
-            ))}
-          </div>
+            </motion.div>
+          ))}
         </div>
-      </div>
+        
+        {/* Overlay gradient - opacité très réduite pour une visibilité optimale des images */}
+        <div className="absolute inset-0 bg-gradient-to-r from-crec-darkblue/50 via-crec-darkblue/30 to-crec-darkblue/50 z-[3]" />
+        
+        {/* Accent elements */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.15 }}
+          transition={{ duration: 1.5 }}
+          className="absolute top-20 right-20 w-64 h-64 rounded-full bg-crec-gold blur-3xl z-[4]"
+        />
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.1 }}
+          transition={{ duration: 1.5, delay: 0.3 }}
+          className="absolute bottom-10 left-10 w-96 h-96 rounded-full bg-blue-500 blur-3xl z-[4]"
+        />
+        
+        {/* Content */}
+        <div className="min-h-[350px] md:min-h-[400px] flex flex-col items-center justify-center text-center relative z-[5] text-white p-6 md:p-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="max-w-4xl mx-auto"
+          >
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8 }}
+              className="mb-4 inline-flex px-4 py-2 rounded-full items-center bg-white/10 backdrop-blur-md border border-white/20"
+            >
+              <motion.div 
+                animate={{
+                  scale: [1, 1.05, 1],
+                  transition: { 
+                    repeat: Infinity,
+                    repeatType: "reverse", 
+                    duration: 1.5
+                  }
+                }}
+                className="w-2 h-2 rounded-full bg-crec-gold mr-2" 
+              />
+              <span className="text-sm font-medium">GODOMEY, BÉNIN</span>
+            </motion.div>
+            
+            <h1 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6 tracking-tight">
+              Centre de Recherche, d'Étude<br className="hidden md:block" />
+              <span className="block text-2xl md:text-4xl font-light text-blue-100 mt-2">et de Créativité</span>
+            </h1>
+            <p className="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed mb-8">
+              Formation, innovation et recherche au service du développement
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+              <Button
+                size="lg"
+                className="rounded-full px-8 py-4 bg-crec-gold hover:bg-amber-500 text-white font-semibold shadow-xl border border-amber-400/30 transition-all duration-300 text-lg backdrop-blur-sm"
+                onClick={scrollToFormations}
+              >
+                <GraduationCap className="w-5 h-5 mr-2 inline-block" />
+                Découvrir nos formations
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                className="rounded-full px-8 py-4 bg-white/20 hover:bg-white/30 text-white font-semibold shadow-xl border border-white/20 transition-all duration-300 text-lg backdrop-blur-sm"
+              >
+                <Link to="/about">
+                  <Users className="w-5 h-5 mr-2 inline-block" />
+                  À propos du CREC
+                </Link>
+              </Button>
+            </div>
+            
+            {/* Les indicateurs du diaporama ont été supprimés */}
+          </motion.div>
+        </div>
+        
+        {/* Wave divider */}
+        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-[5]">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-[60px]" fill="#ffffff">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.11,130.83,141.14,213.35,56.44Z" />
+          </svg>
+        </div>
+      </section>
 
       {/* Section À propos avec design modernisé */}
       <section className="py-16 bg-gradient-to-b from-white to-slate-50/70 relative overflow-hidden">
@@ -452,10 +513,10 @@ const HomePage = () => {
                     <p className="text-slate-600 mb-8 flex-1 leading-relaxed">{formation.description}</p>
                     <Link 
                       to={formation.link}
-                      className="mt-auto inline-flex items-center justify-between bg-gradient-to-r from-white to-slate-50 hover:to-slate-100 text-slate-800 font-semibold px-5 py-3 rounded-xl border border-slate-200 group-hover:border-slate-300 transition-all shadow-sm hover:shadow"
+                      className="mt-auto inline-flex items-center justify-between bg-gradient-to-r from-white to-slate-50 hover:to-slate-100 text-slate-800 font-semibold px-5 py-3 rounded-xl border border-slate-200 group-hover:border-crec-gold transition-all shadow-sm hover:shadow-md"
                     >
                       <span>Découvrir le programme</span>
-                      <ChevronRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
+                      <ChevronRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform text-crec-gold" />
                     </Link>
                   </div>
                 </motion.div>
@@ -887,14 +948,14 @@ const HomePage = () => {
                       className="flex flex-col items-center transition-transform duration-300"
                       title={partner.description}
                     >
-                      <div className="bg-white py-5 px-10 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-slate-100">
+                      <div className="bg-white py-5 px-10 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-slate-100 hover:border-crec-gold/30">
                         <img 
                           src={partner.logo} 
                           alt={partner.name} 
-                          className="h-16 sm:h-20 w-auto max-w-full object-contain crec-partner-logo-img"
+                          className="h-16 sm:h-20 w-auto max-w-full object-contain crec-partner-logo-img transition-all duration-300 group-hover:opacity-90"
                         />
                       </div>
-                      <span className="text-sm text-slate-600 mt-3 text-center font-medium">
+                      <span className="text-sm text-slate-600 mt-3 text-center font-medium group-hover:text-crec-darkblue transition-colors duration-300">
                         {partner.name}
                       </span>
                     </a>
