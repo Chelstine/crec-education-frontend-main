@@ -33,7 +33,7 @@ const EquipePage = () => {
       id: 1,
       name: 'Père Jean Dupont',
       role: 'Provincial',
-      description: 'Dirige la Province jésuite d'Afrique de l'Ouest, supervisant 1 712 membres dans 12 pays, avec un accent sur l'éducation et la justice sociale.',
+      description: "Dirige la Province jésuite d'Afrique de l'Ouest, supervisant 1 712 membres dans 12 pays, avec un accent sur l'éducation et la justice sociale.",
       image: '/img/team/provincial.jpg'
     },
     {
@@ -53,15 +53,15 @@ const EquipePage = () => {
     {
       id: 4,
       name: 'Père Antoine Leconte',
-      role: 'Délégué pour l'Éducation',
-      description: 'Supervise les institutions éducatives jésuites, dont 12 écoles et 3 universités, touchant plus de 25 000 étudiants.',
+      role: "Délégué pour l'Éducation",
+      description: "Supervise les institutions éducatives jésuites, dont 12 écoles et 3 universités, touchant plus de 25 000 étudiants.",
       image: '/img/team/education.jpg'
     },
     {
       id: 5,
       name: 'Père Thomas Dubois',
       role: 'Délégué pour la Formation',
-      description: 'Responsable de la formation des futurs jésuites, du noviciat jusqu'à l'ordination, avec un parcours de 10 à 12 ans.',
+      description: "Responsable de la formation des futurs jésuites, du noviciat jusqu'à l'ordination, avec un parcours de 10 à 12 ans.",
       image: '/img/team/formation.jpg'
     },
     {
@@ -77,17 +77,17 @@ const EquipePage = () => {
     {
       icon: Book,
       title: 'Éducation',
-      description: 'Gestion de l'Institut Supérieur de Théologie d'Abidjan et de 12 écoles pour plus de 25 000 étudiants.'
+      description: "Gestion de l'Institut Supérieur de Théologie d'Abidjan et de 12 écoles pour plus de 25 000 étudiants."
     },
     {
       icon: Heart,
       title: 'Justice Sociale',
-      description: 'Soutien aux marginalisés via des initiatives comme le Jesuit Refugee Service, actif dans les camps de réfugiés en Afrique de l'Ouest.'
+      description: "Soutien aux marginalisés via des initiatives comme le Jesuit Refugee Service, actif dans les camps de réfugiés en Afrique de l'Ouest."
     },
     {
       icon: Leaf,
       title: 'Écologie',
-      description: 'Promotion de l'écologie intégrale, inspirée par Laudato Si', pour protéger l'environnement en Afrique.'
+      description: "Promotion de l'écologie intégrale, inspirée par Laudato Si', pour protéger l'environnement en Afrique."
     },
     {
       icon: Globe,

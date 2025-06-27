@@ -101,23 +101,23 @@ const JesuitesPage = () => {
   const values = [
     { 
       icon: Star, 
-      title: 'Magis', 
-      desc: 'Rechercher l'excellence pour la plus grande gloire de Dieu, en visant le "davantage" dans chaque action.' 
+      title: "Magis", 
+      desc: "Rechercher l'excellence pour la plus grande gloire de Dieu, en visant le 'davantage' dans chaque action." 
     },
     { 
       icon: Target, 
-      title: 'Discernement', 
-      desc: 'Prendre des décisions éclairées par la prière et la réflexion spirituelle pour rechercher la volonté divine.' 
+      title: "Discernement", 
+      desc: "Prendre des décisions éclairées par la prière et la réflexion spirituelle pour rechercher la volonté divine." 
     },
     { 
       icon: Heart, 
-      title: 'Solidarité', 
-      desc: 'Servir les pauvres et les exclus avec un amour enraciné dans la justice et la dignité humaine.' 
+      title: "Solidarité", 
+      desc: "Servir les pauvres et les exclus avec un amour enraciné dans la justice et la dignité humaine." 
     },
     { 
       icon: Cross, 
-      title: 'Service', 
-      desc: 'Se consacrer au Christ et à l'Église universelle avec générosité et obéissance.' 
+      title: "Service", 
+      desc: "Se consacrer au Christ et à l'Église universelle avec générosité et obéissance." 
     },
   ];
 
@@ -125,71 +125,71 @@ const JesuitesPage = () => {
   const missions = [
     { 
       icon: Cross, 
-      title: 'Chemin vers Dieu', 
-      desc: 'Guider les âmes à travers les Exercices spirituels et le discernement ignatien.' 
+      title: "Chemin vers Dieu", 
+      desc: "Guider les âmes à travers les Exercices spirituels et le discernement ignatien." 
     },
     { 
       icon: Heart, 
-      title: 'Marcher avec les exclus', 
-      desc: 'Promouvoir la réconciliation et la justice auprès des pauvres et des marginalisés.' 
+      title: "Marcher avec les exclus", 
+      desc: "Promouvoir la réconciliation et la justice auprès des pauvres et des marginalisés." 
     },
     { 
       icon: Users, 
-      title: 'Accompagner les jeunes', 
-      desc: 'Former une jeunesse porteuse d'espoir pour un avenir meilleur.' 
+      title: "Accompagner les jeunes", 
+      desc: "Former une jeunesse porteuse d'espoir pour un avenir meilleur." 
     },
     { 
       icon: Leaf, 
-      title: 'Sauvegarde de la Création', 
-      desc: 'Protéger la "Maison commune" via une écologie intégrale (Laudato Si').' 
+      title: "Sauvegarde de la Création", 
+      desc: "Protéger la 'Maison commune' via une écologie intégrale (Laudato Si)." 
     },
   ];
 
   // Chronologie historique
   const timelineEvents = [
     { 
-      year: '1491', 
-      desc: 'Naissance d'Ignace de Loyola au château de Loyola, dans le Pays basque espagnol.' 
+      year: "1491", 
+      desc: "Naissance d'Ignace de Loyola au château de Loyola, dans le Pays basque espagnol." 
     },
     { 
-      year: '1521', 
-      desc: 'Blessure d'Ignace à la bataille de Pampelune, début de sa conversion spirituelle pendant sa convalescence.' 
+      year: "1521", 
+      desc: "Blessure d'Ignace à la bataille de Pampelune, début de sa conversion spirituelle pendant sa convalescence." 
     },
     { 
-      year: '1522-1523', 
-      desc: 'Retraite à Manrèse où Ignace vit une expérience spirituelle profonde et commence à rédiger les Exercices Spirituels.' 
+      year: "1522-1523", 
+      desc: "Retraite à Manrèse où Ignace vit une expérience spirituelle profonde et commence à rédiger les Exercices Spirituels." 
     },
     { 
-      year: '1534', 
-      desc: 'Vœux de Montmartre à Paris avec ses premiers compagnons (Xavier, Favre, etc.).' 
+      year: "1534", 
+      desc: "Vœux de Montmartre à Paris avec ses premiers compagnons (Xavier, Favre, etc.)." 
     },
     { 
-      year: '1540', 
-      desc: 'Fondation officielle de la Compagnie de Jésus, approuvée par la bulle Regimini militantis Ecclesiae du pape Paul III.' 
+      year: "1540", 
+      desc: "Fondation officielle de la Compagnie de Jésus, approuvée par la bulle Regimini militantis Ecclesiae du pape Paul III." 
     },
     { 
-      year: '1548', 
-      desc: 'Publication officielle des Exercices Spirituels d'Ignace, approuvés par le pape Paul III.' 
+      year: "1548", 
+      desc: "Publication officielle des Exercices Spirituels d'Ignace, approuvés par le pape Paul III." 
     },
     { 
-      year: '1556', 
-      desc: 'Mort d'Ignace de Loyola à Rome, la Compagnie compte déjà plus de 1000 membres.' 
+      year: "1556", 
+      desc: "Mort d'Ignace de Loyola à Rome, la Compagnie compte déjà plus de 1000 membres." 
     },
     { 
-      year: '1773', 
-      desc: 'Suppression de la Compagnie de Jésus par le pape Clément XIV sous pressions politiques.' 
+      year: "1773", 
+      desc: "Suppression de la Compagnie de Jésus par le pape Clément XIV sous pressions politiques." 
     },
     { 
-      year: '1814', 
-      desc: 'Rétablissement des Jésuites par le pape Pie VII.' 
+      year: "1814", 
+      desc: "Rétablissement des Jésuites par le pape Pie VII." 
     },
     { 
-      year: '2013', 
-      desc: 'Élection du pape François, premier jésuite à devenir pape.' 
+      year: "2013", 
+      desc: "Élection du pape François, premier jésuite à devenir pape." 
     },
     { 
-      year: '2021-2022', 
-      desc: 'Année ignatienne célébrant les 500 ans de la conversion d'Ignace.' 
+      year: "2021-2022", 
+      desc: "Année ignatienne célébrant les 500 ans de la conversion d'Ignace." 
     },
   ];
 
@@ -212,14 +212,14 @@ const JesuitesPage = () => {
     {
       id: 3,
       name: 'Saint Pierre Canisius',
-      title: 'Docteur de l'Église',
+      title: "Docteur de l'Église",
       description: 'Théologien et éducateur, il fortifia la foi catholique en Allemagne et en Europe centrale pendant la Contre-Réforme. Canonisé en 1925 (1521-1597).',
       image: '/img/pierre-favre.jpeg'
     },
     {
       id: 4,
       name: 'Saint Robert Bellarmin',
-      title: 'Cardinal et Docteur de l'Église',
+      title: "Cardinal et Docteur de l'Église",
       description: 'Théologien brillant et défenseur de la foi pendant la Contre-Réforme. Il fut un soutien important de Galilée malgré leurs désaccords. Canonisé en 1930 (1542-1621).',
       image: '/img/saints/bellarmin.jpg'
     },
@@ -243,23 +243,23 @@ const JesuitesPage = () => {
   const spiritualLegacy = [
     {
       icon: Book,
-      title: 'Exercices Spirituels',
-      description: 'Méthode de discernement spirituel pour découvrir la volonté de Dieu dans sa vie à travers la méditation, la contemplation et la prière.'
+      title: "Exercices Spirituels",
+      description: "Méthode de discernement spirituel pour découvrir la volonté de Dieu dans sa vie à travers la méditation, la contemplation et la prière."
     },
     {
       icon: Heart,
-      title: 'Contemplation dans l'Action',
-      description: 'Trouver Dieu dans toutes choses et toutes choses en Dieu, unissant vie active et contemplative.'
+      title: "Contemplation dans l'Action",
+      description: "Trouver Dieu dans toutes choses et toutes choses en Dieu, unissant vie active et contemplative."
     },
     {
       icon: Globe,
-      title: 'Service de la Foi et Promotion de la Justice',
-      description: 'Une foi qui fait la justice, engagement concret pour transformer les structures injustes.'
+      title: "Service de la Foi et Promotion de la Justice",
+      description: "Une foi qui fait la justice, engagement concret pour transformer les structures injustes."
     },
     {
       icon: Cross,
-      title: 'Ad Majorem Dei Gloriam',
-      description: '"Pour la plus grande gloire de Dieu" - devise qui inspire chaque œuvre et mission jésuite.'
+      title: "Ad Majorem Dei Gloriam",
+      description: "Pour la plus grande gloire de Dieu - devise qui inspire chaque œuvre et mission jésuite."
     }
   ];
 
@@ -269,22 +269,22 @@ const JesuitesPage = () => {
       id: 1,
       name: 'Communauté du CREC',
       location: 'Cotonou, Bénin',
-      description: 'Centre de recherche et de formation, le CREC forme des leaders chrétiens et soutient la recherche théologique en Afrique de l'Ouest.',
+      description: 'Centre de recherche et de formation, le CREC forme des leaders chrétiens et soutient la recherche théologique en Afrique de l\'Ouest.',
       icon: Book,
       image: '/img/crec2.png'
     },
     {
       id: 2,
-      name: 'Province d'Europe Occidentale Francophone',
-      location: 'France, Belgique, Luxembourg',
-      description: 'Regroupant plus de 500 jésuites, cette province coordonne des œuvres éducatives, pastorales et sociales dans l'espace francophone européen.',
+      name: "Province d'Europe Occidentale Francophone",
+      location: "France, Belgique, Luxembourg",
+      description: "Regroupant plus de 500 jésuites, cette province coordonne des œuvres éducatives, pastorales et sociales dans l'espace francophone européen.",
       icon: Globe,
-      image: '/img/eglise.png'
+      image: "/img/eglise.png"
     },
     {
       id: 3,
-      name: 'Province de l'Afrique de l'Ouest',
-      location: 'Afrique de l'Ouest',
+      name: 'Province de l\'Afrique de l\'Ouest',
+      location: 'Afrique de l\'Ouest',
       description: 'Couvrant 12 pays, cette province dynamique mène des missions éducatives, spirituelles et sociales adaptées aux réalités africaines contemporaines.',
       icon: Users,
       image: '/img/crec3.jpg'
@@ -310,7 +310,7 @@ const JesuitesPage = () => {
     {
       id: 2,
       name: 'Mouvement Eucharistique des Jeunes (MEJ)',
-      description: 'Propose aux jeunes de 7 à 18 ans un chemin de croissance humaine et spirituelle dans l'esprit ignatien.',
+      description: 'Propose aux jeunes de 7 à 18 ans un chemin de croissance humaine et spirituelle dans l\'esprit ignatien.',
       image: '/img/accompagnement.png'
     },
     {

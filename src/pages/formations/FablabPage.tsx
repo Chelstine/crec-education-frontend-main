@@ -2,7 +2,20 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Printer, Wrench, MapPin, Clock, Lightbulb, Users, BookOpen, Cpu, Zap, Cog, Wifi, Play } from 'lucide-react';
+import { 
+  Printer, 
+  Wrench, 
+  MapPin, 
+  Clock, 
+  Lightbulb, 
+  Users, 
+  BookOpen, 
+  Cpu, 
+  Zap, 
+  Cog, 
+  Wifi, 
+  Play 
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useFabLab } from '@/contexts/FabLabContext';
 
@@ -34,7 +47,7 @@ const FablabPage = () => {
   return (
     <div className="min-h-screen flex flex-col font-sans text-[15pt] bg-gradient-to-b from-amber-50 to-white">
       {/* Hero Section - Style harmonisé */}
-      <section className="relative w-full min-h-[420px] md:min-h-[500px] overflow-hidden">
+      <section className="relative w-full min-h-[260px] md:min-h-[320px] overflow-hidden">
         <div className="absolute inset-0">
           <img
             src="/img/fablab.png"
@@ -42,7 +55,7 @@ const FablabPage = () => {
             className="w-full h-full object-cover"
             style={{ filter: 'brightness(0.9) contrast(1.1)' }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-crec-darkblue/80 via-amber-900/50 to-black/70"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-crec-darkblue/60 via-amber-900/20 to-black/30"></div>
         </div>
         <div className="relative z-10 flex items-center justify-center h-full text-center px-4 py-16">
           <motion.div 
@@ -153,7 +166,7 @@ const FablabPage = () => {
       </section>
 
       {/* Projets réalisés */}
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-gray-100">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div
             className="text-center mb-12"
@@ -162,10 +175,11 @@ const FablabPage = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-jesuit-dark mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-amber-900 mb-4">
               Projets réalisés au CREC
             </h2>
-            <p className="text-lg text-jesuit-darkgray max-w-3xl mx-auto">
+            <div className="w-20 h-1 bg-crec-gold mx-auto mb-6"></div>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               Découvrez les créations innovantes de notre communauté : de l'IoT aux impressions 3D, 
               nos membres transforment leurs idées en solutions concrètes.
             </p>
@@ -189,10 +203,10 @@ const FablabPage = () => {
               <Button
                 key={filter.key}
                 onClick={() => setSelectedFilter(filter.key)}
-                className={`flex items-center gap-2 transition-all duration-300 border-2 ${
+                className={`flex items-center gap-2 transition-all duration-300 ${
                   selectedFilter === filter.key 
-                    ? 'bg-amber-500 text-white border-amber-500 shadow-lg transform scale-105' 
-                    : 'bg-white text-amber-600 border-amber-400 hover:bg-amber-500 hover:text-white hover:border-amber-500 hover:shadow-md hover:scale-102'
+                    ? 'bg-amber-500 text-white shadow-lg transform scale-105 border-0' 
+                    : 'bg-white text-amber-600 border border-amber-300 hover:bg-amber-500 hover:text-white hover:shadow-md'
                 }`}
               >
                 <filter.icon className="w-4 h-4" />
@@ -579,61 +593,41 @@ const FablabPage = () => {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 bg-[#1A2526] text-gray-100">
-        <div className="max-w-3xl mx-auto text-center px-4">
-          <motion.h2
-            className="text-4xl font-bold mb-6 text-gray-100"
-            initial={{ opacity: 0, y: -20 }}
+      {/* CTA - Style harmonisé */}
+      <section className="py-16 px-4 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-900 via-amber-800 to-amber-900"></div>
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
+            className="bg-gradient-to-br from-black/40 to-transparent p-10 rounded-xl backdrop-blur-sm border border-white/10"
           >
-            Rejoignez le FabLab CREC
-          </motion.h2>
-          <motion.p
-            className="text-xl md:text-2xl mb-8 text-gray-200 leading-relaxed"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            Créez, innovez et collaborez dans un espace dédié à l'excellence et au service.
-          </motion.p>
-          <motion.div
-            className="flex flex-col sm:flex-row justify-center items-center gap-4"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
-              <Button
-                className="w-full sm:w-auto px-8 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all text-lg font-semibold"
-                asChild
-              >
-                <Link to="/formations/fablab/inscription">S'inscrire aux formations</Link>
-              </Button>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
-              <Button
-                className="w-full sm:w-auto px-8 py-3 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all text-lg font-semibold"
-                asChild
-              >
-                <Link to="/subscription-verification">Réserver une machine</Link>
-              </Button>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
-              <Button
-                className="w-full sm:w-auto px-6 py-3 border-2 border-white text-white hover:text-amber-600 hover:bg-white rounded-full text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
-                asChild
-              >
-                <Link to="/contact">Nous contacter</Link>
-              </Button>
-            </motion.div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">Rejoignez le FabLab CREC</h2>
+            <p className="text-xl mb-8 text-amber-100">
+              Créez, innovez et collaborez dans un espace dédié à l'excellence et au service.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link to="/formations/fablab/inscription" 
+                className="px-8 py-3 bg-crec-gold hover:bg-amber-500 text-white font-medium rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
+                <BookOpen className="w-5 h-5" />
+                S'inscrire aux formations
+              </Link>
+              <Link to="/subscription-verification" 
+                className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
+                <Cpu className="w-5 h-5" />
+                Réserver une machine
+              </Link>
+              <Link to="/contact" 
+                className="px-8 py-3 border border-white/70 text-white hover:bg-white/20 rounded-full transition-all duration-300 flex items-center justify-center gap-2">
+                <Users className="w-5 h-5" />
+                Nous contacter
+              </Link>
+            </div>
           </motion.div>
         </div>
-            </section>
+      </section>
     </div>
   );
 };

@@ -110,7 +110,7 @@ const UniversityPage = () => {
 	return (
 		<div className="min-h-screen flex flex-col font-sans bg-gray-50">
 			{/* Hero Section - Style harmonisé */}
-			<section className="relative w-full min-h-[420px] md:min-h-[500px] overflow-hidden">
+			<section className="relative w-full min-h-[260px] md:min-h-[320px] overflow-hidden">
 				<div className="absolute inset-0">
 					<img
 						src="/img/crec3.jpg"
@@ -118,7 +118,7 @@ const UniversityPage = () => {
 						className="w-full h-full object-cover"
 						style={{ filter: 'brightness(0.8) contrast(1.1)' }}
 					/>
-					<div className="absolute inset-0 bg-gradient-to-b from-crec-darkblue/80 to-black/70"></div>
+					<div className="absolute inset-0 bg-gradient-to-b from-crec-darkblue/60 via-amber-900/20 to-black/30"></div>
 				</div>
 				<div className="relative z-10 flex items-center justify-center h-full text-center px-4 py-16">
 					<motion.div 
