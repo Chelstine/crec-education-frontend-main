@@ -379,35 +379,7 @@ const OpenFormationsInscriptionPage = () => {
               </CardContent>
             </Card>
 
-            {/* Informations sur les formations */}
-            <Card>
-              <CardHeader>
-                <CardTitle>À propos des formations</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-crec-gold rounded-full"></div>
-                    <p>Formations en présentiel et en ligne</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-crec-gold rounded-full"></div>
-                    <p>Certificat de fin de formation</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-crec-gold rounded-full"></div>
-                    <p>Suivi personnalisé</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-crec-gold rounded-full"></div>
-                    <p>Sessions de rattrapage possibles</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
+            
       
       {/* Modal de confirmation de succès */}
       {showSuccess && (
@@ -429,6 +401,9 @@ const OpenFormationsInscriptionPage = () => {
           </div>
         </div>
       )}
+            </div>
+        </div>
+      </div>
     </div>
   );
 };
