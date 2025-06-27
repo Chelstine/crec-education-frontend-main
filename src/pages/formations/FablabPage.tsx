@@ -698,7 +698,7 @@ const FablabPage = () => {
             transition={{ duration: 0.8, delay: 0.1 }}
           >
             <h3 className="text-2xl font-semibold text-jesuit-dark mb-8 text-center">Abonnements FabLab</h3>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="max-w-4xl mx-auto grid md:grid-cols-3 gap-6">
               {tariffs.filter(t => t.type === 'membership').map((tariff, index) => (
                 <Card key={tariff.id} className={`bg-white shadow-lg border-2 ${
                   index === 1 ? 'border-purple-500 relative' : 
@@ -753,7 +753,7 @@ const FablabPage = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <h3 className="text-2xl font-semibold text-jesuit-dark mb-8 text-center">Formations et Services</h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="max-w-4xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.filter(service => service.category === 'Formation' || service.category === 'Service').map((service, index) => (
                 <Card key={service.id} className="bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all">
                   <CardContent className="p-6">
@@ -788,11 +788,11 @@ const FablabPage = () => {
         </div>
       </section>
 
-      {/* Infos pratiques */}
-      <section className="py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-4">
+      {/* Infos pratiques - Version réduite */}
+      <section className="py-10 bg-white">
+        <div className="max-w-4xl mx-auto px-4">
           <motion.h2
-            className="text-3xl font-bold mb-12 text-center text-jesuit-dark"
+            className="text-3xl font-bold mb-8 text-center text-jesuit-dark"
             initial={{ opacity: 0, y: -20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -800,106 +800,82 @@ const FablabPage = () => {
           >
             Infos pratiques
           </motion.h2>
-          <div className="flex flex-col md:flex-row gap-8">
-            {/* Informations à gauche */}
+          
+          <div className="flex flex-col md:flex-row gap-6">
+            {/* Informations essentielles à gauche */}
             <motion.div
-              className="space-y-6 md:w-5/12"
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              className="md:w-1/2 flex flex-col gap-4"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              transition={{ duration: 0.6 }}
             >
-              <Card className="bg-white shadow-sm border border-gray-100">
-                <CardContent className="p-6">
-                  <div className="flex items-center mb-4">
-                    <div className="bg-amber-100 p-3 rounded-full mr-4">
-                      <Clock className="w-6 h-6 text-amber-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-jesuit-dark">Horaires d'ouverture</h3>
-                      <p className="text-gray-600">Du lundi au vendredi de 8h à 17h</p>
-                      <p className="text-gray-600">Samedi de 9h à 13h (sur rendez-vous)</p>
-                    </div>
+              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                <div className="flex items-center gap-3">
+                  <Clock className="w-5 h-5 text-amber-600" />
+                  <div>
+                    <h3 className="font-semibold text-jesuit-dark">Horaires</h3>
+                    <p className="text-sm text-gray-600">Lun-Ven: 8h-17h | Sam: 9h-13h (sur RDV)</p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
               
-              <Card className="bg-white shadow-sm border border-gray-100">
-                <CardContent className="p-6">
-                  <div className="flex items-center mb-4">
-                    <div className="bg-green-100 p-3 rounded-full mr-4">
-                      <MapPin className="w-6 h-6 text-green-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-jesuit-dark">Adresse</h3>
-                      <p className="text-gray-600">CREC - Centre Jésuite de Recherche d'Étude et de Créativité</p>
-                      <p className="text-gray-600">Godomey, Bénin</p>
-                    </div>
+              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                <div className="flex items-center gap-3">
+                  <MapPin className="w-5 h-5 text-green-600" />
+                  <div>
+                    <h3 className="font-semibold text-jesuit-dark">Adresse</h3>
+                    <p className="text-sm text-gray-600">CREC - Godomey, Bénin</p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
               
-              <Card className="bg-white shadow-sm border border-gray-100">
-                <CardContent className="p-6">
-                  <div className="flex items-center mb-4">
-                    <div className="bg-blue-100 p-3 rounded-full mr-4">
-                      <PhoneCall className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-jesuit-dark">Contact</h3>
-                      <p className="text-gray-600">Téléphone: +229 96 05 33 22</p>
-                      <p className="text-gray-600">Email: contact@crecbenin.org</p>
-                    </div>
+              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                <div className="flex items-center gap-3">
+                  <PhoneCall className="w-5 h-5 text-blue-600" />
+                  <div>
+                    <h3 className="font-semibold text-jesuit-dark">Contact</h3>
+                    <p className="text-sm text-gray-600">+229 96 05 33 22 | contact@crecbenin.org</p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
               
-              <Card className="bg-white shadow-sm border border-gray-100">
-                <CardContent className="p-6">
-                  <div className="flex items-center mb-4">
-                    <div className="bg-purple-100 p-3 rounded-full mr-4">
-                      <CalendarDays className="w-6 h-6 text-purple-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-jesuit-dark">Réservation</h3>
-                      <p className="text-gray-600">Réservez votre créneau en ligne ou par téléphone</p>
-                    </div>
+              <Link to="/subscription-verification" className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:border-amber-200 transition-all">
+                <div className="flex items-center gap-3">
+                  <CalendarDays className="w-5 h-5 text-purple-600" />
+                  <div>
+                    <h3 className="font-semibold text-jesuit-dark">Réserver une machine</h3>
+                    <p className="text-sm text-gray-600">En ligne ou par téléphone</p>
                   </div>
-                  <Link to="/subscription-verification" className="mt-2 inline-flex items-center text-blue-600 hover:text-blue-800">
-                    Réserver une machine <ExternalLink className="w-4 h-4 ml-1" />
-                  </Link>
-                </CardContent>
-              </Card>
+                </div>
+              </Link>
             </motion.div>
             
-            {/* Carte à droite */}
+            {/* Carte à droite (plus petite) */}
             <motion.div 
-              className="md:w-7/12"
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              className="md:w-1/2"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.3 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <div className="h-full">
-                <iframe
-                  title="Localisation CREC"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d26805.608272842124!2d2.305574410839845!3d6.383382500000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x102357caccf1e90d%3A0xbce64d9a20725bcc!2sCentre%20J%C3%A9suite%20De%20Recherche%20D%27Etude%20Et%20De%20Cr%C3%A9ativit%C3%A9!5e1!3m2!1sfr!2sbj!4v1748345292350!5m2!1sfr!2sbj"
-                  className="w-full h-full min-h-[400px] rounded-lg border-2 border-amber-200 shadow-md"
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  aria-label="Carte de localisation du CREC à Godomey, Bénin"
-                />
-                <div className="mt-4 text-center">
-                  <a
-                    href="https://maps.app.goo.gl/6hS2iXvG5WjZ8KkD7"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center text-blue-600 hover:text-amber-500 hover:underline transition-colors"
-                  >
-                    <MapPin className="w-4 h-4 mr-1" /> Voir sur Google Maps
-                  </a>
-                </div>
+              <iframe
+                title="Localisation CREC"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d26805.608272842124!2d2.305574410839845!3d6.383382500000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x102357caccf1e90d%3A0xbce64d9a20725bcc!2sCentre%20J%C3%A9suite%20De%20Recherche%20D%27Etude%20Et%20De%20Cr%C3%A9ativit%C3%A9!5e1!3m2!1sfr!2sbj!4v1748345292350!5m2!1sfr!2sbj"
+                className="w-full h-[250px] rounded-lg border border-gray-200 shadow-sm"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+              <div className="mt-2 text-center">
+                <a
+                  href="https://maps.app.goo.gl/6hS2iXvG5WjZ8KkD7"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm inline-flex items-center text-blue-600 hover:text-amber-500"
+                >
+                  <MapPin className="w-3 h-3 mr-1" /> Google Maps
+                </a>
               </div>
             </motion.div>
           </div>
