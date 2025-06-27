@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,7 +14,11 @@ import {
   Zap, 
   Cog, 
   Wifi, 
-  Play 
+  Play,
+  CalendarDays,
+  PhoneCall,
+  Mail,
+  ExternalLink
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useFabLab } from '@/contexts/FabLabContext';
@@ -22,6 +26,7 @@ import { useFabLab } from '@/contexts/FabLabContext';
 const FablabPage = () => {
   // State pour le filtrage des projets
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
+  const [machineImages, setMachineImages] = useState<string[]>([]);
 
   // Use context data instead of mock data
   const { 
@@ -37,7 +42,23 @@ const FablabPage = () => {
   const projects = getPublishedProjects();
   const machines = getActiveMachines();
   const services = getActiveServices();
-  const tariffs = getActiveTariffs();
+  const tariffs = getActiveTariffs().filter(tariff => tariff.type !== 'material');
+  
+  // Effect to load machine images from the public folder
+  useEffect(() => {
+    // This would be replaced by actual API call in production
+    // For now we'll use the machine images we know exist in the public folder
+    const availableImages = [
+      '/img/machines/ANYCUBIC cobra 2 pro.jpeg',
+      '/img/machines/anycubic-kobra.jpg',
+      '/img/machines/creality  ender fab-imp01.jpeg',
+      '/img/machines/creality  ender fab-imp02.jpeg',
+      '/img/machines/creality  ender fab-imp03.jpeg',
+      '/img/machines/decoupe laser.jpeg',
+      '/img/machines/impression sur tissu .jpeg'
+    ];
+    setMachineImages(availableImages);
+  }, []);
 
   // Fonction pour filtrer les projets selon la catégorie sélectionnée
   const filteredProjects = selectedFilter === 'all' 

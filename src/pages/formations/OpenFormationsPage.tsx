@@ -325,9 +325,18 @@ const OpenFormationsPage = () => {
                       </div>
                       <div className="flex items-center justify-between pt-4 border-t">
                         <span className="text-lg font-bold text-crec-gold">{formation.price}</span>
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                          <MapPin className="w-4 h-4" />
-                          CREC Cotonou
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 text-sm text-gray-500 mr-2">
+                            <MapPin className="w-4 h-4" />
+                            CREC Cotonou
+                          </div>
+                          <Link 
+                            to="/formations/ouvertes/inscription"
+                            className="px-3 py-1.5 text-xs font-medium text-white bg-crec-darkblue rounded-md hover:bg-crec-gold transition-colors flex items-center"
+                          >
+                            <FileText className="w-3 h-3 mr-1" />
+                            S'inscrire
+                          </Link>
                         </div>
                       </div>
                     </div>
@@ -395,40 +404,7 @@ const OpenFormationsPage = () => {
         </div>
       </section>
 
-      {/* Call to Action */}
-      <section className="py-16 px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-crec-darkblue via-crec-blue to-crec-darkblue"></div>
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="bg-gradient-to-br from-black/40 to-transparent p-10 rounded-xl backdrop-blur-sm border border-white/10"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">Prêt à commencer votre formation ?</h2>
-            <p className="text-xl mb-8 text-blue-100">
-              Rejoignez des centaines d'apprenants qui ont déjà transformé leur avenir avec nos formations
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <Link to="/formations/ouvertes/inscription" 
-                className="px-8 py-3 bg-crec-gold hover:bg-amber-500 text-white font-medium rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
-                <BookOpen className="w-5 h-5" />
-                S'inscrire maintenant
-              </Link>
-              <Link to="/contact" 
-                className="px-8 py-3 border border-white/70 text-white hover:bg-white/20 rounded-full transition-all duration-300 flex items-center justify-center gap-2">
-                <Users className="w-5 h-5" />
-                Nous contacter
-              </Link>
-            </div>
-            <p className="text-sm text-blue-200 mt-6">
-              <Calendar className="w-4 h-4 inline mr-2" />
-              Inscriptions ouvertes toute l'année
-            </p>
-          </motion.div>
-        </div>
-      </section>
+
     </div>
   );
 };

@@ -364,11 +364,11 @@ const UniversityPage = () => {
 				</div>
 			</section>
 
-			{/* Rentrée Scolaire Section */}
+			{/* Rentrée Scolaire Section - Redesigned without image */}
 			<section className="py-16 bg-gradient-to-b from-crec-darkblue to-blue-900 text-white">
-				<div className="max-w-6xl mx-auto px-4">
+				<div className="max-w-4xl mx-auto px-4">
 					<motion.h2
-						className="text-3xl md:text-4xl font-bold text-center mb-8"
+						className="text-3xl md:text-4xl font-bold text-center mb-6"
 						initial={{ opacity: 0, y: -20 }}
 						whileInView={{ opacity: 1, y: 0 }}
 						viewport={{ once: true }}
@@ -377,58 +377,61 @@ const UniversityPage = () => {
 						Rentrée Scolaire 2025-2026
 					</motion.h2>
 					
+					<div className="flex justify-center mb-8">
+						<div className="w-20 h-1 bg-crec-gold"></div>
+					</div>
+					
 					<div className="bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-2xl shadow-xl">
-						<motion.div 
-							className="grid md:grid-cols-2 gap-8 items-center"
+						<div className="text-center mb-6">
+							<div className="inline-flex items-center px-4 py-2 rounded-full bg-crec-gold text-white mx-auto">
+								<Calendar className="w-4 h-4 mr-2 text-white" />
+								<span className="font-medium">Première promotion</span>
+							</div>
+						</div>
+						
+						<motion.div
 							initial={{ opacity: 0 }}
 							whileInView={{ opacity: 1 }}
 							viewport={{ once: true }}
 							transition={{ duration: 0.8 }}
-						>
-							<div className="space-y-6">
-								<div className="inline-flex items-center px-4 py-2 rounded-full bg-crec-gold text-white">
-									<Calendar className="w-4 h-4 mr-2 text-white" />
-									<span className="font-medium">Première promotion</span>
+							className="max-w-2xl mx-auto"
+						>							
+							<h3 className="text-2xl font-bold text-center mb-4">Préparez votre avenir numérique avec l'ISTMR</h3>
+							
+							<p className="text-white/90 leading-relaxed text-center mb-8">
+								Notre établissement est fier d'accueillir sa première promotion d'étudiants en informatique 
+								pour l'année académique 2025-2026. Rejoignez cette aventure unique et devenez les 
+								pionniers d'une formation d'excellence au service du développement de l'Afrique.
+							</p>
+							
+							<div className="grid md:grid-cols-3 gap-6 mb-8">
+								<div className="bg-white/5 rounded-lg p-4 border border-white/10 flex flex-col items-center text-center">
+									<Calendar className="w-8 h-8 text-crec-gold mb-2" />
+									<h4 className="font-medium mb-1">Début des cours</h4>
+									<p className="text-white/80">2 octobre 2025</p>
 								</div>
 								
-								<h3 className="text-2xl font-bold">Préparez votre avenir numérique avec l'ISTMR</h3>
-								
-								<p className="text-white/80 leading-relaxed">
-									Notre établissement est fier d'accueillir sa première promotion d'étudiants en informatique 
-									pour l'année académique 2025-2026. Rejoignez cette aventure unique et devenez les 
-									pionniers d'une formation d'excellence au service du développement de l'Afrique.
-								</p>
-								
-								<div className="space-y-3 pt-2">
-									<div className="flex items-start gap-2">
-										<CheckCircle2 className="w-5 h-5 text-white shrink-0 mt-0.5" />
-										<p className="text-white/90">Début des cours: <span className="font-medium">2 octobre 2025</span></p>
-									</div>
-									<div className="flex items-start gap-2">
-										<CheckCircle2 className="w-5 h-5 text-white shrink-0 mt-0.5" />
-										<p className="text-white/90">Période d'inscription: <span className="font-medium">15 mai - 30 septembre 2025</span></p>
-									</div>
-									<div className="flex items-start gap-2">
-										<CheckCircle2 className="w-5 h-5 text-white shrink-0 mt-0.5" />
-										<p className="text-white/90">Places limitées: <span className="font-medium">30 étudiants par filière</span></p>
-									</div>
+								<div className="bg-white/5 rounded-lg p-4 border border-white/10 flex flex-col items-center text-center">
+									<FileText className="w-8 h-8 text-crec-gold mb-2" />
+									<h4 className="font-medium mb-1">Période d'inscription</h4>
+									<p className="text-white/80">15 mai - 30 sept. 2025</p>
 								</div>
 								
-								<Link
-									to="/formations/university/inscription"
-									className="inline-flex items-center mt-4 px-6 py-3 bg-white text-crec-darkblue rounded-full hover:bg-crec-gold hover:text-white transition-all duration-300 font-medium"
-								>
-									Réserver ma place
-									<FileText className="w-4 h-4 ml-2" />
-								</Link>
+								<div className="bg-white/5 rounded-lg p-4 border border-white/10 flex flex-col items-center text-center">
+									<Users className="w-8 h-8 text-crec-gold mb-2" />
+									<h4 className="font-medium mb-1">Places disponibles</h4>
+									<p className="text-white/80">30 par filière</p>
+								</div>
 							</div>
 							
-							<div className="rounded-xl overflow-hidden shadow-xl border-4 border-white/30 hidden md:block">
-								<img 
-									src="/img/informatique.png" 
-									alt="Étudiants en informatique"
-									className="w-full h-auto object-cover"
-								/>
+							<div className="text-center">
+								<Link
+									to="/formations/university/inscription"
+									className="inline-flex items-center px-8 py-3 bg-white text-crec-darkblue rounded-full hover:bg-crec-gold hover:text-white transition-all duration-300 font-medium shadow-md hover:shadow-lg"
+								>
+									<FileText className="w-5 h-5 mr-2" />
+									Réserver ma place
+								</Link>
 							</div>
 						</motion.div>
 					</div>
