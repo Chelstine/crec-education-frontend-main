@@ -36,7 +36,7 @@ const LangSwitcher = () => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={toggleDropdown}
-        className="p-2 text-crec-darkblue hover:text-crec-gold transition"
+        className="p-2 text-white hover:text-crec-gold transition"
         aria-label="Switch Language"
       >
         <Globe size={20} />

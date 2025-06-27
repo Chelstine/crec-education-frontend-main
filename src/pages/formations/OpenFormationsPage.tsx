@@ -202,66 +202,62 @@ const OpenFormationsPage = () => {
         </div>
       </section>
 
-      {/* Introduction */}
+      {/* Introduction avec texte descriptif */}
       <section id="about" className="py-16 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="max-w-3xl mx-auto px-4">
           <motion.h2
-            className="text-3xl md:text-4xl font-bold text-center text-crec-blue mb-8"
+            className="text-3xl md:text-4xl font-bold text-center text-crec-darkblue mb-6"
             initial={{ opacity: 0, y: -20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            Pourquoi choisir nos formations ?
+            Les Formations Ouvertes du CREC
           </motion.h2>
+          
           <motion.div
-            className="space-y-6 text-gray-700 text-lg leading-relaxed text-center mb-12"
+            className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <p className="max-w-3xl mx-auto">
-              Au CREC, nous croyons que l'éducation doit être accessible à tous. Nos formations ouvertes s'adressent 
-              aux personnes de tous niveaux d'études qui souhaitent acquérir de nouvelles compétences ou se perfectionner.
+            <p>
+              Le Centre de Recherche, d'Étude et de Créativité (CREC) propose des formations ouvertes 
+              accessibles à tous, conçues pour répondre aux besoins de développement de compétences 
+              professionnelles et personnelles. Ces programmes structurés s'adressent à un large public 
+              sans condition préalable de diplôme.
             </p>
+            
+            <p>
+              Contrairement aux formations individualisées, nos cours se déroulent en groupe avec un 
+              calendrier et un programme définis, permettant une expérience d'apprentissage collective 
+              enrichissante. Chaque formation est dispensée par des formateurs qualifiés qui 
+              accompagnent l'ensemble du groupe vers l'acquisition des compétences visées.
+            </p>
+            
+            <p>
+              Notre approche pédagogique est fondée sur l'équilibre entre théorie et pratique, avec une 
+              attention particulière portée à l'application concrète des connaissances. Les participants 
+              suivent un parcours commun, avec des évaluations régulières pour garantir l'assimilation 
+              des contenus.
+            </p>
+            
+            <div className="flex flex-wrap gap-4 items-center justify-center mt-8 text-sm">
+              <div className="flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-md text-crec-darkblue">
+                <Award className="w-4 h-4 text-crec-darkblue" />
+                <span>Certificats délivrés</span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-md text-crec-darkblue">
+                <Clock className="w-4 h-4 text-crec-darkblue" />
+                <span>Sessions en groupe</span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-md text-crec-darkblue">
+                <Calendar className="w-4 h-4 text-crec-darkblue" />
+                <span>Calendrier défini</span>
+              </div>
+            </div>
           </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
-            {[
-              {
-                icon: <HeartHandshake className="w-12 h-12 text-crec-gold" />,
-                title: "Accessible à tous",
-                description: "Peu importe votre niveau d'études, nos formations sont conçues pour vous accompagner"
-              },
-              {
-                icon: <Star className="w-12 h-12 text-crec-gold" />,
-                title: "Qualité reconnue",
-                description: "Formateurs expérimentés et méthodes pédagogiques éprouvées"
-              },
-              {
-                icon: <Award className="w-12 h-12 text-crec-gold" />,
-                title: "Certifications",
-                description: "Obtenez des certificats reconnus pour valoriser vos compétences"
-              }
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                whileInView={{ opacity: 1, y: 0 }}
-                initial={{ opacity: 0, y: 20 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-              >
-                <Card className="bg-white shadow-md hover:shadow-lg transition border-t-4 border-t-blue-500">
-                  <CardContent className="p-6 flex flex-col items-center text-center">
-                    <div className="flex justify-center mb-4">{item.icon}</div>
-                    <h3 className="text-xl font-semibold text-crec-darkblue mb-3">{item.title}</h3>
-                    <p className="text-gray-600">{item.description}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -343,49 +339,59 @@ const OpenFormationsPage = () => {
         </div>
       </section>
 
-      {/* Témoignages */}
+      {/* Section d'information sur la première promotion */}
       <section className="py-16 px-4 bg-blue-50">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           <motion.div
-            className="text-center mb-12"
+            className="text-center mb-8"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-crec-blue mb-4">Témoignages</h2>
-            <div className="w-20 h-1 bg-crec-gold mx-auto mb-6"></div>
-            <p className="text-lg text-gray-600">Découvrez les réussites de nos apprenants</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-crec-darkblue mb-3">Première promotion 2025-2026</h2>
+            <div className="w-16 h-0.5 bg-crec-gold mx-auto mb-4"></div>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={index}
-                className="bg-white p-8 rounded-xl shadow-md border border-blue-100"
-                initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-              >
-                <div className="flex items-center gap-2 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  ))}
+          <motion.div
+            className="bg-white p-8 rounded-xl shadow-sm border border-blue-100"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <p className="text-gray-700 mb-4 leading-relaxed">
+              Nos formations ouvertes accueilleront leur première promotion pour l'année académique 2025-2026. 
+              En rejoignant cette première cohorte, vous bénéficierez d'une attention particulière et 
+              ferez partie des pionniers de ce nouveau programme éducatif au CREC.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-6 mt-6 text-sm">
+              <div className="flex items-start gap-2">
+                <Calendar className="w-5 h-5 text-crec-gold mt-0.5" />
+                <div>
+                  <p className="font-medium text-crec-darkblue">Début des cours</p>
+                  <p className="text-gray-600">Octobre 2025</p>
                 </div>
-                <p className="text-gray-600 mb-6 italic text-lg">"{testimonial.comment}"</p>
-                <div className="flex items-center justify-between pt-4 border-t border-blue-100">
-                  <div>
-                    <p className="font-semibold text-crec-darkblue">{testimonial.name}</p>
-                    <p className="text-sm text-gray-500">{testimonial.formation}</p>
-                  </div>
-                  <Badge className="bg-green-100 text-green-800 font-medium">
-                    {testimonial.score}
-                  </Badge>
+              </div>
+              
+              <div className="flex items-start gap-2">
+                <Users className="w-5 h-5 text-crec-gold mt-0.5" />
+                <div>
+                  <p className="font-medium text-crec-darkblue">Taille des groupes</p>
+                  <p className="text-gray-600">15 à 20 participants</p>
                 </div>
-              </motion.div>
-            ))}
-          </div>
+              </div>
+              
+              <div className="flex items-start gap-2">
+                <Award className="w-5 h-5 text-crec-gold mt-0.5" />
+                <div>
+                  <p className="font-medium text-crec-darkblue">Certification</p>
+                  <p className="text-gray-600">En fin de formation</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
