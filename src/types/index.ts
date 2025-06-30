@@ -106,3 +106,59 @@ export interface Notification {
   autoClose?: boolean;
   duration?: number;
 }
+
+export interface Project {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl?: string;
+}
+
+export interface ContactForm {
+  name: string;
+  email: string;
+  message: string;
+}
+
+export interface InscriptionForm {
+  name: string;
+  email: string;
+  formationId: string;
+}
+
+export interface ReservationForm {
+  userId: string;
+  machineId: string;
+  date: string;
+  slot: string;
+}
+
+export interface DonationForm {
+  name: string;
+  email: string;
+  amount: number;
+}
+
+export interface Event {
+  id: string;
+  title: string;
+  date: string;
+  location: string;
+  status: string;
+}
+
+export interface Article {
+  id: string;
+  title: string;
+  date: string;
+  content: string;
+  imageUrl?: string;
+}
+
+export interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  content: string;
+  imageUrl?: string;
+}

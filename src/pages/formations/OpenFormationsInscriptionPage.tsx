@@ -126,9 +126,7 @@ const OpenFormationsInscriptionPage = () => {
         await inscriptionMutation.mutateAsync({
           name: `${formData.firstName} ${formData.lastName}`,
           email: formData.email,
-          formation: formData.formation,
-          paymentMethod: "offline",
-          phoneNumber: formData.phone
+          formationId: formData.formation
         });
         setFormData({
           firstName: "",

@@ -18,7 +18,7 @@ import {
   FablabSubscriptionService,
   FablabMachineService,
   FablabReservationService
-} from '@/services/api';
+} from '@/services/apiServices';
 import {
   Project,
   ContactForm,
