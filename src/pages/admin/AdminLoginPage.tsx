@@ -1,22 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 
 // Import d'icônes et composants
-import { Lock, Mail, AlertCircle, School } from 'lucide-react';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Label } from '../../components/ui/label';
-import { Alert, AlertDescription } from '../../components/ui/alert';
+import { Lock, Mail, AlertCircle, School, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const AdminLoginPage: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('chelstineogoubiyi@gmail.com'); // Prérempli pour faciliter les tests
+  const [password, setPassword] = useState('kylie'); // Prérempli pour faciliter les tests
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  
+  // Rediriger si déjà connecté
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/admin/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,8 +117,20 @@ const AdminLoginPage: React.FC = () => {
                 className="w-full bg-crec-gold hover:bg-crec-gold/90"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Connexion en cours...' : 'Se connecter'}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Connexion en cours...
+                  </>
+                ) : 'Se connecter'}
               </Button>
+              
+              <div className="mt-4 text-sm text-slate-600">
+                <p className="text-center">
+                  Identifiants de test: <br />
+                  <span className="font-medium">chelstineogoubiyi@gmail.com / kylie</span>
+                </p>
+              </div>
             </div>
           </form>
         </div>

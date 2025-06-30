@@ -1,27 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { 
   DataTable,
-  DeleteConfirmDialog,
-  FormDialog,
-  InfoPanel,
-  ImageUploader
-} from '../../../components/admin';
-import { Badge } from '../../../components/ui/badge';
-import { Label } from '../../../components/ui/label';
-import { Input } from '../../../components/ui/input';
-import { Textarea } from '../../../components/ui/textarea';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '../../../components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card';
-import { Info, BookOpen, Upload, PencilIcon, TrashIcon } from 'lucide-react';
+  DeleteConfirmDialog
+} from '@/components/admin';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Globe, Clock, Calendar, Users, BookOpen, PencilIcon, TrashIcon, Plus, LayoutGrid, Award } from 'lucide-react';
 
-// Type de formation
+// Types pour les formations ouvertes
 interface Formation {
   id: string;
   title: string;
@@ -29,569 +17,398 @@ interface Formation {
   category: string;
   duration: string;
   price: number;
-  schedule?: string;
-  format: string;
-  niveau: string;
-  requirements?: string;
+  instructor: string;
+  maxParticipants: number;
+  schedule: string;
+  location: string;
+  format: 'Présentiel' | 'En ligne' | 'Hybride';
+  level: 'Débutant' | 'Intermédiaire' | 'Avancé';
+  status: 'active' | 'draft' | 'inactive';
+  image?: string;
+  startDate: string;
+  endDate: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Certificate {
+  id: string;
+  title: string;
+  description: string;
+  formations: string[]; // IDs of formations
+  price: number;
+  duration: string;
   status: 'active' | 'draft' | 'inactive';
   image?: string;
   createdAt: string;
   updatedAt: string;
 }
 
-// Catégories de formations
-const FORMATION_CATEGORIES = [
-  { value: 'informatique', label: 'Informatique' },
-  { value: 'langues', label: 'Langues' },
-  { value: 'management', label: 'Management' },
-  { value: 'communication', label: 'Communication' },
-  { value: 'data_science', label: 'Data Science' },
-  { value: 'design', label: 'Design' },
-];
-
-// Niveaux de formations
-const FORMATION_LEVELS = [
-  { value: 'debutant', label: 'Débutant' },
-  { value: 'intermediaire', label: 'Intermédiaire' },
-  { value: 'avance', label: 'Avancé' },
-  { value: 'expert', label: 'Expert' },
-];
-
-// Formats de formations
-const FORMATION_FORMATS = [
-  { value: 'presentiel', label: 'Présentiel' },
-  { value: 'distanciel', label: 'Distanciel' },
-  { value: 'hybride', label: 'Hybride' },
-];
-
-// Statuts de formations
-const FORMATION_STATUS = [
-  { value: 'active', label: 'Actif', color: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
-  { value: 'draft', label: 'Brouillon', color: 'bg-amber-100 text-amber-800 border-amber-300' },
-  { value: 'inactive', label: 'Inactif', color: 'bg-slate-100 text-slate-800 border-slate-300' },
-];
-
 const AdminFormationsPage: React.FC = () => {
-  const [formations, setFormations] = useState<Formation[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [totalFormations, setTotalFormations] = useState(0);
+  const [activeTab, setActiveTab] = useState<string>('formations');
+  const [showAddFormationDialog, setShowAddFormationDialog] = useState(false);
+  const [showAddCertificateDialog, setShowAddCertificateDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(10);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('all');
-  
-  // État pour les dialogues
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [currentFormation, setCurrentFormation] = useState<Formation | null>(null);
+  const [formations, setFormations] = useState<Formation[]>([]);
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [totalFormations, setTotalFormations] = useState(0);
 
-  // Colonnes pour le tableau
-  const columns = [
-    { 
-      key: 'title', 
-      header: 'Titre',
+  // Harmonisation des données mock (clé 'level' au lieu de 'niveau', format en majuscule)
+  const mockFormations: Formation[] = [
+    {
+      id: "form-1",
+      title: "Anglais Professionnel",
+      description: "Formation intensive en anglais des affaires et communication professionnelle.",
+      category: "langues",
+      duration: "60 heures",
+      price: 150000,
+      instructor: "Mme. Sarah Johnson",
+      maxParticipants: 15,
+      schedule: "Mardi et Jeudi, 18h-20h",
+      location: "CREC Campus Principal, Salle 204",
+      format: "Présentiel",
+      level: "Intermédiaire",
+      status: "active",
+      image: "/img/formation-ouverte.png",
+      startDate: "2025-02-15T00:00:00.000Z",
+      endDate: "2025-04-30T00:00:00.000Z",
+      createdAt: "2025-01-10T09:00:00.000Z",
+      updatedAt: "2025-01-15T14:30:00.000Z"
+    },
+    {
+      id: "form-2",
+      title: "Introduction au Développement Web",
+      description: "Apprenez les bases du développement web: HTML, CSS et JavaScript pour débutants.",
+      category: "informatique",
+      duration: "45 heures",
+      price: 125000,
+      instructor: "M. Kofi Mensah",
+      maxParticipants: 20,
+      schedule: "Samedi, 9h-12h",
+      location: "CREC Campus Numérique",
+      format: "Hybride",
+      level: "Débutant",
+      status: "active",
+      image: "/img/dev-web.png",
+      startDate: "2025-03-01T00:00:00.000Z",
+      endDate: "2025-05-15T00:00:00.000Z",
+      createdAt: "2025-01-20T10:15:00.000Z",
+      updatedAt: "2025-01-25T16:45:00.000Z"
+    },
+    {
+      id: "form-3",
+      title: "Communication et Prise de Parole",
+      description: "Techniques et méthodes pour améliorer votre communication orale et prise de parole en public.",
+      category: "communication",
+      duration: "30 heures",
+      price: 100000,
+      instructor: "Dr. Aminata Touré",
+      maxParticipants: 12,
+      schedule: "Lundi et Mercredi, 17h-19h",
+      location: "CREC Campus Principal, Salle de conférence",
+      format: "Présentiel",
+      level: "Débutant",
+      status: "draft",
+      image: "/img/com.png",
+      startDate: "2025-04-05T00:00:00.000Z",
+      endDate: "2025-05-30T00:00:00.000Z",
+      createdAt: "2025-02-01T11:30:00.000Z",
+      updatedAt: "2025-02-05T13:20:00.000Z"
+    }
+  ];
+
+  const mockCertificates: Certificate[] = [
+    {
+      id: "cert-1",
+      title: "Certification en Compétences Linguistiques",
+      description: "Programme certifiant regroupant plusieurs formations en langues étrangères.",
+      formations: ["form-1"],
+      price: 250000,
+      duration: "6 mois",
+      status: "active",
+      image: "/img/certificat-langues.jpg",
+      createdAt: "2025-01-05T08:30:00.000Z",
+      updatedAt: "2025-01-10T11:45:00.000Z"
+    },
+    {
+      id: "cert-2",
+      title: "Certification en Développement Web Full-Stack",
+      description: "Programme complet pour devenir développeur web full-stack avec certifications reconnues.",
+      formations: ["form-2"],
+      price: 350000,
+      duration: "9 mois",
+      status: "active",
+      image: "/img/certificat-dev-web.jpg",
+      createdAt: "2025-01-15T09:20:00.000Z",
+      updatedAt: "2025-01-20T14:10:00.000Z"
+    }
+  ];
+
+  // Columns for formations table
+  const formationColumns = [
+    {
+      key: "title",
+      header: "Formation",
       renderCell: (formation: Formation) => (
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-md bg-slate-100 flex items-center justify-center text-slate-600 overflow-hidden">
-            {formation.image ? (
-              <img 
-                src={formation.image} 
-                alt={formation.title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <BookOpen className="h-5 w-5" />
-            )}
-          </div>
-          <div>
-            <p className="font-medium">{formation.title}</p>
-            <p className="text-xs text-slate-500 truncate max-w-[200px]">{formation.description}</p>
-          </div>
+        <div className="flex flex-col">
+          <span className="font-medium">{formation.title}</span>
+          <span className="text-xs text-slate-500 mt-1">{formation.category}</span>
         </div>
       )
     },
-    { 
-      key: 'category', 
-      header: 'Catégorie',
-      renderCell: (formation: Formation) => {
-        const category = FORMATION_CATEGORIES.find(c => c.value === formation.category);
-        return <span>{category?.label || formation.category}</span>;
-      }
+    {
+      key: "instructor",
+      header: "Formateur",
+      renderCell: (formation: Formation) => (
+        <div className="flex items-center">
+          <Users className="w-4 h-4 mr-2 text-slate-400" />
+          <span>{formation.instructor}</span>
+        </div>
+      )
     },
-    { 
-      key: 'price', 
-      header: 'Prix',
+    {
+      key: "price",
+      header: "Prix",
       renderCell: (formation: Formation) => (
         <span className="font-medium">{formation.price.toLocaleString('fr-FR')} FCFA</span>
       )
     },
-    { 
-      key: 'duration', 
-      header: 'Durée',
-      renderCell: (formation: Formation) => <span>{formation.duration}</span>
+    {
+      key: "duration",
+      header: "Durée",
+      renderCell: (formation: Formation) => (
+        <div className="flex items-center">
+          <Clock className="w-4 h-4 mr-2 text-slate-400" />
+          <span>{formation.duration}</span>
+        </div>
+      )
     },
-    { 
-      key: 'status', 
-      header: 'Statut',
+    {
+      key: "format",
+      header: "Format",
+      renderCell: (formation: Formation) => (
+        <Badge className={
+          formation.format === 'Présentiel' ? 'bg-blue-100 text-blue-800' :
+          formation.format === 'Hybride' ? 'bg-purple-100 text-purple-800' :
+          'bg-indigo-100 text-indigo-800'
+        }>
+          {formation.format}
+        </Badge>
+      )
+    },
+    {
+      key: "status",
+      header: "Statut",
       renderCell: (formation: Formation) => {
-        const status = FORMATION_STATUS.find(s => s.value === formation.status) || 
-          { label: formation.status, color: 'bg-slate-100 text-slate-800 border-slate-300' };
-        
+        const status = formation.status;
         return (
-          <Badge 
-            variant="outline"
-            className={status.color}
-          >
-            {status.label}
+          <Badge className={
+            status === 'active' ? 'bg-green-100 text-green-800' :
+            status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
+            'bg-slate-100 text-slate-800'
+          }>
+            {status === 'active' ? 'Actif' :
+             status === 'draft' ? 'Brouillon' : 'Inactif'}
           </Badge>
         );
       }
     },
+    {
+      key: "actions",
+      header: "Actions",
+      renderCell: (formation: Formation) => (
+        <div className="flex items-center space-x-2">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => console.log("Edit formation", formation.id)}
+          >
+            <PencilIcon className="w-4 h-4" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => {
+              setSelectedItemId(formation.id);
+              setShowDeleteDialog(true);
+            }}
+          >
+            <TrashIcon className="w-4 h-4" />
+          </Button>
+        </div>
+      )
+    }
   ];
 
-  // Chargement des formations
-  const loadFormations = async () => {
-    try {
-      setIsLoading(true);
-      
-      // Pour le développement, utiliser des données simulées
-      setTimeout(() => {
-        const mockFormations: Formation[] = [
-          {
-            id: '1',
-            title: 'Développement Web Full Stack',
-            description: 'Apprenez à créer des applications web complètes avec les technologies modernes (HTML, CSS, JavaScript, React, Node.js).',
-            category: 'informatique',
-            duration: '12 semaines',
-            price: 250000,
-            schedule: 'Lundi et Mercredi, 18h-20h',
-            format: 'hybride',
-            niveau: 'intermediaire',
-            requirements: 'Connaissances de base en programmation',
-            status: 'active',
-            image: '/img/dev-web.png',
-            createdAt: '2023-01-15T00:00:00Z',
-            updatedAt: '2023-05-10T00:00:00Z'
-          },
-          {
-            id: '2',
-            title: 'Data Science et Analyse de Données',
-            description: 'Maîtrisez les techniques d\'analyse de données et les algorithmes de machine learning pour extraire de la valeur de vos données.',
-            category: 'data_science',
-            duration: '8 semaines',
-            price: 200000,
-            schedule: 'Samedi, 9h-13h',
-            format: 'presentiel',
-            niveau: 'avance',
-            requirements: 'Connaissances en mathématiques et statistiques',
-            status: 'active',
-            image: '/img/data-science.png',
-            createdAt: '2023-02-20T00:00:00Z',
-            updatedAt: '2023-06-05T00:00:00Z'
-          },
-          {
-            id: '3',
-            title: 'Communication Digitale',
-            description: 'Développez votre stratégie de communication sur les réseaux sociaux et les plateformes numériques.',
-            category: 'communication',
-            duration: '4 semaines',
-            price: 150000,
-            schedule: 'Mardi et Jeudi, 17h-19h',
-            format: 'distanciel',
-            niveau: 'debutant',
-            status: 'draft',
-            image: '/img/com.png',
-            createdAt: '2023-03-10T00:00:00Z',
-            updatedAt: '2023-07-01T00:00:00Z'
-          },
-        ];
-        
-        // Filtrer par statut si nécessaire
-        let filteredFormations = [...mockFormations];
-        if (activeTab !== 'all') {
-          filteredFormations = mockFormations.filter(f => f.status === activeTab);
-        }
-        
-        // Filtrer par recherche si nécessaire
-        if (searchQuery) {
-          const query = searchQuery.toLowerCase();
-          filteredFormations = filteredFormations.filter(f => 
-            f.title.toLowerCase().includes(query) || 
-            f.description.toLowerCase().includes(query)
-          );
-        }
-        
-        setFormations(filteredFormations);
-        setTotalFormations(filteredFormations.length);
-        setIsLoading(false);
-      }, 800);
-    } catch (error) {
-      console.error('Erreur lors du chargement des formations:', error);
-      setIsLoading(false);
+  // Columns for certificates table
+  const certificateColumns = [
+    {
+      key: "title",
+      header: "Certification",
+      renderCell: (certificate: Certificate) => (
+        <div className="flex flex-col">
+          <span className="font-medium">{certificate.title}</span>
+          <span className="text-xs text-slate-500 mt-1">{certificate.formations.length} formation(s)</span>
+        </div>
+      )
+    },
+    {
+      key: "price",
+      header: "Prix",
+      renderCell: (certificate: Certificate) => (
+        <span className="font-medium">{certificate.price.toLocaleString('fr-FR')} FCFA</span>
+      )
+    },
+    {
+      key: "duration",
+      header: "Durée",
+      renderCell: (certificate: Certificate) => (
+        <div className="flex items-center">
+          <Clock className="w-4 h-4 mr-2 text-slate-400" />
+          <span>{certificate.duration}</span>
+        </div>
+      )
+    },
+    {
+      key: "status",
+      header: "Statut",
+      renderCell: (certificate: Certificate) => {
+        const status = certificate.status;
+        return (
+          <Badge className={
+            status === 'active' ? 'bg-green-100 text-green-800' :
+            status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
+            'bg-slate-100 text-slate-800'
+          }>
+            {status === 'active' ? 'Actif' :
+             status === 'draft' ? 'Brouillon' : 'Inactif'}
+          </Badge>
+        );
+      }
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      renderCell: (certificate: Certificate) => (
+        <div className="flex items-center space-x-2">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => console.log("Edit certificate", certificate.id)}
+          >
+            <PencilIcon className="w-4 h-4" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => {
+              setSelectedItemId(certificate.id);
+              setShowDeleteDialog(true);
+            }}
+          >
+            <TrashIcon className="w-4 h-4" />
+          </Button>
+        </div>
+      )
     }
-  };
+  ];
 
+  // Chargement simulé des données (remplace loadFormations)
   useEffect(() => {
-    loadFormations();
-  }, [currentPage, searchQuery, activeTab]);
-
-  // Gestion des actions CRUD
-  const handleAddFormation = async (formationData: Partial<Formation>) => {
-    try {
-      // Pour le développement, simuler l'ajout
-      console.log('Ajout de formation:', formationData);
-      
-      // Recharger la liste
-      await loadFormations();
-      
-      return Promise.resolve();
-    } catch (error) {
-      console.error('Erreur lors de l\'ajout de la formation:', error);
-      return Promise.reject(error);
-    }
-  };
-
-  const handleEditFormation = async (formationData: Partial<Formation>) => {
-    if (!currentFormation) return;
-    
-    try {
-      // Pour le développement, simuler la modification
-      console.log('Modification de formation:', formationData);
-      
-      // Recharger la liste
-      await loadFormations();
-      
-      return Promise.resolve();
-    } catch (error) {
-      console.error('Erreur lors de la modification de la formation:', error);
-      return Promise.reject(error);
-    }
-  };
-
-  const handleDeleteFormation = async () => {
-    if (!currentFormation) return;
-    
-    try {
-      // Pour le développement, simuler la suppression
-      console.log('Suppression de formation:', currentFormation.id);
-      
-      // Recharger la liste
-      await loadFormations();
-      
-      return Promise.resolve();
-    } catch (error) {
-      console.error('Erreur lors de la suppression de la formation:', error);
-      return Promise.reject(error);
-    }
-  };
-
-  // Simuler l'upload d'image
-  const handleImageUpload = async (file: File) => {
-    // Simuler un délai d'upload
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // En production, vous téléchargeriez l'image vers votre serveur ou un service de stockage
-    console.log('Image téléchargée:', file.name);
-    
-    // Retourner une URL simulée
-    return Promise.resolve('/img/formation.png');
-  };
-
-  // Formulaire de formation
-  const FormationForm = ({ formData, handleChange }: any) => {
-    // État local pour la gestion des onglets du formulaire
-    const [formTab, setFormTab] = useState('general');
-    
-    return (
-      <div>
-        <Tabs value={formTab} onValueChange={setFormTab} className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="general">Informations générales</TabsTrigger>
-            <TabsTrigger value="details">Détails</TabsTrigger>
-          </TabsList>
-          <TabsContent value="general" className="space-y-4">
-            <div>
-              <Label htmlFor="title">Titre de la formation*</Label>
-              <Input
-                id="title"
-                name="title"
-                value={formData.title || ''}
-                onChange={handleChange}
-                placeholder="Titre de la formation"
-                required
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="description">Description*</Label>
-              <Textarea
-                id="description"
-                name="description"
-                value={formData.description || ''}
-                onChange={handleChange}
-                placeholder="Description détaillée de la formation"
-                className="min-h-[100px]"
-                required
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="category">Catégorie*</Label>
-                <Select 
-                  name="category" 
-                  value={formData.category || ''} 
-                  onValueChange={(value) => handleChange({ target: { name: 'category', value } })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner une catégorie" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {FORMATION_CATEGORIES.map((category) => (
-                      <SelectItem key={category.value} value={category.value}>
-                        {category.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label htmlFor="niveau">Niveau*</Label>
-                <Select 
-                  name="niveau" 
-                  value={formData.niveau || ''} 
-                  onValueChange={(value) => handleChange({ target: { name: 'niveau', value } })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner un niveau" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {FORMATION_LEVELS.map((level) => (
-                      <SelectItem key={level.value} value={level.value}>
-                        {level.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="price">Prix (FCFA)*</Label>
-                <Input
-                  id="price"
-                  name="price"
-                  type="number"
-                  value={formData.price || ''}
-                  onChange={handleChange}
-                  placeholder="150000"
-                  required
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="duration">Durée*</Label>
-                <Input
-                  id="duration"
-                  name="duration"
-                  value={formData.duration || ''}
-                  onChange={handleChange}
-                  placeholder="Ex: 12 semaines"
-                  required
-                />
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="details" className="space-y-4">
-            <div>
-              <Label htmlFor="format">Format*</Label>
-              <Select 
-                name="format" 
-                value={formData.format || ''} 
-                onValueChange={(value) => handleChange({ target: { name: 'format', value } })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un format" />
-                </SelectTrigger>
-                <SelectContent>
-                  {FORMATION_FORMATS.map((format) => (
-                    <SelectItem key={format.value} value={format.value}>
-                      {format.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label htmlFor="schedule">Horaires</Label>
-              <Input
-                id="schedule"
-                name="schedule"
-                value={formData.schedule || ''}
-                onChange={handleChange}
-                placeholder="Ex: Lundi et Mercredi, 18h-20h"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="requirements">Prérequis</Label>
-              <Textarea
-                id="requirements"
-                name="requirements"
-                value={formData.requirements || ''}
-                onChange={handleChange}
-                placeholder="Connaissances ou compétences requises"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="status">Statut*</Label>
-              <Select 
-                name="status" 
-                value={formData.status || 'draft'} 
-                onValueChange={(value) => handleChange({ target: { name: 'status', value } })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un statut" />
-                </SelectTrigger>
-                <SelectContent>
-                  {FORMATION_STATUS.map((status) => (
-                    <SelectItem key={status.value} value={status.value}>
-                      {status.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <ImageUploader
-                onImageUpload={handleImageUpload}
-                currentImageUrl={formData.image || ''}
-                label="Image de la formation"
-                aspectRatio="16:9"
-                width="100%"
-                height="200px"
-              />
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
-    );
-  };
+    setIsLoading(true);
+    setTimeout(() => {
+      // Filtrage par recherche
+      let filteredFormations = [...mockFormations];
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        filteredFormations = filteredFormations.filter(f =>
+          f.title.toLowerCase().includes(query) ||
+          f.description.toLowerCase().includes(query)
+        );
+      }
+      setFormations(filteredFormations);
+      setCertificates(mockCertificates);
+      setTotalFormations(filteredFormations.length);
+      setIsLoading(false);
+    }, 500);
+  }, [searchQuery]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0">
         <div>
-          <h1 className="text-2xl font-bold">Formations Ouvertes</h1>
-          <p className="text-slate-500">Gérez les formations accessibles au public</p>
+          <h1 className="text-2xl font-bold tracking-tight">Gestion des Formations Ouvertes</h1>
+          <p className="text-muted-foreground">
+            Gérez les formations continues, les certifications et les ateliers ouverts au public
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {activeTab === 'formations' ? (
+            <Button onClick={() => setShowAddFormationDialog(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Nouvelle Formation
+            </Button>
+          ) : (
+            <Button onClick={() => setShowAddCertificateDialog(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Nouvelle Certification
+            </Button>
+          )}
         </div>
       </div>
-
-      <InfoPanel
-        title="Gestion des formations"
-        icon={<Info className="h-5 w-5" />}
-        variant="info"
-      >
-        <p className="text-sm text-blue-800">
-          Les formations avec le statut <strong>Actif</strong> sont visibles sur le site public.
-          Les <strong>Brouillons</strong> sont sauvegardés mais non publiés.
-        </p>
-      </InfoPanel>
-      
-      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="all">Toutes</TabsTrigger>
-          <TabsTrigger value="active">Actives</TabsTrigger>
-          <TabsTrigger value="draft">Brouillons</TabsTrigger>
-          <TabsTrigger value="inactive">Inactives</TabsTrigger>
-        </TabsList>
-      </Tabs>
-      
-      <DataTable
-        columns={columns}
-        data={formations}
-        keyField="id"
-        isLoading={isLoading}
-        totalItems={totalFormations}
-        currentPage={currentPage}
-        pageSize={pageSize}
-        onPageChange={setCurrentPage}
-        onSearch={(query) => {
-          setSearchQuery(query);
-          setCurrentPage(1);
-        }}
-        searchPlaceholder="Rechercher une formation..."
-        title="Formations"
-        onAdd={() => setIsAddDialogOpen(true)}
-        renderActions={(formation) => (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                setCurrentFormation(formation);
-                setIsEditDialogOpen(true);
-              }}
-              className="text-slate-600 hover:text-slate-900 p-1"
-            >
-              <PencilIcon className="h-4 w-4" />
-              <span className="sr-only">Modifier</span>
-            </button>
-            <button
-              onClick={() => {
-                setCurrentFormation(formation);
-                setIsDeleteDialogOpen(true);
-              }}
-              className="text-red-600 hover:text-red-700 p-1"
-            >
-              <TrashIcon className="h-4 w-4" />
-              <span className="sr-only">Supprimer</span>
-            </button>
-          </div>
-        )}
-      />
-
-      {/* Dialogue d'ajout de formation */}
-      <FormDialog
-        isOpen={isAddDialogOpen}
-        onClose={() => setIsAddDialogOpen(false)}
-        title="Ajouter une formation"
-        description="Créer une nouvelle formation ouverte"
-        onSubmit={handleAddFormation}
-        submitLabel="Créer la formation"
-        initialData={{ status: 'draft' }}
-      >
-        <FormationForm />
-      </FormDialog>
-
-      {/* Dialogue de modification de formation */}
-      <FormDialog
-        isOpen={isEditDialogOpen}
-        onClose={() => setIsEditDialogOpen(false)}
-        title="Modifier une formation"
-        description="Modifier les détails de la formation"
-        onSubmit={handleEditFormation}
-        submitLabel="Enregistrer les modifications"
-        initialData={currentFormation || {}}
-        isEdit
-      >
-        <FormationForm />
-      </FormDialog>
-
-      {/* Dialogue de confirmation de suppression */}
+      <Card>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <CardHeader className="pb-3">
+            <TabsList>
+              <TabsTrigger value="formations">
+                <BookOpen className="mr-2 h-4 w-4" />
+                Formations
+              </TabsTrigger>
+              <TabsTrigger value="certifications">
+                <Award className="mr-2 h-4 w-4" />
+                Certifications
+              </TabsTrigger>
+            </TabsList>
+          </CardHeader>
+          <TabsContent value="formations">
+            <CardContent>
+              <DataTable
+                columns={formationColumns}
+                data={formations}
+                keyField="id"
+                searchPlaceholder="Rechercher une formation..."
+                isLoading={isLoading}
+              />
+            </CardContent>
+          </TabsContent>
+          <TabsContent value="certifications">
+            <CardContent>
+              <DataTable
+                columns={certificateColumns}
+                data={certificates}
+                keyField="id"
+                searchPlaceholder="Rechercher une certification..."
+                isLoading={isLoading}
+              />
+            </CardContent>
+          </TabsContent>
+        </Tabs>
+      </Card>
       <DeleteConfirmDialog
-        isOpen={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
-        onConfirm={handleDeleteFormation}
-        title="Supprimer la formation"
-        description="Cette action est irréversible. La formation sera définitivement supprimée."
-        itemName={currentFormation?.title}
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={async () => {
+          setShowDeleteDialog(false);
+          setSelectedItemId(null);
+        }}
+        title={`Supprimer cet élément ?`}
+        description="Cette action est définitive et ne peut pas être annulée."
       />
+      {/* Les dialogues d'ajout sont à implémenter ultérieurement */}
     </div>
   );
 };
