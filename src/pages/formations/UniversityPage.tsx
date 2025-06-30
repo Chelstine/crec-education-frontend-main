@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, FileText, Users, GraduationCap, BookOpen, Heart, Clock, DollarSign, CheckCircle2 } from 'lucide-react';
-import { useMultipleContent } from '@/services/contentService';
 
 const programs = [
 	{
@@ -83,13 +82,6 @@ const programs = [
 ];
 
 const UniversityPage = () => {
-	const content = useMultipleContent([
-		'istmr_hero_title',
-		'istmr_hero_subtitle',
-		'istmr_hero_description',
-		'istmr_about_description',
-	]);
-
 	const getTypeColor = (type: string) => {
 		switch (type) {
 			case 'licence':
@@ -158,15 +150,13 @@ const UniversityPage = () => {
 						</motion.div>
 						
 						<h1 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6 tracking-tight">
-							{content.istmr_hero_title || 'ISTMR'}
+							ISTMR
 						</h1>
 						<h2 className="text-xl font-medium text-blue-200 mb-3">
-							{content.istmr_hero_subtitle ||
-								'Institut des Sciences et Technologies Matteo Ricci'}
+							Institut des Sciences et Technologies Matteo Ricci
 						</h2>
 						<p className="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed mb-8">
-							{content.istmr_hero_description ||
-								"Formez-vous au numérique avec une éducation jésuite d'excellence, ancrée dans la foi, le service et l'innovation technologique au cœur de l'Afrique."}
+							"Formez-vous au numérique avec une éducation jésuite d'excellence, ancrée dans la foi, le service et l'innovation technologique au cœur de l'Afrique."
 						</p>
 						
 						<div className="flex flex-col sm:flex-row gap-4 justify-center">

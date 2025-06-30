@@ -3,6 +3,7 @@ import { lazy, Suspense } from 'react';
 import MainLayout from '@/layouts/MainLayout';
 import ReservationLayout from '@/layouts/ReservationLayout';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
+import adminRoutes from './routes/adminRoutes';
 
 // Loading component for lazy routes
 const LoadingSpinner = () => (
@@ -54,8 +55,6 @@ const CalendarPage = lazy(() => import('@/pages/events/CalendarPage'));
 const DonatePage = lazy(() => import('@/pages/DonatePage'));
 const BibliothequeEnLignePage = lazy(() => import('@/pages/BibliothequeEnLignePage'));
 
-// Imports admin supprimés (à réimplémenter ultérieurement)
-
 // Helper function to wrap lazy components with Suspense
 const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType<any>>) => (
   <Suspense fallback={<LoadingSpinner />}>
@@ -64,6 +63,10 @@ const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType<a
 );
 
 const routes: RouteObject[] = [
+  // Routes pour l'espace admin
+  ...adminRoutes,
+  
+  // Routes principales du site
   {
     path: '/',
     element: <MainLayout />,
@@ -206,8 +209,6 @@ const routes: RouteObject[] = [
       },
     ],
   },
-  // Routes Admin - supprimées pour reconstruction
-  // (espace réservé pour la future implémentation)
 ];
 
 const router = createBrowserRouter(routes);

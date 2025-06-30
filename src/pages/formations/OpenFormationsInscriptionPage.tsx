@@ -29,7 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { Upload, CreditCard, Smartphone, Building, AlertCircle, BookOpen, CheckCircle, Loader2 } from "lucide-react";
 import { useFormationInscription } from "@/hooks/useApi";
-import { InscriptionForm } from "@/types";
+
 
 const OpenFormationsInscriptionPage = () => {
   const [formData, setFormData] = useState({
@@ -121,17 +121,15 @@ const OpenFormationsInscriptionPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      const inscriptionData: InscriptionForm = {
-        name: `${formData.firstName} ${formData.lastName}`,
-        email: formData.email,
-        formation: formData.formation,
-        paymentMethod: "offline", // Paiement hors ligne avec reçu
-        phoneNumber: formData.phone
-      };
-
+      // On envoie les données du formulaire sans typage strict
       try {
-        await inscriptionMutation.mutateAsync(inscriptionData);
-        // Reset du formulaire en cas de succès
+        await inscriptionMutation.mutateAsync({
+          name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+          formation: formData.formation,
+          paymentMethod: "offline",
+          phoneNumber: formData.phone
+        });
         setFormData({
           firstName: "",
           lastName: "",

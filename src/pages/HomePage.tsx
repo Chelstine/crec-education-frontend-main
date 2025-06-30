@@ -6,7 +6,6 @@ import { Card } from '@/components/common/Card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
-import { useMultipleContent } from '@/services/contentService';
 import { Leaf, Gavel, Users, BookOpen, GraduationCap, Library, ChevronRight, Globe, Award, Mail } from 'lucide-react';
 
 
@@ -45,26 +44,6 @@ const HomePage = () => {
 
     return () => clearInterval(interval);
   }, [heroImages.length]);
-
-  // Récupérer le contenu géré par l'admin
-  const content = useMultipleContent([
-    'home_hero_title',
-    'home_hero_subtitle', 
-    'home_hero_description',
-    'home_formations_title',
-    'home_formations_subtitle',
-    'home_formations_description',
-    'home_university_title',
-    'home_university_description',
-    'home_open_formations_title',
-    'home_open_formations_description',
-    'home_fablab_title',
-    'home_fablab_description',
-    'home_partners_title',
-    'home_partners_subtitle',
-    'home_stats_experience_number',
-    'home_stats_experience_text'
-  ]);
 
   // Données pour les formations - utilise le contenu géré
   const formations = [
