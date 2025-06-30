@@ -7,3 +7,6 @@ export { default as FormDialog } from './FormDialog';
 export { default as ImageUploader } from './ImageUploader';
 export { default as InfoPanel } from './InfoPanel';
 export { default as StatCard } from './StatCard';
+
+// Composants pour la gestion des formations
+export { FormationForm, CertificateForm } from './formations';

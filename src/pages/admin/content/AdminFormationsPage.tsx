@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { 
   DataTable,
-  DeleteConfirmDialog
+  DeleteConfirmDialog,
+  FormDialog,
+  FormationForm,
+  CertificateForm
 } from '@/components/admin';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Globe, Clock, Calendar, Users, BookOpen, PencilIcon, TrashIcon, Plus, LayoutGrid, Award } from 'lucide-react';
+import { Clock, Users, BookOpen, PencilIcon, TrashIcon, Plus, Award } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 // Types pour les formations ouvertes
 interface Formation {
@@ -45,17 +49,31 @@ interface Certificate {
 }
 
 const AdminFormationsPage: React.FC = () => {
+  // États pour l'UI
   const [activeTab, setActiveTab] = useState<string>('formations');
-  const [showAddFormationDialog, setShowAddFormationDialog] = useState(false);
-  const [showAddCertificateDialog, setShowAddCertificateDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
-  const [formations, setFormations] = useState<Formation[]>([]);
-  const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [totalFormations, setTotalFormations] = useState(0);
+  
+  // États pour les données
+  const [formations, setFormations] = useState<Formation[]>([]);
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
+  
+  // États pour les boîtes de dialogue
+  const [showAddFormationDialog, setShowAddFormationDialog] = useState(false);
+  const [showEditFormationDialog, setShowEditFormationDialog] = useState(false);
+  const [showAddCertificateDialog, setShowAddCertificateDialog] = useState(false);
+  const [showEditCertificateDialog, setShowEditCertificateDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  
+  // États pour l'élément sélectionné
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [selectedFormation, setSelectedFormation] = useState<Formation | null>(null);
+  const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
+  
+  // Toast pour les notifications
+  const { toast } = useToast();
 
   // Harmonisation des données mock (clé 'level' au lieu de 'niveau', format en majuscule)
   const mockFormations: Formation[] = [
@@ -225,17 +243,14 @@ const AdminFormationsPage: React.FC = () => {
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={() => console.log("Edit formation", formation.id)}
+            onClick={() => handleEditFormation(formation.id)}
           >
             <PencilIcon className="w-4 h-4" />
           </Button>
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={() => {
-              setSelectedItemId(formation.id);
-              setShowDeleteDialog(true);
-            }}
+            onClick={() => handleDeleteItem(formation.id, 'formation')}
           >
             <TrashIcon className="w-4 h-4" />
           </Button>
@@ -298,17 +313,14 @@ const AdminFormationsPage: React.FC = () => {
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={() => console.log("Edit certificate", certificate.id)}
+            onClick={() => handleEditCertificate(certificate.id)}
           >
             <PencilIcon className="w-4 h-4" />
           </Button>
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={() => {
-              setSelectedItemId(certificate.id);
-              setShowDeleteDialog(true);
-            }}
+            onClick={() => handleDeleteItem(certificate.id, 'certificate')}
           >
             <TrashIcon className="w-4 h-4" />
           </Button>
@@ -317,7 +329,178 @@ const AdminFormationsPage: React.FC = () => {
     }
   ];
 
-  // Chargement simulé des données (remplace loadFormations)
+  // Fonctions CRUD pour les formations
+  const handleAddFormation = async (data: Partial<Formation>) => {
+    try {
+      // Simuler l'ajout - à remplacer par un appel API
+      const newFormation: Formation = {
+        ...data as any,
+        id: `form-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      
+      setFormations([newFormation, ...formations]);
+      
+      toast({
+        title: "Formation ajoutée",
+        description: "La formation a été ajoutée avec succès.",
+      });
+      
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout de la formation:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'ajout de la formation.",
+        variant: "destructive",
+      });
+      return Promise.reject(error);
+    }
+  };
+  
+  const handleUpdateFormation = async (data: Partial<Formation>) => {
+    try {
+      // Simuler la mise à jour - à remplacer par un appel API
+      const updatedFormations = formations.map(formation => 
+        formation.id === selectedFormation?.id 
+          ? { ...formation, ...data, updatedAt: new Date().toISOString() } 
+          : formation
+      );
+      
+      setFormations(updatedFormations);
+      
+      toast({
+        title: "Formation modifiée",
+        description: "La formation a été modifiée avec succès.",
+      });
+      
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Erreur lors de la modification de la formation:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la modification de la formation.",
+        variant: "destructive",
+      });
+      return Promise.reject(error);
+    }
+  };
+  
+  const handleEditFormation = (id: string) => {
+    const formation = formations.find(f => f.id === id);
+    if (formation) {
+      setSelectedFormation(formation);
+      setShowEditFormationDialog(true);
+    }
+  };
+
+  // Fonctions CRUD pour les certifications
+  const handleAddCertificate = async (data: Partial<Certificate>) => {
+    try {
+      // Simuler l'ajout - à remplacer par un appel API
+      const newCertificate: Certificate = {
+        ...data as any,
+        id: `cert-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      
+      setCertificates([newCertificate, ...certificates]);
+      
+      toast({
+        title: "Certification ajoutée",
+        description: "La certification a été ajoutée avec succès.",
+      });
+      
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout de la certification:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'ajout de la certification.",
+        variant: "destructive",
+      });
+      return Promise.reject(error);
+    }
+  };
+  
+  const handleUpdateCertificate = async (data: Partial<Certificate>) => {
+    try {
+      // Simuler la mise à jour - à remplacer par un appel API
+      const updatedCertificates = certificates.map(certificate => 
+        certificate.id === selectedCertificate?.id 
+          ? { ...certificate, ...data, updatedAt: new Date().toISOString() } 
+          : certificate
+      );
+      
+      setCertificates(updatedCertificates);
+      
+      toast({
+        title: "Certification modifiée",
+        description: "La certification a été modifiée avec succès.",
+      });
+      
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Erreur lors de la modification de la certification:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la modification de la certification.",
+        variant: "destructive",
+      });
+      return Promise.reject(error);
+    }
+  };
+  
+  const handleEditCertificate = (id: string) => {
+    const certificate = certificates.find(c => c.id === id);
+    if (certificate) {
+      setSelectedCertificate(certificate);
+      setShowEditCertificateDialog(true);
+    }
+  };
+
+  // Gestion de la suppression
+  const handleDeleteItem = (id: string, type: 'formation' | 'certificate') => {
+    setSelectedItemId(id);
+    setActiveTab(type === 'formation' ? 'formations' : 'certifications');
+    setShowDeleteDialog(true);
+  };
+  
+  const handleConfirmDelete = async () => {
+    try {
+      if (!selectedItemId) return Promise.resolve();
+      
+      if (activeTab === 'formations') {
+        setFormations(formations.filter(f => f.id !== selectedItemId));
+        
+        toast({
+          title: "Formation supprimée",
+          description: "La formation a été supprimée avec succès.",
+        });
+      } else {
+        setCertificates(certificates.filter(c => c.id !== selectedItemId));
+        
+        toast({
+          title: "Certification supprimée",
+          description: "La certification a été supprimée avec succès.",
+        });
+      }
+      
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la suppression.",
+        variant: "destructive",
+      });
+      return Promise.reject(error);
+    }
+  };
+
+  // Chargement simulé des données
   useEffect(() => {
     setIsLoading(true);
     setTimeout(() => {
@@ -360,6 +543,7 @@ const AdminFormationsPage: React.FC = () => {
           )}
         </div>
       </div>
+      
       <Card>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <CardHeader className="pb-3">
@@ -374,6 +558,7 @@ const AdminFormationsPage: React.FC = () => {
               </TabsTrigger>
             </TabsList>
           </CardHeader>
+          
           <TabsContent value="formations">
             <CardContent>
               <DataTable
@@ -385,6 +570,7 @@ const AdminFormationsPage: React.FC = () => {
               />
             </CardContent>
           </TabsContent>
+          
           <TabsContent value="certifications">
             <CardContent>
               <DataTable
@@ -398,17 +584,85 @@ const AdminFormationsPage: React.FC = () => {
           </TabsContent>
         </Tabs>
       </Card>
+      
+      {/* Dialog de confirmation de suppression */}
       <DeleteConfirmDialog
         isOpen={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
-        onConfirm={async () => {
-          setShowDeleteDialog(false);
-          setSelectedItemId(null);
-        }}
+        onConfirm={handleConfirmDelete}
         title={`Supprimer cet élément ?`}
         description="Cette action est définitive et ne peut pas être annulée."
       />
-      {/* Les dialogues d'ajout sont à implémenter ultérieurement */}
+      
+      {/* Dialog d'ajout de formation */}
+      <FormDialog
+        isOpen={showAddFormationDialog}
+        onClose={() => setShowAddFormationDialog(false)}
+        title="Ajouter une formation"
+        description="Créer une nouvelle formation ouverte"
+        onSubmit={handleAddFormation}
+        submitLabel="Ajouter"
+      >
+        <FormationForm 
+          formData={selectedFormation}
+          handleChange={() => {}}
+          isSubmitting={false}
+        />
+      </FormDialog>
+      
+      {/* Dialog d'édition de formation */}
+      <FormDialog
+        isOpen={showEditFormationDialog}
+        onClose={() => setShowEditFormationDialog(false)}
+        title="Modifier la formation"
+        description="Modifier les détails de la formation"
+        onSubmit={handleUpdateFormation}
+        submitLabel="Enregistrer"
+        initialData={selectedFormation}
+        isEdit={true}
+      >
+        <FormationForm 
+          formData={selectedFormation}
+          handleChange={() => {}}
+          isSubmitting={false}
+        />
+      </FormDialog>
+      
+      {/* Dialog d'ajout de certification */}
+      <FormDialog
+        isOpen={showAddCertificateDialog}
+        onClose={() => setShowAddCertificateDialog(false)}
+        title="Ajouter une certification"
+        description="Créer une nouvelle certification avec formations associées"
+        onSubmit={handleAddCertificate}
+        submitLabel="Ajouter"
+      >
+        <CertificateForm 
+          availableFormations={formations.map(f => ({ id: f.id, title: f.title }))} 
+          formData={selectedCertificate}
+          handleChange={() => {}}
+          isSubmitting={false}
+        />
+      </FormDialog>
+      
+      {/* Dialog d'édition de certification */}
+      <FormDialog
+        isOpen={showEditCertificateDialog}
+        onClose={() => setShowEditCertificateDialog(false)}
+        title="Modifier la certification"
+        description="Modifier les détails de la certification"
+        onSubmit={handleUpdateCertificate}
+        submitLabel="Enregistrer"
+        initialData={selectedCertificate}
+        isEdit={true}
+      >
+        <CertificateForm 
+          availableFormations={formations.map(f => ({ id: f.id, title: f.title }))} 
+          formData={selectedCertificate}
+          handleChange={() => {}}
+          isSubmitting={false}
+        />
+      </FormDialog>
     </div>
   );
 };

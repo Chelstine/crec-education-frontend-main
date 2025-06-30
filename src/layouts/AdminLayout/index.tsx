@@ -83,6 +83,15 @@ const AdminLayout: React.FC = () => {
       ]
     },
     { 
+      path: '/admin/fablab', 
+      name: 'FabLab', 
+      icon: <Wrench className="h-5 w-5" />,
+      children: [
+        { path: '/admin/fablab/reservations', name: 'Réservations' },
+        { path: '/admin/fablab/equipment', name: 'Équipements' },
+      ]
+    },
+    { 
       path: '/admin/users', 
       name: 'Utilisateurs', 
       icon: <Users className="h-5 w-5" /> 

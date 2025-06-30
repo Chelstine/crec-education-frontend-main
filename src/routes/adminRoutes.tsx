@@ -25,6 +25,10 @@ const AdminUniversityRegistrationsPage = lazy(() => import('@/pages/admin/regist
 const AdminFormationRegistrationsPage = lazy(() => import('@/pages/admin/registrations/AdminFormationRegistrationsPage'));
 const AdminFablabRegistrationsPage = lazy(() => import('@/pages/admin/registrations/AdminFablabRegistrationsPage'));
 
+// Pages FabLab spécifiques
+const AdminFablabReservationsPage = lazy(() => import('@/pages/admin/fablab/AdminFablabReservationsPage'));
+const AdminFablabEquipmentPage = lazy(() => import('@/pages/admin/fablab/AdminFablabEquipmentPage'));
+
 // Pages de paramètres
 const AdminSettingsPage = lazy(() => import('@/pages/admin/settings/AdminSettingsPage'));
 const AdminPricingSettingsPage = lazy(() => import('@/pages/admin/settings/AdminPricingSettingsPage'));
@@ -170,6 +174,28 @@ const adminRoutes: RouteObject[] = [
               },
             ],
           },
+          // Routes spécifiques FabLab
+          {
+            path: 'fablab',
+            children: [
+              {
+                path: 'reservations',
+                element: (
+                  <AdminProtectedRoute>
+                    <AdminFablabReservationsPage />
+                  </AdminProtectedRoute>
+                ),
+              },
+              {
+                path: 'equipment',
+                element: (
+                  <AdminProtectedRoute>
+                    <AdminFablabEquipmentPage />
+                  </AdminProtectedRoute>
+                ),
+              },
+            ],
+          },
           // Routes pour les paramètres
           {
             path: 'settings',
@@ -203,6 +229,28 @@ const adminRoutes: RouteObject[] = [
                 element: (
                   <AdminProtectedRoute>
                     <AdminGeneralSettingsPage />
+                  </AdminProtectedRoute>
+                ),
+              },
+            ],
+          },
+          // Routes FabLab spécifiques
+          {
+            path: 'fablab',
+            children: [
+              {
+                index: true,
+                element: (
+                  <AdminProtectedRoute>
+                    <AdminFablabReservationsPage />
+                  </AdminProtectedRoute>
+                ),
+              },
+              {
+                path: 'equipment',
+                element: (
+                  <AdminProtectedRoute>
+                    <AdminFablabEquipmentPage />
                   </AdminProtectedRoute>
                 ),
               },
