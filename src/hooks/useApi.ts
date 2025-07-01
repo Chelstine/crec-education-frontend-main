@@ -17,7 +17,9 @@ import {
   handleApiError,
   FablabSubscriptionService,
   FablabMachineService,
-  FablabReservationService
+  FablabReservationService,
+  UserService,
+  LibraryService
 } from '@/services/apiServices';
 import {
   Project,
@@ -455,6 +457,104 @@ export const useCancelReservation = () => {
   });
 };
 
+// ===== USER PROFILE HOOKS =====
+export const useUserProfile = () => {
+  return useQuery({
+    queryKey: ['user', 'profile'],
+    queryFn: UserService.getProfile,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+export const useUpdateUserProfile = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  
+  return useMutation({
+    mutationFn: UserService.updateProfile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
+      toast({
+        title: "Profil mis à jour",
+        description: "Vos informations personnelles ont été mises à jour avec succès.",
+        variant: "default",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erreur",
+        description: handleApiError(error),
+        variant: "destructive",
+      });
+    }
+  });
+};
+
+export const useChangePassword = () => {
+  const { toast } = useToast();
+  
+  return useMutation({
+    mutationFn: UserService.changePassword,
+    onSuccess: () => {
+      toast({
+        title: "Mot de passe modifié",
+        description: "Votre mot de passe a été changé avec succès.",
+        variant: "default",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erreur",
+        description: handleApiError(error),
+        variant: "destructive",
+      });
+    }
+  });
+};
+
+export const useUserCourses = () => {
+  return useQuery({
+    queryKey: ['user', 'courses'],
+    queryFn: UserService.getUserCourses,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useUserCertificates = () => {
+  return useQuery({
+    queryKey: ['user', 'certificates'],
+    queryFn: UserService.getUserCertificates,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+// ===== LIBRARY HOOKS =====
+export const useLibraryResources = () => {
+  return useQuery({
+    queryKey: ['library', 'resources'],
+    queryFn: LibraryService.getAllResources,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useLibrarySearch = (query: string) => {
+  return useQuery({
+    queryKey: ['library', 'search', query],
+    queryFn: () => LibraryService.searchResources(query),
+    enabled: !!query && query.length > 2,
+    staleTime: 2 * 60 * 1000,
+  });
+};
+
+export const useLibraryByCategory = (category: string) => {
+  return useQuery({
+    queryKey: ['library', 'category', category],
+    queryFn: () => LibraryService.getByCategory(category),
+    enabled: !!category,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
 // ===== LOADING AND ERROR HELPERS =====
 export const useApiStatus = () => {
   const isOnline = navigator.onLine;
@@ -463,5 +563,129 @@ export const useApiStatus = () => {
     isOnline,
     apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
     isConfigured: !!import.meta.env.VITE_API_BASE_URL,
+  };
+};
+
+/**
+ * Hook API général pour conserver la compatibilité avec le code existant
+ * Fournit des méthodes de base pour les requêtes HTTP
+ */
+export const useApi = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const get = async (url: string, params?: Record<string, any>) => {
+    try {
+      // Construction de l'URL avec paramètres si nécessaire
+      const queryParams = params 
+        ? '?' + new URLSearchParams(params as Record<string, string>).toString() 
+        : '';
+      
+      const response = await fetch(`${url}${queryParams}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: handleApiError(error as Error),
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const post = async (url: string, data: any) => {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: handleApiError(error as Error),
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const put = async (url: string, data: any) => {
+    try {
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: handleApiError(error as Error),
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const del = async (url: string) => {
+    try {
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: handleApiError(error as Error),
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const invalidateQueries = (queryKey: string | string[]) => {
+    queryClient.invalidateQueries({ queryKey: Array.isArray(queryKey) ? queryKey : [queryKey] });
+  };
+
+  return {
+    get,
+    post,
+    put,
+    delete: del, // 'delete' est un mot réservé en JS
+    invalidateQueries,
   };
 };

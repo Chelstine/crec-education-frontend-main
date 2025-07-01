@@ -10,6 +10,7 @@ const AdminLoginPage = lazy(() => import('@/pages/admin/AdminLoginPage'));
 // Pages du tableau de bord (protégées)
 const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage'));
 const AdminUsersPage = lazy(() => import('@/pages/admin/users/AdminUsersPage'));
+const AdminProfilePage = lazy(() => import('@/pages/admin/users/AdminProfilePage'));
 
 // Pages de gestion du contenu
 const AdminContentHubPage = lazy(() => import('@/pages/admin/content/AdminContentHubPage'));
@@ -18,6 +19,7 @@ const AdminUniversityPage = lazy(() => import('@/pages/admin/content/AdminUniver
 const AdminFormationsPage = lazy(() => import('@/pages/admin/content/AdminFormationsPage'));
 const AdminFablabPage = lazy(() => import('@/pages/admin/content/AdminFablabPage'));
 const AdminEventsPage = lazy(() => import('@/pages/admin/content/AdminEventsPage'));
+const AdminLibraryPage = lazy(() => import('@/pages/admin/content/AdminLibraryPage'));
 
 // Pages de gestion des inscriptions
 const AdminRegistrationsPage = lazy(() => import('@/pages/admin/registrations/AdminRegistrationsPage'));
@@ -25,9 +27,11 @@ const AdminUniversityRegistrationsPage = lazy(() => import('@/pages/admin/regist
 const AdminFormationRegistrationsPage = lazy(() => import('@/pages/admin/registrations/AdminFormationRegistrationsPage'));
 const AdminFablabRegistrationsPage = lazy(() => import('@/pages/admin/registrations/AdminFablabRegistrationsPage'));
 
+// Pages des certificats
+const AdminCertificatesPage = lazy(() => import('@/pages/admin/certifications/AdminCertificatesPage'));
+
 // Pages FabLab spécifiques
 const AdminFablabReservationsPage = lazy(() => import('@/pages/admin/fablab/AdminFablabReservationsPage'));
-const AdminFablabEquipmentPage = lazy(() => import('@/pages/admin/fablab/AdminFablabEquipmentPage'));
 
 // Pages de paramètres
 const AdminSettingsPage = lazy(() => import('@/pages/admin/settings/AdminSettingsPage'));
@@ -79,6 +83,15 @@ const adminRoutes: RouteObject[] = [
             element: (
               <AdminProtectedRoute requiredRole="super_admin">
                 <AdminUsersPage />
+              </AdminProtectedRoute>
+            ),
+          },
+          // Route pour le profil de l'utilisateur admin
+          {
+            path: 'profile',
+            element: (
+              <AdminProtectedRoute>
+                <AdminProfilePage />
               </AdminProtectedRoute>
             ),
           },
@@ -134,6 +147,14 @@ const adminRoutes: RouteObject[] = [
                   </AdminProtectedRoute>
                 ),
               },
+              {
+                path: 'library',
+                element: (
+                  <AdminProtectedRoute>
+                    <AdminLibraryPage />
+                  </AdminProtectedRoute>
+                ),
+              },
             ],
           },
           // Routes pour la gestion des inscriptions
@@ -186,14 +207,6 @@ const adminRoutes: RouteObject[] = [
                   </AdminProtectedRoute>
                 ),
               },
-              {
-                path: 'equipment',
-                element: (
-                  <AdminProtectedRoute>
-                    <AdminFablabEquipmentPage />
-                  </AdminProtectedRoute>
-                ),
-              },
             ],
           },
           // Routes pour les paramètres
@@ -234,27 +247,14 @@ const adminRoutes: RouteObject[] = [
               },
             ],
           },
-          // Routes FabLab spécifiques
+          // Route pour les certificats et badges
           {
-            path: 'fablab',
-            children: [
-              {
-                index: true,
-                element: (
-                  <AdminProtectedRoute>
-                    <AdminFablabReservationsPage />
-                  </AdminProtectedRoute>
-                ),
-              },
-              {
-                path: 'equipment',
-                element: (
-                  <AdminProtectedRoute>
-                    <AdminFablabEquipmentPage />
-                  </AdminProtectedRoute>
-                ),
-              },
-            ],
+            path: 'certificates',
+            element: (
+              <AdminProtectedRoute>
+                <AdminCertificatesPage />
+              </AdminProtectedRoute>
+            ),
           },
         ],
       },

@@ -29,6 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { Upload, CreditCard, Smartphone, Building, AlertCircle, BookOpen, CheckCircle, Loader2 } from "lucide-react";
 import { useFormationInscription } from "@/hooks/useApi";
+import { InscriptionForm } from "@/types";
 
 
 const OpenFormationsInscriptionPage = () => {
@@ -123,11 +124,12 @@ const OpenFormationsInscriptionPage = () => {
     if (validateForm()) {
       // On envoie les données du formulaire sans typage strict
       try {
-        await inscriptionMutation.mutateAsync({
+        const inscriptionData: InscriptionForm = {
           name: `${formData.firstName} ${formData.lastName}`,
           email: formData.email,
-          formationId: formData.formation
-        });
+          formation: formData.formation // Utilise le nom correct de propriété
+        };
+        await inscriptionMutation.mutateAsync(inscriptionData);
         setFormData({
           firstName: "",
           lastName: "",

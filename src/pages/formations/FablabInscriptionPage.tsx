@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { Upload, CreditCard, Smartphone, Building, AlertCircle, Loader2 } from "lucide-react";
 import { useFormationInscription } from "@/hooks/useApi";
-import { InscriptionForm } from "@/types";
+import { InscriptionForm } from "@/types/index";
 import SubscriptionConfirmation from "@/components/common/SubscriptionConfirmation";
 
 const FablabInscriptionPage = () => {
@@ -43,15 +43,14 @@ const FablabInscriptionPage = () => {
     {
       type: "Mobile Money",
       accounts: [
-        { name: "Orange Money", number: "+229 01 67 76 15 15", account: "CREC-OM-001" },
-        { name: "MTN MoMo", number: "+229 01 91 50 88 88", account: "CREC-MTN-001" }
+         { name: "MTN MoMo", number: "+229 01 xx xx xx xx", account: "indisponible actuellement" }
       ]
     },
     {
       type: "Banque",
       accounts: [
-        { name: "Bank of Africa (BOA)", number: "40001 00000 12345678901 23", account: "CREC EDUCATION" },
-        { name: "UBA Bénin", number: "10033 00000 12345678901 45", account: "CREC EDUCATION" }
+        { name: "Bank of Africa (BOA)", number: "à venir ", account: "à venir " },
+        { name: "UBA Bénin", number: "à venir ", account: "à venir" }
       ]
     }
   ];

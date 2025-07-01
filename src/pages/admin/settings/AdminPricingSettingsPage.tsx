@@ -192,105 +192,173 @@ const AdminPricingSettingsPage: React.FC = () => {
           <TabsTrigger value="formations">Formations ouvertes</TabsTrigger>
           <TabsTrigger value="fablab">FabLab</TabsTrigger>
         </TabsList>
+        
+        <TabsContent value="all">
+          {isLoading ? (
+            <div className="h-64 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-crec-gold"></div>
+            </div>
+          ) : priceSettings.length === 0 ? (
+            <div className="h-64 flex flex-col items-center justify-center text-slate-500">
+              <Settings className="h-16 w-16 mb-4 text-slate-300" />
+              <p>Aucun paramètre de prix dans cette catégorie</p>
+            </div>
+          ) : (
+            // Affichage par catégorie
+            <div className="space-y-8">
+              {/* Université */}
+              {categories.university.length > 0 && (
+                <div className="space-y-4">
+                  <h2 className="text-lg font-medium flex items-center gap-2 text-amber-700">
+                    <School className="h-5 w-5" />
+                    Université
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {categories.university.map((setting) => (
+                      <EditableField
+                        key={setting.id}
+                        type="number"
+                        name={setting.key}
+                        label={setting.label}
+                        value={setting.value.toString()}
+                        onSave={(key, value) => handleUpdatePrice(key, value)}
+                        className="bg-white p-4 rounded-lg shadow-sm"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Formations ouvertes */}
+              {categories.formations.length > 0 && (
+                <div className="space-y-4">
+                  <h2 className="text-lg font-medium flex items-center gap-2 text-blue-700">
+                    <BookOpen className="h-5 w-5" />
+                    Formations ouvertes
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {categories.formations.map((setting) => (
+                      <EditableField
+                        key={setting.id}
+                        type="number"
+                        name={setting.key}
+                        label={setting.label}
+                        value={setting.value.toString()}
+                        onSave={(key, value) => handleUpdatePrice(key, value)}
+                        className="bg-white p-4 rounded-lg shadow-sm"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* FabLab */}
+              {categories.fablab.length > 0 && (
+                <div className="space-y-4">
+                  <h2 className="text-lg font-medium flex items-center gap-2 text-emerald-700">
+                    <Award className="h-5 w-5" />
+                    FabLab
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {categories.fablab.map((setting) => (
+                      <EditableField
+                        key={setting.id}
+                        type="number"
+                        name={setting.key}
+                        label={setting.label}
+                        value={setting.value.toString()}
+                        onSave={(key, value) => handleUpdatePrice(key, value)}
+                        className="bg-white p-4 rounded-lg shadow-sm"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="university">
+          {isLoading ? (
+            <div className="h-64 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-crec-gold"></div>
+            </div>
+          ) : priceSettings.length === 0 ? (
+            <div className="h-64 flex flex-col items-center justify-center text-slate-500">
+              <Settings className="h-16 w-16 mb-4 text-slate-300" />
+              <p>Aucun paramètre de prix dans cette catégorie</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {priceSettings.map((setting) => (
+                <EditableField
+                  key={setting.id}
+                  type="number"
+                  name={setting.key}
+                  label={setting.label}
+                  value={setting.value.toString()}
+                  onSave={(key, value) => handleUpdatePrice(key, value)}
+                  className="bg-white p-4 rounded-lg shadow-sm"
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="formations">
+          {isLoading ? (
+            <div className="h-64 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-crec-gold"></div>
+            </div>
+          ) : priceSettings.length === 0 ? (
+            <div className="h-64 flex flex-col items-center justify-center text-slate-500">
+              <Settings className="h-16 w-16 mb-4 text-slate-300" />
+              <p>Aucun paramètre de prix dans cette catégorie</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {priceSettings.map((setting) => (
+                <EditableField
+                  key={setting.id}
+                  type="number"
+                  name={setting.key}
+                  label={setting.label}
+                  value={setting.value.toString()}
+                  onSave={(key, value) => handleUpdatePrice(key, value)}
+                  className="bg-white p-4 rounded-lg shadow-sm"
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="fablab">
+          {isLoading ? (
+            <div className="h-64 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-crec-gold"></div>
+            </div>
+          ) : priceSettings.length === 0 ? (
+            <div className="h-64 flex flex-col items-center justify-center text-slate-500">
+              <Settings className="h-16 w-16 mb-4 text-slate-300" />
+              <p>Aucun paramètre de prix dans cette catégorie</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {priceSettings.map((setting) => (
+                <EditableField
+                  key={setting.id}
+                  type="number"
+                  name={setting.key}
+                  label={setting.label}
+                  value={setting.value.toString()}
+                  onSave={(key, value) => handleUpdatePrice(key, value)}
+                  className="bg-white p-4 rounded-lg shadow-sm"
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
       </Tabs>
-
-      {isLoading ? (
-        <div className="h-64 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-crec-gold"></div>
-        </div>
-      ) : priceSettings.length === 0 ? (
-        <div className="h-64 flex flex-col items-center justify-center text-slate-500">
-          <Settings className="h-16 w-16 mb-4 text-slate-300" />
-          <p>Aucun paramètre de prix dans cette catégorie</p>
-        </div>
-      ) : activeCategory === 'all' ? (
-        // Affichage par catégorie
-        <div className="space-y-8">
-          {/* Université */}
-          {categories.university.length > 0 && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-medium flex items-center gap-2 text-amber-700">
-                <School className="h-5 w-5" />
-                Université
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {categories.university.map((setting) => (
-                  <EditableField
-                    key={setting.id}
-                    type="number"
-                    name={setting.key}
-                    label={setting.label}
-                    value={setting.value.toString()}
-                    onSave={(key, value) => handleUpdatePrice(key, value)}
-                    className="bg-white p-4 rounded-lg shadow-sm"
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {/* Formations ouvertes */}
-          {categories.formations.length > 0 && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-medium flex items-center gap-2 text-blue-700">
-                <BookOpen className="h-5 w-5" />
-                Formations ouvertes
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {categories.formations.map((setting) => (
-                  <EditableField
-                    key={setting.id}
-                    type="number"
-                    name={setting.key}
-                    label={setting.label}
-                    value={setting.value.toString()}
-                    onSave={(key, value) => handleUpdatePrice(key, value)}
-                    className="bg-white p-4 rounded-lg shadow-sm"
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {/* FabLab */}
-          {categories.fablab.length > 0 && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-medium flex items-center gap-2 text-emerald-700">
-                <Award className="h-5 w-5" />
-                FabLab
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {categories.fablab.map((setting) => (
-                  <EditableField
-                    key={setting.id}
-                    type="number"
-                    name={setting.key}
-                    label={setting.label}
-                    value={setting.value.toString()}
-                    onSave={(key, value) => handleUpdatePrice(key, value)}
-                    className="bg-white p-4 rounded-lg shadow-sm"
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        // Affichage simple pour une catégorie spécifique
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {priceSettings.map((setting) => (
-            <EditableField
-              key={setting.id}
-              type="number"
-              name={setting.key}
-              label={setting.label}
-              value={setting.value.toString()}
-              onSave={(key, value) => handleUpdatePrice(key, value)}
-              className="bg-white p-4 rounded-lg shadow-sm"
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 };

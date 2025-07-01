@@ -214,6 +214,15 @@ export const AuthService = {
           token
         }
       };
+    } else if (credentials.email === 'user@crec.edu' && credentials.password === 'user123') {
+      const token = 'fake-user-jwt-token';
+      localStorage.setItem('auth_token', token);
+      return {
+        data: {
+          user: { id: '2', email: credentials.email, role: 'user', name: 'Utilisateur CREC' },
+          token
+        }
+      };
     }
     throw new Error('Identifiants invalides');
   },
@@ -226,9 +235,15 @@ export const AuthService = {
     if (!token) throw new Error('Non authentifié');
     
     // Simulation - à remplacer par vérification de token réelle
-    return {
-      data: { id: '1', email: 'admin@crec.edu', role: 'admin', name: 'Admin CREC' }
-    };
+    if (token === 'fake-jwt-token') {
+      return {
+        data: { id: '1', email: 'admin@crec.edu', role: 'admin', name: 'Admin CREC' }
+      };
+    } else {
+      return {
+        data: { id: '2', email: 'user@crec.edu', role: 'user', name: 'Utilisateur CREC' }
+      };
+    }
   }
 };
 
@@ -291,3 +306,6 @@ export const FablabReservationService = {
     return { data: { success: true } };
   },
 };
+
+// Export des services utilisateur et bibliothèque depuis userServices.ts
+export * from './userServices';

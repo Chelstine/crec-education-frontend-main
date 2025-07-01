@@ -102,14 +102,14 @@ const FormDialog: React.FC<FormDialogProps> = ({
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             {description && <DialogDescription>{description}</DialogDescription>}
           </DialogHeader>
           
-          <div className="py-4">
+          <div className="py-4 overflow-y-auto max-h-[60vh]">
             {childrenWithProps}
           </div>
           

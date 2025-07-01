@@ -278,7 +278,10 @@ const AdminEventsPage: React.FC = () => {
 
       <Card>
         <CardHeader className="pb-3">
-          <Tabs defaultValue="upcoming" value={activeTab} onValueChange={setActiveTab}>
+          <h3 className="text-lg font-medium">Gestion des événements</h3>
+        </CardHeader>
+        <Tabs defaultValue="upcoming" value={activeTab} onValueChange={setActiveTab}>
+          <CardHeader className="pb-3 pt-0">
             <TabsList>
               <TabsTrigger value="upcoming">
                 <Calendar className="mr-2 h-4 w-4" />
@@ -293,34 +296,34 @@ const AdminEventsPage: React.FC = () => {
                 En vedette ({featuredEvents.length})
               </TabsTrigger>
             </TabsList>
-          </Tabs>
-        </CardHeader>
-        <CardContent>
-          <TabsContent value="upcoming">
-            <DataTable 
-              columns={eventColumns} 
-              data={upcomingEvents} 
-              keyField="id"
-              searchPlaceholder="Rechercher un événement..." 
-            />
-          </TabsContent>
-          <TabsContent value="past">
-            <DataTable 
-              columns={eventColumns} 
-              data={pastEvents} 
-              keyField="id"
-              searchPlaceholder="Rechercher un événement..." 
-            />
-          </TabsContent>
-          <TabsContent value="featured">
-            <DataTable 
-              columns={eventColumns} 
-              data={featuredEvents} 
-              keyField="id"
-              searchPlaceholder="Rechercher un événement en vedette..." 
-            />
-          </TabsContent>
-        </CardContent>
+          </CardHeader>
+          <CardContent>
+            <TabsContent value="upcoming">
+              <DataTable 
+                columns={eventColumns} 
+                data={upcomingEvents} 
+                keyField="id"
+                searchPlaceholder="Rechercher un événement..." 
+              />
+            </TabsContent>
+            <TabsContent value="past">
+              <DataTable 
+                columns={eventColumns} 
+                data={pastEvents} 
+                keyField="id"
+                searchPlaceholder="Rechercher un événement..." 
+              />
+            </TabsContent>
+            <TabsContent value="featured">
+              <DataTable 
+                columns={eventColumns} 
+                data={featuredEvents} 
+                keyField="id"
+                searchPlaceholder="Rechercher un événement en vedette..." 
+              />
+            </TabsContent>
+          </CardContent>
+        </Tabs>
       </Card>
 
       {/* Dialog de confirmation de suppression */}

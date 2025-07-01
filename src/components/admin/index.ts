@@ -10,3 +10,12 @@ export { default as StatCard } from './StatCard';
 
 // Composants pour la gestion des formations
 export { FormationForm, CertificateForm } from './formations';
+
+// Formulaires pour l'université
+export { default as ProgramForm } from './ProgramForm';
+export { default as CourseForm } from './CourseForm';
+
+// Formulaires pour le FabLab
+export { default as MachineForm } from './MachineForm';
+export { default as ProjectForm } from './ProjectForm';
+export { default as ServiceForm } from './ServiceForm';

@@ -55,6 +55,12 @@ const CalendarPage = lazy(() => import('@/pages/events/CalendarPage'));
 const DonatePage = lazy(() => import('@/pages/DonatePage'));
 const BibliothequeEnLignePage = lazy(() => import('@/pages/BibliothequeEnLignePage'));
 
+// Pages d'authentification et profil utilisateur
+const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
+const RegistrationPage = lazy(() => import('@/pages/auth/RegistrationPage'));
+const UserProfilePage = lazy(() => import('@/pages/profile/UserProfilePage'));
+const OnlineLibraryPage = lazy(() => import('@/pages/library/OnlineLibraryPage'));
+
 // Helper function to wrap lazy components with Suspense
 const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType<any>>) => (
   <Suspense fallback={<LoadingSpinner />}>
@@ -97,8 +103,28 @@ const routes: RouteObject[] = [
         element: withSuspense(BibliothequeEnLignePage),
       },
       {
+        path: 'library',
+        element: withSuspense(OnlineLibraryPage),
+      },
+      {
         path: 'donate',
         element: withSuspense(DonatePage),
+      },
+      
+      // Pages d'authentification
+      {
+        path: 'login',
+        element: withSuspense(LoginPage),
+      },
+      {
+        path: 'register',
+        element: withSuspense(RegistrationPage),
+      },
+      
+      // Pages utilisateur protégées
+      {
+        path: 'profile',
+        element: <ProtectedRoute><Suspense fallback={<LoadingSpinner />}><UserProfilePage /></Suspense></ProtectedRoute>,
       },
 
       // Pages À propos - Optimisées et modernisées

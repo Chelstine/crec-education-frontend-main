@@ -4,7 +4,10 @@ import {
   DeleteConfirmDialog,
   FormDialog,
   InfoPanel,
-  ImageUploader
+  ImageUploader,
+  MachineForm,
+  ProjectForm,
+  ServiceForm
 } from '@/components/admin';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
@@ -67,12 +70,62 @@ interface FabLabProject {
   status: 'draft' | 'published' | 'featured';
 }
 
+interface Service {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  duration: string;
+  features: string[];
+  status: 'active' | 'draft' | 'inactive';
+  image?: string;
+}
+
 const AdminFablabPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('machines');
   const [showAddMachineDialog, setShowAddMachineDialog] = useState(false);
   const [showAddProjectDialog, setShowAddProjectDialog] = useState(false);
+  const [showAddServiceDialog, setShowAddServiceDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+
+  // Mock data for services
+  const mockServices = [
+    {
+      id: "service-1",
+      name: "Abonnement Mensuel Standard",
+      description: "Accès illimité aux machines de base et à l'espace de travail pendant un mois",
+      category: "Abonnement",
+      price: 25000,
+      duration: "1 mois",
+      features: ["Accès illimité à l'espace de travail", "Utilisation des machines de base", "Assistance technique basique"],
+      status: "active" as const,
+      image: "/img/fablab/abonnement-standard.jpg"
+    },
+    {
+      id: "service-2",
+      name: "Formation Impression 3D",
+      description: "Formation complète sur l'utilisation des imprimantes 3D et la conception de modèles",
+      category: "Formation",
+      price: 45000,
+      duration: "12 heures",
+      features: ["Principes de l'impression 3D", "Logiciels de modélisation", "Préparation des modèles", "Calibration des machines", "Certificat de formation"],
+      status: "active" as const,
+      image: "/img/fablab/formation-3d.jpg"
+    },
+    {
+      id: "service-3",
+      name: "Service d'Impression 3D",
+      description: "Service d'impression 3D pour vos projets personnels ou professionnels",
+      category: "Service",
+      price: 3000,
+      duration: "Variable",
+      features: ["Impression de haute qualité", "Choix de matériaux variés", "Consultation sur le design"],
+      status: "active" as const,
+      image: "/img/fablab/service-impression.jpg"
+    }
+  ];
 
   // Mock data for machines
   const mockMachines = [
@@ -240,6 +293,90 @@ const AdminFablabPage: React.FC = () => {
     }
   ];
 
+  // Columns for services table
+  const serviceColumns = [
+    {
+      key: "name",
+      header: "Service/Abonnement",
+      renderCell: (service: Service) => (
+        <div className="flex flex-col">
+          <span className="font-medium">{service.name}</span>
+          <span className="text-xs text-slate-500 mt-1">{service.category}</span>
+        </div>
+      )
+    },
+    {
+      key: "price",
+      header: "Prix",
+      renderCell: (service: Service) => (
+        <div>
+          <span className="font-medium">{service.price.toLocaleString()} FCFA</span>
+        </div>
+      )
+    },
+    {
+      key: "duration",
+      header: "Durée",
+      renderCell: (service: Service) => (
+        <div className="flex items-center">
+          <Clock className="w-4 h-4 mr-2 text-slate-400" />
+          <span>{service.duration}</span>
+        </div>
+      )
+    },
+    {
+      key: "features",
+      header: "Caractéristiques",
+      renderCell: (service: Service) => (
+        <div>
+          <span className="text-sm text-slate-600">{service.features.length} caractéristiques</span>
+        </div>
+      )
+    },
+    {
+      key: "status",
+      header: "Statut",
+      renderCell: (service: Service) => {
+        const status = service.status;
+        return (
+          <Badge className={
+            status === 'active' ? 'bg-green-100 text-green-800' :
+            status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
+            'bg-slate-100 text-slate-800'
+          }>
+            {status === 'active' ? 'Actif' :
+             status === 'draft' ? 'Brouillon' : 'Inactif'}
+          </Badge>
+        );
+      }
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      renderCell: (service: Service) => (
+        <div className="flex items-center space-x-2">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => console.log("Edit service", service.id)}
+          >
+            <PencilIcon className="w-4 h-4" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => {
+              setSelectedItemId(service.id);
+              setShowDeleteDialog(true);
+            }}
+          >
+            <TrashIcon className="w-4 h-4" />
+          </Button>
+        </div>
+      )
+    }
+  ];
+
   // Columns for projects table
   const projectColumns = [
     {
@@ -331,18 +468,26 @@ const AdminFablabPage: React.FC = () => {
               <Plus className="mr-2 h-4 w-4" />
               Nouvelle Machine
             </Button>
-          ) : (
+          ) : activeTab === 'projects' ? (
             <Button onClick={() => setShowAddProjectDialog(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Nouveau Projet
             </Button>
-          )}
+          ) : activeTab === 'services' ? (
+            <Button onClick={() => setShowAddServiceDialog(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Nouveau Service
+            </Button>
+          ) : null}
         </div>
       </div>
 
       <Card>
         <CardHeader className="pb-3">
-          <Tabs defaultValue="machines" value={activeTab} onValueChange={setActiveTab}>
+          <h3 className="text-lg font-medium">Gestion du FabLab</h3>
+        </CardHeader>
+        <Tabs defaultValue="machines" value={activeTab} onValueChange={setActiveTab}>
+          <CardHeader className="pb-3 pt-0">
             <TabsList>
               <TabsTrigger value="machines">
                 <Wrench className="mr-2 h-4 w-4" />
@@ -352,44 +497,56 @@ const AdminFablabPage: React.FC = () => {
                 <FileText className="mr-2 h-4 w-4" />
                 Projets
               </TabsTrigger>
+              <TabsTrigger value="services">
+                <Calendar className="mr-2 h-4 w-4" />
+                Services/Abonnements
+              </TabsTrigger>
               <TabsTrigger value="reservations">
                 <CalendarRange className="mr-2 h-4 w-4" />
                 Réservations
               </TabsTrigger>
             </TabsList>
-          </Tabs>
-        </CardHeader>
-        <CardContent>
-          <TabsContent value="machines">
-            <DataTable 
-              columns={machineColumns} 
-              data={mockMachines} 
-              keyField="id"
-              searchPlaceholder="Rechercher une machine..." 
-            />
-          </TabsContent>
-          <TabsContent value="projects">
-            <DataTable 
-              columns={projectColumns} 
-              data={mockProjects} 
-              keyField="id"
-              searchPlaceholder="Rechercher un projet..." 
-            />
-          </TabsContent>
-          <TabsContent value="reservations">
-            <div className="py-8 text-center">
-              <CalendarRange className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-lg font-medium">Calendrier des réservations</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Cette fonctionnalité sera bientôt disponible.
-              </p>
-              <Button className="mt-4" variant="outline">
-                <HelpCircle className="mr-2 h-4 w-4" />
-                Voir le guide
-              </Button>
-            </div>
-          </TabsContent>
-        </CardContent>
+          </CardHeader>
+          <CardContent>
+            <TabsContent value="machines">
+              <DataTable 
+                columns={machineColumns} 
+                data={mockMachines} 
+                keyField="id"
+                searchPlaceholder="Rechercher une machine..." 
+              />
+            </TabsContent>
+            <TabsContent value="projects">
+              <DataTable 
+                columns={projectColumns} 
+                data={mockProjects} 
+                keyField="id"
+                searchPlaceholder="Rechercher un projet..." 
+              />
+            </TabsContent>
+            <TabsContent value="services">
+              <DataTable 
+                columns={serviceColumns} 
+                data={mockServices} 
+                keyField="id"
+                searchPlaceholder="Rechercher un service..." 
+              />
+            </TabsContent>
+            <TabsContent value="reservations">
+              <div className="py-8 text-center">
+                <CalendarRange className="mx-auto h-12 w-12 text-gray-400" />
+                <h3 className="mt-2 text-lg font-medium">Calendrier des réservations</h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Cette fonctionnalité sera bientôt disponible.
+                </p>
+                <Button className="mt-4" variant="outline">
+                  <HelpCircle className="mr-2 h-4 w-4" />
+                  Voir le guide
+                </Button>
+              </div>
+            </TabsContent>
+          </CardContent>
+        </Tabs>
       </Card>
 
       {/* Dialog de confirmation de suppression */}
@@ -405,7 +562,71 @@ const AdminFablabPage: React.FC = () => {
         description="Cette action est définitive et ne peut pas être annulée."
       />
 
-      {/* Autres dialogues (formulaires d'ajout) seraient ajoutés ici */}
+      {/* Dialogue pour ajouter/éditer une machine */}
+      <FormDialog
+        isOpen={showAddMachineDialog}
+        onClose={() => setShowAddMachineDialog(false)}
+        title="Ajouter une nouvelle machine"
+        description="Ajouter une machine au FabLab avec ses spécifications et sa disponibilité"
+        onSubmit={async (data) => {
+          console.log('Nouvelle machine:', data);
+          setShowAddMachineDialog(false);
+          return Promise.resolve();
+        }}
+        submitLabel="Ajouter"
+      >
+        <MachineForm 
+          formData={{}}
+          handleChange={(field, value) => {
+            console.log(`Field ${field} changed to:`, value);
+          }}
+          isSubmitting={false}
+        />
+      </FormDialog>
+
+      {/* Dialogue pour ajouter/éditer un projet */}
+      <FormDialog
+        isOpen={showAddProjectDialog}
+        onClose={() => setShowAddProjectDialog(false)}
+        title="Ajouter un nouveau projet"
+        description="Ajouter un projet réalisé au FabLab pour le mettre en valeur"
+        onSubmit={async (data) => {
+          console.log('Nouveau projet:', data);
+          setShowAddProjectDialog(false);
+          return Promise.resolve();
+        }}
+        submitLabel="Ajouter"
+      >
+        <ProjectForm 
+          formData={{}}
+          handleChange={(field, value) => {
+            console.log(`Field ${field} changed to:`, value);
+          }}
+          isSubmitting={false}
+        />
+      </FormDialog>
+
+      {/* Dialogue pour ajouter/éditer un service */}
+      <FormDialog
+        isOpen={showAddServiceDialog}
+        onClose={() => setShowAddServiceDialog(false)}
+        title="Ajouter un nouveau service"
+        description="Ajouter un service ou un abonnement du FabLab"
+        onSubmit={async (data) => {
+          console.log('Nouveau service:', data);
+          setShowAddServiceDialog(false);
+          return Promise.resolve();
+        }}
+        submitLabel="Ajouter"
+      >
+        <ServiceForm 
+          formData={{}}
+          handleChange={(field, value) => {
+            console.log(`Field ${field} changed to:`, value);
+          }}
+          isSubmitting={false}
+        />
+      </FormDialog>
     </div>
   );
 };

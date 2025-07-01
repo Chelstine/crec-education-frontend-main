@@ -4,23 +4,18 @@ import {
   DeleteConfirmDialog,
   FormDialog,
   InfoPanel,
-  ImageUploader
+  ImageUploader,
+  ProgramForm,
+  CourseForm
 } from '@/components/admin';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { GraduationCap, Clock, Calendar, Users, BookOpen, PencilIcon, TrashIcon, Plus, CalendarCheck } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { GraduationCap, Clock, Calendar, Users, BookOpen, PencilIcon, TrashIcon, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 // Types pour l'université
 interface Course {
@@ -55,13 +50,89 @@ interface Program {
   updatedAt: string;
 }
 
+interface SemesterInfo {
+  id: string;
+  academicYear: string;
+  semesterName: string; // Premier semestre, Second semestre
+  registrationStartDate: string;
+  registrationEndDate: string;
+  classesStartDate: string;
+  classesEndDate: string;
+  examsStartDate: string;
+  examsEndDate: string;
+  description: string;
+  highlights: string[];
+  bannerImage?: string;
+}
+
 const AdminUniversityPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('programmes');
   const [showAddProgramDialog, setShowAddProgramDialog] = useState(false);
   const [showAddCourseDialog, setShowAddCourseDialog] = useState(false);
+  const [showSemesterInfoDialog, setShowSemesterInfoDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [editingProgramId, setEditingProgramId] = useState<string | null>(null);
+  const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
+  const [editingSemesterId, setEditingSemesterId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [deleteType, setDeleteType] = useState<'program' | 'course'>('program');
+  
+  // État pour l'information de rentrée universitaire
+  const [semesterInfo, setSemesterInfo] = useState<SemesterInfo | null>(null);
+  
+  // États pour les données
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
 
+  // État pour les formulaires
+  const [programForm, setProgramForm] = useState<Partial<Program>>({
+    name: '',
+    description: '',
+    level: 'Licence',
+    duration: '',
+    headOfProgram: '',
+    courses: [],
+    status: 'draft',
+    image: ''
+  });
+
+  const [courseForm, setCourseForm] = useState<Partial<Course>>({
+    title: '',
+    description: '',
+    credits: 0,
+    level: 'Licence 1',
+    department: '',
+    professor: '',
+    duration: '',
+    format: 'Présentiel',
+    status: 'draft',
+    image: '',
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0],
+  });
+
+  // Mock data for semester info
+  const mockSemesterInfo: SemesterInfo = {
+    id: "semester-2025-1",
+    academicYear: "2025-2026",
+    semesterName: "Premier Semestre",
+    registrationStartDate: "2025-08-15T00:00:00.000Z",
+    registrationEndDate: "2025-09-05T00:00:00.000Z",
+    classesStartDate: "2025-09-15T00:00:00.000Z",
+    classesEndDate: "2025-12-15T00:00:00.000Z",
+    examsStartDate: "2025-12-20T00:00:00.000Z",
+    examsEndDate: "2025-01-10T00:00:00.000Z",
+    description: "Rentrée universitaire pour l'année académique 2025-2026. Ce semestre met l'accent sur l'intégration des nouvelles technologies dans l'enseignement et propose plusieurs initiatives innovantes.",
+    highlights: [
+      "Nouveau programme de mentorat entre étudiants",
+      "Séminaires hebdomadaires avec des professionnels",
+      "Lancement du Hub d'Innovation Technologique",
+      "Cours spécial sur l'Intelligence Artificielle"
+    ],
+    bannerImage: "/img/university/rentree-2025.jpg"
+  };
+  
   // Mock data for programs
   const mockPrograms = [
     {
@@ -128,6 +199,133 @@ const AdminUniversityPage: React.FC = () => {
     }
   ];
 
+  // Program CRUD operations
+  const handleAddProgram = async (data: any) => {
+    try {
+      // Simuler l'ajout - à remplacer par un appel API
+      console.log("Adding program:", data);
+      // Logique pour ajouter un programme ici
+      
+      // Fermer le dialogue
+      setShowAddProgramDialog(false);
+      
+      return Promise.resolve();
+    } catch (error) {
+      console.error("Error adding program:", error);
+      return Promise.reject(error);
+    }
+  };
+
+  const handleUpdateProgram = async (data: any) => {
+    try {
+      // Simuler la mise à jour - à remplacer par un appel API
+      console.log("Updating program:", data);
+      // Logique pour mettre à jour un programme ici
+      
+      // Fermer le dialogue et réinitialiser l'ID d'édition
+      setShowAddProgramDialog(false);
+      setEditingProgramId(null);
+      
+      return Promise.resolve();
+    } catch (error) {
+      console.error("Error updating program:", error);
+      return Promise.reject(error);
+    }
+  };
+
+  // Course CRUD operations
+  const handleAddCourse = async (data: any) => {
+    try {
+      // Simuler l'ajout - à remplacer par un appel API
+      console.log("Adding course:", data);
+      // Logique pour ajouter un cours ici
+      
+      // Fermer le dialogue
+      setShowAddCourseDialog(false);
+      
+      return Promise.resolve();
+    } catch (error) {
+      console.error("Error adding course:", error);
+      return Promise.reject(error);
+    }
+  };
+
+  const handleUpdateCourse = async (data: any) => {
+    try {
+      // Simuler la mise à jour - à remplacer par un appel API
+      console.log("Updating course:", data);
+      // Logique pour mettre à jour un cours ici
+      
+      // Fermer le dialogue et réinitialiser l'ID d'édition
+      setShowAddCourseDialog(false);
+      setEditingCourseId(null);
+      
+      return Promise.resolve();
+    } catch (error) {
+      console.error("Error updating course:", error);
+      return Promise.reject(error);
+    }
+  };
+
+  // Handle delete operation
+  const handleDeleteItem = async () => {
+    try {
+      if (selectedItemId) {
+        // Déterminer le type d'élément à supprimer (programme ou cours)
+        const itemType = activeTab === 'programmes' ? 'programme' : 'cours';
+        console.log(`Deleting ${itemType} with ID: ${selectedItemId}`);
+        
+        // Logique pour supprimer l'élément ici
+        
+        // Fermer le dialogue et réinitialiser l'ID sélectionné
+        setShowDeleteDialog(false);
+        setSelectedItemId(null);
+      }
+    } catch (error) {
+      console.error("Error deleting item:", error);
+    }
+  };
+
+  // Handle edit operation for programs
+  const handleEditProgram = (id: string) => {
+    setEditingProgramId(id);
+    setShowAddProgramDialog(true);
+  };
+
+  // Handle edit operation for courses
+  const handleEditCourse = (id: string) => {
+    setEditingCourseId(id);
+    setShowAddCourseDialog(true);
+  };
+
+  // Handle semester info
+  const handleEditSemesterInfo = () => {
+    setSemesterInfo(mockSemesterInfo);
+    setShowSemesterInfoDialog(true);
+  };
+
+  const handleUpdateSemesterInfo = async (data: Partial<SemesterInfo>) => {
+    try {
+      // Simuler la mise à jour - à remplacer par un appel API
+      console.log("Updating semester info:", data);
+      
+      // Mettre à jour l'état local
+      setSemesterInfo({...mockSemesterInfo, ...data});
+      
+      // Fermer le dialogue
+      setShowSemesterInfoDialog(false);
+      
+      return Promise.resolve();
+    } catch (error) {
+      console.error("Error updating semester info:", error);
+      return Promise.reject(error);
+    }
+  };
+
+  // Get program or course data by ID
+  const getProgramById = (id: string) => mockPrograms.find(p => p.id === id) || null;
+  const getCourseById = (id: string) => mockCourses.find(c => c.id === id) || null;
+
   // Columns for programs table
   const programColumns = [
     {
@@ -185,7 +383,7 @@ const AdminUniversityPage: React.FC = () => {
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={() => console.log("Edit program", program.id)}
+            onClick={() => handleEditProgram(program.id)}
           >
             <PencilIcon className="w-4 h-4" />
           </Button>
@@ -274,7 +472,7 @@ const AdminUniversityPage: React.FC = () => {
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={() => console.log("Edit course", course.id)}
+            onClick={() => handleEditCourse(course.id)}
           >
             <PencilIcon className="w-4 h-4" />
           </Button>
@@ -309,18 +507,21 @@ const AdminUniversityPage: React.FC = () => {
               <Plus className="mr-2 h-4 w-4" />
               Nouveau Programme
             </Button>
-          ) : (
+          ) : activeTab === 'cours' ? (
             <Button onClick={() => setShowAddCourseDialog(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Nouveau Cours
             </Button>
-          )}
+          ) : null}
         </div>
       </div>
 
       <Card>
         <CardHeader className="pb-3">
-          <Tabs defaultValue="programmes" value={activeTab} onValueChange={setActiveTab}>
+          <h3 className="text-lg font-medium">Gestion universitaire</h3>
+        </CardHeader>
+        <Tabs defaultValue="programmes" value={activeTab} onValueChange={setActiveTab}>
+          <CardHeader className="pb-3 pt-0">
             <TabsList>
               <TabsTrigger value="programmes">
                 <GraduationCap className="mr-2 h-4 w-4" />
@@ -330,43 +531,291 @@ const AdminUniversityPage: React.FC = () => {
                 <BookOpen className="mr-2 h-4 w-4" />
                 Cours
               </TabsTrigger>
+              <TabsTrigger value="rentree">
+                <CalendarCheck className="mr-2 h-4 w-4" />
+                Rentrée
+              </TabsTrigger>
             </TabsList>
-          </Tabs>
-        </CardHeader>
-        <CardContent>
-          <TabsContent value="programmes">
-            <DataTable 
-              columns={programColumns} 
-              data={mockPrograms} 
-              keyField="id"
-              searchPlaceholder="Rechercher un programme..." 
-            />
-          </TabsContent>
-          <TabsContent value="cours">
-            <DataTable 
-              columns={courseColumns} 
-              data={mockCourses}
-              keyField="id" 
-              searchPlaceholder="Rechercher un cours..." 
-            />
-          </TabsContent>
-        </CardContent>
+          </CardHeader>
+          <CardContent>
+            <TabsContent value="programmes">
+              <DataTable 
+                columns={programColumns} 
+                data={mockPrograms} 
+                keyField="id"
+                searchPlaceholder="Rechercher un programme..." 
+              />
+            </TabsContent>
+            <TabsContent value="cours">
+              <DataTable 
+                columns={courseColumns} 
+                data={mockCourses}
+                keyField="id" 
+                searchPlaceholder="Rechercher un cours..." 
+              />
+            </TabsContent>
+            <TabsContent value="rentree">
+              <Card className="border-dashed border-2">
+                <CardContent className="pt-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-lg font-medium">{mockSemesterInfo.semesterName} - Année {mockSemesterInfo.academicYear}</h3>
+                      <p className="text-sm text-slate-500 mt-1">{mockSemesterInfo.description}</p>
+                    </div>
+                    <Button variant="outline" onClick={handleEditSemesterInfo}>
+                      <PencilIcon className="mr-2 h-4 w-4" />
+                      Modifier
+                    </Button>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div>
+                      <h4 className="font-medium mb-2">Calendrier</h4>
+                      <ul className="space-y-2 text-sm">
+                        <li className="flex items-center">
+                          <Calendar className="w-4 h-4 mr-2 text-slate-500" />
+                          <span className="text-slate-700 w-40">Inscriptions:</span>
+                          <span>
+                            {new Date(mockSemesterInfo.registrationStartDate).toLocaleDateString()} - {new Date(mockSemesterInfo.registrationEndDate).toLocaleDateString()}
+                          </span>
+                        </li>
+                        <li className="flex items-center">
+                          <Calendar className="w-4 h-4 mr-2 text-slate-500" />
+                          <span className="text-slate-700 w-40">Cours:</span>
+                          <span>
+                            {new Date(mockSemesterInfo.classesStartDate).toLocaleDateString()} - {new Date(mockSemesterInfo.classesEndDate).toLocaleDateString()}
+                          </span>
+                        </li>
+                        <li className="flex items-center">
+                          <Calendar className="w-4 h-4 mr-2 text-slate-500" />
+                          <span className="text-slate-700 w-40">Examens:</span>
+                          <span>
+                            {new Date(mockSemesterInfo.examsStartDate).toLocaleDateString()} - {new Date(mockSemesterInfo.examsEndDate).toLocaleDateString()}
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-medium mb-2">Points importants</h4>
+                      <ul className="space-y-1 text-sm">
+                        {mockSemesterInfo.highlights.map((highlight, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="text-indigo-500 mr-2">•</span>
+                            <span>{highlight}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                  
+                  {mockSemesterInfo.bannerImage && (
+                    <div className="mt-6">
+                      <h4 className="font-medium mb-2">Image de bannière</h4>
+                      <div className="relative h-40 rounded-md overflow-hidden">
+                        <img 
+                          src={mockSemesterInfo.bannerImage} 
+                          alt="Bannière de rentrée" 
+                          className="object-cover w-full h-full"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </CardContent>
+        </Tabs>
       </Card>
 
       {/* Dialog de confirmation de suppression */}
       <DeleteConfirmDialog
         isOpen={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
-        onConfirm={async () => {
-          console.log(`Delete item ${selectedItemId}`);
-          setShowDeleteDialog(false);
-          setSelectedItemId(null);
-        }}
+        onConfirm={handleDeleteItem}
         title={`Supprimer cet élément ?`}
         description="Cette action est définitive et ne peut pas être annulée."
       />
 
-      {/* Autres dialogues (formulaires d'ajout) seraient ajoutés ici */}
+      {/* Dialogue pour ajouter/éditer un programme */}
+      <FormDialog
+        isOpen={showAddProgramDialog}
+        onClose={() => {
+          setShowAddProgramDialog(false);
+          setEditingProgramId(null);
+        }}
+        title={editingProgramId ? "Modifier un programme" : "Ajouter un nouveau programme"}
+        description="Remplissez les informations pour créer ou modifier un programme académique."
+        onSubmit={editingProgramId ? handleUpdateProgram : handleAddProgram}
+        submitLabel={editingProgramId ? "Mettre à jour" : "Ajouter"}
+        initialData={editingProgramId ? getProgramById(editingProgramId) : {}}
+        isEdit={!!editingProgramId}
+      >
+        <ProgramForm 
+          formData={editingProgramId ? getProgramById(editingProgramId) : {}}
+          handleChange={(field, value) => {
+            console.log(`Field ${field} changed:`, value);
+          }}
+          isSubmitting={false}
+        />
+      </FormDialog>
+
+      {/* Dialogue pour ajouter/éditer un cours */}
+      <FormDialog
+        isOpen={showAddCourseDialog}
+        onClose={() => {
+          setShowAddCourseDialog(false);
+          setEditingCourseId(null);
+        }}
+        title={editingCourseId ? "Modifier un cours" : "Ajouter un nouveau cours"}
+        description="Remplissez les informations pour créer ou modifier un cours."
+        onSubmit={editingCourseId ? handleUpdateCourse : handleAddCourse}
+        submitLabel={editingCourseId ? "Mettre à jour" : "Ajouter"}
+        initialData={editingCourseId ? getCourseById(editingCourseId) : {}}
+        isEdit={!!editingCourseId}
+      >
+        <CourseForm 
+          formData={editingCourseId ? getCourseById(editingCourseId) : {}}
+          handleChange={(field, value) => {
+            console.log(`Field ${field} changed:`, value);
+          }}
+          isSubmitting={false}
+        />
+      </FormDialog>
+
+      {/* Dialogue pour modifier les informations de rentrée */}
+      <FormDialog
+        isOpen={showSemesterInfoDialog}
+        onClose={() => setShowSemesterInfoDialog(false)}
+        title="Modifier les informations de rentrée"
+        description="Mettez à jour les dates et informations importantes pour la rentrée universitaire."
+        onSubmit={handleUpdateSemesterInfo}
+        submitLabel="Enregistrer les modifications"
+        initialData={semesterInfo || {}}
+        isEdit={true}
+      >
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="academicYear">Année académique</Label>
+              <Input
+                id="academicYear"
+                defaultValue={mockSemesterInfo.academicYear}
+                placeholder="Ex: 2025-2026"
+              />
+            </div>
+            <div>
+              <Label htmlFor="semesterName">Nom du semestre</Label>
+              <Input
+                id="semesterName"
+                defaultValue={mockSemesterInfo.semesterName}
+                placeholder="Ex: Premier Semestre"
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              defaultValue={mockSemesterInfo.description}
+              rows={3}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label>Période d'inscription</Label>
+              <div className="grid grid-cols-2 gap-2 mt-1">
+                <div>
+                  <Label htmlFor="registrationStartDate" className="text-xs">Début</Label>
+                  <Input
+                    id="registrationStartDate"
+                    type="date"
+                    defaultValue={new Date(mockSemesterInfo.registrationStartDate).toISOString().split('T')[0]}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="registrationEndDate" className="text-xs">Fin</Label>
+                  <Input
+                    id="registrationEndDate"
+                    type="date"
+                    defaultValue={new Date(mockSemesterInfo.registrationEndDate).toISOString().split('T')[0]}
+                  />
+                </div>
+              </div>
+            </div>
+            <div>
+              <Label>Période des cours</Label>
+              <div className="grid grid-cols-2 gap-2 mt-1">
+                <div>
+                  <Label htmlFor="classesStartDate" className="text-xs">Début</Label>
+                  <Input
+                    id="classesStartDate"
+                    type="date"
+                    defaultValue={new Date(mockSemesterInfo.classesStartDate).toISOString().split('T')[0]}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="classesEndDate" className="text-xs">Fin</Label>
+                  <Input
+                    id="classesEndDate"
+                    type="date"
+                    defaultValue={new Date(mockSemesterInfo.classesEndDate).toISOString().split('T')[0]}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label>Période d'examens</Label>
+              <div className="grid grid-cols-2 gap-2 mt-1">
+                <div>
+                  <Label htmlFor="examsStartDate" className="text-xs">Début</Label>
+                  <Input
+                    id="examsStartDate"
+                    type="date"
+                    defaultValue={new Date(mockSemesterInfo.examsStartDate).toISOString().split('T')[0]}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="examsEndDate" className="text-xs">Fin</Label>
+                  <Input
+                    id="examsEndDate"
+                    type="date"
+                    defaultValue={new Date(mockSemesterInfo.examsEndDate).toISOString().split('T')[0]}
+                  />
+                </div>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="bannerImage">Image de bannière</Label>
+              <ImageUploader 
+                currentImageUrl={mockSemesterInfo.bannerImage || ""} 
+                onImageUpload={async (file) => {
+                  const fakeUrl = URL.createObjectURL(file);
+                  return fakeUrl;
+                }}
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="highlights">Points importants</Label>
+            <p className="text-sm text-slate-500 mb-2">
+              Entrez les points importants un par ligne
+            </p>
+            <Textarea
+              id="highlights"
+              defaultValue={mockSemesterInfo.highlights.join("\n")}
+              rows={5}
+              placeholder="Un point par ligne..."
+            />
+          </div>
+        </div>
+      </FormDialog>
     </div>
   );
 };

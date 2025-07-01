@@ -18,6 +18,7 @@ import {
   X,
   Bell,
   School,
+  Award,
   Wrench
 } from 'lucide-react';
 
@@ -70,6 +71,7 @@ const AdminLayout: React.FC = () => {
         { path: '/admin/content/formations', name: 'Formations ouvertes' },
         { path: '/admin/content/fablab', name: 'FabLab' },
         { path: '/admin/content/events', name: 'Événements' },
+        { path: '/admin/content/library', name: 'Bibliothèque en ligne' },
       ] 
     },
     { 
@@ -83,13 +85,14 @@ const AdminLayout: React.FC = () => {
       ]
     },
     { 
-      path: '/admin/fablab', 
-      name: 'FabLab', 
-      icon: <Wrench className="h-5 w-5" />,
-      children: [
-        { path: '/admin/fablab/reservations', name: 'Réservations' },
-        { path: '/admin/fablab/equipment', name: 'Équipements' },
-      ]
+      path: '/admin/fablab/reservations', 
+      name: 'Réservations FabLab', 
+      icon: <Wrench className="h-5 w-5" />
+    },
+    {
+      path: '/admin/certificates',
+      name: 'Certificats & Badges',
+      icon: <Award className="h-5 w-5" />
     },
     { 
       path: '/admin/users', 
@@ -195,11 +198,11 @@ const AdminLayout: React.FC = () => {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/admin/profile')}>
                   <User className="mr-2 h-4 w-4" />
                   <span>Profil</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/admin/settings')}>
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Paramètres</span>
                 </DropdownMenuItem>
