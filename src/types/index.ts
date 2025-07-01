@@ -90,9 +90,49 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  roles: string[];
+  roles: AdminRole[];
   avatar?: string;
   createdAt: string;
+  lastLogin?: string;
+  isActive: boolean;
+  permissions?: string[];
+}
+
+/**
+ * Types de rôles d'administration
+ */
+export type AdminRole = 'super_admin' | 'content_admin' | 'inscription_admin';
+
+/**
+ * Permissions par rôle
+ */
+export interface AdminPermissions {
+  role: AdminRole;
+  permissions: string[];
+  description: string;
+}
+
+/**
+ * Profil utilisateur complet
+ */
+export interface UserProfile {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  roles: AdminRole[];
+  avatar?: string;
+  createdAt: string;
+  lastLogin?: string;
+  isActive: boolean;
+  bio?: string;
+  phone?: string;
+  address?: string;
+  preferences?: {
+    theme: 'light' | 'dark';
+    language: 'fr' | 'en';
+    notifications: boolean;
+  };
 }
 
 /**

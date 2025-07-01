@@ -1,15 +1,24 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authService } from '../services';
-import { User } from '../types';
+import authService from '../services/auth-service';
+import { User, AdminRole } from '../types';
+import { hasPermission, hasRole, isSuperAdmin, canAccessSection, checkRoutePermission } from '../services/permissionService';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
+  isContentAdmin: boolean;
+  isInscriptionAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
   error: string | null;
+  // Fonctions de vérification des permissions
+  hasPermission: (permission: string) => boolean;
+  hasRole: (roles: AdminRole[]) => boolean;
+  canAccessSection: (section: string) => boolean;
+  canAccessRoute: (routePath: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -66,17 +75,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
-  // Vérifie si l'utilisateur a le rôle admin
-  const isAdmin = !!user && (user.roles.includes('admin') || user.roles.includes('super_admin'));
+  // Vérifie si l'utilisateur a le rôle admin (compatibilité)
+  const isAdmin = !!user && (user.roles.includes('super_admin') || user.roles.includes('content_admin') || user.roles.includes('inscription_admin'));
+  
+  // Vérifie les rôles spécifiques
+  const userIsSuperAdmin = !!user && isSuperAdmin(user.roles);
+  const isContentAdmin = !!user && user.roles.includes('content_admin');
+  const isInscriptionAdmin = !!user && user.roles.includes('inscription_admin');
+
+  // Fonctions de vérification des permissions
+  const userHasPermission = (permission: string): boolean => {
+    return !!user && hasPermission(user.roles, permission);
+  };
+
+  const userHasRole = (roles: AdminRole[]): boolean => {
+    return !!user && hasRole(user.roles, roles);
+  };
+
+  const userCanAccessSection = (section: string): boolean => {
+    return !!user && canAccessSection(user.roles, section);
+  };
+
+  const canAccessRoute = (routePath: string): boolean => {
+    return !!user && checkRoutePermission(user.roles, routePath);
+  };
 
   const value = {
     user,
     isAuthenticated: !!user,
     isAdmin,
+    isSuperAdmin: userIsSuperAdmin,
+    isContentAdmin,
+    isInscriptionAdmin,
     login,
     logout,
     loading,
-    error
+    error,
+    hasPermission: userHasPermission,
+    hasRole: userHasRole,
+    canAccessSection: userCanAccessSection,
+    canAccessRoute
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

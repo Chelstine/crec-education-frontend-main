@@ -1,4 +1,5 @@
 import api from './api';
+import { User, AuthResponse, AdminRole } from '../types';
 
 /**
  * Service d'authentification pour l'espace administrateur
@@ -9,20 +10,23 @@ const authService = {
    * @param email Email de l'utilisateur
    * @param password Mot de passe de l'utilisateur
    */
-  login: async (email: string, password: string) => {
+  login: async (email: string, password: string): Promise<AuthResponse> => {
     // Identifiants codés en dur pour le développement (à supprimer en production)
     if (email === 'chelstineogoubiyi@gmail.com' && password === 'kylie') {
-      const mockUser = {
+      const mockUser: User = {
         id: '1',
         firstName: 'Chelstine',
         lastName: 'Admin',
         email: 'chelstineogoubiyi@gmail.com',
-        roles: ['admin', 'super_admin'],
+        roles: ['super_admin'],
         avatar: '',
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString(),
+        isActive: true,
+        permissions: []
       };
       
-      const mockResponse = {
+      const mockResponse: AuthResponse = {
         token: 'mock-jwt-token-123456789',
         user: mockUser
       };
@@ -31,6 +35,57 @@ const authService = {
       localStorage.setItem('user_info', JSON.stringify(mockResponse.user));
       
       return mockResponse;
+    }
+    
+    // Ajout d'autres comptes de test pour les différents rôles
+    if (email === 'content@crec.bj' && password === 'content123') {
+      const contentAdmin: User = {
+        id: '2',
+        firstName: 'Admin',
+        lastName: 'Contenu',
+        email: 'content@crec.bj',
+        roles: ['content_admin'],
+        avatar: '',
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString(),
+        isActive: true,
+        permissions: []
+      };
+      
+      const response: AuthResponse = {
+        token: 'mock-jwt-token-content-123',
+        user: contentAdmin
+      };
+      
+      localStorage.setItem('auth_token', response.token);
+      localStorage.setItem('user_info', JSON.stringify(response.user));
+      
+      return response;
+    }
+    
+    if (email === 'inscription@crec.bj' && password === 'inscription123') {
+      const inscriptionAdmin: User = {
+        id: '3',
+        firstName: 'Admin',
+        lastName: 'Inscription',
+        email: 'inscription@crec.bj',
+        roles: ['inscription_admin'],
+        avatar: '',
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString(),
+        isActive: true,
+        permissions: []
+      };
+      
+      const response: AuthResponse = {
+        token: 'mock-jwt-token-inscription-123',
+        user: inscriptionAdmin
+      };
+      
+      localStorage.setItem('auth_token', response.token);
+      localStorage.setItem('user_info', JSON.stringify(response.user));
+      
+      return response;
     }
     
     // Version normale avec API (désactivée temporairement)
@@ -45,7 +100,7 @@ const authService = {
       return response.data;
       */
       
-      throw new Error('Identifiants incorrects. Utilisez chelstineogoubiyi@gmail.com / kylie');
+      throw new Error('Identifiants incorrects. Comptes disponibles:\n- chelstineogoubiyi@gmail.com / kylie (Super Admin)\n- content@crec.bj / content123 (Admin Contenu)\n- inscription@crec.bj / inscription123 (Admin Inscription)');
     } catch (error) {
       throw error;
     }
@@ -71,7 +126,7 @@ const authService = {
    * Récupère les informations de l'utilisateur connecté
    * @returns Les informations de l'utilisateur ou null s'il n'est pas connecté
    */
-  getCurrentUser: () => {
+  getCurrentUser: (): User | null => {
     const userInfo = localStorage.getItem('user_info');
     return userInfo ? JSON.parse(userInfo) : null;
   },
@@ -81,7 +136,7 @@ const authService = {
    * @param role Le rôle à vérifier
    * @returns Booléen indiquant si l'utilisateur a le rôle spécifié
    */
-  hasRole: (role: string): boolean => {
+  hasRole: (role: AdminRole): boolean => {
     const user = authService.getCurrentUser();
     if (!user) return false;
     return user.roles?.includes(role) || false;
