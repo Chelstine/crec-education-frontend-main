@@ -1,7 +1,7 @@
 import { lazy } from 'react';
 import { RouteObject } from 'react-router-dom';
 import AdminLayout from '../layouts/AdminLayout';
-import AdminProtectedRoute from '../components/admin/AdminProtectedRoute';
+import ProtectedRoute from '../components/common/ProtectedRoute';
 // Import direct sans lazy loading pour éviter l'erreur
 import AdminContenusFablabPage from '../pages/admin/contenus/AdminContenusFablabPage';
 
@@ -11,6 +11,7 @@ const AdminLoginPage = lazy(() => import('../pages/admin/AdminLoginPage'));
 
 // Pages du tableau de bord (protégées)
 const AdminDashboardPage = lazy(() => import('../pages/admin/AdminDashboardPage'));
+const AdminProfilePage = lazy(() => import('../pages/admin/AdminProfilePage'));
 
 // Pages À Propos
 const AdminAboutPage = lazy(() => import('../pages/admin/a-propos/AdminAboutPage'));
@@ -29,7 +30,6 @@ const AdminContenusFormationsPage = lazy(() => import('../pages/admin/contenus/A
 const AdminGaleriePage = lazy(() => import('../pages/admin/galerie/AdminGaleriePage'));
 
 // Pages de réservations
-const AdminReservationsFablabPage = lazy(() => import('../pages/admin/reservations/AdminReservationsFablabPage'));
 const AdminReservationsStatsPage = lazy(() => import('../pages/admin/reservations/AdminReservationsStatsPage'));
 
 // Pages de bibliothèque
@@ -64,26 +64,34 @@ const adminRoutes: RouteObject[] = [
             // Tableau de bord (page d'accueil admin)
             index: true,
             element: (
-              <AdminProtectedRoute>
+              <ProtectedRoute adminRequired={true}>
                 <AdminDashboardPage />
-              </AdminProtectedRoute>
+              </ProtectedRoute>
             ),
           },
           {
             path: 'dashboard',
             element: (
-              <AdminProtectedRoute>
+              <ProtectedRoute adminRequired={true}>
                 <AdminDashboardPage />
-              </AdminProtectedRoute>
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'profile',
+            element: (
+              <ProtectedRoute adminRequired={true}>
+                <AdminProfilePage />
+              </ProtectedRoute>
             ),
           },
           // Routes pour À Propos
           {
             path: 'a-propos',
             element: (
-              <AdminProtectedRoute>
+              <ProtectedRoute adminRequired={true}>
                 <AdminAboutPage />
-              </AdminProtectedRoute>
+              </ProtectedRoute>
             ),
           },
           // Routes pour la gestion des inscriptions
@@ -93,25 +101,25 @@ const adminRoutes: RouteObject[] = [
               {
                 path: 'istm',
                 element: (
-                  <AdminProtectedRoute>
+                  <ProtectedRoute adminRequired={true}>
                     <AdminInscriptionsISTMPage />
-                  </AdminProtectedRoute>
+                  </ProtectedRoute>
                 ),
               },
               {
                 path: 'formations',
                 element: (
-                  <AdminProtectedRoute>
+                  <ProtectedRoute adminRequired={true}>
                     <AdminInscriptionsFormationsPage />
-                  </AdminProtectedRoute>
+                  </ProtectedRoute>
                 ),
               },
               {
                 path: 'fablab',
                 element: (
-                  <AdminProtectedRoute>
+                  <ProtectedRoute adminRequired={true}>
                     <AdminInscriptionsFablabPage />
-                  </AdminProtectedRoute>
+                  </ProtectedRoute>
                 ),
               },
             ],
@@ -123,25 +131,25 @@ const adminRoutes: RouteObject[] = [
               {
                 path: 'istm',
                 element: (
-                  <AdminProtectedRoute>
+                  <ProtectedRoute adminRequired={true}>
                     <AdminContenusISTMPage />
-                  </AdminProtectedRoute>
+                  </ProtectedRoute>
                 ),
               },
               {
                 path: 'formations',
                 element: (
-                  <AdminProtectedRoute>
+                  <ProtectedRoute adminRequired={true}>
                     <AdminContenusFormationsPage />
-                  </AdminProtectedRoute>
+                  </ProtectedRoute>
                 ),
               },
               {
                 path: 'fablab',
                 element: (
-                  <AdminProtectedRoute>
+                  <ProtectedRoute adminRequired={true}>
                     <AdminContenusFablabPage />
-                  </AdminProtectedRoute>
+                  </ProtectedRoute>
                 ),
               },
             ],
@@ -150,9 +158,9 @@ const adminRoutes: RouteObject[] = [
           {
             path: 'galerie',
             element: (
-              <AdminProtectedRoute>
+              <ProtectedRoute adminRequired={true}>
                 <AdminGaleriePage />
-              </AdminProtectedRoute>
+              </ProtectedRoute>
             ),
           },
           // Routes pour les réservations
@@ -163,25 +171,17 @@ const adminRoutes: RouteObject[] = [
                 // Route index redirige vers les statistiques
                 index: true,
                 element: (
-                  <AdminProtectedRoute>
+                  <ProtectedRoute adminRequired={true}>
                     <AdminReservationsStatsPage />
-                  </AdminProtectedRoute>
+                  </ProtectedRoute>
                 ),
               },
               {
                 path: 'stats',
                 element: (
-                  <AdminProtectedRoute>
+                  <ProtectedRoute adminRequired={true}>
                     <AdminReservationsStatsPage />
-                  </AdminProtectedRoute>
-                ),
-              },
-              {
-                path: 'fablab',
-                element: (
-                  <AdminProtectedRoute>
-                    <AdminReservationsFablabPage />
-                  </AdminProtectedRoute>
+                  </ProtectedRoute>
                 ),
               }
             ],
@@ -190,32 +190,28 @@ const adminRoutes: RouteObject[] = [
           {
             path: 'bibliotheque',
             element: (
-              <AdminProtectedRoute>
+              <ProtectedRoute adminRequired={true}>
                 <AdminBibliotequePage />
-              </AdminProtectedRoute>
+              </ProtectedRoute>
             ),
           },
           // Routes pour les paramètres
           {
             path: 'parametres',
-            children: [
-              {
-                index: true,
-                element: (
-                  <AdminProtectedRoute>
-                    <AdminParametresPage />
-                  </AdminProtectedRoute>
-                ),
-              },
-              {
-                path: 'utilisateurs-roles',
-                element: (
-                  <AdminProtectedRoute>
-                    <AdminUtilisateursRolesPage />
-                  </AdminProtectedRoute>
-                ),
-              }
-            ],
+            element: (
+              <ProtectedRoute adminRequired={true}>
+                <AdminParametresPage />
+              </ProtectedRoute>
+            ),
+          },
+          // Route pour les utilisateurs et rôles
+          {
+            path: 'parametres/utilisateurs-roles',
+            element: (
+              <ProtectedRoute adminRequired={true} requiredRoles={['super_admin']}>
+                <AdminUtilisateursRolesPage />
+              </ProtectedRoute>
+            ),
           },
         ],
       },

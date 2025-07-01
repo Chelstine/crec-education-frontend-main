@@ -99,11 +99,7 @@ const AdminLayout: React.FC = () => {
     { 
       path: '/admin/reservations/stats', 
       name: 'Réservations', 
-      iconComponent: Calendar,
-      children: [
-        { path: '/admin/reservations/fablab', name: 'Réservations FabLab' },
-        { path: '/admin/reservations/machines', name: 'Machines et Prix' },
-      ]
+      iconComponent: Calendar
     },
     { 
       path: '/admin/bibliotheque', 
@@ -115,7 +111,8 @@ const AdminLayout: React.FC = () => {
       name: 'Paramètres', 
       iconComponent: Settings,
       children: [
-        { path: '/admin/parametres/utilisateurs-roles', name: 'Utilisateurs et Rôles' },
+        { path: '/admin/parametres', name: 'Paramètres généraux' },
+        { path: '/admin/parametres/utilisateurs-roles', name: 'Utilisateurs & Rôles' }
       ]
     },
   ];
@@ -211,7 +208,7 @@ const AdminLayout: React.FC = () => {
                   <User className="mr-2 h-4 w-4" />
                   <span>Profil</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/admin/settings')}>
+                <DropdownMenuItem onClick={() => navigate('/admin/parametres')}>
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Paramètres</span>
                 </DropdownMenuItem>

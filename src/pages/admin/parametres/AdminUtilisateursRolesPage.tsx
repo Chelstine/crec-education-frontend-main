@@ -31,38 +31,41 @@ interface User {
 }
 
 const AdminUtilisateursRolesPage: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: '1',
-      firstName: 'Super',
-      lastName: 'Admin',
-      email: 'superadmin@crec.bj',
-      roles: ['super_admin'],
-      isActive: true,
-      createdAt: '2024-01-01',
-      lastLogin: '2024-07-01'
-    },
-    {
-      id: '2',
-      firstName: 'Content',
-      lastName: 'Manager',
-      email: 'content@crec.bj',
-      roles: ['content_admin'],
-      isActive: true,
-      createdAt: '2024-02-01',
-      lastLogin: '2024-06-30'
-    },
-    {
-      id: '3',
-      firstName: 'Inscription',
-      lastName: 'Manager',
-      email: 'inscriptions@crec.bj',
-      roles: ['inscription_admin'],
-      isActive: true,
-      createdAt: '2024-03-01',
-      lastLogin: '2024-06-29'
-    }
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Charger les utilisateurs depuis l'API
+  React.useEffect(() => {
+    const fetchUsers = async () => {
+      setIsLoading(true);
+      try {
+        // TODO: Intégrer l'appel API réel
+        // const response = await fetch('/api/admin/users');
+        // const data = await response.json();
+        // setUsers(data);
+        
+        // En attendant l'API, nous utilisons un seul utilisateur super admin
+        setUsers([
+          {
+            id: '1',
+            firstName: 'Super',
+            lastName: 'Admin',
+            email: 'superadmin@crec.bj',
+            roles: ['super_admin'],
+            isActive: true,
+            createdAt: '2024-01-01',
+            lastLogin: '2024-07-01'
+          }
+        ]);
+      } catch (error) {
+        console.error('Erreur lors du chargement des utilisateurs:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchUsers();
+  }, []);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -131,8 +134,18 @@ const AdminUtilisateursRolesPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
+    // Vérifier si c'est l'admin suprême (id=1 ou rôle super_admin)
+    const userToDelete = users.find(u => u.id === id);
+    if (userToDelete?.roles.includes('super_admin')) {
+      setMessage({ type: 'error', text: 'L\'administrateur suprême ne peut pas être supprimé!' });
+      return;
+    }
+    
     if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
       try {
+        // TODO: Intégrer l'appel API réel
+        // await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+        
         setUsers(prev => prev.filter(u => u.id !== id));
         setMessage({ type: 'success', text: 'Utilisateur supprimé avec succès!' });
       } catch (error) {
@@ -313,7 +326,19 @@ const AdminUtilisateursRolesPage: React.FC = () => {
 
       {/* Liste des utilisateurs */}
       <div className="space-y-4">
-        {filteredUsers.map((user) => (
+        {isLoading ? (
+          <div className="flex items-center justify-center h-32">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
+            <span className="ml-2 text-gray-500">Chargement des utilisateurs...</span>
+          </div>
+        ) : filteredUsers.length === 0 ? (
+          <div className="bg-slate-100 rounded-lg p-6 text-center">
+            <Users className="h-10 w-10 text-slate-400 mx-auto mb-2" />
+            <h3 className="text-lg font-medium text-slate-700">Aucun utilisateur trouvé</h3>
+            <p className="text-slate-500 mt-1">Utilisez le bouton ci-dessus pour ajouter des utilisateurs</p>
+          </div>
+        ) : (
+          filteredUsers.map((user) => (
           <Card key={user.id}>
             <CardHeader>
               <div className="flex justify-between items-start">
@@ -384,6 +409,8 @@ const AdminUtilisateursRolesPage: React.FC = () => {
                         variant="outline"
                         onClick={() => handleDelete(user.id)}
                         className="text-red-600 hover:text-red-700"
+                        disabled={user.roles.includes('super_admin')}
+                        title={user.roles.includes('super_admin') ? "L'administrateur suprême ne peut pas être supprimé" : "Supprimer cet utilisateur"}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -435,17 +462,9 @@ const AdminUtilisateursRolesPage: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-        ))}
+        ))
+        )}
       </div>
-
-      {filteredUsers.length === 0 && (
-        <Card>
-          <CardContent className="text-center py-8">
-            <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">Aucun utilisateur trouvé avec ces critères.</p>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };
