@@ -94,31 +94,31 @@ const AdminDashboardPage: React.FC = () => {
   // Sections à éditer
   const quickLinks = [
     {
-      title: "Université",
+      title: "ISTM Université",
       icon: <School className="h-8 w-8 text-amber-600" />,
       description: "Gérer les filières et inscriptions universitaires",
-      link: "/admin/content/university",
+      link: "/admin/contenus/istm",
       color: "bg-amber-100 text-amber-700"
     },
     {
       title: "Formations",
       icon: <BookOpen className="h-8 w-8 text-blue-600" />,
       description: "Gérer les formations ouvertes",
-      link: "/admin/content/formations",
+      link: "/admin/contenus/formations",
       color: "bg-blue-100 text-blue-700"
     },
     {
       title: "FabLab",
       icon: <Award className="h-8 w-8 text-emerald-600" />,
       description: "Gérer les équipements et services du FabLab",
-      link: "/admin/content/fablab",
+      link: "/admin/contenus/fablab",
       color: "bg-emerald-100 text-emerald-700"
     },
     {
-      title: "Événements",
+      title: "Inscriptions",
       icon: <Calendar className="h-8 w-8 text-purple-600" />,
-      description: "Gérer les conférences et actualités",
-      link: "/admin/content/events",
+      description: "Gérer les demandes d'inscription",
+      link: "/admin/inscriptions/istm",
       color: "bg-purple-100 text-purple-700"
     }
   ];

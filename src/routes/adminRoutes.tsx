@@ -5,39 +5,38 @@ import AdminProtectedRoute from '../components/admin/AdminProtectedRoute';
 
 // Import les pages admin avec lazy loading
 // Page de connexion (publique)
-const AdminLoginPage = lazy(() => import('@/pages/admin/AdminLoginPage'));
+const AdminLoginPage = lazy(() => import('../pages/admin/AdminLoginPage'));
 
 // Pages du tableau de bord (protégées)
-const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage'));
-const AdminUsersPage = lazy(() => import('@/pages/admin/users/AdminUsersPage'));
-const AdminProfilePage = lazy(() => import('@/pages/admin/users/AdminProfilePage'));
+const AdminDashboardPage = lazy(() => import('../pages/admin/AdminDashboardPage'));
 
-// Pages de gestion du contenu
-const AdminContentHubPage = lazy(() => import('@/pages/admin/content/AdminContentHubPage'));
-const AdminAboutPage = lazy(() => import('@/pages/admin/content/AdminAboutPage'));
-const AdminUniversityPage = lazy(() => import('@/pages/admin/content/AdminUniversityPage'));
-const AdminFormationsPage = lazy(() => import('@/pages/admin/content/AdminFormationsPage'));
-const AdminFablabPage = lazy(() => import('@/pages/admin/content/AdminFablabPage'));
-const AdminEventsPage = lazy(() => import('@/pages/admin/content/AdminEventsPage'));
-const AdminLibraryPage = lazy(() => import('@/pages/admin/content/AdminLibraryPage'));
+// Pages À Propos
+const AdminAboutPage = lazy(() => import('../pages/admin/a-propos/AdminAboutPage'));
 
 // Pages de gestion des inscriptions
-const AdminRegistrationsPage = lazy(() => import('@/pages/admin/registrations/AdminRegistrationsPage'));
-const AdminUniversityRegistrationsPage = lazy(() => import('@/pages/admin/registrations/AdminUniversityRegistrationsPage'));
-const AdminFormationRegistrationsPage = lazy(() => import('@/pages/admin/registrations/AdminFormationRegistrationsPage'));
-const AdminFablabRegistrationsPage = lazy(() => import('@/pages/admin/registrations/AdminFablabRegistrationsPage'));
+const AdminInscriptionsISTMPage = lazy(() => import('../pages/admin/inscriptions/AdminInscriptionsISTMPage'));
+const AdminInscriptionsFormationsPage = lazy(() => import('../pages/admin/inscriptions/AdminInscriptionsFormationsPage'));
+const AdminInscriptionsFablabPage = lazy(() => import('../pages/admin/inscriptions/AdminInscriptionsFablabPage'));
 
-// Pages des certificats
-const AdminCertificatesPage = lazy(() => import('@/pages/admin/certifications/AdminCertificatesPage'));
+// Pages de gestion du contenu
+const AdminContenusISTMPage = lazy(() => import('../pages/admin/contenus/AdminContenusISTMPage'));
+const AdminContenusFormationsPage = lazy(() => import('../pages/admin/contenus/AdminContenusFormationsPage'));
+const AdminContenusFablabPage = lazy(() => import('../pages/admin/contenus/AdminContenusFablabPage'));
 
-// Pages FabLab spécifiques
-const AdminFablabReservationsPage = lazy(() => import('@/pages/admin/fablab/AdminFablabReservationsPage'));
+// Pages de galerie
+const AdminGaleriePage = lazy(() => import('../pages/admin/galerie/AdminGaleriePage'));
+
+// Pages de réservations
+const AdminReservationsFablabPage = lazy(() => import('../pages/admin/reservations/AdminReservationsFablabPage'));
+const AdminMachinesPrixPage = lazy(() => import('../pages/admin/reservations/AdminMachinesPrixPage'));
+
+// Pages de bibliothèque
+const AdminBibliotequePage = lazy(() => import('../pages/admin/bibliotheque/AdminBibliotequePage'));
 
 // Pages de paramètres
-const AdminSettingsPage = lazy(() => import('@/pages/admin/settings/AdminSettingsPage'));
-const AdminPricingSettingsPage = lazy(() => import('@/pages/admin/settings/AdminPricingSettingsPage'));
-const AdminDatesSettingsPage = lazy(() => import('@/pages/admin/settings/AdminDatesSettingsPage'));
-const AdminGeneralSettingsPage = lazy(() => import('@/pages/admin/settings/AdminGeneralSettingsPage'));
+const AdminParametresPage = lazy(() => import('../pages/admin/parametres/AdminParametresPage'));
+const AdminPrixDatesPage = lazy(() => import('../pages/admin/parametres/AdminPrixDatesPage'));
+const AdminUtilisateursRolesPage = lazy(() => import('../pages/admin/parametres/AdminUtilisateursRolesPage'));
 
 /**
  * Routes pour l'espace administrateur
@@ -77,103 +76,24 @@ const adminRoutes: RouteObject[] = [
               </AdminProtectedRoute>
             ),
           },
-          // Routes pour la gestion des utilisateurs (super admin uniquement)
+          // Routes pour À Propos
           {
-            path: 'users',
-            element: (
-              <AdminProtectedRoute requiredRole="super_admin">
-                <AdminUsersPage />
-              </AdminProtectedRoute>
-            ),
-          },
-          // Route pour le profil de l'utilisateur admin
-          {
-            path: 'profile',
+            path: 'a-propos',
             element: (
               <AdminProtectedRoute>
-                <AdminProfilePage />
+                <AdminAboutPage />
               </AdminProtectedRoute>
             ),
-          },
-          // Routes pour la gestion du contenu
-          {
-            path: 'content',
-            children: [
-              {
-                index: true,
-                element: (
-                  <AdminProtectedRoute>
-                    <AdminContentHubPage />
-                  </AdminProtectedRoute>
-                ),
-              },
-              {
-                path: 'about',
-                element: (
-                  <AdminProtectedRoute>
-                    <AdminAboutPage />
-                  </AdminProtectedRoute>
-                ),
-              },
-              {
-                path: 'university',
-                element: (
-                  <AdminProtectedRoute>
-                    <AdminUniversityPage />
-                  </AdminProtectedRoute>
-                ),
-              },
-              {
-                path: 'formations',
-                element: (
-                  <AdminProtectedRoute>
-                    <AdminFormationsPage />
-                  </AdminProtectedRoute>
-                ),
-              },
-              {
-                path: 'fablab',
-                element: (
-                  <AdminProtectedRoute>
-                    <AdminFablabPage />
-                  </AdminProtectedRoute>
-                ),
-              },
-              {
-                path: 'events',
-                element: (
-                  <AdminProtectedRoute>
-                    <AdminEventsPage />
-                  </AdminProtectedRoute>
-                ),
-              },
-              {
-                path: 'library',
-                element: (
-                  <AdminProtectedRoute>
-                    <AdminLibraryPage />
-                  </AdminProtectedRoute>
-                ),
-              },
-            ],
           },
           // Routes pour la gestion des inscriptions
           {
-            path: 'registrations',
+            path: 'inscriptions',
             children: [
               {
-                index: true,
+                path: 'istm',
                 element: (
                   <AdminProtectedRoute>
-                    <AdminRegistrationsPage />
-                  </AdminProtectedRoute>
-                ),
-              },
-              {
-                path: 'university',
-                element: (
-                  <AdminProtectedRoute>
-                    <AdminUniversityRegistrationsPage />
+                    <AdminInscriptionsISTMPage />
                   </AdminProtectedRoute>
                 ),
               },
@@ -181,7 +101,7 @@ const adminRoutes: RouteObject[] = [
                 path: 'formations',
                 element: (
                   <AdminProtectedRoute>
-                    <AdminFormationRegistrationsPage />
+                    <AdminInscriptionsFormationsPage />
                   </AdminProtectedRoute>
                 ),
               },
@@ -189,72 +109,111 @@ const adminRoutes: RouteObject[] = [
                 path: 'fablab',
                 element: (
                   <AdminProtectedRoute>
-                    <AdminFablabRegistrationsPage />
+                    <AdminInscriptionsFablabPage />
                   </AdminProtectedRoute>
                 ),
               },
             ],
           },
-          // Routes spécifiques FabLab
+          // Routes pour la gestion des contenus
           {
-            path: 'fablab',
+            path: 'contenus',
             children: [
               {
-                path: 'reservations',
+                path: 'istm',
                 element: (
                   <AdminProtectedRoute>
-                    <AdminFablabReservationsPage />
+                    <AdminContenusISTMPage />
+                  </AdminProtectedRoute>
+                ),
+              },
+              {
+                path: 'formations',
+                element: (
+                  <AdminProtectedRoute>
+                    <AdminContenusFormationsPage />
+                  </AdminProtectedRoute>
+                ),
+              },
+              {
+                path: 'fablab',
+                element: (
+                  <AdminProtectedRoute>
+                    <AdminContenusFablabPage />
                   </AdminProtectedRoute>
                 ),
               },
             ],
+          },
+          // Routes pour la galerie
+          {
+            path: 'galerie',
+            element: (
+              <AdminProtectedRoute>
+                <AdminGaleriePage />
+              </AdminProtectedRoute>
+            ),
+          },
+          // Routes pour les réservations
+          {
+            path: 'reservations',
+            children: [
+              {
+                path: 'fablab',
+                element: (
+                  <AdminProtectedRoute>
+                    <AdminReservationsFablabPage />
+                  </AdminProtectedRoute>
+                ),
+              },
+              {
+                path: 'machines-prix',
+                element: (
+                  <AdminProtectedRoute>
+                    <AdminMachinesPrixPage />
+                  </AdminProtectedRoute>
+                ),
+              },
+            ],
+          },
+          // Routes pour la bibliothèque
+          {
+            path: 'bibliotheque',
+            element: (
+              <AdminProtectedRoute>
+                <AdminBibliotequePage />
+              </AdminProtectedRoute>
+            ),
           },
           // Routes pour les paramètres
           {
-            path: 'settings',
+            path: 'parametres',
             children: [
               {
                 index: true,
                 element: (
                   <AdminProtectedRoute>
-                    <AdminSettingsPage />
+                    <AdminParametresPage />
                   </AdminProtectedRoute>
                 ),
               },
               {
-                path: 'pricing',
+                path: 'prix-dates',
                 element: (
                   <AdminProtectedRoute>
-                    <AdminPricingSettingsPage />
+                    <AdminPrixDatesPage />
                   </AdminProtectedRoute>
                 ),
               },
               {
-                path: 'dates',
+                path: 'utilisateurs-roles',
                 element: (
                   <AdminProtectedRoute>
-                    <AdminDatesSettingsPage />
-                  </AdminProtectedRoute>
-                ),
-              },
-              {
-                path: 'general',
-                element: (
-                  <AdminProtectedRoute>
-                    <AdminGeneralSettingsPage />
+                    <AdminUtilisateursRolesPage />
                   </AdminProtectedRoute>
                 ),
               },
             ],
-          },
-          // Route pour les certificats et badges
-          {
-            path: 'certificates',
-            element: (
-              <AdminProtectedRoute>
-                <AdminCertificatesPage />
-              </AdminProtectedRoute>
-            ),
           },
         ],
       },

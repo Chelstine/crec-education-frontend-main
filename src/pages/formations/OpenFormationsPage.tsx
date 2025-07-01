@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ErrorBoundary } from "@/components/common";
 import { motion } from "framer-motion";
 import { 
   Calendar, 
@@ -46,7 +47,7 @@ const OpenFormationsPage = () => {
     {
       id: 1,
       title: "Formations en Langues",
-      icon: <Globe className="w-8 h-8 text-crec-gold" />,
+      iconComponent: Globe,
       description: "Maîtrisez l'anglais et le français avec nos cours adaptés à tous les niveaux",
       features: [
         "Cours d'anglais général et professionnel",
@@ -62,7 +63,7 @@ const OpenFormationsPage = () => {
     {
       id: 2,
       title: "Informatique de Base",
-      icon: <Computer className="w-8 h-8 text-crec-gold" />,
+      iconComponent: Computer,
       description: "Initiez-vous à l'informatique et aux outils numériques essentiels",
       features: [
         "Utilisation de l'ordinateur (Windows, Mac)",
@@ -78,7 +79,7 @@ const OpenFormationsPage = () => {
     {
       id: 3,
       title: "Accompagnement Scolaire",
-      icon: <HeartHandshake className="w-8 h-8 text-crec-gold" />,
+      iconComponent: HeartHandshake,
       description: "Soutien scolaire personnalisé pour tous les niveaux",
       features: [
         "Cours de soutien toutes matières",
@@ -94,7 +95,7 @@ const OpenFormationsPage = () => {
     {
       id: 4,
       title: "Entrepreneuriat",
-      icon: <GraduationCap className="w-8 h-8 text-crec-gold" />,
+      iconComponent: GraduationCap,
       description: "Développez vos compétences entrepreneuriales et créez votre entreprise",
       features: [
         "Élaboration de business plan",
@@ -125,9 +126,10 @@ const OpenFormationsPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section - Style harmonisé */}
-      <section className="relative w-full overflow-hidden">
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gray-50">
+        {/* Hero Section - Style harmonisé */}
+        <section className="relative w-full overflow-hidden">
         {/* Background with parallax effect */}
         <div className="absolute inset-0 bg-[url('/img/formation.png')] bg-cover bg-center" />
         <div className="absolute inset-0 bg-gradient-to-r from-crec-darkblue/80 via-crec-darkblue/60 to-crec-darkblue/90 backdrop-blur-[2px]" />
@@ -292,7 +294,7 @@ const OpenFormationsPage = () => {
                   <CardHeader className="bg-blue-50">
                     <div className="flex items-center gap-4 mb-4">
                       <div className="p-3 rounded-full bg-white/80 shadow-sm">
-                        {formation.icon}
+                        <formation.iconComponent className="w-8 h-8 text-crec-gold" />
                       </div>
                       <div>
                         <CardTitle className="text-xl text-crec-darkblue">{formation.title}</CardTitle>

@@ -11,7 +11,6 @@ import {
   Calendar,
   Settings,
   User,
-  Users,
   FileText,
   LogOut,
   Menu,
@@ -19,7 +18,9 @@ import {
   Bell,
   School,
   Award,
-  Wrench
+  Wrench,
+  Image,
+  Library
 } from 'lucide-react';
 
 // Import des composants UI
@@ -54,7 +55,7 @@ const AdminLayout: React.FC = () => {
     navigate('/admin/login');
   };
   
-  // Navigation items
+  // Navigation items - Structure modulaire mise à jour
   const navItems = [
     { 
       path: '/admin/dashboard', 
@@ -62,51 +63,56 @@ const AdminLayout: React.FC = () => {
       icon: <LayoutDashboard className="h-5 w-5" />
     },
     { 
-      path: '/admin/content', 
-      name: 'Contenu', 
-      icon: <FileText className="h-5 w-5" />,
-      children: [
-        { path: '/admin/content/about', name: 'À propos' },
-        { path: '/admin/content/university', name: 'Université' },
-        { path: '/admin/content/formations', name: 'Formations ouvertes' },
-        { path: '/admin/content/fablab', name: 'FabLab' },
-        { path: '/admin/content/events', name: 'Événements' },
-        { path: '/admin/content/library', name: 'Bibliothèque en ligne' },
-      ] 
+      path: '/admin/a-propos', 
+      name: 'À propos', 
+      icon: <FileText className="h-5 w-5" />
     },
     { 
-      path: '/admin/registrations', 
+      path: '/admin/inscriptions', 
       name: 'Inscriptions', 
-      icon: <BookOpen className="h-5 w-5" />,
+      icon: <User className="h-5 w-5" />,
       children: [
-        { path: '/admin/registrations/university', name: 'Université' },
-        { path: '/admin/registrations/formations', name: 'Formations' },
-        { path: '/admin/registrations/fablab', name: 'FabLab' },
+        { path: '/admin/inscriptions/istm', name: 'ISTM Université' },
+        { path: '/admin/inscriptions/formations', name: 'Formations ouvertes' },
+        { path: '/admin/inscriptions/fablab', name: 'FabLab' },
       ]
     },
     { 
-      path: '/admin/fablab/reservations', 
-      name: 'Réservations FabLab', 
-      icon: <Wrench className="h-5 w-5" />
-    },
-    {
-      path: '/admin/certificates',
-      name: 'Certificats & Badges',
-      icon: <Award className="h-5 w-5" />
-    },
-    { 
-      path: '/admin/users', 
-      name: 'Utilisateurs', 
-      icon: <Users className="h-5 w-5" /> 
+      path: '/admin/contenus', 
+      name: 'Gestion du contenu', 
+      icon: <BookOpen className="h-5 w-5" />,
+      children: [
+        { path: '/admin/contenus/istm', name: 'Programmes ISTM' },
+        { path: '/admin/contenus/formations', name: 'Formations ouvertes' },
+        { path: '/admin/contenus/fablab', name: 'Ressources FabLab' },
+      ] 
     },
     { 
-      path: '/admin/settings', 
+      path: '/admin/galerie', 
+      name: 'Galerie', 
+      icon: <Image className="h-5 w-5" />
+    },
+    { 
+      path: '/admin/reservations', 
+      name: 'Réservations', 
+      icon: <Calendar className="h-5 w-5" />,
+      children: [
+        { path: '/admin/reservations/fablab', name: 'Réservations FabLab' },
+        { path: '/admin/reservations/machines-prix', name: 'Machines et Prix' },
+      ]
+    },
+    { 
+      path: '/admin/bibliotheque', 
+      name: 'Bibliothèque', 
+      icon: <Library className="h-5 w-5" />
+    },
+    { 
+      path: '/admin/parametres', 
       name: 'Paramètres', 
       icon: <Settings className="h-5 w-5" />,
       children: [
-        { path: '/admin/settings/pricing', name: 'Prix' },
-        { path: '/admin/settings/dates', name: 'Dates' },
-        { path: '/admin/settings/general', name: 'Général' },
+        { path: '/admin/parametres/prix-dates', name: 'Prix et Dates' },
+        { path: '/admin/parametres/utilisateurs-roles', name: 'Utilisateurs et Rôles' },
       ]
     },
   ];
