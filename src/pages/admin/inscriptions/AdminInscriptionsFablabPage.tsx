@@ -32,6 +32,7 @@ import { Badge } from '../../../components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Textarea } from '../../../components/ui/textarea';
 import { handleApiError } from '@/services/apiServices';
+import { useApi } from '@/hooks/useApi';
 
 // Interface pour les inscriptions FabLab
 interface FablabInscription {
@@ -52,8 +53,7 @@ interface FablabInscription {
   rejectionReason?: string;
   accessKey?: string;
   documents: {
-    identityCard?: string;
-    photo?: string;
+    paymentReceipt: string;
   };
 }
 
@@ -64,19 +64,18 @@ const INSCRIPTION_STATUS = [
   { value: 'rejected', label: 'Rejetée', color: 'bg-red-100 text-red-800 border-red-300' }
 ];
 
-// Machines disponibles
-const AVAILABLE_MACHINES = [
-  'Imprimante 3D',
-  'Découpeuse laser',
-  'Fraiseuse CNC',
-  'Scanner 3D',
-  'Machine à coudre industrielle',
-  'Poste de soudure',
-  'Perceuse à colonne',
-  'Scie à ruban'
+// Types d'abonnement disponibles
+const SUBSCRIPTION_TYPES = [
+  'Abonnement journalier',
+  'Abonnement hebdomadaire',
+  'Abonnement mensuel',
+  'Abonnement trimestriel',
+  'Abonnement annuel'
 ];
 
 const AdminInscriptionsFablabPage: React.FC = () => {
+  
+  const api = useApi();
   
   const [inscriptions, setInscriptions] = useState<FablabInscription[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -118,20 +117,13 @@ const AdminInscriptionsFablabPage: React.FC = () => {
       )
     },
     { 
-      key: 'interestedMachines', 
-      header: 'Machines d\'intérêt',
+      key: 'subscriptionType', 
+      header: 'Type d\'abonnement',
       renderCell: (inscription: FablabInscription) => (
         <div className="flex flex-wrap gap-1">
-          {inscription.interestedMachines.slice(0, 2).map((machine, index) => (
-            <Badge key={index} variant="secondary" className="text-xs">
-              {machine}
-            </Badge>
-          ))}
-          {inscription.interestedMachines.length > 2 && (
-            <Badge variant="secondary" className="text-xs">
-              +{inscription.interestedMachines.length - 2}
-            </Badge>
-          )}
+          <Badge variant="secondary" className="text-xs">
+            {inscription.interestedMachines?.[0] || "Abonnement standard"}
+          </Badge>
         </div>
       )
     },
@@ -206,94 +198,12 @@ const AdminInscriptionsFablabPage: React.FC = () => {
   const loadInscriptions = async () => {
     try {
       setIsLoading(true);
-      
-      // Données simulées pour le développement
-      setTimeout(() => {
-        const mockInscriptions: FablabInscription[] = [
-          {
-            id: '1',
-            firstName: 'Jean',
-            lastName: 'Dupont',
-            email: 'jean.dupont@example.com',
-            phone: '+229 97 12 34 56',
-            dateOfBirth: '1985-03-15',
-            profession: 'Ingénieur logiciel',
-            motivation: 'Je souhaite apprendre à utiliser les machines pour créer des prototypes pour mes projets personnels.',
-            previousExperience: 'Aucune expérience avec les machines industrielles, mais j\'ai de l\'expérience en électronique.',
-            interestedMachines: ['Imprimante 3D', 'Découpeuse laser', 'Scanner 3D'],
-            status: 'pending',
-            submittedAt: '2024-01-15T10:30:00Z',
-            documents: {
-              identityCard: 'jean_dupont_ci.pdf',
-              photo: 'jean_dupont_photo.jpg'
-            }
-          },
-          {
-            id: '2',
-            firstName: 'Marie',
-            lastName: 'Martin',
-            email: 'marie.martin@example.com',
-            phone: '+229 96 78 90 12',
-            dateOfBirth: '1992-07-22',
-            profession: 'Designer graphique',
-            motivation: 'Je veux apprendre la fabrication numérique pour mes créations artistiques.',
-            previousExperience: 'J\'ai déjà utilisé une découpeuse laser dans un autre FabLab.',
-            interestedMachines: ['Découpeuse laser', 'Imprimante 3D'],
-            status: 'approved',
-            submittedAt: '2024-01-10T14:15:00Z',
-            reviewedAt: '2024-01-12T09:00:00Z',
-            reviewedBy: 'Admin System',
-            accessKey: 'FL2024001',
-            documents: {
-              identityCard: 'marie_martin_ci.pdf',
-              photo: 'marie_martin_photo.jpg'
-            }
-          },
-          {
-            id: '3',
-            firstName: 'Pierre',
-            lastName: 'Kouassi',
-            email: 'pierre.kouassi@example.com',
-            phone: '+229 95 44 33 22',
-            dateOfBirth: '1988-11-08',
-            profession: 'Étudiant en architecture',
-            motivation: 'Je veux créer des maquettes architecturales avec l\'imprimante 3D.',
-            previousExperience: 'Aucune',
-            interestedMachines: ['Imprimante 3D', 'Scanner 3D', 'Fraiseuse CNC'],
-            status: 'rejected',
-            submittedAt: '2024-01-08T16:45:00Z',
-            reviewedAt: '2024-01-10T11:30:00Z',
-            reviewedBy: 'Admin System',
-            rejectionReason: 'Documents incomplets - photo manquante',
-            documents: {
-              identityCard: 'pierre_kouassi_ci.pdf'
-            }
-          }
-        ];
-        
-        let filteredInscriptions = mockInscriptions;
-        
-        // Filtrage par statut
-        if (statusFilter !== 'all') {
-          filteredInscriptions = filteredInscriptions.filter(i => i.status === statusFilter);
-        }
-        
-        // Filtrage par recherche
-        if (searchQuery) {
-          filteredInscriptions = filteredInscriptions.filter(i => 
-            i.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            i.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            i.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            i.profession.toLowerCase().includes(searchQuery.toLowerCase())
-          );
-        }
-        
-        setInscriptions(filteredInscriptions);
-        setTotalInscriptions(filteredInscriptions.length);
-        setIsLoading(false);
-      }, 800);
+      // Appel API réel
+      const data = await api.get('/fablab/inscriptions');
+      setInscriptions(data);
     } catch (error) {
-      handleApiError(error);
+      setInscriptions([]); // Pas de mock, liste vide si erreur
+    } finally {
       setIsLoading(false);
     }
   };
@@ -310,6 +220,13 @@ const AdminInscriptionsFablabPage: React.FC = () => {
 
   const handleApproveInscription = async (inscription: FablabInscription) => {
     try {
+      // Vérification que le reçu de paiement est bien présent
+      if (!inscription.documents.paymentReceipt) {
+        alert('Impossible d\'approuver : Reçu de paiement manquant');
+        return;
+      }
+      
+      // Génération d'une clé d'accès unique pour la page de réservation
       const accessKey = `FL${new Date().getFullYear()}${String(Math.floor(Math.random() * 999) + 1).padStart(3, '0')}`;
       
       setInscriptions(inscriptions.map(i => 
@@ -319,10 +236,13 @@ const AdminInscriptionsFablabPage: React.FC = () => {
               status: 'approved' as const,
               reviewedAt: new Date().toISOString(),
               reviewedBy: 'Admin System',
-              accessKey
+              accessKey // Cette clé sera envoyée par email à l'abonné
             }
           : i
       ));
+      
+      // Notification de succès et explication qu'un email sera envoyé
+      alert(`Abonnement approuvé. Une clé d'accès (${accessKey}) sera envoyée à ${inscription.email}`);
       
     } catch (error) {
       handleApiError(error);
@@ -338,6 +258,7 @@ const AdminInscriptionsFablabPage: React.FC = () => {
     if (!currentInscription) return;
     
     try {
+      // Mettre à jour le statut de l'inscription
       setInscriptions(inscriptions.map(i => 
         i.id === currentInscription.id 
           ? { 
@@ -345,7 +266,7 @@ const AdminInscriptionsFablabPage: React.FC = () => {
               status: 'rejected' as const,
               reviewedAt: new Date().toISOString(),
               reviewedBy: 'Admin System',
-              rejectionReason
+              rejectionReason: rejectionReason || 'Reçu de paiement non valide ou informations incomplètes'
             }
           : i
       ));
@@ -386,7 +307,9 @@ const AdminInscriptionsFablabPage: React.FC = () => {
       'Profession': i.profession,
       'Statut': INSCRIPTION_STATUS.find(s => s.value === i.status)?.label || i.status,
       'Date de soumission': new Date(i.submittedAt).toLocaleDateString('fr-FR'),
-      'Machines d\'intérêt': i.interestedMachines.join(', ')
+      'Type d\'abonnement': i.interestedMachines[0] || 'Abonnement standard',
+      'Paiement vérifié': i.documents.paymentReceipt ? 'Oui' : 'Non',
+      'Clé d\'accès': i.accessKey || 'Non attribuée'
     }));
     
     console.log('Export CSV:', csvData);
@@ -398,25 +321,25 @@ const AdminInscriptionsFablabPage: React.FC = () => {
     {
       title: "Total inscriptions",
       value: inscriptions.length,
-      icon: <Users className="h-5 w-5 text-blue-600" />,
+      iconComponent: Users,
       color: "bg-blue-100"
     },
     {
       title: "En attente",
       value: inscriptions.filter(i => i.status === 'pending').length,
-      icon: <Clock className="h-5 w-5 text-amber-600" />,
+      iconComponent: Clock,
       color: "bg-amber-100"
     },
     {
       title: "Approuvées",
       value: inscriptions.filter(i => i.status === 'approved').length,
-      icon: <CheckCircle className="h-5 w-5 text-green-600" />,
+      iconComponent: CheckCircle,
       color: "bg-green-100"
     },
     {
       title: "Rejetées",
       value: inscriptions.filter(i => i.status === 'rejected').length,
-      icon: <XCircle className="h-5 w-5 text-red-600" />,
+      iconComponent: XCircle,
       color: "bg-red-100"
     }
   ];
@@ -469,36 +392,23 @@ const AdminInscriptionsFablabPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Machines d'intérêt */}
+        {/* Type d'abonnement */}
         <div className="space-y-4">
-          <h3 className="font-medium text-slate-900">Machines d'intérêt</h3>
-          <div className="flex flex-wrap gap-2">
-            {currentInscription.interestedMachines.map((machine, index) => (
-              <Badge key={index} variant="secondary">
-                {machine}
-              </Badge>
-            ))}
+          <h3 className="font-medium text-slate-900">Type d'abonnement</h3>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-base px-3 py-1">
+              {currentInscription.interestedMachines?.[0] || "Abonnement standard"}
+            </Badge>
           </div>
         </div>
 
-        {/* Documents */}
+        {/* Document de paiement */}
         <div className="space-y-4">
-          <h3 className="font-medium text-slate-900">Documents fournis</h3>
+          <h3 className="font-medium text-slate-900">Reçu de paiement</h3>
           <div className="space-y-2 text-sm">
             <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
-              <span>Carte d'identité</span>
-              {currentInscription.documents.identityCard ? (
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-1" />
-                  Télécharger
-                </Button>
-              ) : (
-                <span className="text-red-600">Non fourni</span>
-              )}
-            </div>
-            <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
-              <span>Photo</span>
-              {currentInscription.documents.photo ? (
+              <span>Reçu de paiement</span>
+              {currentInscription.documents.paymentReceipt ? (
                 <Button variant="outline" size="sm">
                   <Download className="h-4 w-4 mr-1" />
                   Télécharger
@@ -573,12 +483,12 @@ const AdminInscriptionsFablabPage: React.FC = () => {
       {/* Informations */}
       <InfoPanel
         title="Processus de validation"
-        icon={<AlertTriangle className="h-5 w-5" />}
+        icon={AlertTriangle}
         variant="warning"
       >
         <p className="text-sm text-amber-800">
-          Vérifiez soigneusement les documents et la motivation de chaque candidat avant d'approuver l'accès au FabLab.
-          Les candidats approuvés recevront une clé d'accès unique.
+          Vérifiez soigneusement le reçu de paiement et les informations personnelles de chaque candidat avant d'approuver l'accès au FabLab.
+          Une fois approuvés, les candidats recevront une clé d'accès unique pour la page de réservation.
         </p>
       </InfoPanel>
 
@@ -589,7 +499,7 @@ const AdminInscriptionsFablabPage: React.FC = () => {
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className={`p-2 rounded-lg ${stat.color}`}>
-                  {stat.icon}
+                  <stat.iconComponent className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stat.value}</p>
@@ -663,18 +573,33 @@ const AdminInscriptionsFablabPage: React.FC = () => {
         isOpen={isRejectDialogOpen}
         onClose={() => setIsRejectDialogOpen(false)}
         onSubmit={confirmRejectInscription}
-        title="Rejeter l'inscription"
-        description="Indiquez la raison du rejet"
+        title="Rejeter l'abonnement"
+        description="Indiquez la raison du rejet de l'abonnement"
       >
         <div className="space-y-4">
           <div>
             <Label htmlFor="rejectionReason">Raison du rejet</Label>
+            <Select 
+              onValueChange={(value) => setRejectionReason(value)}
+              defaultValue={rejectionReason}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionnez une raison" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Reçu de paiement non valide">Reçu de paiement non valide</SelectItem>
+                <SelectItem value="Informations personnelles incomplètes">Informations personnelles incomplètes</SelectItem>
+                <SelectItem value="Montant de paiement incorrect">Montant de paiement incorrect</SelectItem>
+                <SelectItem value="Date de paiement expirée">Date de paiement expirée</SelectItem>
+              </SelectContent>
+            </Select>
+            
             <Textarea
               id="rejectionReason"
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
-              placeholder="Expliquez pourquoi cette inscription est rejetée..."
-              className="mt-1"
+              placeholder="Détails supplémentaires (optionnel)"
+              className="mt-3"
             />
           </div>
         </div>

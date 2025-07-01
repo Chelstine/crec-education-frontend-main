@@ -3,6 +3,86 @@
  */
 
 /**
+ * Types pour le FabLab
+ */
+export interface FablabMachine {
+  id: string;
+  name: string;
+  status: string;
+  needsTraining?: boolean;
+  code?: string;
+  category?: string;
+  features?: string[];
+  reference?: string;
+  monthlyPrice?: number;
+  yearlyPrice?: number;
+  imageUrl?: string;
+  image?: string;
+  description?: string;
+  specifications?: string[];
+  location?: string;
+  type?: string;
+  hourlyRate?: number;
+  requiresTraining?: boolean;
+  maxBookingHours?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface FablabReservation {
+  id: string;
+  subscriptionId?: string;
+  machineId: string;
+  userId?: string;
+  startTime?: string;
+  endTime?: string;
+  plannedDuration?: number;
+  hourlyRate?: number;
+  totalCost?: number;
+  status: string;
+  notes?: string;
+  createdAt?: string;
+  date?: string;
+  slot?: string;
+  machineName?: string;
+  userName?: string;
+}
+
+export interface MachineHourlyRate {
+  machineId?: string;
+  hourlyRate?: number;
+  id?: string;
+  name?: string;
+  rate?: number;
+  currency?: string;
+  category?: string;
+}
+
+export interface SubscriptionUsageReport {
+  subscriptionId?: string;
+  currentMonth?: { 
+    totalHours: number; 
+    sessionsCount: number; 
+    lastSession: string 
+  };
+  previousMonth?: { 
+    totalHours: number; 
+    sessionsCount: number 
+  };
+  yearToDate?: { 
+    totalHours: number; 
+    sessionsCount: number 
+  };
+  used?: number;
+  total?: number;
+}
+
+export interface TimeSlot {
+  start: string;
+  end: string;
+}
+
+/**
  * Utilisateur authentifié
  */
 export interface User {

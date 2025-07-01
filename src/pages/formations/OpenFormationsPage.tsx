@@ -42,8 +42,21 @@ import {
   Star
 } from "lucide-react";
 
+// Type for a formation item, enforcing iconComponent is a React component type
+interface Formation {
+  id: number;
+  title: string;
+  iconComponent: React.ComponentType<{ className?: string }>;
+  description: string;
+  features: string[];
+  duration: string;
+  level: string;
+  price: string;
+  certificate: boolean;
+}
+
 const OpenFormationsPage = () => {
-  const formations = [
+  const formations: Formation[] = [
     {
       id: 1,
       title: "Formations en Langues",
@@ -406,8 +419,8 @@ const OpenFormationsPage = () => {
         </div>
       </section>
 
-
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 };
 

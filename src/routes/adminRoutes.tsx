@@ -2,6 +2,8 @@ import { lazy } from 'react';
 import { RouteObject } from 'react-router-dom';
 import AdminLayout from '../layouts/AdminLayout';
 import AdminProtectedRoute from '../components/admin/AdminProtectedRoute';
+// Import direct sans lazy loading pour éviter l'erreur
+import AdminContenusFablabPage from '../pages/admin/contenus/AdminContenusFablabPage';
 
 // Import les pages admin avec lazy loading
 // Page de connexion (publique)
@@ -21,14 +23,15 @@ const AdminInscriptionsFablabPage = lazy(() => import('../pages/admin/inscriptio
 // Pages de gestion du contenu
 const AdminContenusISTMPage = lazy(() => import('../pages/admin/contenus/AdminContenusISTMPage'));
 const AdminContenusFormationsPage = lazy(() => import('../pages/admin/contenus/AdminContenusFormationsPage'));
-const AdminContenusFablabPage = lazy(() => import('../pages/admin/contenus/AdminContenusFablabPage'));
+// AdminContenusFablabPage est importé directement en haut du fichier
 
 // Pages de galerie
 const AdminGaleriePage = lazy(() => import('../pages/admin/galerie/AdminGaleriePage'));
 
 // Pages de réservations
 const AdminReservationsFablabPage = lazy(() => import('../pages/admin/reservations/AdminReservationsFablabPage'));
-const AdminMachinesPrixPage = lazy(() => import('../pages/admin/reservations/AdminMachinesPrixPage'));
+const AdminReservationsStatsPage = lazy(() => import('../pages/admin/reservations/AdminReservationsStatsPage'));
+const AdminMachinesPricingPage = lazy(() => import('../pages/admin/reservations/AdminMachinesPricingPage'));
 
 // Pages de bibliothèque
 const AdminBibliotequePage = lazy(() => import('../pages/admin/bibliotheque/AdminBibliotequePage'));
@@ -167,10 +170,18 @@ const adminRoutes: RouteObject[] = [
                 ),
               },
               {
-                path: 'machines-prix',
+                path: 'stats',
                 element: (
                   <AdminProtectedRoute>
-                    <AdminMachinesPrixPage />
+                    <AdminReservationsStatsPage />
+                  </AdminProtectedRoute>
+                ),
+              },
+              {
+                path: 'machines',
+                element: (
+                  <AdminProtectedRoute>
+                    <AdminMachinesPricingPage />
                   </AdminProtectedRoute>
                 ),
               },

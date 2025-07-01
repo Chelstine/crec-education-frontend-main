@@ -60,7 +60,7 @@ const AdminDashboardPage: React.FC = () => {
       action: "a fait une demande d'inscription",
       target: "Formation Web",
       time: "Il y a 2 heures",
-      icon: <BookOpen className="h-5 w-5" />
+      iconComponent: BookOpen
     },
     { 
       id: 2,
@@ -69,7 +69,7 @@ const AdminDashboardPage: React.FC = () => {
       action: "a modifié l'événement",
       target: "Conférence IA Éthique",
       time: "Il y a 5 heures",
-      icon: <Calendar className="h-5 w-5" />
+      iconComponent: Calendar
     },
     { 
       id: 3,
@@ -78,7 +78,7 @@ const AdminDashboardPage: React.FC = () => {
       action: "a mis à jour la page",
       target: "À propos",
       time: "Hier",
-      icon: <FileText className="h-5 w-5" />
+      iconComponent: FileText
     },
     { 
       id: 4,
@@ -87,7 +87,7 @@ const AdminDashboardPage: React.FC = () => {
       action: "s'est inscrit comme",
       target: "Administrateur",
       time: "Il y a 2 jours",
-      icon: <Users className="h-5 w-5" />
+      iconComponent: Users
     }
   ];
 
@@ -95,31 +95,45 @@ const AdminDashboardPage: React.FC = () => {
   const quickLinks = [
     {
       title: "ISTM Université",
-      icon: <School className="h-8 w-8 text-amber-600" />,
+      iconComponent: School,
       description: "Gérer les filières et inscriptions universitaires",
       link: "/admin/contenus/istm",
       color: "bg-amber-100 text-amber-700"
     },
     {
       title: "Formations",
-      icon: <BookOpen className="h-8 w-8 text-blue-600" />,
+      iconComponent: BookOpen,
       description: "Gérer les formations ouvertes",
       link: "/admin/contenus/formations",
       color: "bg-blue-100 text-blue-700"
     },
     {
       title: "FabLab",
-      icon: <Award className="h-8 w-8 text-emerald-600" />,
+      iconComponent: Award,
       description: "Gérer les équipements et services du FabLab",
       link: "/admin/contenus/fablab",
       color: "bg-emerald-100 text-emerald-700"
     },
     {
       title: "Inscriptions",
-      icon: <Calendar className="h-8 w-8 text-purple-600" />,
+      iconComponent: Calendar,
       description: "Gérer les demandes d'inscription",
       link: "/admin/inscriptions/istm",
       color: "bg-purple-100 text-purple-700"
+    },
+    {
+      title: "Réservations FabLab",
+      iconComponent: Calendar,
+      description: "Statistiques et gestion des machines/prix du FabLab",
+      link: "/admin/reservations/fablab",
+      color: "bg-pink-100 text-pink-700"
+    },
+    {
+      title: "À propos",
+      iconComponent: FileText,
+      description: "Modifier la page À propos du site",
+      link: "/admin/a-propos",
+      color: "bg-gray-100 text-gray-700"
     }
   ];
 
@@ -182,7 +196,7 @@ const AdminDashboardPage: React.FC = () => {
                 <Card className="h-full hover:shadow-md transition-shadow">
                   <CardHeader className="pb-2">
                     <div className={`w-12 h-12 rounded-full ${link.color} flex items-center justify-center mb-2`}>
-                      {link.icon}
+                      <link.iconComponent className="h-8 w-8" />
                     </div>
                     <CardTitle>{link.title}</CardTitle>
                   </CardHeader>
@@ -214,7 +228,7 @@ const AdminDashboardPage: React.FC = () => {
                       activity.type === 'content' ? 'bg-amber-100 text-amber-600' :
                       'bg-green-100 text-green-600'
                     } flex items-center justify-center flex-shrink-0`}>
-                      {activity.icon}
+                      <activity.iconComponent className="h-5 w-5" />
                     </div>
                     <div>
                       <p className="text-sm">

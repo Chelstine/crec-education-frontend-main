@@ -44,9 +44,13 @@ const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Redirection si l'utilisateur n'est pas admin
+  // Redirection si l'utilisateur n'est pas admin (dans un useEffect)
+  React.useEffect(() => {
+    if (!isAdmin) {
+      navigate('/admin/login');
+    }
+  }, [isAdmin, navigate]);
   if (!isAdmin) {
-    navigate('/admin/login');
     return null;
   }
 
@@ -60,17 +64,17 @@ const AdminLayout: React.FC = () => {
     { 
       path: '/admin/dashboard', 
       name: 'Tableau de bord', 
-      icon: <LayoutDashboard className="h-5 w-5" />
+      iconComponent: LayoutDashboard
     },
     { 
       path: '/admin/a-propos', 
       name: 'À propos', 
-      icon: <FileText className="h-5 w-5" />
+      iconComponent: FileText
     },
     { 
       path: '/admin/inscriptions', 
       name: 'Inscriptions', 
-      icon: <User className="h-5 w-5" />,
+      iconComponent: User,
       children: [
         { path: '/admin/inscriptions/istm', name: 'ISTM Université' },
         { path: '/admin/inscriptions/formations', name: 'Formations ouvertes' },
@@ -80,7 +84,7 @@ const AdminLayout: React.FC = () => {
     { 
       path: '/admin/contenus', 
       name: 'Gestion du contenu', 
-      icon: <BookOpen className="h-5 w-5" />,
+      iconComponent: BookOpen,
       children: [
         { path: '/admin/contenus/istm', name: 'Programmes ISTM' },
         { path: '/admin/contenus/formations', name: 'Formations ouvertes' },
@@ -90,12 +94,12 @@ const AdminLayout: React.FC = () => {
     { 
       path: '/admin/galerie', 
       name: 'Galerie', 
-      icon: <Image className="h-5 w-5" />
+      iconComponent: Image
     },
     { 
       path: '/admin/reservations', 
       name: 'Réservations', 
-      icon: <Calendar className="h-5 w-5" />,
+      iconComponent: Calendar,
       children: [
         { path: '/admin/reservations/fablab', name: 'Réservations FabLab' },
         { path: '/admin/reservations/machines-prix', name: 'Machines et Prix' },
@@ -104,12 +108,12 @@ const AdminLayout: React.FC = () => {
     { 
       path: '/admin/bibliotheque', 
       name: 'Bibliothèque', 
-      icon: <Library className="h-5 w-5" />
+      iconComponent: Library
     },
     { 
       path: '/admin/parametres', 
       name: 'Paramètres', 
-      icon: <Settings className="h-5 w-5" />,
+      iconComponent: Settings,
       children: [
         { path: '/admin/parametres/prix-dates', name: 'Prix et Dates' },
         { path: '/admin/parametres/utilisateurs-roles', name: 'Utilisateurs et Rôles' },
@@ -243,7 +247,7 @@ const AdminLayout: React.FC = () => {
                     }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    {item.icon}
+                    <item.iconComponent className="h-5 w-5" />
                     <span className="ml-3">{item.name}</span>
                   </Link>
                   
@@ -301,7 +305,7 @@ const AdminLayout: React.FC = () => {
                           : "text-slate-600 hover:bg-slate-100"
                       }`}
                     >
-                      <span className="flex-shrink-0">{item.icon}</span>
+                      <span className="flex-shrink-0"><item.iconComponent className="h-5 w-5" /></span>
                       {!sidebarCollapsed && <span className="ml-3">{item.name}</span>}
                     </Link>
                     

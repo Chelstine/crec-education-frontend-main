@@ -56,6 +56,17 @@ interface ISTMInscription {
   notes?: string;
 }
 
+// Liste des documents attendus
+const REQUIRED_DOCUMENTS = [
+  { key: 'birthCertificate', label: "Acte de naissance" },
+  { key: 'photo1', label: "Photo 1" },
+  { key: 'photo2', label: "Photo 2" },
+  { key: 'cipCard', label: "Carte d'identité CIP" },
+  { key: 'bacTranscript', label: "Relevé du bac" },
+  { key: 'bacDiploma', label: "Diplôme du bac" },
+  { key: 'payment', label: "Justificatif de paiement" }
+];
+
 const AdminInscriptionsISTMPage: React.FC = () => {
   const [inscriptions, setInscriptions] = useState<ISTMInscription[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,24 +82,28 @@ const AdminInscriptionsISTMPage: React.FC = () => {
 
   // Charger les inscriptions ISTM
   useEffect(() => {
+    let didError = false;
     const loadInscriptions = async () => {
       try {
         const response = await get('/api/admin/inscriptions/istm');
         setInscriptions(response.data || []);
       } catch (error) {
-        console.error('Erreur lors du chargement:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les inscriptions ISTM",
-          variant: "destructive",
-        });
+        if (!didError) {
+          didError = true;
+          toast({
+            title: "Erreur",
+            description: "Impossible de charger les inscriptions ISTM",
+            variant: "destructive",
+          });
+        }
+        setInscriptions([]);
       } finally {
         setLoading(false);
       }
     };
-
     loadInscriptions();
-  }, [get, toast]);
+    // eslint-disable-next-line
+  }, [get]);
 
   // Filtrer les inscriptions
   const filteredInscriptions = inscriptions.filter(inscription => {
@@ -426,23 +441,23 @@ const AdminInscriptionsISTMPage: React.FC = () => {
                   <CardTitle className="text-lg">Documents soumis</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {selectedInscription.documents.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-2">
-                      {selectedInscription.documents.map((doc) => (
-                        <Button 
-                          key={doc.id} 
-                          variant="outline" 
-                          className="justify-start"
-                          onClick={() => window.open(doc.url, '_blank')}
-                        >
-                          <FileText className="mr-2 h-4 w-4" />
-                          {doc.name}
-                        </Button>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-gray-500">Aucun document soumis</p>
-                  )}
+                  <div className="grid grid-cols-2 gap-2">
+                    {REQUIRED_DOCUMENTS.map(doc => {
+                      const found = selectedInscription?.documents.find(d => d.type === doc.key);
+                      return (
+                        <div key={doc.key} className="flex items-center gap-2">
+                          <span className="font-medium w-48">{doc.label}</span>
+                          {found ? (
+                            <Button variant="outline" size="sm" onClick={() => window.open(found.url, '_blank')}>
+                              <FileText className="mr-2 h-4 w-4" /> Voir
+                            </Button>
+                          ) : (
+                            <span className="text-red-500 text-xs">Manquant</span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </CardContent>
               </Card>
 

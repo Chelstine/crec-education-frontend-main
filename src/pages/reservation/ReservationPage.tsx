@@ -67,133 +67,71 @@ const ReservationPage: React.FC = () => {
   const { data: subscriptionsResponse, isLoading: subscriptionsLoading } = useFablabSubscriptions();
   
   // Extract data from API responses
-  let machines = machinesResponse?.data || [];
-  let hourlyRates = hourlyRatesResponse?.data || [];
+  let machines: FablabMachine[] = machinesResponse?.data || [];
+  let hourlyRates: MachineHourlyRate[] = hourlyRatesResponse?.data || [];
   const subscriptions = subscriptionsResponse?.data || [];
   
-  // Mock data for development/demo when API is not available
+  // Mock data for development/demo quand API non dispo
   if (machines.length === 0) {
     machines = [
-      {
-        id: 'machine-001',
-        name: 'Imprimante 3D Ender 3',
-        description: 'Imprimante 3D FDM de qualité pour prototypage rapide',
-        category: 'impression',
-        skillLevel: 'beginner',
-        status: 'available',
-        features: ['220x220x250mm', 'Protection alimentation', 'Impression de reprise'],
-        imageUrl: '/img/machines/creality-ender3.jpg'
-      },
-      {
-        id: 'machine-002',
-        name: 'Graveur Laser F50',
-        description: 'Graveur laser haute précision pour bois, métal et acrylique',
-        category: 'gravure',
-        skillLevel: 'intermediate',
-        status: 'available',
-        features: ['50W Puissance', '400x400mm', 'Protection yeux', 'Multi-matériaux'],
-        imageUrl: '/img/machines/latilool-f50.jpg'
-      },
-      {
-        id: 'machine-003',
-        name: 'Imprimante 3D Ender-5 S1',
-        description: 'Imprimante 3D haute vitesse avec auto-nivellement',
-        category: 'impression',
-        skillLevel: 'intermediate',
-        status: 'maintenance',
-        features: ['250mm/s vitesse', '300°C température', 'CR Touch auto-nivellement'],
-        imageUrl: '/img/machines/creality-ender5-s1.jpg'
-      },
-      {
-        id: 'machine-004',
-        name: 'Kit Arduino et composants',
-        description: 'Station complète pour projets électroniques et IoT',
-        category: 'electronique',
-        skillLevel: 'beginner',
-        status: 'available',
-        features: ['Arduino Uno', 'Capteurs variés', 'Breadboards', 'Composants'],
-        imageUrl: '/img/placeholder-machine.jpg'
-      }
+      { id: 'machine-001', name: 'Imprimante 3D Ender 3', status: 'available', needsTraining: false },
+      { id: 'machine-002', name: 'Graveur Laser F50', status: 'available', needsTraining: true },
+      { id: 'machine-003', name: 'Imprimante 3D Ender-5 S1', status: 'maintenance', needsTraining: true },
+      { id: 'machine-004', name: 'Kit Arduino et composants', status: 'available', needsTraining: false }
     ];
   }
-  
+
   if (hourlyRates.length === 0) {
     hourlyRates = [
-      {
-        machineId: 'machine-001',
-        machineName: 'Imprimante 3D Ender 3',
-        hourlyRate: 2500,
-        currency: 'FCFA',
-        category: 'impression3d'
-      },
-      {
-        machineId: 'machine-002',
-        machineName: 'Graveur Laser F50',
-        hourlyRate: 5000,
-        currency: 'FCFA',
-        category: 'gravure_laser'
-      },
-      {
-        machineId: 'machine-003',
-        machineName: 'Imprimante 3D Ender-5 S1',
-        hourlyRate: 3500,
-        currency: 'FCFA',
-        category: 'impression3d'
-      },
-      {
-        machineId: 'machine-004',
-        machineName: 'Kit Arduino et composants',
-        hourlyRate: 1500,
-        currency: 'FCFA',
-        category: 'electronique'
-      }
+      { machineId: 'machine-001', hourlyRate: 2500 },
+      { machineId: 'machine-002', hourlyRate: 5000 },
+      { machineId: 'machine-003', hourlyRate: 3500 },
+      { machineId: 'machine-004', hourlyRate: 1500 }
     ];
   }
   
   // Check for test user subscription from localStorage
-  const [testUserSubscription, setTestUserSubscription] = useState<FablabSubscription | null>(null);
-  
+  const [testUserSubscription, setTestUserSubscription] = useState<any>(null);
+
   useEffect(() => {
     const subscriberInfo = localStorage.getItem('subscriberInfo');
     if (subscriberInfo) {
       try {
         const parsed = JSON.parse(subscriberInfo);
         if (parsed.verified && parsed.name === 'Marie Kouassi') {
-          // Create a mock subscription object for the test user
-          const mockSubscription: FablabSubscription = {
+          // Crée un mock usageReport pour l'utilisateur test
+          setTestUserSubscription({
             id: 'test-subscription-001',
             userId: 'test-user-001',
             userName: parsed.name,
             email: 'marie.kouassi@crec.com',
             phone: '+229 67 89 12 34',
             type: parsed.plan as 'monthly' | 'yearly',
-            status: 'active',
+            status: 'approved', // doit être 'approved' pour être actif
             startDate: new Date().toISOString(),
             endDate: parsed.expiresAt,
             createdAt: new Date().toISOString(),
             subscriptionKey: parsed.key,
-            totalHoursUsed: parsed.usageCount || 12,
-            monthlyHourLimit: parsed.usageLimit || 40,
-            currentMonthHours: parsed.usageCount || 12,
-            isBlocked: false
-          };
-          setTestUserSubscription(mockSubscription);
+            paymentMethod: 'test',
+            paymentStatus: 'paid',
+            emailsSent: [],
+          });
         }
       } catch (error) {
         console.error('Error parsing subscriber info:', error);
       }
     }
   }, []);
-  
+
   // Get current subscription (prioritize test user, then API data)
-  const currentSubscription = testUserSubscription || subscriptions.find((sub: FablabSubscription) => sub.status === 'active');
-  
+  const currentSubscription = testUserSubscription || subscriptions.find((sub: any) => sub.status === 'approved');
+
   // API hooks that depend on current subscription
   const { data: reservationsResponse, isLoading: reservationsLoading } = useUserReservations(currentSubscription?.id || '');
   const { data: usageReportResponse, isLoading: usageLoading } = useSubscriptionUsage(currentSubscription?.id || '');
   
   // Extract reservation and usage data
-  let reservations = reservationsResponse?.data || [];
+  let reservations: FablabReservation[] = reservationsResponse?.data || [];
   
   // Add mock reservations for test user
   if (testUserSubscription && reservations.length === 0) {
@@ -201,15 +139,12 @@ const ReservationPage: React.FC = () => {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const nextWeek = new Date();
     nextWeek.setDate(nextWeek.getDate() + 7);
-    
     reservations = [
       {
         id: 'test-reservation-001',
         subscriptionId: testUserSubscription.id,
         machineId: 'machine-001',
-        machineName: 'Imprimante 3D Ender 3',
         userId: 'test-user-001',
-        userName: 'Marie Kouassi',
         startTime: new Date(tomorrow.setHours(10, 0, 0, 0)).toISOString(),
         endTime: new Date(tomorrow.setHours(12, 0, 0, 0)).toISOString(),
         plannedDuration: 2,
@@ -223,9 +158,7 @@ const ReservationPage: React.FC = () => {
         id: 'test-reservation-002',
         subscriptionId: testUserSubscription.id,
         machineId: 'machine-002',
-        machineName: 'Graveur Laser F50',
         userId: 'test-user-001',
-        userName: 'Marie Kouassi',
         startTime: new Date(nextWeek.setHours(14, 0, 0, 0)).toISOString(),
         endTime: new Date(nextWeek.setHours(16, 0, 0, 0)).toISOString(),
         plannedDuration: 2,
@@ -238,23 +171,22 @@ const ReservationPage: React.FC = () => {
     ];
   }
   
-  let usageReport = usageReportResponse?.data;
+  let usageReport: SubscriptionUsageReport | undefined = usageReportResponse?.data;
   
   // Create mock usage report for test user
   if (testUserSubscription && !usageReport) {
     usageReport = {
-      subscriptionId: testUserSubscription.id,
       currentMonth: {
-        totalHours: testUserSubscription.currentMonthHours,
+        totalHours: 12,
         sessionsCount: 5,
-        lastSession: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() // Il y a 2 jours
+        lastSession: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
       },
       previousMonth: {
         totalHours: 18,
         sessionsCount: 8
       },
       yearToDate: {
-        totalHours: testUserSubscription.totalHoursUsed,
+        totalHours: 30,
         sessionsCount: 25
       }
     };
@@ -287,14 +219,20 @@ const ReservationPage: React.FC = () => {
   // Calculate usage warnings
   useEffect(() => {
     if (!usageReport || !currentSubscription) return;
-
-    const reportData = usageReport as SubscriptionUsageReport;
-    const hoursUsed = reportData.currentMonth.totalHours;
-    const hourLimit = currentSubscription.monthlyHourLimit;
+    
+    // Handle both API response formats
+    let hoursUsed = 0;
+    if (usageReport.currentMonth) {
+      hoursUsed = usageReport.currentMonth.totalHours;
+    } else if (usageReport.used !== undefined) {
+      hoursUsed = usageReport.used;
+    }
+    
+    const hourLimit = 40; // Limite mensuelle fictive pour l'exemple
     const hoursLeft = hourLimit - hoursUsed;
     const usagePercentage = (hoursUsed / hourLimit) * 100;
-
-    if (currentSubscription.isBlocked) {
+    
+    if (currentSubscription.status === 'rejected') {
       setUsageWarning({
         type: 'blocked',
         message: 'Votre compte est bloqué pour dépassement d\'heures. Contactez le support.',
@@ -319,8 +257,8 @@ const ReservationPage: React.FC = () => {
 
   // Helper functions
   const getMachineHourlyRate = (machineId: string): number => {
-    const rate = hourlyRates.find(r => r.machineId === machineId);
-    return rate?.hourlyRate || 0;
+    const rate = hourlyRates.find(r => r.machineId === machineId || r.id === machineId);
+    return rate?.hourlyRate || rate?.rate || 0;
   };
 
   const calculateCost = (machineId: string, hours: number): number => {
@@ -330,13 +268,20 @@ const ReservationPage: React.FC = () => {
 
   const canMakeReservation = (): boolean => {
     if (!hasActiveSubscription) return false;
-    if (currentSubscription?.isBlocked) return false;
+    if (currentSubscription?.status === 'rejected') return false;
     if (!usageReport) return false;
     
-    const reportData = usageReport as SubscriptionUsageReport;
     const requestedHours = endHour && startHour ? endHour - startHour : 0;
-    const hoursLeft = currentSubscription.monthlyHourLimit - reportData.currentMonth.totalHours;
     
+    // Handle both API response formats
+    let hoursUsed = 0;
+    if (usageReport.currentMonth) {
+      hoursUsed = usageReport.currentMonth.totalHours;
+    } else if (usageReport.used !== undefined) {
+      hoursUsed = usageReport.used;
+    }
+    
+    const hoursLeft = 40 - hoursUsed;
     return hoursLeft >= requestedHours;
   };
 
@@ -534,7 +479,10 @@ const ReservationPage: React.FC = () => {
               machines={machines}
               selectedCategory={selectedCategory}
               selectedMachine={selectedMachine}
-              hourlyRates={hourlyRates}
+              hourlyRates={hourlyRates.map(rate => ({
+                machineId: rate.machineId || rate.id || '',
+                hourlyRate: rate.hourlyRate || rate.rate || 0
+              }))}
               onCategoryChange={setSelectedCategory}
               onMachineSelect={handleMachineSelect}
             />

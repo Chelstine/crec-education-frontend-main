@@ -743,25 +743,25 @@ const AdminGaleriePage: React.FC = () => {
     {
       title: "Total images",
       value: galleryItems.length,
-      icon: <Image className="h-5 w-5 text-blue-600" />,
+      iconComponent: Image,
       color: "bg-blue-100"
     },
     {
       title: "Images publiées",
       value: galleryItems.filter(item => item.published).length,
-      icon: <Eye className="h-5 w-5 text-green-600" />,
+      iconComponent: Eye,
       color: "bg-green-100"
     },
     {
       title: "Images mises en avant",
       value: galleryItems.filter(item => item.featured).length,
-      icon: <Star className="h-5 w-5 text-amber-600" />,
+      iconComponent: Star,
       color: "bg-amber-100"
     },
     {
       title: "Catégories",
       value: categories.length,
-      icon: <FolderOpen className="h-5 w-5 text-purple-600" />,
+      iconComponent: FolderOpen,
       color: "bg-purple-100"
     }
   ];
@@ -783,7 +783,7 @@ const AdminGaleriePage: React.FC = () => {
       {/* Information */}
       <InfoPanel
         title="Gestion de la galerie"
-        icon={<Image className="h-5 w-5" />}
+        icon={Image}
         variant="info"
       >
         <p className="text-sm text-blue-800">
@@ -799,7 +799,7 @@ const AdminGaleriePage: React.FC = () => {
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className={`p-2 rounded-lg ${stat.color}`}>
-                  {stat.icon}
+                  <stat.iconComponent className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stat.value}</p>

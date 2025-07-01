@@ -6,7 +6,7 @@ import { InfoIcon } from 'lucide-react';
 interface InfoPanelProps {
   title?: string;
   description?: string;
-  icon?: React.ReactNode;
+  icon?: React.ReactNode | React.ElementType;
   variant?: 'default' | 'info' | 'warning' | 'success' | 'error';
   children?: React.ReactNode;
   className?: string;
@@ -48,7 +48,16 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
         <CardHeader className="pb-2">
           {title && (
             <CardTitle className="flex items-center gap-2 text-base">
-              {icon && <span className={iconClasses[variant]}>{icon}</span>}
+              {icon && (
+                <span className={iconClasses[variant]}>
+                  {React.isValidElement(icon) 
+                    ? icon 
+                    : typeof icon === 'function'
+                      ? React.createElement(icon as React.ElementType, { className: 'h-5 w-5' })
+                      : null
+                  }
+                </span>
+              )}
               {title}
             </CardTitle>
           )}
