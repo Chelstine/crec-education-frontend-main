@@ -31,14 +31,12 @@ const AdminGaleriePage = lazy(() => import('../pages/admin/galerie/AdminGalerieP
 // Pages de réservations
 const AdminReservationsFablabPage = lazy(() => import('../pages/admin/reservations/AdminReservationsFablabPage'));
 const AdminReservationsStatsPage = lazy(() => import('../pages/admin/reservations/AdminReservationsStatsPage'));
-const AdminMachinesPricingPage = lazy(() => import('../pages/admin/reservations/AdminMachinesPricingPage'));
 
 // Pages de bibliothèque
 const AdminBibliotequePage = lazy(() => import('../pages/admin/bibliotheque/AdminBibliotequePage'));
 
 // Pages de paramètres
 const AdminParametresPage = lazy(() => import('../pages/admin/parametres/AdminParametresPage'));
-const AdminPrixDatesPage = lazy(() => import('../pages/admin/parametres/AdminPrixDatesPage'));
 const AdminUtilisateursRolesPage = lazy(() => import('../pages/admin/parametres/AdminUtilisateursRolesPage'));
 
 /**
@@ -162,10 +160,11 @@ const adminRoutes: RouteObject[] = [
             path: 'reservations',
             children: [
               {
-                path: 'fablab',
+                // Route index redirige vers les statistiques
+                index: true,
                 element: (
                   <AdminProtectedRoute>
-                    <AdminReservationsFablabPage />
+                    <AdminReservationsStatsPage />
                   </AdminProtectedRoute>
                 ),
               },
@@ -178,13 +177,13 @@ const adminRoutes: RouteObject[] = [
                 ),
               },
               {
-                path: 'machines',
+                path: 'fablab',
                 element: (
                   <AdminProtectedRoute>
-                    <AdminMachinesPricingPage />
+                    <AdminReservationsFablabPage />
                   </AdminProtectedRoute>
                 ),
-              },
+              }
             ],
           },
           // Routes pour la bibliothèque
@@ -209,21 +208,13 @@ const adminRoutes: RouteObject[] = [
                 ),
               },
               {
-                path: 'prix-dates',
-                element: (
-                  <AdminProtectedRoute>
-                    <AdminPrixDatesPage />
-                  </AdminProtectedRoute>
-                ),
-              },
-              {
                 path: 'utilisateurs-roles',
                 element: (
                   <AdminProtectedRoute>
                     <AdminUtilisateursRolesPage />
                   </AdminProtectedRoute>
                 ),
-              },
+              }
             ],
           },
         ],

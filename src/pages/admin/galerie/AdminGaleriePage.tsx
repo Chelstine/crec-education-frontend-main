@@ -312,109 +312,13 @@ const AdminGaleriePage: React.FC = () => {
     try {
       setIsLoadingItems(true);
       
-      // Données simulées
-      setTimeout(() => {
-        const mockItems: GalleryItem[] = [
-          {
-            id: '1',
-            title: 'Cérémonie de remise des diplômes 2024',
-            description: 'Photos de la cérémonie de remise des diplômes de promotion 2024',
-            imageUrl: '/img/events/graduation_2024.jpg',
-            thumbnailUrl: '/img/events/graduation_2024_thumb.jpg',
-            category: 'events',
-            tags: ['cérémonie', 'diplômes', '2024', 'graduation'],
-            featured: true,
-            published: true,
-            fileSize: 2048576, // 2MB
-            dimensions: { width: 1920, height: 1080 },
-            uploadedBy: 'Admin System',
-            uploadedAt: '2024-01-15T10:30:00Z',
-            updatedAt: '2024-01-15T10:30:00Z',
-            views: 245,
-            downloads: 12
-          },
-          {
-            id: '2',
-            title: 'Atelier FabLab - Impression 3D',
-            description: 'Session de formation sur l\'impression 3D dans notre FabLab',
-            imageUrl: '/img/fablab/3d_printing_workshop.jpg',
-            thumbnailUrl: '/img/fablab/3d_printing_workshop_thumb.jpg',
-            category: 'fablab',
-            tags: ['impression 3D', 'atelier', 'formation', 'machines'],
-            featured: false,
-            published: true,
-            fileSize: 1536000, // 1.5MB
-            dimensions: { width: 1600, height: 900 },
-            uploadedBy: 'Marie Laurent',
-            uploadedAt: '2024-01-10T14:15:00Z',
-            updatedAt: '2024-01-10T14:15:00Z',
-            views: 156,
-            downloads: 8
-          },
-          {
-            id: '3',
-            title: 'Vue aérienne du campus',
-            description: 'Photo aérienne du campus CREC montrant les nouveaux bâtiments',
-            imageUrl: '/img/campus/aerial_view.jpg',
-            thumbnailUrl: '/img/campus/aerial_view_thumb.jpg',
-            category: 'campus',
-            tags: ['campus', 'bâtiments', 'vue aérienne', 'infrastructure'],
-            featured: true,
-            published: false,
-            fileSize: 3145728, // 3MB
-            dimensions: { width: 2560, height: 1440 },
-            uploadedBy: 'Jean Dupont',
-            uploadedAt: '2024-01-08T16:45:00Z',
-            updatedAt: '2024-01-12T09:30:00Z',
-            views: 89,
-            downloads: 5
-          },
-          {
-            id: '4',
-            title: 'Projet étudiant - Robot autonome',
-            description: 'Présentation du projet de robot autonome développé par nos étudiants',
-            imageUrl: '/img/students/robot_project.jpg',
-            thumbnailUrl: '/img/students/robot_project_thumb.jpg',
-            category: 'achievements',
-            tags: ['projet', 'robot', 'autonome', 'étudiants', 'innovation'],
-            featured: false,
-            published: true,
-            fileSize: 1789000, // 1.7MB
-            dimensions: { width: 1400, height: 1050 },
-            uploadedBy: 'Pierre Martin',
-            uploadedAt: '2024-01-05T11:20:00Z',
-            updatedAt: '2024-01-05T11:20:00Z',
-            views: 203,
-            downloads: 15
-          }
-        ];
-        
-        let filteredItems = mockItems;
-        
-        // Filtrage par catégorie
-        if (categoryFilter !== 'all') {
-          filteredItems = filteredItems.filter(item => item.category === categoryFilter);
-        }
-        
-        // Filtrage par statut featured
-        if (featuredFilter === 'featured') {
-          filteredItems = filteredItems.filter(item => item.featured);
-        } else if (featuredFilter === 'not_featured') {
-          filteredItems = filteredItems.filter(item => !item.featured);
-        }
-        
-        // Filtrage par recherche
-        if (searchQuery) {
-          filteredItems = filteredItems.filter(item => 
-            item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-          );
-        }
-        
-        setGalleryItems(filteredItems);
-        setIsLoadingItems(false);
-      }, 800);
+      // Remplacer par un appel API réel
+      // const response = await api.get('/gallery-items');
+      // setGalleryItems(response.data);
+      
+      // Pour l'instant, liste vide
+      setGalleryItems([]);
+      setIsLoadingItems(false);
     } catch (error) {
       handleApiError(error);
       setIsLoadingItems(false);
@@ -425,54 +329,13 @@ const AdminGaleriePage: React.FC = () => {
     try {
       setIsLoadingCategories(true);
       
-      // Données simulées
-      setTimeout(() => {
-        const mockCategories: GalleryCategory[] = [
-          {
-            id: '1',
-            name: 'Événements',
-            slug: 'events',
-            description: 'Photos des événements et cérémonies',
-            imageCount: 24,
-            featured: true,
-            order: 1,
-            createdAt: '2023-09-01T00:00:00Z'
-          },
-          {
-            id: '2',
-            name: 'Campus',
-            slug: 'campus',
-            description: 'Infrastructures et espaces du campus',
-            imageCount: 18,
-            featured: true,
-            order: 2,
-            createdAt: '2023-09-01T00:00:00Z'
-          },
-          {
-            id: '3',
-            name: 'FabLab',
-            slug: 'fablab',
-            description: 'Équipements et activités du FabLab',
-            imageCount: 31,
-            featured: false,
-            order: 3,
-            createdAt: '2023-09-01T00:00:00Z'
-          },
-          {
-            id: '4',
-            name: 'Réalisations étudiantes',
-            slug: 'achievements',
-            description: 'Projets et réalisations des étudiants',
-            imageCount: 42,
-            featured: true,
-            order: 4,
-            createdAt: '2023-09-01T00:00:00Z'
-          }
-        ];
-        
-        setCategories(mockCategories);
-        setIsLoadingCategories(false);
-      }, 600);
+      // Remplacer par un appel API réel
+      // const response = await api.get('/gallery-categories');
+      // setCategories(response.data);
+      
+      // Pour l'instant, liste vide
+      setCategories([]);
+      setIsLoadingCategories(false);
     } catch (error) {
       handleApiError(error);
       setIsLoadingCategories(false);

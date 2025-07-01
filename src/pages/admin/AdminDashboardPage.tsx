@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -15,81 +15,91 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
+import { useApi } from '@/hooks/useApi';
+
+interface DashboardStat {
+  title: string;
+  value: string;
+  change: string;
+  trend: 'up' | 'down' | 'neutral';
+  description: string;
+}
+
+interface Activity {
+  id: number;
+  type: 'registration' | 'event' | 'content' | 'user';
+  user: string;
+  action: string;
+  target: string;
+  time: string;
+  iconComponent: React.ElementType;
+}
 
 const AdminDashboardPage: React.FC = () => {
   const { user } = useAuth();
+  const api = useApi();
   
-  // Stats fictives pour le dashboard
-  const stats = [
-    { 
-      title: "Inscriptions",
-      value: "24",
-      change: "+12%",
-      trend: "up",
-      description: "Nouvelles demandes" 
-    },
-    { 
-      title: "Utilisateurs",
-      value: "563",
-      change: "+5%",
-      trend: "up",
-      description: "Ce mois-ci" 
-    },
-    { 
-      title: "Événements",
-      value: "8",
-      change: "0%",
-      trend: "neutral",
-      description: "À venir" 
-    },
-    { 
-      title: "Réservations",
-      value: "47",
-      change: "-3%",
-      trend: "down",
-      description: "FabLab cette semaine" 
-    }
-  ];
-  
-  // Liste des tâches récentes
-  const recentActivity = [
-    { 
-      id: 1,
-      type: "registration",
-      user: "Jean Dupont",
-      action: "a fait une demande d'inscription",
-      target: "Formation Web",
-      time: "Il y a 2 heures",
-      iconComponent: BookOpen
-    },
-    { 
-      id: 2,
-      type: "event",
-      user: "Marie Laurent",
-      action: "a modifié l'événement",
-      target: "Conférence IA Éthique",
-      time: "Il y a 5 heures",
-      iconComponent: Calendar
-    },
-    { 
-      id: 3,
-      type: "content",
-      user: "Admin",
-      action: "a mis à jour la page",
-      target: "À propos",
-      time: "Hier",
-      iconComponent: FileText
-    },
-    { 
-      id: 4,
-      type: "user",
-      user: "Patrick Kouamé",
-      action: "s'est inscrit comme",
-      target: "Administrateur",
-      time: "Il y a 2 jours",
-      iconComponent: Users
-    }
-  ];
+  // États pour les données du dashboard
+  const [stats, setStats] = useState<DashboardStat[]>([]);
+  const [recentActivity, setRecentActivity] = useState<Activity[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Charger les données du dashboard
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        setIsLoading(true);
+        
+        // TODO: Appel API pour récupérer les statistiques du tableau de bord
+        // const response = await api.get('/admin/dashboard');
+        // setStats(response.data.stats);
+        // setRecentActivity(response.data.activities);
+        
+        // Pour l'instant, données vides ou d'exemple
+        setStats([
+          { 
+            title: "Inscriptions",
+            value: "0",
+            change: "0%",
+            trend: "neutral",
+            description: "Nouvelles demandes" 
+          },
+          { 
+            title: "Utilisateurs",
+            value: "0",
+            change: "0%",
+            trend: "neutral",
+            description: "Ce mois-ci" 
+          },
+          { 
+            title: "Événements",
+            value: "0",
+            change: "0%",
+            trend: "neutral",
+            description: "À venir" 
+          },
+          { 
+            title: "Réservations",
+            value: "0",
+            change: "0%",
+            trend: "neutral",
+            description: "FabLab cette semaine" 
+          }
+        ]);
+        
+        setRecentActivity([]);
+        
+      } catch (error) {
+        console.error("Erreur lors du chargement des données du dashboard", error);
+        setStats([]);
+        setRecentActivity([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadDashboardData();
+  }, []);
 
   // Sections à éditer
   const quickLinks = [
@@ -125,7 +135,7 @@ const AdminDashboardPage: React.FC = () => {
       title: "Réservations FabLab",
       iconComponent: Calendar,
       description: "Statistiques et gestion des machines/prix du FabLab",
-      link: "/admin/reservations/fablab",
+      link: "/admin/reservations/stats",
       color: "bg-pink-100 text-pink-700"
     },
     {
@@ -219,31 +229,38 @@ const AdminDashboardPage: React.FC = () => {
               <CardTitle className="text-md">Dernières actions</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {recentActivity.map((activity) => (
-                  <div key={activity.id} className="flex gap-3">
-                    <div className={`w-8 h-8 rounded-full ${
-                      activity.type === 'registration' ? 'bg-blue-100 text-blue-600' :
-                      activity.type === 'event' ? 'bg-purple-100 text-purple-600' :
-                      activity.type === 'content' ? 'bg-amber-100 text-amber-600' :
-                      'bg-green-100 text-green-600'
-                    } flex items-center justify-center flex-shrink-0`}>
-                      <activity.iconComponent className="h-5 w-5" />
+              {recentActivity.length > 0 ? (
+                <div className="space-y-4">
+                  {recentActivity.map((activity) => (
+                    <div key={activity.id} className="flex gap-3">
+                      <div className={`w-8 h-8 rounded-full ${
+                        activity.type === 'registration' ? 'bg-blue-100 text-blue-600' :
+                        activity.type === 'event' ? 'bg-purple-100 text-purple-600' :
+                        activity.type === 'content' ? 'bg-amber-100 text-amber-600' :
+                        'bg-green-100 text-green-600'
+                      } flex items-center justify-center flex-shrink-0`}>
+                        <activity.iconComponent className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="text-sm">
+                          <span className="font-medium">{activity.user}</span>{' '}
+                          {activity.action}{' '}
+                          <span className="font-medium">{activity.target}</span>
+                        </p>
+                        <p className="text-xs text-slate-500 flex items-center mt-1">
+                          <Clock className="w-3 h-3 mr-1" />
+                          {activity.time}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm">
-                        <span className="font-medium">{activity.user}</span>{' '}
-                        {activity.action}{' '}
-                        <span className="font-medium">{activity.target}</span>
-                      </p>
-                      <p className="text-xs text-slate-500 flex items-center mt-1">
-                        <Clock className="w-3 h-3 mr-1" />
-                        {activity.time}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-6 text-slate-500">
+                  <Clock className="h-12 w-12 mx-auto opacity-20 mb-2" />
+                  <p>Aucune activité récente</p>
+                </div>
+              )}
               
               <Button 
                 variant="outline" 

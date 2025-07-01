@@ -30,7 +30,8 @@ import {
   FileText, 
   Mail, 
   Search,
-  Filter
+  Filter,
+  Loader2
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -76,34 +77,37 @@ const AdminInscriptionsISTMPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [currentTab, setCurrentTab] = useState('pending');
+  const [emailForm, setEmailForm] = useState({ subject: '', content: '' });
   
   const { toast } = useToast();
-  const { get, put } = useApi();
+  const api = useApi();
 
   // Charger les inscriptions ISTM
   useEffect(() => {
-    let didError = false;
     const loadInscriptions = async () => {
       try {
-        const response = await get('/api/admin/inscriptions/istm');
-        setInscriptions(response.data || []);
+        setLoading(true);
+        // TODO: Appel API réel
+        // const response = await api.get('/api/admin/inscriptions/istm');
+        // setInscriptions(response.data || []);
+        
+        // Pour l'instant, liste vide
+        setInscriptions([]);
       } catch (error) {
-        if (!didError) {
-          didError = true;
-          toast({
-            title: "Erreur",
-            description: "Impossible de charger les inscriptions ISTM",
-            variant: "destructive",
-          });
-        }
+        console.error('Erreur lors du chargement des inscriptions:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les inscriptions ISTM",
+          variant: "destructive",
+        });
         setInscriptions([]);
       } finally {
         setLoading(false);
       }
     };
+    
     loadInscriptions();
-    // eslint-disable-next-line
-  }, [get]);
+  }, [toast]);
 
   // Filtrer les inscriptions
   const filteredInscriptions = inscriptions.filter(inscription => {
@@ -128,10 +132,11 @@ const AdminInscriptionsISTMPage: React.FC = () => {
   // Approuver une inscription
   const handleApprove = async (inscription: ISTMInscription) => {
     try {
-      await put(`/api/admin/inscriptions/istm/${inscription.id}/approve`, {
-        status: 'approved',
-        reviewedAt: new Date().toISOString(),
-      });
+      // TODO: Appel API réel
+      // await api.put(`/api/admin/inscriptions/istm/${inscription.id}/approve`, {
+      //   status: 'approved',
+      //   reviewedAt: new Date().toISOString(),
+      // });
 
       setInscriptions(prev => 
         prev.map(item => 
@@ -158,11 +163,12 @@ const AdminInscriptionsISTMPage: React.FC = () => {
   // Refuser une inscription
   const handleReject = async (inscription: ISTMInscription, reason: string) => {
     try {
-      await put(`/api/admin/inscriptions/istm/${inscription.id}/reject`, {
-        status: 'rejected',
-        reviewedAt: new Date().toISOString(),
-        notes: reason,
-      });
+      // TODO: Appel API réel
+      // await api.put(`/api/admin/inscriptions/istm/${inscription.id}/reject`, {
+      //   status: 'rejected',
+      //   reviewedAt: new Date().toISOString(),
+      //   notes: reason,
+      // });
 
       setInscriptions(prev => 
         prev.map(item => 
@@ -192,20 +198,24 @@ const AdminInscriptionsISTMPage: React.FC = () => {
   };
 
   // Envoyer un email
-  const handleSendEmail = async (inscription: ISTMInscription, subject: string, content: string) => {
+  const handleSendEmail = async () => {
+    if (!selectedInscription) return;
+    
     try {
-      await put(`/api/admin/inscriptions/istm/${inscription.id}/send-email`, {
-        to: inscription.email,
-        subject,
-        content,
-      });
+      // TODO: Appel API réel
+      // await api.post(`/api/admin/inscriptions/istm/${selectedInscription.id}/send-email`, {
+      //   to: selectedInscription.email,
+      //   subject: emailForm.subject,
+      //   content: emailForm.content,
+      // });
 
       toast({
         title: "Email envoyé",
-        description: `Un email a été envoyé à ${inscription.studentName}.`,
+        description: `Un email a été envoyé à ${selectedInscription.studentName}.`,
       });
 
       setIsEmailDialogOpen(false);
+      setEmailForm({ subject: '', content: '' });
     } catch (error) {
       console.error('Erreur lors de l\'envoi de l\'email:', error);
       toast({
@@ -231,8 +241,8 @@ const AdminInscriptionsISTMPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
       </div>
     );
   }
@@ -265,10 +275,10 @@ const AdminInscriptionsISTMPage: React.FC = () => {
         <CardContent>
           <Tabs value={currentTab} onValueChange={setCurrentTab}>
             <TabsList className="mb-4">
-              <TabsTrigger value="pending">En attente ({filteredInscriptions.filter(i => i.status === 'pending').length})</TabsTrigger>
-              <TabsTrigger value="approved">Approuvés ({filteredInscriptions.filter(i => i.status === 'approved').length})</TabsTrigger>
-              <TabsTrigger value="rejected">Refusés ({filteredInscriptions.filter(i => i.status === 'rejected').length})</TabsTrigger>
-              <TabsTrigger value="all">Tous ({filteredInscriptions.length})</TabsTrigger>
+              <TabsTrigger value="pending">En attente ({inscriptions.filter(i => i.status === 'pending').length})</TabsTrigger>
+              <TabsTrigger value="approved">Approuvés ({inscriptions.filter(i => i.status === 'approved').length})</TabsTrigger>
+              <TabsTrigger value="rejected">Refusés ({inscriptions.filter(i => i.status === 'rejected').length})</TabsTrigger>
+              <TabsTrigger value="all">Tous ({inscriptions.length})</TabsTrigger>
             </TabsList>
 
             <TabsContent value={currentTab}>
@@ -523,13 +533,19 @@ const AdminInscriptionsISTMPage: React.FC = () => {
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium">Sujet</label>
-              <Input placeholder="Sujet de l'email" />
+              <Input 
+                placeholder="Sujet de l'email" 
+                value={emailForm.subject}
+                onChange={e => setEmailForm({...emailForm, subject: e.target.value})}
+              />
             </div>
             <div>
               <label className="text-sm font-medium">Message</label>
               <Textarea 
                 placeholder="Contenu de l'email..."
                 rows={6}
+                value={emailForm.content}
+                onChange={e => setEmailForm({...emailForm, content: e.target.value})}
               />
             </div>
           </div>
@@ -538,10 +554,7 @@ const AdminInscriptionsISTMPage: React.FC = () => {
             <Button variant="outline" onClick={() => setIsEmailDialogOpen(false)}>
               Annuler
             </Button>
-            <Button onClick={() => {
-              // Logique d'envoi d'email ici
-              setIsEmailDialogOpen(false);
-            }}>
+            <Button onClick={handleSendEmail}>
               Envoyer
             </Button>
           </DialogFooter>

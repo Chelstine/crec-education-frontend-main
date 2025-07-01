@@ -97,12 +97,12 @@ const AdminLayout: React.FC = () => {
       iconComponent: Image
     },
     { 
-      path: '/admin/reservations', 
+      path: '/admin/reservations/stats', 
       name: 'Réservations', 
       iconComponent: Calendar,
       children: [
         { path: '/admin/reservations/fablab', name: 'Réservations FabLab' },
-        { path: '/admin/reservations/machines-prix', name: 'Machines et Prix' },
+        { path: '/admin/reservations/machines', name: 'Machines et Prix' },
       ]
     },
     { 
@@ -115,7 +115,6 @@ const AdminLayout: React.FC = () => {
       name: 'Paramètres', 
       iconComponent: Settings,
       children: [
-        { path: '/admin/parametres/prix-dates', name: 'Prix et Dates' },
         { path: '/admin/parametres/utilisateurs-roles', name: 'Utilisateurs et Rôles' },
       ]
     },
