@@ -12,7 +12,7 @@ export interface Event {
   eventDate: string;
   endDate?: string;
   location: string;
-  eventType: 'conference' | 'workshop' | 'news' | 'other';
+  eventType: 'conference' | 'workshop' | 'other';
   published: boolean;
   featured?: boolean;
   createdAt: string;
@@ -54,7 +54,7 @@ const eventService = {
    * Récupère les événements par type
    * @param eventType Le type d'événement à récupérer
    */
-  getEventsByType: async (eventType: 'conference' | 'workshop' | 'news' | 'other'): Promise<Event[]> => {
+  getEventsByType: async (eventType: 'conference' | 'workshop' | 'other'): Promise<Event[]> => {
     try {
       const response = await api.get(`/events?eventType=${eventType}&published=true`);
       return response.data;

@@ -9,7 +9,6 @@ import {
   ContactService,
   FormationService,
   EventService,
-  NewsService,
   TestimonialService,
   ReservationService,
   DonationService,
@@ -190,32 +189,6 @@ export const useEvent = (id: string) => {
     queryKey: ['events', id],
     queryFn: () => EventService.getById(id),
     enabled: !!id,
-  });
-};
-
-// ===== NEWS HOOKS =====
-export const useNews = () => {
-  return useQuery({
-    queryKey: ['news'],
-    queryFn: NewsService.getAll,
-    staleTime: 15 * 60 * 1000,
-  });
-};
-
-export const useLatestNews = () => {
-  return useQuery({
-    queryKey: ['news', 'latest'],
-    queryFn: NewsService.getLatest,
-    staleTime: 5 * 60 * 1000,
-  });
-};
-
-export const useNewsByCategory = (category: string) => {
-  return useQuery({
-    queryKey: ['news', 'category', category],
-    queryFn: () => NewsService.getByCategory(category),
-    enabled: !!category,
-    staleTime: 10 * 60 * 1000,
   });
 };
 

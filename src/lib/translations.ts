@@ -6,7 +6,6 @@ export const translations = {
       about: 'À propos',
       formations: 'Formations',
       events: 'Événements',
-      news: 'Actualités',
       contact: 'Contact',
       donate: 'Faire un don',
       testimonials: 'Témoignages'
@@ -136,7 +135,6 @@ export const translations = {
       about: 'À propos',
       contact: 'Contact',
       programs: 'Programmes',
-      news: 'Actualités',
       legal: 'Mentions légales',
       privacy: 'Politique de confidentialité',
       social: 'Réseaux sociaux',
@@ -152,7 +150,6 @@ export const translations = {
       about: 'About',
       formations: 'Programs',
       events: 'Events',
-      news: 'News',
       contact: 'Contact',
       donate: 'Donate',
       testimonials: 'Testimonials'
@@ -282,7 +279,6 @@ export const translations = {
       about: 'About',
       contact: 'Contact',
       programs: 'Programs',
-      news: 'News',
       legal: 'Legal notice',
       privacy: 'Privacy policy',
       social: 'Social media',

@@ -131,30 +131,7 @@ export const EventService = {
   },
 };
 
-// Service pour les actualités
-export const NewsService = {
-  getAll: async () => {
-    return {
-      data: [
-        { id: '1', title: 'Ouverture du campus', date: '2025-09-01', content: 'Le campus ouvre ses portes', imageUrl: '/img/news/news1.jpg' },
-        { id: '2', title: 'Partenariat international', date: '2025-08-15', content: 'Nouveau partenariat', imageUrl: '/img/news/news2.jpg' }
-      ]
-    };
-  },
-  getById: async (id: string) => {
-    return { data: { id, title: `Article ${id}`, date: '2025-09-01', content: 'Contenu de l\'article', imageUrl: '/img/news/news1.jpg' } };
-  },
-  getLatest: async () => {
-    return { data: [
-      { id: '1', title: 'Ouverture du campus', date: '2025-09-01', content: 'Le campus ouvre ses portes', imageUrl: '/img/news/news1.jpg' }
-    ] };
-  },
-  getByCategory: async (category: string) => {
-    return { data: [
-      { id: '1', title: `News ${category} 1`, date: '2025-09-01', content: 'Contenu', imageUrl: '/img/news/news1.jpg' }
-    ] };
-  },
-};
+
 
 // Service pour les témoignages
 export const TestimonialService = {

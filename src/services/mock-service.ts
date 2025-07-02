@@ -122,7 +122,7 @@ const mockEvents: Event[] = [
     image: '/img/actualite.png',
     eventDate: '2025-06-01T00:00:00Z',
     location: 'CREC, Godomey',
-    eventType: 'news',
+    eventType: 'other',
     published: true,
     featured: true,
     createdAt: '2025-05-25T08:00:00Z',
@@ -226,7 +226,7 @@ const mockService = {
   /**
    * Récupère les événements fictifs par type
    */
-  getEventsByType: (type: 'conference' | 'workshop' | 'news' | 'other'): Promise<Event[]> => {
+  getEventsByType: (type: 'conference' | 'workshop' | 'other'): Promise<Event[]> => {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(mockEvents.filter(event => event.eventType === type));

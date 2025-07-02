@@ -1,9 +1,9 @@
-/* Import responsive utilities */
-@import './styles/responsive.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import './styles/responsive.css';
 
 @layer base {
   :root {
@@ -96,11 +96,12 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
 
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-family: Cambria, serif;
     font-size: 16pt;
   }
@@ -392,12 +393,6 @@
 
   .events-hero-bg {
     background-image: url('/img/conference.png');
-    background-size: cover;
-    background-position: center;
-  }
-
-  .news-hero-bg {
-    background-image: url('/img/actualite.png');
     background-size: cover;
     background-position: center;
   }

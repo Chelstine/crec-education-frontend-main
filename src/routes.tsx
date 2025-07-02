@@ -40,12 +40,6 @@ const ReservationPage = lazy(() => import('@/pages/reservation/ReservationPage')
 const SubscriptionPage = lazy(() => import('@/pages/reservation/SubscriptionPage'));
 const SubscriptionVerification = lazy(() => import('@/pages/reservation/SubscriptionVerification'));
 
-// Pages News
-const NewsPage = lazy(() => import('@/pages/news/NewsPage'));
-const ArticlePage = lazy(() => import('@/pages/news/ArticlePage'));
-const CampusLifePage = lazy(() => import('@/pages/news/CampusLifePage'));
-const StagesPage = lazy(() => import('@/pages/news/StagesPage'));
-
 // Pages Événements
 const EventsPage = lazy(() => import('@/pages/events/EventsPage'));
 const EventDetailPage = lazy(() => import('@/pages/events/EventDetailPage'));
@@ -179,24 +173,6 @@ const routes: RouteObject[] = [
       {
         path: 'subscription-verification',
         element: withSuspense(SubscriptionVerification),
-      },
-
-      // Pages News
-      {
-        path: 'news',
-        element: withSuspense(NewsPage),
-      },
-      {
-        path: 'news/campus',
-        element: withSuspense(CampusLifePage),
-      },
-      {
-        path: 'news/stages',
-        element: withSuspense(StagesPage),
-      },
-      {
-        path: 'news/:id',
-        element: withSuspense(ArticlePage),
       },
 
       // Pages Événements
