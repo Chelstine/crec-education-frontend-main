@@ -17,7 +17,7 @@ const MachineCard: React.FC<MachineCardProps> = ({
   hourlyRate,
   onSelect
 }) => {
-  const getCategoryIcon = (category: string) => {
+  const getCategoryIcon = (category?: string) => {
     switch (category) {
       case 'impression': return <Printer className="h-4 w-4" />;
       case 'gravure': return <Zap className="h-4 w-4" />;
@@ -27,37 +27,23 @@ const MachineCard: React.FC<MachineCardProps> = ({
     }
   };
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'beginner': return 'bg-green-100 text-green-800';
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800';
-      case 'advanced': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
+      case 'operational': return 'bg-green-100 text-green-800';
       case 'available': return 'bg-green-100 text-green-800';
       case 'maintenance': return 'bg-orange-100 text-orange-800';
+      case 'broken': return 'bg-red-100 text-red-800';
       case 'occupied': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getDifficultyLabel = (difficulty: string) => {
-    switch (difficulty) {
-      case 'beginner': return 'Débutant';
-      case 'intermediate': return 'Intermédiaire';
-      case 'advanced': return 'Avancé';
-      default: return difficulty;
-    }
-  };
-
   const getStatusLabel = (status: string) => {
     switch (status) {
+      case 'operational': return 'Disponible';
       case 'available': return 'Disponible';
       case 'maintenance': return 'Maintenance';
+      case 'broken': return 'En panne';
       case 'occupied': return 'Occupé';
       default: return status;
     }
@@ -70,8 +56,8 @@ const MachineCard: React.FC<MachineCardProps> = ({
         isSelected
           ? 'border-blue-500 bg-blue-50 shadow-md'
           : 'border-gray-200 hover:border-blue-300 hover:shadow-sm'
-      } ${machine.status !== 'available' ? 'opacity-60' : ''}`}
-      onClick={() => machine.status === 'available' && onSelect(machine.id)}
+      } ${machine.status !== 'operational' && machine.status !== 'available' ? 'opacity-60' : ''}`}
+      onClick={() => (machine.status === 'operational' || machine.status === 'available') && onSelect(machine.id)}
     >
       {/* Status Badge */}
       <div className="absolute top-2 right-2">
@@ -88,15 +74,17 @@ const MachineCard: React.FC<MachineCardProps> = ({
           <h3 className="font-semibold text-lg">{machine.name}</h3>
           <p className="text-gray-600 text-sm mb-2">{machine.description}</p>
           <div className="flex items-center space-x-2 mb-2">
-            <Badge className={getDifficultyColor(machine.skillLevel)}>
-              {getDifficultyLabel(machine.skillLevel)}
-            </Badge>
+            {machine.requiresTraining && (
+              <Badge className="bg-orange-100 text-orange-800">
+                Formation requise
+              </Badge>
+            )}
             <span className="text-blue-600 font-semibold">
-              {hourlyRate} FCFA/h
+              {machine.hourlyRate || hourlyRate} FCFA/h
             </span>
           </div>
           <div className="flex flex-wrap gap-1">
-            {machine.features.slice(0, 2).map((feature, idx) => (
+            {machine.features && machine.features.length > 0 && machine.features.slice(0, 2).map((feature, idx) => (
               <span key={idx} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
                 {feature}
               </span>

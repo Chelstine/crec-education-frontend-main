@@ -2,82 +2,170 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, FileText, Users, GraduationCap, BookOpen, Heart, Clock, DollarSign, CheckCircle2 } from 'lucide-react';
+import { UniversityProgram } from '@/types';
 
-const programs = [
+const programs: UniversityProgram[] = [
 	{
 		id: '1',
+		name: 'Développement de logiciels',
 		title: 'Développement de logiciels',
 		description:
 			"Concevez des logiciels robustes et éthiques avec des langages modernes (Java, Python), des méthodologies agiles et une approche centrée sur la résolution de problèmes sociétaux.",
-		image: '/img/dev-logiciel.png',
-		competences: [
+		longDescription: "Formation complète en développement logiciel avec approche éthique et pratique, utilisant les technologies modernes pour résoudre des problèmes sociétaux.",
+		duration: '3 ans',
+		degree: 'licence',
+		level: 'licence',
+		department: 'Informatique',
+		capacity: 50,
+		currentApplications: 28,
+		applicationDeadline: '2024-08-15',
+		startDate: '2024-09-01',
+		tuitionFee: 800000,
+		inscriptionFee: 450000,
+		currency: 'FCFA',
+		requirements: [
+			'Baccalauréat série C, D ou équivalent',
+			'Bases en mathématiques',
+			'Logique et raisonnement'
+		],
+		objectives: [
 			'Programmation avancée',
 			'Architecture logicielle',
 			'Gestion de projets agiles',
 			'Cybersécurité',
 		],
-		debouches: [
+		careerOutlooks: [
 			'Développeur logiciel',
 			'Ingénieur logiciel',
 			'Architecte logiciel',
 			'Testeur QA',
 		],
-		profil: 'Passionné par la logique, la structure et le travail collaboratif.',
-		type: 'licence',
-		duree: '3 ans',
-		inscrits: 28,
-		fraisInscription: 450000,
-		statut: 'active',
+		documentTypes: [
+			{
+				id: 'doc-1',
+				name: 'birth_certificate',
+				description: 'Acte de naissance',
+				isRequired: true,
+				maxSizeBytes: 5242880,
+				maxSizeInMB: 5,
+				acceptedFormats: ['pdf', 'jpg', 'png'],
+				allowedFormats: ['pdf', 'jpg', 'png']
+			}
+		],
+		isActive: true,
+		isVisible: true,
+		allowOnlineApplication: true,
+		requiresDocuments: true,
+		createdAt: '2024-01-01',
+		updatedAt: '2024-01-15'
 	},
 	{
 		id: '2',
+		name: 'Développement Web & Mobile',
 		title: 'Développement Web & Mobile',
 		description:
 			"Créez des applications web et mobiles innovantes et accessibles, en maîtrisant HTML, CSS, JavaScript, React, Flutter et le design d'interfaces utilisateur.",
-		image: '/img/dev-web.png',
-		competences: [
+		longDescription: "Formation spécialisée en développement web et mobile avec focus sur l'innovation et l'accessibilité.",
+		duration: '3 ans',
+		degree: 'licence',
+		level: 'licence',
+		department: 'Informatique',
+		capacity: 45,
+		currentApplications: 22,
+		applicationDeadline: '2024-08-15',
+		startDate: '2024-09-01',
+		tuitionFee: 800000,
+		inscriptionFee: 450000,
+		currency: 'FCFA',
+		requirements: [
+			'Baccalauréat série C, D ou équivalent',
+			'Créativité et sens artistique',
+			'Bases en logique'
+		],
+		objectives: [
 			"Design UI/UX",
 			"Développement responsive",
 			"Intégration d'API",
 			"Applications mobiles",
 		],
-		debouches: [
+		careerOutlooks: [
 			'Développeur front-end',
 			'Développeur mobile',
 			'Intégrateur web',
 			'Product builder',
 		],
-		profil: "Créatif, visuel, et motivé par la concrétisation rapide d'idées.",
-		type: 'licence',
-		duree: '3 ans',
-		inscrits: 23,
-		fraisInscription: 450000,
-		statut: 'active',
+		documentTypes: [
+			{
+				id: 'doc-1',
+				name: 'birth_certificate',
+				description: 'Acte de naissance',
+				isRequired: true,
+				maxSizeBytes: 5242880,
+				maxSizeInMB: 5,
+				acceptedFormats: ['pdf', 'jpg', 'png'],
+				allowedFormats: ['pdf', 'jpg', 'png']
+			}
+		],
+		isActive: true,
+		isVisible: true,
+		allowOnlineApplication: true,
+		requiresDocuments: true,
+		createdAt: '2024-01-01',
+		updatedAt: '2024-01-15'
 	},
 	{
 		id: '3',
+		name: 'Science des données',
 		title: 'Science des données',
 		description:
 			"Exploitez les données pour éclairer les décisions avec Python, SQL, PowerBI et des techniques d'intelligence artificielle, dans une perspective éthique et responsable.",
-		image: '/img/data-science.png',
-		competences: [
+		longDescription: "Formation en science des données avec focus sur l'éthique et la responsabilité dans l'utilisation des données.",
+		duration: '3 ans',
+		degree: 'licence',
+		level: 'licence',
+		department: 'Informatique',
+		capacity: 35,
+		currentApplications: 18,
+		applicationDeadline: '2024-08-15',
+		startDate: '2024-09-01',
+		tuitionFee: 850000,
+		inscriptionFee: 480000,
+		currency: 'FCFA',
+		requirements: [
+			'Baccalauréat série C, D ou équivalent',
+			'Bases en mathématiques et statistiques',
+			'Curiosité analytique'
+		],
+		objectives: [
 			'Analyse de données',
 			'Visualisation',
 			'Statistiques appliquées',
 			'IA de base',
 		],
-		debouches: [
+		careerOutlooks: [
 			'Data analyst',
 			'Business analyst',
 			'Consultant data',
 			'Data scientist',
 		],
-		profil: 'Curieux, analytique, et attiré par les solutions basées sur les données.',
-		type: 'licence',
-		duree: '3 ans',
-		inscrits: 18,
-		fraisInscription: 480000,
-		statut: 'active',
+		documentTypes: [
+			{
+				id: 'doc-1',
+				name: 'birth_certificate',
+				description: 'Acte de naissance',
+				isRequired: true,
+				maxSizeBytes: 5242880,
+				maxSizeInMB: 5,
+				acceptedFormats: ['pdf', 'jpg', 'png'],
+				allowedFormats: ['pdf', 'jpg', 'png']
+			}
+		],
+		isActive: true,
+		isVisible: true,
+		allowOnlineApplication: true,
+		requiresDocuments: true,
+		createdAt: '2024-01-01',
+		updatedAt: '2024-01-15'
 	},
 ];
 
@@ -455,7 +543,7 @@ const UniversityPage = () => {
 								<div className="md:w-1/3">
 									<div className="rounded-xl overflow-hidden shadow-lg">
 										<img
-											src={program.image}
+											src="/img/dev-logiciel.png"
 											alt={program.title}
 											className="w-full h-64 object-cover"
 										/>
@@ -465,12 +553,12 @@ const UniversityPage = () => {
 								{/* Content */}
 								<div className="md:w-2/3">
 									<div className="flex items-center gap-3 mb-2">
-										<span className={`px-3 py-1 rounded-full text-sm font-medium ${getTypeColor(program.type)}`}>
-											{program.type === 'licence' ? 'Licence' : 'Master'}
+										<span className={`px-3 py-1 rounded-full text-sm font-medium ${getTypeColor(program.degree)}`}>
+											{program.degree === 'licence' ? 'Licence' : 'Master'}
 										</span>
 										<div className="flex items-center gap-1 text-sm text-gray-600">
 											<Clock className="w-4 h-4 text-crec-darkblue" />
-											<span>{program.duree}</span>
+											<span>{program.duration}</span>
 										</div>
 										<div className="flex items-center gap-1 text-sm text-gray-600">
 											<Users className="w-4 h-4 text-crec-darkblue" />
@@ -516,7 +604,7 @@ const UniversityPage = () => {
 												Débouchés professionnels
 											</h4>
 											<ul className="space-y-2">
-												{program.debouches.map((deb, j) => (
+												{program.careerOutlooks.map((deb, j) => (
 													<li key={j} className="flex items-start gap-2">
 														<CheckCircle2 className="w-4 h-4 text-green-600 mt-1 shrink-0" />
 														<span className="text-gray-700 text-sm">{deb}</span>
@@ -530,7 +618,7 @@ const UniversityPage = () => {
 										<div className="flex items-center gap-2">
 											<DollarSign className="w-5 h-5 text-crec-darkblue" />
 											<span className="text-crec-darkblue font-semibold">
-												{formatCurrency(program.fraisInscription)} / an
+												{formatCurrency(program.inscriptionFee)} / an
 											</span>
 										</div>
 										<Link

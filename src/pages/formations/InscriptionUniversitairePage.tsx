@@ -79,8 +79,8 @@ const InscriptionUniversitairePage = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Mock university programs data - in real app, this would come from API
-  const programs: UniversityProgram[] = [
+  // Données mockées pour les programmes universitaires (en attendant la connexion backend)
+  const programsMocked: UniversityProgram[] = [
     {
       id: "prog-1",
       name: "Licence en Développement Logiciel",
@@ -310,6 +310,23 @@ const InscriptionUniversitairePage = () => {
     }
   ];
 
+  // Données mockées pour l'année académique (en attendant la connexion backend)
+  const activeAcademicYearMocked = {
+    id: "year-1",
+    name: "2024-2025",
+    startDate: "2024-09-01",
+    endDate: "2025-07-31",
+    applicationStartDate: "2024-06-01",
+    applicationEndDate: "2024-08-31",
+    isActive: true,
+    createdAt: "2024-01-01",
+    updatedAt: "2024-01-15"
+  };
+
+  // Utilisation des données mockées (en attendant la connexion backend)
+  const programs: UniversityProgram[] = programsMocked;
+  const activeAcademicYear = activeAcademicYearMocked;
+
   const paymentMethods: PaymentMethodOption[] = [
     {
       id: "om",
@@ -475,53 +492,44 @@ const InscriptionUniversitairePage = () => {
     setIsSubmitting(true);
     
     try {
-      // Create application object
+      // Create application object conforme au schéma Prisma
       const applicationData: Partial<UniversityApplication> = {
         programId: formData.program,
-        applicantName: `${formData.firstName} ${formData.lastName}`,
-        applicantEmail: formData.email,
-        applicantPhone: formData.phone,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
         dateOfBirth: formData.dob,
+        placeOfBirth: formData.city, // Utilise la ville comme lieu de naissance temporairement
         nationality: formData.nationality,
-        gender: formData.gender as "M" | "F",
-        city: formData.city,
         address: formData.city,
-        country: "Cameroun",
-        previousInstitution: formData.highSchool,
-        previousDegree: formData.bacMention,
-        graduationYear: formData.graduationYear,
-        documents: Object.entries(selectedFiles).map(([name, file]) => ({
-          id: `doc-${Date.now()}-${Math.random()}`,
-          documentTypeId: name,
-          documentTypeName: selectedProgram?.documentTypes.find(doc => doc.name === name)?.description || name,
-          fileName: file.name,
-          fileUrl: URL.createObjectURL(file), // Temporary URL for demo
-          fileSize: file.size,
-          uploadedAt: new Date().toISOString(),
-          status: "uploaded" as const
-        })),
-        status: "submitted",
-        applicationDate: new Date().toISOString(),
-        inscriptionFeeStatus: "pending",
-        inscriptionFeeAmount: selectedProgram?.inscriptionFee || 0,
-        paymentMethod: paymentMethod as PaymentMethod,
-        paymentReference: formData.paymentReference,
-        notes: formData.motivation,
-        emailsSent: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        lastDiploma: formData.bacMention,
+        lastSchool: formData.highSchool,
+        graduationYear: parseInt(formData.graduationYear),
+        parentName: formData.parentNames,
+        parentPhone: formData.parentPhone,
+        motivation: formData.motivation,
+        status: "PENDING",
+        submittedAt: new Date().toISOString(),
+        // Ajout des URLs de documents (temporaire pour demo)
+        photoUrl: selectedFiles['id_photo'] ? URL.createObjectURL(selectedFiles['id_photo']) : undefined,
+        cvUrl: undefined,
+        diplomaUrl: selectedFiles['bac_certificate'] ? URL.createObjectURL(selectedFiles['bac_certificate']) : undefined,
+        transcriptUrl: selectedFiles['transcripts'] ? URL.createObjectURL(selectedFiles['transcripts']) : undefined,
+        birthCertificateUrl: selectedFiles['birth_certificate'] ? URL.createObjectURL(selectedFiles['birth_certificate']) : undefined,
+        academicYearId: activeAcademicYear?.id || 'academic-2024-2025'
       };
 
-      // In a real application, this would be an API call
+      // Simuler l'appel API pour soumettre la candidature
       console.log("Application submitted:", applicationData);
       
-      // Simulate API call
+      // Simuler la réponse du serveur
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       toast.success("Votre candidature a été soumise avec succès!");
       toast.info("Vous recevrez un email de confirmation dans quelques minutes.");
       
-      // Reset form or redirect to confirmation page
+      // Reset form ou redirection vers page de confirmation
       // window.location.href = "/inscription/confirmation";
       
     } catch (error) {
@@ -813,7 +821,7 @@ const InscriptionUniversitairePage = () => {
                   {selectedProgram && (
                     <Card className="bg-blue-50 border-blue-200">
                       <CardContent className="p-4">
-                        <h3 className="font-semibold text-blue-900 mb-2">{selectedProgram.name}</h3>
+                        <h3 className="font-semibold text-blue-900 mb-2">{selectedProgram.title}</h3>
                         <p className="text-sm text-blue-800 mb-3">{selectedProgram.description}</p>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -830,14 +838,14 @@ const InscriptionUniversitairePage = () => {
                             <span>Places: {selectedProgram.capacity}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-orange-600" />
-                            <span>Date limite: {new Date(selectedProgram.applicationDeadline).toLocaleDateString('fr-FR')}</span>
+                            <Award className="w-4 h-4 text-orange-600" />
+                            <span>Niveau: {selectedProgram.degree.toUpperCase()}</span>
                           </div>
                         </div>
 
                         <Tabs defaultValue="objectives" className="mt-4">
                           <TabsList>
-                            <TabsTrigger value="objectives">Objectifs</TabsTrigger>
+                            <TabsTrigger value="objectives">Compétences</TabsTrigger>
                             <TabsTrigger value="careers">Débouchés</TabsTrigger>
                             <TabsTrigger value="requirements">Prérequis</TabsTrigger>
                           </TabsList>
@@ -996,7 +1004,7 @@ const InscriptionUniversitairePage = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {selectedProgram.documentTypes.map(doc => (
+                    {selectedProgram && selectedProgram.documentTypes.map(doc => (
                       <div key={doc.name} className="space-y-2">
                         <Label htmlFor={doc.name} className="flex items-center gap-2">
                           <FileText className="w-4 h-4" />
@@ -1080,7 +1088,7 @@ const InscriptionUniversitairePage = () => {
                       <div className="space-y-2">
                         <div className="flex justify-between">
                           <span>Programme:</span>
-                          <span className="font-medium">{selectedProgram.name}</span>
+                          <span className="font-medium">{selectedProgram.title}</span>
                         </div>
                         <div className="flex justify-between">
                           <span>Niveau:</span>
@@ -1091,10 +1099,6 @@ const InscriptionUniversitairePage = () => {
                           <span className="font-bold text-green-600">
                             {formatPrice(selectedProgram.inscriptionFee)} FCFA
                           </span>
-                        </div>
-                        <div className="flex justify-between text-sm text-gray-600">
-                          <span>Frais de scolarité annuels:</span>
-                          <span>{formatPrice(selectedProgram.tuitionFee)} FCFA</span>
                         </div>
                       </div>
                     </CardContent>

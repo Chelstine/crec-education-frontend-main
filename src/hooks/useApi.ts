@@ -1,664 +1,495 @@
-// Custom hooks for API calls with React Query
-// Provides loading states, error handling, and caching
+import { useQuery } from '@tanstack/react-query';
+import { Event, GalleryItem, LibraryResource, OpenFormation, FablabMachine, FablabProject, FormationRegistration, UniversityApplication } from '../types';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/hooks/use-toast';
-import {
-  ProjectService,
-  MachineService,
-  ContactService,
-  FormationService,
-  EventService,
-  TestimonialService,
-  ReservationService,
-  DonationService,
-  AuthService,
-  handleApiError,
-  FablabSubscriptionService,
-  FablabMachineService,
-  FablabReservationService,
-  UserService,
-  LibraryService
-} from '@/services/apiServices';
-import {
-  Project,
-  ContactForm,
-  InscriptionForm,
-  ReservationForm,
-  DonationForm,
-  Event,
-  Article,
-  Testimonial
-} from '@/types';
+// Mock data pour les machines FabLab
+const mockFablabMachines: FablabMachine[] = [
+  {
+    id: '1',
+    name: 'Imprimante 3D Ultimaker',
+    code: 'FAB-IMP01',
+    type: 'Imprimante 3D',
+    description: 'Imprimante 3D haute précision pour prototypage et création',
+    features: ['Précision 0.1mm', 'Volume 200x200x200mm', 'Compatible PLA/ABS'],
+    imageUrl: '/img/machines/imprimante-3d.jpg',
+    image: '/img/machines/imprimante-3d.jpg',
+    hourlyRate: 2500,
+    status: 'available',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z'
+  },
+  {
+    id: '2', 
+    name: 'Découpeuse Laser',
+    code: 'FAB-LAS01',
+    type: 'Découpeuse laser',
+    description: 'Découpeuse laser pour matériaux variés',
+    features: ['Puissance 40W', 'Surface 300x200mm', 'Bois, acrylique, carton'],
+    imageUrl: '/img/machines/laser.jpg',
+    image: '/img/machines/laser.jpg',
+    hourlyRate: 3000,
+    status: 'available',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z'
+  }
+];
 
-// ===== PROJECTS HOOKS =====
-export const useProjects = () => {
-  return useQuery({
-    queryKey: ['projects'],
-    queryFn: ProjectService.getAll,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-};
+// Mock data pour les projets FabLab
+const mockFablabProjects: FablabProject[] = [
+  {
+    id: '1',
+    title: 'Prototype de drone agricole',
+    description: 'Développement d\'un drone pour l\'agriculture de précision',
+    category: 'Prototypage',
+    difficulty: 'Avancé',
+    duration: '2 semaines',
+    instructions: 'Guide complet pour créer un drone agricole',
+    materialsNeeded: ['Châssis carbone', 'Moteurs brushless', 'Contrôleur de vol'],
+    imageUrl: '/img/projects/drone.jpg',
+    isPublished: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z'
+  },
+  {
+    id: '2',
+    title: 'Lampe LED personnalisée',
+    description: 'Création d\'une lampe LED avec impression 3D',
+    category: 'Art numérique',
+    difficulty: 'Intermédiaire',
+    duration: '1 journée',
+    instructions: 'Tutoriel pour créer une lampe LED design',
+    materialsNeeded: ['Filament PLA', 'LEDs', 'Contrôleur Arduino'],
+    imageUrl: '/img/projects/lamp.jpg',
+    isPublished: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z'
+  }
+];
 
-export const useProjectsByCategory = (category: string) => {
-  return useQuery({
-    queryKey: ['projects', 'category', category],
-    queryFn: () => ProjectService.getByCategory(category),
-    enabled: !!category,
-    staleTime: 5 * 60 * 1000,
-  });
-};
+// Mock data pour les formations ouvertes
+const mockOpenFormations: OpenFormation[] = [
+  {
+    id: '1',
+    title: 'Formations en Langues',
+    description: 'Maîtrisez l\'anglais et le français avec nos cours adaptés à tous les niveaux',
+    longDescription: 'Programme complet de formations linguistiques incluant l\'anglais général et professionnel, la préparation aux tests internationaux, et le français pour étrangers.',
+    image: '/img/anglais.png',
+    duration: '3-6 mois',
+    price: 15000,
+    maxParticipants: 20,
+    startDate: '2025-10-01T08:00:00Z',
+    endDate: '2026-03-31T17:00:00Z',
+    schedule: 'Lundi-Vendredi 8h-12h ou 14h-18h',
+    prerequisites: 'Aucun prérequis',
+    syllabus: [
+      'Cours d\'anglais général et professionnel',
+      'Préparation aux tests TOEFL, IELTS, TCF',
+      'Français pour étrangers (FLE)',
+      'Conversation et prononciation'
+    ],
+    instructor: 'Équipe pédagogique CREC',
+    status: 'ACTIVE',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z'
+  },
+  {
+    id: '2',
+    title: 'Informatique de Base',
+    description: 'Initiez-vous à l\'informatique et aux outils numériques essentiels',
+    longDescription: 'Formation complète en informatique de base couvrant l\'utilisation des ordinateurs, la bureautique, et les outils numériques modernes.',
+    image: '/img/informatique.png',
+    duration: '2-4 mois',
+    price: 20000,
+    maxParticipants: 15,
+    startDate: '2025-10-01T08:00:00Z',
+    endDate: '2026-01-31T17:00:00Z',
+    schedule: 'Mardi-Jeudi 9h-13h',
+    prerequisites: 'Aucun prérequis',
+    syllabus: [
+      'Utilisation de l\'ordinateur (Windows, Mac)',
+      'Bureautique (Word, Excel, PowerPoint)',
+      'Navigation internet et email',
+      'Réseaux sociaux et sécurité numérique'
+    ],
+    instructor: 'Équipe technique CREC',
+    status: 'ACTIVE',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z'
+  },
+  {
+    id: '3',
+    title: 'Accompagnement Scolaire',
+    description: 'Soutien scolaire personnalisé pour tous les niveaux',
+    longDescription: 'Programme d\'accompagnement scolaire avec cours de soutien, préparation aux examens, et méthodologie d\'étude.',
+    image: '/img/accompagnement.png',
+    duration: 'Toute l\'année',
+    price: 10000,
+    maxParticipants: 25,
+    startDate: '2025-09-01T08:00:00Z',
+    endDate: '2026-06-30T17:00:00Z',
+    schedule: 'Flexible selon les besoins',
+    prerequisites: 'Selon le niveau demandé',
+    syllabus: [
+      'Cours de soutien toutes matières',
+      'Préparation aux examens officiels',
+      'Méthodologie et techniques d\'étude',
+      'Encadrement personnalisé'
+    ],
+    instructor: 'Équipe pédagogique CREC',
+    status: 'ACTIVE',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z'
+  },
+  {
+    id: '4',
+    title: 'Entrepreneuriat',
+    description: 'Développez vos compétences entrepreneuriales et créez votre entreprise',
+    longDescription: 'Formation complète en entrepreneuriat incluant l\'élaboration de business plan, la gestion d\'entreprise, et l\'accompagnement post-formation.',
+    image: '/img/formation.png',
+    duration: '4-6 mois',
+    price: 25000,
+    maxParticipants: 18,
+    startDate: '2025-11-01T08:00:00Z',
+    endDate: '2026-04-30T17:00:00Z',
+    schedule: 'Samedi 8h-17h',
+    prerequisites: 'Projet d\'entreprise ou idée de business',
+    syllabus: [
+      'Élaboration de business plan',
+      'Gestion financière et comptabilité',
+      'Marketing et communication',
+      'Accompagnement post-formation'
+    ],
+    instructor: 'Experts en entrepreneuriat',
+    status: 'ACTIVE',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z'
+  }
+];
 
-export const useProject = (id: string) => {
-  return useQuery({
-    queryKey: ['projects', id],
-    queryFn: () => ProjectService.getById(id),
-    enabled: !!id,
-  });
-};
+// Mock data pour les événements
+const mockEvents: Event[] = [
+  {
+    id: '1',
+    title: 'Conférence sur l\'IA',
+    description: 'Une conférence sur l\'intelligence artificielle',
+    longDescription: 'Conférence approfondie sur les dernières avancées en IA',
+    eventType: 'CONFERENCE',
+    startDate: '2024-03-15T10:00:00Z',
+    endDate: '2024-03-15T17:00:00Z',
+    location: 'Auditorium CREC',
+    address: 'Yaoundé, Cameroun',
+    image: '/img/conference.png',
+    maxParticipants: 100,
+    currentParticipants: 25,
+    registrationRequired: true,
+    registrationDeadline: '2024-03-10T23:59:59Z',
+    isPublished: true,
+    isFeatured: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z'
+  },
+  {
+    id: '2',
+    title: 'Workshop Développement Web',
+    description: 'Atelier pratique sur le développement web moderne',
+    longDescription: 'Workshop intensif sur React, Node.js et les technologies modernes',
+    eventType: 'WORKSHOP',
+    startDate: '2024-03-20T14:00:00Z',
+    endDate: '2024-03-20T18:00:00Z',
+    location: 'Salle FabLab',
+    address: 'Yaoundé, Cameroun',
+    image: '/img/dev-web.png',
+    maxParticipants: 30,
+    currentParticipants: 15,
+    registrationRequired: true,
+    registrationDeadline: '2024-03-18T23:59:59Z',
+    isPublished: true,
+    isFeatured: false,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z'
+  }
+];
 
-// ===== MACHINES HOOKS =====
-export const useMachines = () => {
-  return useQuery({
-    queryKey: ['machines'],
-    queryFn: MachineService.getAll,
-    staleTime: 10 * 60 * 1000, // 10 minutes
-  });
-};
+// Mock data pour la galerie
+const mockGalleryItems: GalleryItem[] = [
+  {
+    id: '1',
+    title: 'Cérémonie de graduation 2024',
+    description: 'Photos de la cérémonie de remise des diplômes',
+    imageUrl: '/img/graduation.jpg',
+    category: 'GRADUATION',
+    tags: ['graduation', 'diplômes', '2024'],
+    photographer: 'CREC Media',
+    location: 'Auditorium CREC',
+    captureDate: '2024-06-15T10:00:00Z',
+    isPublished: true,
+    isFeatured: true,
+    order: 1,
+    createdAt: '2024-06-15T10:00:00Z',
+    updatedAt: '2024-06-15T10:00:00Z'
+  },
+  {
+    id: '2',
+    title: 'Atelier FabLab',
+    description: 'Étudiants travaillant sur des projets au FabLab',
+    imageUrl: '/img/fablab.jpg',
+    category: 'FABLAB',
+    tags: ['fablab', 'étudiants', 'projets'],
+    photographer: 'CREC Media',
+    location: 'FabLab CREC',
+    captureDate: '2024-05-20T14:00:00Z',
+    isPublished: true,
+    isFeatured: false,
+    order: 2,
+    createdAt: '2024-05-20T14:00:00Z',
+    updatedAt: '2024-05-20T14:00:00Z'
+  }
+];
 
-export const useAvailableMachines = () => {
-  return useQuery({
-    queryKey: ['machines', 'available'],
-    queryFn: MachineService.getAvailable,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-  });
-};
+// Mock data pour les ressources de bibliothèque
+const mockLibraryResources: LibraryResource[] = [
+  {
+    id: '1',
+    title: 'Introduction à l\'Intelligence Artificielle',
+    description: 'Livre complet sur les fondements de l\'IA',
+    type: 'BOOK',
+    category: 'INFORMATIQUE',
+    author: 'Dr. Jean Dupont',
+    publisher: 'Éditions Tech',
+    publicationYear: 2023,
+    coverImage: '/resources/ai-intro-cover.jpg',
+    pdfUrl: '/resources/ai-intro.pdf',
+    downloadUrl: '/resources/ai-intro.pdf',
+    readOnlineUrl: '/resources/ai-intro.pdf',
+    isAvailable: true,
+    isDigital: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z'
+  },
+  {
+    id: '2',
+    title: 'Développement Web avec React',
+    description: 'Guide pratique pour apprendre React',
+    type: 'BOOK',
+    category: 'DEVELOPPEMENT',
+    author: 'Marie Martin',
+    publisher: 'Dev Books',
+    publicationYear: 2023,
+    coverImage: '/resources/react-guide-cover.jpg',
+    pdfUrl: '/resources/react-guide.pdf',
+    downloadUrl: '/resources/react-guide.pdf',
+    readOnlineUrl: '/resources/react-guide.pdf',
+    isAvailable: true,
+    isDigital: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z'
+  }
+];
 
-// ===== CONTACT HOOKS =====
-export const useContactSubmission = () => {
-  const { toast } = useToast();
-  
-  return useMutation({
-    mutationFn: (data: ContactForm) => ContactService.sendMessage(data),
-    onSuccess: () => {
-      toast({
-        title: "Message envoyé",
-        description: "Votre message a été envoyé avec succès. Nous vous répondrons dans les plus brefs délais.",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erreur",
-        description: handleApiError(error),
-        variant: "destructive",
-      });
-    },
-  });
-};
-
-// ===== FORMATIONS HOOKS =====
-export const useFormations = () => {
-  return useQuery({
-    queryKey: ['formations'],
-    queryFn: FormationService.getAll,
-    staleTime: 10 * 60 * 1000,
-  });
-};
-
-export const useOpenFormations = () => {
-  return useQuery({
-    queryKey: ['formations', 'open'],
-    queryFn: FormationService.getOpenFormations,
-    staleTime: 10 * 60 * 1000,
-  });
-};
-
-export const useUniversityPrograms = () => {
-  return useQuery({
-    queryKey: ['formations', 'university'],
-    queryFn: FormationService.getUniversity,
-    staleTime: 10 * 60 * 1000,
-  });
-};
-
-export const useFormationInscription = (onSuccessCallback?: () => void) => {
-  const { toast } = useToast();
-  
-  return useMutation({
-    mutationFn: (data: InscriptionForm) => FormationService.submitInscription(data),
-    onSuccess: () => {
-      toast({
-        title: "Inscription envoyée",
-        description: "Votre inscription a été soumise avec succès. Nous traiterons votre demande dans les plus brefs délais.",
-      });
-      // Appeler le callback de succès si fourni (pour redirection)
-      if (onSuccessCallback) {
-        onSuccessCallback();
-      }
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erreur d'inscription",
-        description: handleApiError(error),
-        variant: "destructive",
-      });
-    },
-  });
-};
-
-export const useUniversityApplication = () => {
-  const { toast } = useToast();
-  
-  return useMutation({
-    mutationFn: (data: any) => FormationService.submitUniversityApplication(data),
-    onSuccess: () => {
-      toast({
-        title: "Candidature envoyée",
-        description: "Votre candidature universitaire a été soumise avec succès.",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erreur de candidature",
-        description: handleApiError(error),
-        variant: "destructive",
-      });
-    },
-  });
-};
-
-// ===== EVENTS HOOKS =====
+/**
+ * Hook pour récupérer tous les événements
+ */
 export const useEvents = () => {
   return useQuery({
     queryKey: ['events'],
-    queryFn: EventService.getAll,
-    staleTime: 15 * 60 * 1000,
-  });
-};
-
-export const useUpcomingEvents = () => {
-  return useQuery({
-    queryKey: ['events', 'upcoming'],
-    queryFn: EventService.getUpcoming,
-    staleTime: 5 * 60 * 1000,
-  });
-};
-
-export const useEvent = (id: string) => {
-  return useQuery({
-    queryKey: ['events', id],
-    queryFn: () => EventService.getById(id),
-    enabled: !!id,
-  });
-};
-
-// ===== TESTIMONIALS HOOKS =====
-export const useTestimonials = () => {
-  return useQuery({
-    queryKey: ['testimonials'],
-    queryFn: TestimonialService.getApproved,
-    staleTime: 30 * 60 * 1000, // 30 minutes
-  });
-};
-
-export const useTestimonialSubmission = () => {
-  const { toast } = useToast();
-  
-  return useMutation({
-    mutationFn: (data: any) => TestimonialService.submit(data),
-    onSuccess: () => {
-      toast({
-        title: "Témoignage envoyé",
-        description: "Votre témoignage a été envoyé et sera examiné par notre équipe.",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erreur",
-        description: handleApiError(error),
-        variant: "destructive",
-      });
-    },
-  });
-};
-
-// ===== RESERVATIONS HOOKS =====
-export const useReservationSubmission = () => {
-  const { toast } = useToast();
-  
-  return useMutation({
-    mutationFn: (data: ReservationForm) => ReservationService.create(data),
-    onSuccess: () => {
-      toast({
-        title: "Réservation créée",
-        description: "Votre réservation a été créée avec succès. Nous traiterons votre demande.",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erreur de réservation",
-        description: handleApiError(error),
-        variant: "destructive",
-      });
-    },
-  });
-};
-
-// ===== DONATIONS HOOKS =====
-export const useDonationSubmission = () => {
-  const { toast } = useToast();
-  
-  return useMutation({
-    mutationFn: (data: DonationForm) => DonationService.create(data),
-    onSuccess: () => {
-      toast({
-        title: "Don enregistré",
-        description: "Votre don a été enregistré avec succès. Merci pour votre soutien!",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erreur de don",
-        description: handleApiError(error),
-        variant: "destructive",
-      });
-    },
-  });
-};
-
-export const useDonationStats = () => {
-  return useQuery({
-    queryKey: ['donations', 'stats'],
-    queryFn: DonationService.getStats,
-    staleTime: 30 * 60 * 1000,
-  });
-};
-
-// ===== FABLAB SUBSCRIPTION HOOKS =====
-export const useFablabSubscriptions = () => {
-  return useQuery({
-    queryKey: ['fablab-subscriptions'],
-    queryFn: () => FablabSubscriptionService.getAllSubscriptions?.() || Promise.resolve({ success: true, data: [] }),
-    staleTime: 2 * 60 * 1000, // 2 minutes
-  });
-};
-
-export const useCreateFablabSubscription = () => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: FablabSubscriptionService.createSubscription,
-    onSuccess: (data) => {
-      toast({
-        title: "Abonnement créé !",
-        description: `Votre clé d'abonnement : ${data.data.subscriptionKey}`,
-      });
-      queryClient.invalidateQueries({ queryKey: ['fablab-subscriptions'] });
-    },
-    onError: (error) => {
-      toast({
-        title: "Erreur",
-        description: handleApiError(error),
-        variant: "destructive",
-      });
-    },
-  });
-};
-
-export const useVerifySubscription = () => {
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: ({ name, subscriptionKey }: { name: string; subscriptionKey: string }) => 
-      FablabSubscriptionService.verifySubscription(name, subscriptionKey),
-    onError: (error) => {
-      toast({
-        title: "Erreur de vérification",
-        description: handleApiError(error),
-        variant: "destructive",
-      });
-    },
-  });
-};
-
-export const useFablabSubscriptionVerification = () => {
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: ({ name, subscriptionKey }: { name: string; subscriptionKey: string }) => 
-      FablabSubscriptionService.verifySubscription(name, subscriptionKey),
-    onError: (error) => {
-      toast({
-        title: "Erreur de vérification",
-        description: handleApiError(error),
-        variant: "destructive",
-      });
-    },
-  });
-};
-
-export const useSubscriptionUsage = (subscriptionId: string) => {
-  return useQuery({
-    queryKey: ['subscription-usage', subscriptionId],
-    queryFn: () => FablabSubscriptionService.getUsageReport(subscriptionId),
-    enabled: !!subscriptionId,
-    staleTime: 1 * 60 * 1000, // 1 minute
-  });
-};
-
-// ===== FABLAB RESERVATIONS HOOKS =====
-export const useFablabMachines = () => {
-  return useQuery({
-    queryKey: ['fablab-machines'],
-    queryFn: FablabMachineService.getAllMachines,
-    staleTime: 10 * 60 * 1000, // 10 minutes
-  });
-};
-
-export const useMachineHourlyRates = () => {
-  return useQuery({
-    queryKey: ['machine-hourly-rates'],
-    queryFn: FablabMachineService.getHourlyRates,
-    staleTime: 30 * 60 * 1000, // 30 minutes
-  });
-};
-
-export const useCreateFablabReservation = () => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: FablabReservationService.createReservation,
-    onSuccess: () => {
-      toast({
-        title: "Réservation créée !",
-        description: "Votre créneau a été réservé avec succès.",
-      });
-      queryClient.invalidateQueries({ queryKey: ['fablab-reservations'] });
-      queryClient.invalidateQueries({ queryKey: ['subscription-usage'] });
-    },
-    onError: (error) => {
-      toast({
-        title: "Erreur de réservation",
-        description: handleApiError(error),
-        variant: "destructive",
-      });
-    },
-  });
-};
-
-export const useUserReservations = (subscriptionId: string) => {
-  return useQuery({
-    queryKey: ['fablab-reservations', subscriptionId],
-    queryFn: () => FablabReservationService.getUserReservations(subscriptionId),
-    enabled: !!subscriptionId,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-  });
-};
-
-export const useAvailableSlots = (machineId: string, date: string) => {
-  return useQuery({
-    queryKey: ['available-slots', machineId, date],
-    queryFn: () => FablabReservationService.getAvailableSlots(machineId, date),
-    enabled: !!machineId && !!date,
-    staleTime: 1 * 60 * 1000, // 1 minute
-  });
-};
-
-export const useCancelReservation = () => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: FablabReservationService.cancelReservation,
-    onSuccess: () => {
-      toast({
-        title: "Réservation annulée",
-        description: "Votre réservation a été annulée avec succès.",
-      });
-      queryClient.invalidateQueries({ queryKey: ['fablab-reservations'] });
-      queryClient.invalidateQueries({ queryKey: ['subscription-usage'] });
-    },
-    onError: (error) => {
-      toast({
-        title: "Erreur",
-        description: handleApiError(error),
-        variant: "destructive",
-      });
-    },
-  });
-};
-
-// ===== USER PROFILE HOOKS =====
-export const useUserProfile = () => {
-  return useQuery({
-    queryKey: ['user', 'profile'],
-    queryFn: UserService.getProfile,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-};
-
-export const useUpdateUserProfile = () => {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-  
-  return useMutation({
-    mutationFn: UserService.updateProfile,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
-      toast({
-        title: "Profil mis à jour",
-        description: "Vos informations personnelles ont été mises à jour avec succès.",
-        variant: "default",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Erreur",
-        description: handleApiError(error),
-        variant: "destructive",
+    queryFn: async (): Promise<Event[]> => {
+      // TODO: Remplacer par un appel API réel
+      return new Promise((resolve) => {
+        setTimeout(() => resolve(mockEvents), 500);
       });
     }
   });
-};
-
-export const useChangePassword = () => {
-  const { toast } = useToast();
-  
-  return useMutation({
-    mutationFn: UserService.changePassword,
-    onSuccess: () => {
-      toast({
-        title: "Mot de passe modifié",
-        description: "Votre mot de passe a été changé avec succès.",
-        variant: "default",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Erreur",
-        description: handleApiError(error),
-        variant: "destructive",
-      });
-    }
-  });
-};
-
-export const useUserCourses = () => {
-  return useQuery({
-    queryKey: ['user', 'courses'],
-    queryFn: UserService.getUserCourses,
-    staleTime: 5 * 60 * 1000,
-  });
-};
-
-export const useUserCertificates = () => {
-  return useQuery({
-    queryKey: ['user', 'certificates'],
-    queryFn: UserService.getUserCertificates,
-    staleTime: 5 * 60 * 1000,
-  });
-};
-
-// ===== LIBRARY HOOKS =====
-export const useLibraryResources = () => {
-  return useQuery({
-    queryKey: ['library', 'resources'],
-    queryFn: LibraryService.getAllResources,
-    staleTime: 5 * 60 * 1000,
-  });
-};
-
-export const useLibrarySearch = (query: string) => {
-  return useQuery({
-    queryKey: ['library', 'search', query],
-    queryFn: () => LibraryService.searchResources(query),
-    enabled: !!query && query.length > 2,
-    staleTime: 2 * 60 * 1000,
-  });
-};
-
-export const useLibraryByCategory = (category: string) => {
-  return useQuery({
-    queryKey: ['library', 'category', category],
-    queryFn: () => LibraryService.getByCategory(category),
-    enabled: !!category,
-    staleTime: 5 * 60 * 1000,
-  });
-};
-
-// ===== LOADING AND ERROR HELPERS =====
-export const useApiStatus = () => {
-  const isOnline = navigator.onLine;
-  
-  return {
-    isOnline,
-    apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
-    isConfigured: !!import.meta.env.VITE_API_BASE_URL,
-  };
 };
 
 /**
- * Hook API général pour conserver la compatibilité avec le code existant
- * Fournit des méthodes de base pour les requêtes HTTP
+ * Hook pour récupérer les événements à venir
  */
-export const useApi = () => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const get = async (url: string, params?: Record<string, any>) => {
-    try {
-      // Construction de l'URL avec paramètres si nécessaire
-      const queryParams = params 
-        ? '?' + new URLSearchParams(params as Record<string, string>).toString() 
-        : '';
-      
-      const response = await fetch(`${url}${queryParams}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+export const useUpcomingEvents = () => {
+  return useQuery({
+    queryKey: ['upcomingEvents'],
+    queryFn: async (): Promise<Event[]> => {
+      // TODO: Remplacer par un appel API réel
+      const now = new Date();
+      const upcomingEvents = mockEvents.filter(event => 
+        new Date(event.startDate) > now && event.isPublished
+      );
+      return new Promise((resolve) => {
+        setTimeout(() => resolve(upcomingEvents), 500);
       });
-      
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-      
-      return await response.json();
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: handleApiError(error as Error),
-        variant: "destructive",
-      });
-      throw error;
     }
-  };
+  });
+};
 
-  const post = async (url: string, data: any) => {
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+/**
+ * Hook pour récupérer les éléments de galerie
+ */
+export const useGallery = () => {
+  return useQuery({
+    queryKey: ['gallery'],
+    queryFn: async (): Promise<GalleryItem[]> => {
+      // TODO: Remplacer par un appel API réel
+      return new Promise((resolve) => {
+        setTimeout(() => resolve(mockGalleryItems), 500);
       });
-      
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-      
-      return await response.json();
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: handleApiError(error as Error),
-        variant: "destructive",
-      });
-      throw error;
     }
-  };
+  });
+};
 
-  const put = async (url: string, data: any) => {
-    try {
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+/**
+ * Hook pour récupérer les ressources de bibliothèque
+ */
+export const useLibraryResources = () => {
+  return useQuery({
+    queryKey: ['libraryResources'],
+    queryFn: async (): Promise<LibraryResource[]> => {
+      // TODO: Remplacer par un appel API réel
+      return new Promise((resolve) => {
+        setTimeout(() => resolve(mockLibraryResources), 500);
       });
-      
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-      
-      return await response.json();
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: handleApiError(error as Error),
-        variant: "destructive",
-      });
-      throw error;
     }
-  };
+  });
+};
 
-  const del = async (url: string) => {
-    try {
-      const response = await fetch(url, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+/**
+ * Hook pour récupérer les machines FabLab
+ */
+export const useFablabMachines = () => {
+  return useQuery({
+    queryKey: ['fablabMachines'],
+    queryFn: async () => {
+      // TODO: Remplacer par un appel API réel
+      return new Promise((resolve) => {
+        setTimeout(() => resolve([]), 500);
       });
-      
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-      
-      return await response.json();
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: handleApiError(error as Error),
-        variant: "destructive",
-      });
-      throw error;
     }
-  };
+  });
+};
 
-  const invalidateQueries = (queryKey: string | string[]) => {
-    queryClient.invalidateQueries({ queryKey: Array.isArray(queryKey) ? queryKey : [queryKey] });
-  };
+/**
+ * Hook pour récupérer les réservations FabLab
+ */
+export const useFablabReservations = () => {
+  return useQuery({
+    queryKey: ['fablabReservations'],
+    queryFn: async () => {
+      // TODO: Remplacer par un appel API réel
+      return new Promise((resolve) => {
+        setTimeout(() => resolve([]), 500);
+      });
+    }
+  });
+};
 
-  return {
-    get,
-    post,
-    put,
-    delete: del, // 'delete' est un mot réservé en JS
-    invalidateQueries,
-  };
+/**
+ * Hook pour récupérer toutes les formations ouvertes
+ */
+export const useOpenFormations = () => {
+  return useQuery({
+    queryKey: ['openFormations'],
+    queryFn: async (): Promise<OpenFormation[]> => {
+      // TODO: Remplacer par un appel API réel
+      return new Promise((resolve) => {
+        setTimeout(() => resolve(mockOpenFormations), 500);
+      });
+    }
+  });
+};
+
+/**
+ * Hook pour récupérer tous les projets FabLab
+ */
+export const useFablabProjects = () => {
+  return useQuery({
+    queryKey: ['fablabProjects'],
+    queryFn: async (): Promise<FablabProject[]> => {
+      // TODO: Remplacer par un appel API réel
+      return new Promise((resolve) => {
+        setTimeout(() => resolve(mockFablabProjects), 500);
+      });
+    }
+  });
+};
+
+/**
+ * Hook pour récupérer toutes les inscriptions aux formations
+ */
+export const useFormationRegistrations = () => {
+  return useQuery({
+    queryKey: ['formationRegistrations'],
+    queryFn: async (): Promise<FormationRegistration[]> => {
+      // TODO: Remplacer par un appel API réel
+      const mockRegistrations: FormationRegistration[] = [
+        {
+          id: '1',
+          firstName: 'Marie',
+          lastName: 'Kouassi',
+          email: 'marie.kouassi@email.com',
+          phone: '+229 90 12 34 56',
+          profession: 'Étudiante',
+          experience: '2 ans en marketing',
+          motivation: 'Je souhaite améliorer mes compétences en anglais pour mes études à l\'étranger.',
+          paymentMethod: 'mobile_money',
+          paymentReference: 'OM123456789',
+          status: 'PENDING',
+          submittedAt: '2024-03-01T10:00:00Z',
+          formationId: '1'
+        },
+        {
+          id: '2',
+          firstName: 'Jean',
+          lastName: 'Baptiste',
+          email: 'jean.baptiste@email.com',
+          phone: '+229 91 23 45 67',
+          profession: 'Retraité',
+          motivation: 'Je veux apprendre l\'informatique pour rester connecté avec ma famille.',
+          paymentMethod: 'bank_transfer',
+          paymentReference: 'VIR987654321',
+          status: 'APPROVED',
+          submittedAt: '2024-02-28T14:30:00Z',
+          reviewedAt: '2024-03-01T09:00:00Z',
+          formationId: '2'
+        }
+      ];
+      return new Promise((resolve) => {
+        setTimeout(() => resolve(mockRegistrations), 500);
+      });
+    }
+  });
+};
+
+/**
+ * Hook pour récupérer toutes les candidatures universitaires
+ */
+export const useUniversityApplications = () => {
+  return useQuery({
+    queryKey: ['universityApplications'],
+    queryFn: async (): Promise<UniversityApplication[]> => {
+      // TODO: Remplacer par un appel API réel
+      const mockApplications: UniversityApplication[] = [
+        {
+          id: '1',
+          programId: 'prog-1',
+          academicYearId: 'year-1',
+          firstName: 'Koffi',
+          lastName: 'Zinsou',
+          email: 'koffi.zinsou@email.com',
+          phone: '+229 92 34 56 78',
+          dateOfBirth: '2000-05-15',
+          placeOfBirth: 'Cotonou',
+          nationality: 'Béninoise',
+          address: 'Cotonou, Bénin',
+          lastDiploma: 'Baccalauréat série C',
+          lastSchool: 'Lycée Mathieu Bouké',
+          graduationYear: 2023,
+          parentName: 'Mme Zinsou Rosine',
+          parentPhone: '+229 91 11 22 33',
+          motivation: 'Je souhaite devenir développeur logiciel pour contribuer au développement technologique de l\'Afrique.',
+          status: 'PENDING',
+          submittedAt: '2024-03-05T16:20:00Z'
+        }
+      ];
+      return new Promise((resolve) => {
+        setTimeout(() => resolve(mockApplications), 500);
+      });
+    }
+  });
 };

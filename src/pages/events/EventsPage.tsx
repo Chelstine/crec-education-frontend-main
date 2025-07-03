@@ -3,43 +3,114 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Calendar, MapPin, Clock, Users } from "lucide-react";
 import { motion } from "framer-motion";
-
-const events = [
-	{
-		id: 1,
-		title: "Journée Portes Ouvertes",
-		date: "2024-04-15",
-		time: "10:00 - 17:00",
-		location: "Campus Principal",
-		description: "Découvrez nos formations et rencontrez nos équipes pédagogiques",
-		type: "upcoming",
-		image: "/img/events/open-day.jpg",
-	},
-	{
-		id: 2,
-		title: "Conférence sur l'IA",
-		date: "2024-04-20",
-		time: "14:00 - 16:00",
-		location: "Amphithéâtre A",
-		description: "Les dernières avancées en Intelligence Artificielle",
-		type: "upcoming",
-		image: "/img/events/ai-conference.jpg",
-	},
-	{
-		id: 3,
-		title: "Workshop Web Development",
-		date: "2024-03-15",
-		time: "09:00 - 17:00",
-		location: "Salle Informatique",
-		description: "Apprenez les bases du développement web moderne",
-		type: "past",
-		image: "/img/events/web-workshop.jpg",
-	},
-];
+import { useEvents, useUpcomingEvents } from "@/hooks/useApi";
+import { Event } from "@/types";
 
 const EventsPage = () => {
-	const upcomingEvents = events.filter((event) => event.type === "upcoming");
-	const pastEvents = events.filter((event) => event.type === "past");
+  // TODO: Une fois le backend prêt, utiliser les vrais hooks
+  const { data: eventsData, isLoading } = useEvents();
+  const { data: upcomingEventsData } = useUpcomingEvents();
+  
+  // Données mockées temporaires (à supprimer une fois le backend connecté)
+  const mockEvents: Event[] = [
+    {
+      id: "1",
+      title: "Journée Portes Ouvertes",
+      description: "Découvrez nos formations et rencontrez nos équipes pédagogiques",
+      longDescription: "Une journée complète pour découvrir tous nos programmes, rencontrer nos équipes et visiter nos installations.",
+      eventType: "OPEN_DAY",
+      startDate: "2024-04-15T10:00:00Z",
+      endDate: "2024-04-15T17:00:00Z",
+      location: "Campus Principal",
+      address: "123 Avenue de l'Education, Cotonou",
+      image: "/img/events/open-day.jpg",
+      maxParticipants: 200,
+      currentParticipants: 45,
+      registrationRequired: true,
+      registrationDeadline: "2024-04-10T23:59:59Z",
+      isPublished: true,
+      isFeatured: true,
+      createdAt: "2024-03-01T10:00:00Z",
+      updatedAt: "2024-03-15T14:30:00Z"
+    },
+    {
+      id: "2", 
+      title: "Conférence sur l'IA",
+      description: "Les dernières avancées en Intelligence Artificielle",
+      longDescription: "Conférence animée par des experts du domaine sur les dernières innovations en IA et leurs applications pratiques.",
+      eventType: "CONFERENCE",
+      startDate: "2024-04-20T14:00:00Z",
+      endDate: "2024-04-20T16:00:00Z",
+      location: "Amphithéâtre A",
+      address: "Campus Principal",
+      image: "/img/events/ai-conference.jpg",
+      maxParticipants: 100,
+      currentParticipants: 78,
+      registrationRequired: true,
+      isPublished: true,
+      isFeatured: false,
+      createdAt: "2024-03-10T10:00:00Z",
+      updatedAt: "2024-03-20T16:00:00Z"
+    }
+  ];
+  
+  // Utiliser les données de l'API si disponibles, sinon les données mockées
+  const events: Event[] = Array.isArray(eventsData) && eventsData.every(
+	(e: any) =>
+	  "id" in e &&
+	  "title" in e &&
+	  "description" in e &&
+	  "eventType" in e &&
+	  "startDate" in e &&
+	  "endDate" in e &&
+	  "location" in e &&
+	  "image" in e &&
+	  "maxParticipants" in e &&
+	  "currentParticipants" in e &&
+	  "registrationRequired" in e &&
+	  "isPublished" in e &&
+	  "createdAt" in e &&
+	  "updatedAt" in e
+  )
+	? (eventsData as unknown as Event[])
+	: mockEvents;
+  const upcomingEvents = events.filter(event => new Date(event.startDate) > new Date());
+  const pastEvents = events.filter(event => new Date(event.startDate) <= new Date());
+
+  // Helper pour formater les dates
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
+  const formatTime = (startDate: string, endDate?: string) => {
+    const start = new Date(startDate).toLocaleTimeString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    if (endDate) {
+      const end = new Date(endDate).toLocaleTimeString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      return `${start} - ${end}`;
+    }
+    return start;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-crec-blue mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement des événements...</p>
+        </div>
+      </div>
+    );
+  }
 
 	return (
 		<div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-50 to-white">
@@ -122,11 +193,11 @@ const EventsPage = () => {
 									<div className="space-y-2 mb-6">
 										<div className="flex items-center text-sm text-gray-500">
 											<Calendar className="w-4 h-4 mr-2" />
-											<span>{new Date(event.date).toLocaleDateString()}</span>
+											<span>{formatDate(event.startDate)}</span>
 										</div>
 										<div className="flex items-center text-sm text-gray-500">
 											<Clock className="w-4 h-4 mr-2" />
-											<span>{event.time}</span>
+											<span>{formatTime(event.startDate, event.endDate)}</span>
 										</div>
 										<div className="flex items-center text-sm text-gray-500">
 											<MapPin className="w-4 h-4 mr-2" />
@@ -168,11 +239,11 @@ const EventsPage = () => {
 									<div className="space-y-2 mb-6">
 										<div className="flex items-center text-sm text-gray-500">
 											<Calendar className="w-4 h-4 mr-2" />
-											<span>{new Date(event.date).toLocaleDateString()}</span>
+											<span>{formatDate(event.startDate)}</span>
 										</div>
 										<div className="flex items-center text-sm text-gray-500">
 											<Clock className="w-4 h-4 mr-2" />
-											<span>{event.time}</span>
+											<span>{formatTime(event.startDate, event.endDate)}</span>
 										</div>
 										<div className="flex items-center text-sm text-gray-500">
 											<MapPin className="w-4 h-4 mr-2" />

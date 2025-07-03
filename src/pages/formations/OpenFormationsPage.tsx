@@ -41,102 +41,47 @@ import {
   CheckCircle,
   Star
 } from "lucide-react";
+import { OpenFormation } from "@/types";
+import { useOpenFormations } from "@/hooks/useApi";
 
-// Type for a formation item, enforcing iconComponent is a React component type
-interface Formation {
-  id: number;
-  title: string;
-  iconComponent: React.ComponentType<{ className?: string }>;
-  description: string;
-  features: string[];
-  duration: string;
-  level: string;
-  price: string;
-  certificate: boolean;
-}
+// Fonction pour déterminer l'icône en fonction du titre
+const getFormationIcon = (title: string) => {
+  if (title.toLowerCase().includes('langue')) return Globe;
+  if (title.toLowerCase().includes('informatique')) return Computer;
+  if (title.toLowerCase().includes('accompagnement')) return HeartHandshake;
+  if (title.toLowerCase().includes('entrepreneuriat')) return GraduationCap;
+  return BookOpen;
+};
 
 const OpenFormationsPage = () => {
-  const formations: Formation[] = [
-    {
-      id: 1,
-      title: "Formations en Langues",
-      iconComponent: Globe,
-      description: "Maîtrisez l'anglais et le français avec nos cours adaptés à tous les niveaux",
-      features: [
-        "Cours d'anglais général et professionnel",
-        "Préparation aux tests TOEFL, IELTS, TCF",
-        "Français pour étrangers (FLE)",
-        "Conversation et prononciation"
-      ],
-      duration: "3-6 mois",
-      level: "Débutant à Avancé",
-      price: "À partir de 15,000 FCFA",
-      certificate: true
-    },
-    {
-      id: 2,
-      title: "Informatique de Base",
-      iconComponent: Computer,
-      description: "Initiez-vous à l'informatique et aux outils numériques essentiels",
-      features: [
-        "Utilisation de l'ordinateur (Windows, Mac)",
-        "Bureautique (Word, Excel, PowerPoint)",
-        "Navigation internet et email",
-        "Réseaux sociaux et sécurité numérique"
-      ],
-      duration: "2-4 mois",
-      level: "Débutant",
-      price: "À partir de 20,000 FCFA",
-      certificate: true
-    },
-    {
-      id: 3,
-      title: "Accompagnement Scolaire",
-      iconComponent: HeartHandshake,
-      description: "Soutien scolaire personnalisé pour tous les niveaux",
-      features: [
-        "Cours de soutien toutes matières",
-        "Préparation aux examens officiels",
-        "Méthodologie et techniques d'étude",
-        "Encadrement personnalisé"
-      ],
-      duration: "Toute l'année",
-      level: "Primaire à Universitaire",
-      price: "À partir de 10,000 FCFA",
-      certificate: false
-    },
-    {
-      id: 4,
-      title: "Entrepreneuriat",
-      iconComponent: GraduationCap,
-      description: "Développez vos compétences entrepreneuriales et créez votre entreprise",
-      features: [
-        "Élaboration de business plan",
-        "Gestion financière et comptabilité",
-        "Marketing et communication",
-        "Accompagnement post-formation"
-      ],
-      duration: "4-6 mois",
-      level: "Tous niveaux",
-      price: "À partir de 25,000 FCFA",
-      certificate: true
-    }
-  ];
+  const { data: formations = [], isLoading, error } = useOpenFormations();
 
-  const testimonials = [
-    {
-      name: "Marie Kouassi",
-      formation: "Anglais TOEFL",
-      comment: "Grâce au CREC, j'ai obtenu mon score TOEFL et je peux maintenant étudier au Canada !",
-      score: "Score TOEFL: 98/120"
-    },
-    {
-      name: "Jean Baptiste",
-      formation: "Informatique",
-      comment: "À 55 ans, je pensais qu'il était trop tard. Maintenant je maîtrise Excel et j'aide ma famille.",
-      score: "Certification obtenue"
-    }
-  ];
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-crec-gold mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement des formations...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Erreur lors du chargement des formations</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-crec-gold text-white rounded hover:bg-crec-gold/90"
+          >
+            Réessayer
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <ErrorBoundary>
@@ -294,71 +239,77 @@ const OpenFormationsPage = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {formations.map((formation, index) => (
-              <motion.div
-                key={formation.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-              >
-                <Card className="h-full hover:shadow-lg transition-shadow border-0 shadow-md overflow-hidden">
-                  <div className="bg-gradient-to-r from-blue-600 to-blue-400 h-2"></div>
-                  <CardHeader className="bg-blue-50">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="p-3 rounded-full bg-white/80 shadow-sm">
-                        <formation.iconComponent className="w-8 h-8 text-crec-gold" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-xl text-crec-darkblue">{formation.title}</CardTitle>
-                        <div className="flex items-center flex-wrap gap-2 mt-2">
-                          <Badge variant="outline" className="bg-white/80">{formation.level}</Badge>
-                          <Badge variant="outline" className="bg-white/80">{formation.duration}</Badge>
-                          {formation.certificate && (
+            {formations.map((formation, index) => {
+              const IconComponent = getFormationIcon(formation.title);
+              return (
+                <motion.div
+                  key={formation.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                >
+                  <Card className="h-full hover:shadow-lg transition-shadow border-0 shadow-md overflow-hidden">
+                    <div className="bg-gradient-to-r from-blue-600 to-blue-400 h-2"></div>
+                    <CardHeader className="bg-blue-50">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="p-3 rounded-full bg-white/80 shadow-sm">
+                          <IconComponent className="w-8 h-8 text-crec-gold" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-xl text-crec-darkblue">{formation.title}</CardTitle>
+                          <div className="flex items-center flex-wrap gap-2 mt-2">
+                            <Badge variant="outline" className="bg-white/80">{formation.duration}</Badge>
+                            <Badge variant="outline" className="bg-white/80">{formation.maxParticipants} places</Badge>
                             <Badge className="bg-crec-gold hover:bg-crec-gold/90 text-white">
                               <Award className="w-3 h-3 mr-1" />
                               Certificat
                             </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-gray-600">{formation.description}</p>
-                  </CardHeader>
-                  <CardContent className="pt-6">
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="font-semibold text-crec-darkblue mb-2">Programme :</h4>
-                        <ul className="space-y-1">
-                          {formation.features.map((feature, idx) => (
-                            <li key={idx} className="flex items-start gap-2 text-sm text-gray-600">
-                              <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                              {feature}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className="flex items-center justify-between pt-4 border-t">
-                        <span className="text-lg font-bold text-crec-gold">{formation.price}</span>
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-2 text-sm text-gray-500 mr-2">
-                            <MapPin className="w-4 h-4" />
-                            CREC Cotonou
                           </div>
-                          <Link 
-                            to="/formations/ouvertes/inscription"
-                            className="px-3 py-1.5 text-xs font-medium text-white bg-crec-darkblue rounded-md hover:bg-crec-gold transition-colors flex items-center"
-                          >
-                            <FileText className="w-3 h-3 mr-1" />
-                            S'inscrire
-                          </Link>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                      <p className="text-gray-600">{formation.description}</p>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="font-semibold text-crec-darkblue mb-2">Programme :</h4>
+                          <ul className="space-y-1">
+                            {formation.syllabus.map((item, idx) => (
+                              <li key={idx} className="flex items-start gap-2 text-sm text-gray-600">
+                                <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        {formation.prerequisites && (
+                          <div className="text-sm text-gray-600">
+                            <strong>Prérequis :</strong> {formation.prerequisites}
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between pt-4 border-t">
+                          <span className="text-lg font-bold text-crec-gold">{formation.price.toLocaleString()} FCFA</span>
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 text-sm text-gray-500 mr-2">
+                              <MapPin className="w-4 h-4" />
+                              CREC Cotonou
+                            </div>
+                            <Link 
+                              to="/formations/ouvertes/inscription"
+                              className="px-3 py-1.5 text-xs font-medium text-white bg-crec-darkblue rounded-md hover:bg-crec-gold transition-colors flex items-center"
+                            >
+                              <FileText className="w-3 h-3 mr-1" />
+                              S'inscrire
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>

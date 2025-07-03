@@ -29,6 +29,21 @@ export interface FablabMachine {
   updatedAt?: string;
 }
 
+export interface FablabProject {
+  id: string;
+  title: string;
+  description: string;
+  category: string; // "Prototypage", "Art numérique", etc.
+  difficulty: string; // "Débutant", "Intermédiaire", "Avancé"
+  duration: string; // "2 heures", "1 journée", etc.
+  instructions: string;
+  materialsNeeded: string[];
+  imageUrl?: string;
+  isPublished: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface FablabReservation {
   id: string;
   subscriptionId?: string;
@@ -73,6 +88,10 @@ export interface SubscriptionUsageReport {
     totalHours: number; 
     sessionsCount: number 
   };
+  // Nouvelles propriétés pour les limites
+  maxHoursPerMonth: number; // Limite selon l'abonnement
+  hoursLeft: number; // Heures restantes ce mois
+  // Compatibilité ancienne API
   used?: number;
   total?: number;
 }
@@ -265,9 +284,39 @@ export interface DonationForm {
 export interface Event {
   id: string;
   title: string;
-  date: string;
+  description: string;
+  longDescription?: string;
+  eventType: 'CONFERENCE' | 'WORKSHOP' | 'SEMINAR' | 'OPEN_DAY' | 'GRADUATION' | 'OTHER';
+  
+  // Dates et lieu
+  startDate: string; // DateTime
+  endDate?: string; // DateTime
   location: string;
-  status: string;
+  address?: string;
+  
+  // Contenu
+  image?: string;
+  gallery?: string[]; // URLs des images de galerie
+  
+  // Participants
+  maxParticipants?: number;
+  currentParticipants: number;
+  registrationRequired: boolean;
+  registrationDeadline?: string; // DateTime
+  
+  // Organisateurs/Intervenants  
+  speakers?: any[]; // Array d'objets {name, role, image, bio}
+  schedule?: any[]; // Array d'objets {time, title, description}
+  
+  // Publication
+  isPublished: boolean;
+  isFeatured: boolean;
+  
+  // Métadonnées
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: string;
+  creator?: User;
 }
 
 export interface Article {
@@ -276,6 +325,26 @@ export interface Article {
   date: string;
   content: string;
   imageUrl?: string;
+}
+
+/**
+ * Type pour les éléments de galerie - conforme au schéma Prisma
+ */
+export interface GalleryItem {
+  id: string;
+  title: string;
+  description?: string;
+  imageUrl: string;
+  category: string;
+  tags: string[];
+  photographer?: string;
+  location?: string;
+  captureDate?: string;
+  isPublished: boolean;
+  isFeatured: boolean;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Testimonial {
@@ -289,7 +358,8 @@ export interface Testimonial {
 /**
  * Type pour les méthodes de paiement
  */
-export type PaymentMethod = 'mobile_money' | 'bank_transfer' | 'card' | 'cash' | 'offline';
+// Types d'énumération pour les paiements (unifié)
+export type PaymentMethod = 'CASH' | 'TRANSFER' | 'MOBILE_MONEY' | 'CARD' | 'mobile_money' | 'bank_transfer' | 'card' | 'cash' | 'offline';
 
 /**
  * Type pour les documents requis dans les formations et programmes
@@ -308,12 +378,15 @@ export interface DocumentType {
 /**
  * Type pour les programmes universitaires
  */
+/**
+ * Type pour les programmes universitaires - conforme au schéma Prisma
+ */
 export interface UniversityProgram {
   id: string;
   name: string;
   title: string;
   description: string;
-  longDescription: string;
+  longDescription?: string;
   duration: string;
   degree: string;
   level: string;
@@ -352,34 +425,53 @@ export interface SubmittedDocument {
 }
 
 /**
- * Type pour les candidatures aux programmes universitaires
+ * Type pour les candidatures aux programmes universitaires - conforme au schéma Prisma
  */
 export interface UniversityApplication {
   id?: string;
+  
+  // Informations personnelles
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  dateOfBirth: string;
+  placeOfBirth: string;
+  nationality: string;
+  address: string;
+  
+  // Informations académiques
+  lastDiploma: string;
+  lastSchool: string;
+  graduationYear: number;
+  averageGrade?: number;
+  
+  // Informations parents/tuteurs
+  parentName?: string;
+  parentPhone?: string;
+  parentEmail?: string;
+  
+  // Documents (URLs des fichiers uploadés)
+  photoUrl?: string;
+  cvUrl?: string;
+  diplomaUrl?: string;
+  transcriptUrl?: string;
+  birthCertificateUrl?: string;
+  paymentReceiptUrl?: string;
+  
+  // Motivation et divers
+  motivation: string;
+  
+  // Statut et métadonnées
+  status: ApplicationStatus;
+  submittedAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  rejectionReason?: string;
+  
+  // Relations
   programId: string;
-  applicantName: string;
-  applicantEmail: string;
-  applicantPhone: string;
-  dateOfBirth?: string;
-  nationality?: string;
-  gender?: 'M' | 'F' | 'other';
-  city?: string;
-  address?: string;
-  country?: string;
-  previousInstitution?: string;
-  previousDegree?: string;
-  graduationYear?: string;
-  documents: SubmittedDocument[];
-  status: 'draft' | 'submitted' | 'pending' | 'approved' | 'rejected';
-  applicationDate: string;
-  inscriptionFeeStatus: 'pending' | 'paid' | 'waived';
-  inscriptionFeeAmount: number;
-  paymentMethod: PaymentMethod;
-  paymentReference?: string;
-  notes?: string;
-  emailsSent: string[];
-  createdAt: string;
-  updatedAt: string;
+  academicYearId: string;
 }
 
 /**
@@ -419,34 +511,72 @@ export interface FormationInscription {
  */
 export interface FablabSubscription {
   id: string;
+  userId?: string;
+  user?: User;
+  
+  // Informations personnelles
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  profession?: string;
+  
+  // Type d'abonnement avec limites
+  subscriptionType: 'MONTHLY' | 'QUARTERLY' | 'YEARLY' | 'STUDENT';
+  duration: number; // Durée en mois
+  price: number; // Prix en FCFA
+  maxHoursPerMonth: number; // Limite d'heures par mois selon le plan
+  
+  // Dates
+  startDate: string;
+  endDate: string;
+  
+  // Paiement
+  paymentMethod: string;
+  paymentReference?: string;
+  subscriptionKey: string; // Clé d'accès générée
+  
+  // Statut
+  status: 'PENDING' | 'APPROVED' | 'ACTIVE' | 'EXPIRED' | 'CANCELLED' | 'SUSPENDED';
+  isActive: boolean;
+  
+  // Métadonnées
+  createdAt: string;
+  updatedAt: string;
+  
+  // Données héritage (pour compatibilité)
   workshopId?: string;
   workshopTitle?: string;
   workshop?: string;
   name?: string;
   applicantName?: string;
-  email?: string;
   applicantEmail?: string;
   phoneNumber?: string;
   applicantPhone?: string;
-  subscriptionType?: 'workshop' | 'monthly' | 'quarterly' | 'yearly';
   experience?: 'debutant' | 'intermediaire' | 'avance';
   motivation?: string;
-  paymentMethod: PaymentMethod;
-  paymentReference?: string;
   paymentReceiptUrl?: string;
   paymentProofUrl?: string;
-  paymentStatus: 'pending' | 'paid' | 'failed';
-  status: 'pending' | 'approved' | 'rejected';
+  paymentStatus?: 'pending' | 'paid' | 'failed';
   documents?: SubmittedDocument[];
-  emailsSent: string[];
+  emailsSent?: string[];
   accessKey?: string; // Clé d'accès générée après validation
   accessKeyExpiry?: string; // Date d'expiration de la clé
   adminNotes?: string;
   notes?: string;
   emailSent?: boolean;
   emailContent?: string;
-  startDate?: string;
-  endDate?: string;
+}
+
+// Nouveau type pour le rapport d'usage mensuel
+export interface FablabUsageReport {
+  id: string;
+  subscriptionId: string;
+  year: number;
+  month: number;
+  hoursUsed: number;
+  sessionsCount: number;
+  lastReservation?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -473,4 +603,117 @@ export interface EmailConfig {
   replyTo: string;
   footerText: string;
   logo?: string;
+}
+
+/**
+ * Types d'énumération pour les statuts
+ */
+export type ContentStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
+
+export type ApplicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+
+export type SubscriptionStatus = 'PENDING' | 'ACTIVE' | 'EXPIRED' | 'CANCELLED';
+
+export type SubscriptionType = 'BASIC' | 'PREMIUM' | 'ENTERPRISE';
+
+export type ProgramType = 'LICENCE' | 'MASTER' | 'DOCTORAT';
+
+/**
+ * Types pour les formations ouvertes
+ */
+export interface OpenFormation {
+  id: string;
+  title: string;
+  description: string;
+  longDescription?: string;
+  image?: string;
+  duration: string; // "3 mois", "6 semaines", etc.
+  price: number; // En FCFA
+  maxParticipants: number;
+  startDate?: string;
+  endDate?: string;
+  schedule?: string; // "Lundi-Vendredi 9h-12h"
+  prerequisites?: string;
+  syllabus: string[]; // Contenu du programme
+  instructor?: string;
+  status: ContentStatus;
+  createdAt: string;
+  updatedAt: string;
+  registrations?: FormationRegistration[];
+}
+
+export interface FormationRegistration {
+  id: string;
+  // Informations personnelles
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  profession?: string;
+  experience?: string;
+  motivation: string;
+  // Paiement
+  paymentMethod?: string;
+  paymentReference?: string;
+  paymentReceiptUrl?: string;
+  // Statut et métadonnées
+  status: ApplicationStatus;
+  submittedAt: string;
+  reviewedAt?: string;
+  // Relations
+  formationId: string;
+  formation?: OpenFormation;
+}
+
+/**
+ * Type pour les années académiques - conforme au schéma Prisma
+ */
+export interface AcademicYear {
+  id: string;
+  year: string; // ex: "2024-2025"
+  inscriptionStartDate: string;
+  inscriptionEndDate: string;
+  academicStartDate: string;
+  academicEndDate: string;
+  isActive: boolean;
+  maxPlacesPerProgram: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Enum pour les types de ressources de bibliothèque
+ */
+export type ResourceType = 'BOOK' | 'ARTICLE' | 'VIDEO' | 'AUDIO' | 'DOCUMENT' | 'RESEARCH';
+
+/**
+ * Type pour les ressources de bibliothèque
+ */
+export interface LibraryResource {
+  id: string;
+  title: string;
+  author: string;
+  description: string;
+  category: string; // "Philosophie", "Sciences", "Histoire", etc.
+  type: ResourceType;
+  
+  // Publication
+  publisher?: string;
+  publicationYear?: number;
+  isbn?: string;
+  
+  // Fichiers
+  coverImage?: string;
+  pdfUrl?: string;
+  downloadUrl?: string;
+  readOnlineUrl?: string;
+  
+  // Disponibilité
+  isAvailable: boolean;
+  isDigital: boolean;
+  
+  // Métadonnées
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: string;
 }

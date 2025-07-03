@@ -65,40 +65,57 @@ export const ContactService = {
 // Service pour les formations
 export const FormationService = {
   getAll: async () => {
-    return {
-      data: [
-        { id: '1', title: 'Formation Web', duration: '3 mois', price: 150000, status: 'active' },
-        { id: '2', title: 'Formation Design', duration: '2 mois', price: 120000, status: 'active' }
-      ]
-    };
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('GET', '/formations');
+    throw new Error('Backend not connected yet - use openFormations endpoints');
   },
-  getById: async (id: string) => {
-    return { data: { id, title: `Formation ${id}`, duration: '3 mois', price: 150000, status: 'active' } };
-  },
-  create: async (data: any) => {
-    return { data: { ...data, id: Date.now().toString() } };
-  },
-  update: async (id: string, data: any) => {
-    return { data: { ...data, id } };
-  },
-  delete: async (id: string) => {
-    return { data: { success: true } };
-  },
+  
   getOpenFormations: async () => {
-    return { data: [
-      { id: '1', title: 'Formation Web', duration: '3 mois', price: 150000, status: 'active' }
-    ] };
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('GET', '/formations/open');
+    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open');
   },
+  
+  getById: async (id: string) => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('GET', `/formations/open/${id}`);
+    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open/${id}');
+  },
+  
+  create: async (data: any) => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('POST', '/formations/open', data);
+    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open');
+  },
+  
+  update: async (id: string, data: any) => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('PUT', `/formations/open/${id}`, data);
+    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open/${id}');
+  },
+  
+  delete: async (id: string) => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('DELETE', `/formations/open/${id}`);
+    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open/${id}');
+  },
+  
   getUniversity: async () => {
-    return { data: [
-      { id: '1', title: 'Licence Informatique', duration: '3 ans', price: 350000, status: 'active' }
-    ] };
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('GET', '/programs/university');
+    throw new Error('Backend not connected yet - TODO: connect to /api/programs/university');
   },
+  
   submitInscription: async (data: any) => {
-    return { data: { ...data, id: Date.now().toString(), status: 'en attente' } };
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('POST', '/formations/registrations', data);
+    throw new Error('Backend not connected yet - TODO: connect to /api/formations/registrations');
   },
+  
   submitUniversityApplication: async (data: any) => {
-    return { data: { ...data, id: Date.now().toString(), status: 'en attente' } };
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('POST', '/programs/university/applications', data);
+    throw new Error('Backend not connected yet - TODO: connect to /api/programs/university/applications');
   },
 };
 
@@ -227,60 +244,218 @@ export const AuthService = {
 // Services spécifiques au FabLab
 export const FablabSubscriptionService = {
   getAll: async () => {
-    return {
-      data: [
-        { id: '1', name: 'Abonnement Basique', price: 50000, duration: '1 mois', features: ['Accès aux machines basiques'] },
-        { id: '2', name: 'Abonnement Premium', price: 150000, duration: '3 mois', features: ['Accès à toutes les machines', 'Formation incluse'] }
-      ]
-    };
+    // TODO: Remplacer par l'appel API réel au backend
+    const response = await fetch('/api/fablab/subscription-plans');
+    return response.json();
   },
   subscribe: async (data: any) => {
-    return { data: { ...data, id: Date.now().toString(), status: 'active' } };
+    // TODO: Remplacer par l'appel API réel au backend
+    const response = await fetch('/api/fablab/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return response.json();
   },
   getAllSubscriptions: async () => {
-    return { data: [
-      { id: '1', name: 'Abonnement Basique', price: 50000, duration: '1 mois', features: ['Accès aux machines basiques'] }
-    ] };
+    // TODO: Remplacer par l'appel API réel au backend
+    const response = await fetch('/api/fablab/subscriptions', {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    return response.json();
   },
   createSubscription: async (data: any) => {
-    return { data: { ...data, subscriptionKey: 'ABC123' } };
+    // TODO: Remplacer par l'appel API réel au backend
+    const response = await fetch('/api/fablab/subscriptions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return response.json();
   },
   verifySubscription: async (name: string, subscriptionKey: string) => {
-    if (subscriptionKey === 'ABC123') return { data: { valid: true } };
-    throw new Error('Clé invalide');
+    // TODO: Remplacer par l'appel API réel au backend
+    const response = await fetch('/api/fablab/verify-subscription', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, subscriptionKey })
+    });
+    if (!response.ok) throw new Error('Clé invalide');
+    return response.json();
   },
   getUsageReport: async (subscriptionId: string) => {
-    return { data: { used: 5, total: 10 } };
+    // TODO: Remplacer par l'appel API réel au backend
+    const response = await fetch(`/api/fablab/subscriptions/${subscriptionId}/usage`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    return response.json();
   },
+  canMakeReservation: async (subscriptionId: string, requestedHours: number) => {
+    // TODO: Remplacer par l'appel API réel au backend
+    const response = await fetch(`/api/fablab/subscriptions/${subscriptionId}/can-reserve`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}` 
+      },
+      body: JSON.stringify({ requestedHours })
+    });
+    return response.json();
+  }
 };
 
 export const FablabMachineService = {
   getAllMachines: async () => {
-    return { data: [
-      { id: '1', name: 'Imprimante 3D Ultimaker', status: 'disponible', needsTraining: true }
-    ] };
+    // TODO: Remplacer par l'appel API réel au backend
+    const response = await fetch('/api/fablab/machines');
+    return response.json();
   },
   getHourlyRates: async () => {
-    return { data: [
-      { id: '1', name: 'Imprimante 3D', rate: 1000 }
-    ] };
+    // TODO: Remplacer par l'appel API réel au backend
+    const response = await fetch('/api/fablab/machines/rates');
+    return response.json();
   },
 };
 
 export const FablabReservationService = {
   createReservation: async (data: any) => {
-    return { data: { ...data, id: Date.now().toString(), status: 'en attente' } };
+    // TODO: Remplacer par l'appel API réel au backend
+    const response = await fetch('/api/fablab/reservations', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}` 
+      },
+      body: JSON.stringify(data)
+    });
+    return response.json();
   },
   getUserReservations: async (subscriptionId: string) => {
-    return { data: [
-      { id: '1', subscriptionId, machineId: '1', date: '2025-10-10', slot: '9h-12h', status: 'confirmée' }
-    ] };
+    // TODO: Remplacer par l'appel API réel au backend
+    const response = await fetch(`/api/fablab/subscriptions/${subscriptionId}/reservations`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    return response.json();
   },
   getAvailableSlots: async (machineId: string, date: string) => {
-    return { data: [ '9h-12h', '14h-17h' ] };
+    // TODO: Remplacer par l'appel API réel au backend
+    const response = await fetch(`/api/fablab/machines/${machineId}/available-slots?date=${date}`);
+    return response.json();
   },
   cancelReservation: async (reservationId: string) => {
-    return { data: { success: true } };
+    // TODO: Remplacer par l'appel API réel au backend
+    const response = await fetch(`/api/fablab/reservations/${reservationId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    return response.json();
+  }
+};
+
+// Service spécifique pour les formations ouvertes
+export const OpenFormationService = {
+  getAll: async () => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('GET', '/api/formations/open');
+    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open');
+  },
+  
+  getById: async (id: string) => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('GET', `/api/formations/open/${id}`);
+    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open/${id}');
+  },
+  
+  create: async (data: any) => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('POST', '/api/formations/open', data);
+    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open');
+  },
+  
+  update: async (id: string, data: any) => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('PUT', `/api/formations/open/${id}`, data);
+    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open/${id}');
+  },
+  
+  delete: async (id: string) => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('DELETE', `/api/formations/open/${id}`);
+    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open/${id}');
+  },
+  
+  getRegistrations: async () => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('GET', '/api/formations/registrations');
+    throw new Error('Backend not connected yet - TODO: connect to /api/formations/registrations');
+  },
+  
+  submitRegistration: async (data: any) => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('POST', '/api/formations/registrations', data);
+    throw new Error('Backend not connected yet - TODO: connect to /api/formations/registrations');
+  },
+  
+  updateRegistration: async (id: string, data: any) => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('PUT', `/api/formations/registrations/${id}`, data);
+    throw new Error('Backend not connected yet - TODO: connect to /api/formations/registrations/${id}');
+  },
+  
+  deleteRegistration: async (id: string) => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('DELETE', `/api/formations/registrations/${id}`);
+    throw new Error('Backend not connected yet - TODO: connect to /api/formations/registrations/${id}');
+  },
+};
+
+// Service pour les programmes universitaires
+export const UniversityProgramService = {
+  getAll: async () => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('GET', '/university-programs');
+    throw new Error('Backend not connected yet - TODO: connect to /api/university-programs');
+  },
+  
+  getById: async (id: string) => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('GET', `/university-programs/${id}`);
+    throw new Error('Backend not connected yet - TODO: connect to /api/university-programs/${id}');
+  },
+  
+  getByType: async (type: string) => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('GET', `/university-programs?type=${type}`);
+    throw new Error('Backend not connected yet - TODO: connect to /api/university-programs?type=${type}');
+  },
+  
+  submitApplication: async (data: any) => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('POST', '/university-applications', data);
+    throw new Error('Backend not connected yet - TODO: connect to /api/university-applications');
+  },
+  
+  uploadDocument: async (applicationId: string, documentType: string, file: File) => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // const formData = new FormData();
+    // formData.append('file', file);
+    // return makeRequest('POST', `/university-applications/${applicationId}/documents/${documentType}`, formData);
+    throw new Error('Backend not connected yet - TODO: connect to /api/university-applications/${applicationId}/documents/${documentType}');
+  },
+};
+
+// Service pour les années académiques
+export const AcademicYearService = {
+  getActive: async () => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('GET', '/academic-years/active');
+    throw new Error('Backend not connected yet - TODO: connect to /api/academic-years/active');
+  },
+  
+  getAll: async () => {
+    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
+    // return makeRequest('GET', '/academic-years');
+    throw new Error('Backend not connected yet - TODO: connect to /api/academic-years');
   },
 };
 

@@ -30,7 +30,14 @@ model User {
   lastName  String?
   phone     String?
   avatar    String?
-  isActive  Boolean  @default(true)
+  
+  // Statut et type d'utilisateur
+  isActive          Boolean  @default(false)  // Inactif par défaut
+  isFabLabUser      Boolean  @default(false)  // Utilisateur FabLab (créé après validation abonnement)
+  isAdmin           Boolean  @default(false)  // Utilisateur administrateur
+  mustChangePassword Boolean @default(false)  // Doit changer le mot de passe à la première connexion
+  
+  // Métadonnées
   lastLogin DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -38,12 +45,10 @@ model User {
   // Relations avec les rôles
   userRoles UserRole[]
   
-  // Relations avec les inscriptions
-  universityApplications UniversityApplication[]
-  formationRegistrations FormationRegistration[]
+  // Relations avec les inscriptions (SEULEMENT FabLab nécessite un compte)
   fablabSubscriptions    FablabSubscription[]
   
-  // Relations avec les réservations
+  // Relations avec les réservations (SEULEMENT après validation abonnement)
   fablabReservations FablabReservation[]
   
   // Relations avec les contenus créés
@@ -107,6 +112,21 @@ model RolePermission {
 
   @@unique([roleId, permissionId])
   @@map("role_permissions")
+}
+
+// ===== SUPER ADMIN PRÉDÉFINI =====
+
+model SuperAdmin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String   // Mot de passe codé en dur dans l'application
+  firstName    String
+  lastName     String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("super_admins")
 }
 
 // ===== PROGRAMMES UNIVERSITAIRES =====
@@ -199,9 +219,7 @@ model UniversityApplication {
   reviewedBy        String?
   rejectionReason   String?
   
-  // Relations
-  userId            String?
-  user              User? @relation(fields: [userId], references: [id])
+  // Relations (PAS de lien avec User - formulaire public)
   programId         String
   program           UniversityProgram @relation(fields: [programId], references: [id])
   academicYearId    String
@@ -261,9 +279,7 @@ model FormationRegistration {
   submittedAt       DateTime @default(now())
   reviewedAt        DateTime?
   
-  // Relations
-  userId         String?
-  user           User? @relation(fields: [userId], references: [id])
+  // Relations (PAS de lien avec User - formulaire public)
   formationId    String
   formation      OpenFormation @relation(fields: [formationId], references: [id])
 
@@ -346,10 +362,11 @@ model FablabSubscription {
   phone            String
   profession       String?
   
-  // Type d'abonnement
+  // Type d'abonnement avec limites d'heures
   subscriptionType SubscriptionType
   duration         Int      // Durée en mois
   price            Int      // Prix en FCFA
+  maxHoursPerMonth Int      // Limite d'heures par mois selon le plan
   
   // Dates
   startDate        DateTime
@@ -372,6 +389,7 @@ model FablabSubscription {
   userId String?
   user   User? @relation(fields: [userId], references: [id])
   reservations FablabReservation[]
+  usageReports FablabUsageReport[]
 
   @@map("fablab_subscriptions")
 }
@@ -409,6 +427,28 @@ model FablabReservation {
   subscription   FablabSubscription? @relation(fields: [subscriptionId], references: [id])
 
   @@map("fablab_reservations")
+}
+
+// ===== SUIVI DE L'USAGE FABLAB =====
+
+model FablabUsageReport {
+  id               String   @id @default(cuid())
+  subscriptionId   String
+  year             Int      // 2025
+  month            Int      // 1-12
+  hoursUsed        Int      // Heures utilisées ce mois
+  sessionsCount    Int      // Nombre de sessions ce mois
+  lastReservation  DateTime?
+  
+  // Métadonnées
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  subscription FablabSubscription @relation(fields: [subscriptionId], references: [id])
+
+  @@unique([subscriptionId, year, month])
+  @@map("fablab_usage_reports")
 }
 
 // ===== ÉVÉNEMENTS =====
@@ -599,10 +639,10 @@ enum ApplicationStatus {
 }
 
 enum SubscriptionType {
-  MONTHLY
-  QUARTERLY
-  YEARLY
-  STUDENT
+  MONTHLY      // 20h/mois
+  QUARTERLY    // 25h/mois
+  YEARLY       // 30h/mois
+  STUDENT      // 15h/mois
 }
 
 enum SubscriptionStatus {
@@ -656,15 +696,16 @@ enum NotificationType {
 
 ### **Authentification**
 - `User` ←→ `UserRole` ←→ `Role` ←→ `RolePermission` ←→ `Permission`
+- `SuperAdmin` (comptes prédéfinis)
 - Système RBAC (Role-Based Access Control) complet
 
-### **Inscriptions**
-- `User` → `UniversityApplication` ← `UniversityProgram`
-- `User` → `FormationRegistration` ← `OpenFormation`
-- `User` → `FablabSubscription`
+### **Inscriptions (SANS COMPTE UTILISATEUR)**
+- `UniversityApplication` ← `UniversityProgram` (formulaire public)
+- `FormationRegistration` ← `OpenFormation` (formulaire public)
 
-### **FabLab**
-- `FablabSubscription` → `FablabReservation` ← `FablabMachine`
+### **FabLab (AVEC COMPTE UTILISATEUR)**
+- `FablabSubscription` → création du `User` après validation par admin
+- `User` → `FablabReservation` ← `FablabMachine` (accès restreint)
 - `User` → `FablabProject` (créateur)
 
 ### **Contenu**
@@ -690,28 +731,52 @@ CREATE INDEX idx_subscriptions_status ON fablab_subscriptions(status, is_active)
 ## 🔧 **DONNÉES INITIALES**
 
 ```typescript
-// Données par défaut à insérer
+// Données par défaut à insérer (STRUCTURE SEULEMENT - PAS DE MOCK DATA)
 const initialRoles = [
   { name: 'super_admin', displayName: 'Super Administrateur' },
   { name: 'content_admin', displayName: 'Administrateur Contenu' },
-  { name: 'inscription_admin', displayName: 'Administrateur Inscriptions' }
+  { name: 'inscription_admin', displayName: 'Administrateur Inscriptions' },
+  { name: 'fablab_admin', displayName: 'Administrateur FabLab' }
 ];
 
+// Super Admin prédéfini (mot de passe dans .env)
+const superAdmin = {
+  email: 'admin@crec-education.com',
+  passwordHash: 'hash_from_env_variable', // À récupérer de process.env.SUPER_ADMIN_PASSWORD
+  firstName: 'Admin',
+  lastName: 'Principal'
+};
+
 const initialPermissions = [
-  // Users
+  // Users (admin seulement)
   { name: 'users.create', resource: 'users', action: 'create' },
   { name: 'users.read', resource: 'users', action: 'read' },
   { name: 'users.update', resource: 'users', action: 'update' },
   { name: 'users.delete', resource: 'users', action: 'delete' },
   
-  // Programs
+  // Programs (public en lecture, admin en écriture)
   { name: 'programs.create', resource: 'programs', action: 'create' },
-  { name: 'programs.read', resource: 'programs', action: 'read' },
   { name: 'programs.update', resource: 'programs', action: 'update' },
   { name: 'programs.delete', resource: 'programs', action: 'delete' },
   
-  // Et ainsi de suite pour chaque ressource...
+  // Formations
+  { name: 'formations.create', resource: 'formations', action: 'create' },
+  { name: 'formations.update', resource: 'formations', action: 'update' },
+  { name: 'formations.delete', resource: 'formations', action: 'delete' },
+  
+  // FabLab (utilisateur validé pour réservations)
+  { name: 'fablab.reserve', resource: 'fablab', action: 'reserve' },
+  { name: 'fablab.manage', resource: 'fablab', action: 'manage' },
+  { name: 'fablab.admin', resource: 'fablab', action: 'admin' },
+  
+  // Content
+  { name: 'content.create', resource: 'content', action: 'create' },
+  { name: 'content.update', resource: 'content', action: 'update' },
+  { name: 'content.delete', resource: 'content', action: 'delete' },
 ];
+
+// IMPORTANTE: Aucune donnée mockée dans le backend
+// Les données de test sont uniquement dans le frontend pour le développement
 ```
 
 ---
