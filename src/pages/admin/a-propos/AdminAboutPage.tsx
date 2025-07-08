@@ -34,18 +34,44 @@ const AdminAboutPage: React.FC = () => {
   const { toast } = useToast();
   const { get, put, post } = useApi();
 
+  // Données par défaut
+  const defaultAboutData: AboutPageData = {
+    heroTitle: "À propos du CREC",
+    heroSubtitle: "Centre de Recherche, d'Étude et de Créativité",
+    heroImageUrl: "",
+    mission: "Notre mission est de...",
+    vision: "Notre vision est de...",
+    values: ["Excellence", "Innovation", "Intégrité"],
+    history: "Notre histoire commence...",
+    sections: []
+  };
+
   // Charger les données de la page À propos
   useEffect(() => {
     const loadAboutData = async () => {
       try {
         const response = await get('/api/admin/about');
-        setAboutData(response.data);
+        const responseData = response.data as any;
+        
+        // Si les données sont vides ou invalides, utiliser les données par défaut
+        if (!responseData || Array.isArray(responseData) || !responseData.heroTitle) {
+          setAboutData(defaultAboutData);
+        } else {
+          // S'assurer que values est un tableau
+          const data: AboutPageData = {
+            ...responseData,
+            values: Array.isArray(responseData.values) ? responseData.values : []
+          };
+          setAboutData(data);
+        }
       } catch (error) {
         console.error('Erreur lors du chargement:', error);
+        // En cas d'erreur, utiliser les données par défaut
+        setAboutData(defaultAboutData);
         toast({
-          title: "Erreur",
-          description: "Impossible de charger les données de la page À propos",
-          variant: "destructive",
+          title: "Information",
+          description: "Données par défaut chargées",
+          variant: "default",
         });
       } finally {
         setLoading(false);
@@ -268,7 +294,7 @@ const AdminAboutPage: React.FC = () => {
               />
             ) : (
               <ul className="list-disc pl-5">
-                {aboutData.values.map((value, index) => (
+                {Array.isArray(aboutData?.values) && aboutData.values.map((value, index) => (
                   <li key={index}>{value}</li>
                 ))}
               </ul>
@@ -316,7 +342,7 @@ const AdminAboutPage: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {aboutData.sections.map((section) => (
+          {Array.isArray(aboutData?.sections) && aboutData.sections.map((section) => (
             <Card key={section.id} className="border-l-4 border-blue-500">
               <CardContent className="pt-4">
                 {isEditing ? (

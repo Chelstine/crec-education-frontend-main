@@ -16,15 +16,16 @@ const AdminLoadingSpinner = () => (
 // Page de connexion (publique)
 const AdminLoginPage = lazy(() => import('../pages/admin/AdminLoginPage'));
 
-// Page d'accès non autorisé
-const UnauthorizedPage = lazy(() => import('../pages/admin/UnauthorizedPage'));
-
 // Pages du tableau de bord (protégées)
 const AdminDashboardPage = lazy(() => import('../pages/admin/AdminDashboardPage'));
 const AdminProfilePage = lazy(() => import('../pages/admin/AdminProfilePage'));
 
 // Pages À Propos
 const AdminAboutPage = lazy(() => import('../pages/admin/a-propos/AdminAboutPage'));
+
+// Pages d'index pour les sections
+const AdminInscriptionsIndexPage = lazy(() => import('../pages/admin/inscriptions/AdminInscriptionsIndexPage'));
+const AdminContenusIndexPage = lazy(() => import('../pages/admin/contenus/AdminContenusIndexPage'));
 
 // Pages de gestion des inscriptions
 const AdminInscriptionsISTMPage = lazy(() => import('../pages/admin/inscriptions/AdminInscriptionsISTMPage'));
@@ -33,7 +34,7 @@ const AdminInscriptionsFablabPage = lazy(() => import('../pages/admin/inscriptio
 
 // Pages de gestion du contenu
 const AdminContenusISTMPage = lazy(() => import('../pages/admin/contenus/AdminContenusISTMPage'));
-// const AdminContenusFormationsPage = lazy(() => import('../pages/admin/contenus/AdminContenusFormationsPage')); // Problème d'export par défaut
+const AdminContenusFormationsPage = lazy(() => import('../pages/admin/contenus/AdminContenusFormationsPage'));
 // AdminContenusFablabPage est importé directement en haut du fichier
 
 // Pages de galerie
@@ -67,6 +68,13 @@ const withSimpleAdminProtection = (Component: React.LazyExoticComponent<React.Co
   </ProtectedRoute>
 );
 
+// Helper function for direct imported components with simple auth
+const withDirectSimpleAdminProtection = (Component: React.ComponentType<any>) => (
+  <ProtectedRoute simpleAdminAuth={true} fallbackPath="/admin/login">
+    <Component />
+  </ProtectedRoute>
+);
+
 // Helper function for direct imported components
 const withDirectAdminProtection = (Component: React.ComponentType<any>, requiredRoles?: string[]) => (
   <ProtectedRoute adminRequired={true} requiredRoles={requiredRoles as any} fallbackPath="/admin/login">
@@ -92,20 +100,12 @@ const adminRoutes: RouteObject[] = [
           </Suspense>
         ),
       },
-      {
-        // Page d'accès non autorisé
-        path: 'unauthorized',
-        element: (
-          <Suspense fallback={<AdminLoadingSpinner />}>
-            <UnauthorizedPage />
-          </Suspense>
-        ),
-      },
+     
       {
         // TOUTES les autres routes admin sont protégées et nécessitent une authentification
         path: '',
         element: (
-          <ProtectedRoute adminRequired={true} fallbackPath="/admin/login">
+          <ProtectedRoute simpleAdminAuth={true} fallbackPath="/admin/login">
             <AdminLayout />
           </ProtectedRoute>
         ),
@@ -113,15 +113,15 @@ const adminRoutes: RouteObject[] = [
           {
             // Tableau de bord (page d'accueil admin)
             index: true,
-            element: withAdminProtection(AdminDashboardPage),
+            element: withSimpleAdminProtection(AdminDashboardPage),
           },
           {
             path: 'dashboard',
-            element: withAdminProtection(AdminDashboardPage),
+            element: withSimpleAdminProtection(AdminDashboardPage),
           },
           {
             path: 'profile',
-            element: withAdminProtection(AdminProfilePage),
+            element: withSimpleAdminProtection(AdminProfilePage),
           },
           // Routes pour À Propos (authentification simple, pas de vérification de rôle)
           {
@@ -133,16 +133,21 @@ const adminRoutes: RouteObject[] = [
             path: 'inscriptions',
             children: [
               {
+                // Page d'index des inscriptions
+                index: true,
+                element: withSimpleAdminProtection(AdminInscriptionsIndexPage),
+              },
+              {
                 path: 'istm',
-                element: withAdminProtection(AdminInscriptionsISTMPage),
+                element: withSimpleAdminProtection(AdminInscriptionsISTMPage),
               },
               {
                 path: 'formations',
-                element: withAdminProtection(AdminInscriptionsFormationsPage),
+                element: withSimpleAdminProtection(AdminInscriptionsFormationsPage),
               },
               {
                 path: 'fablab',
-                element: withAdminProtection(AdminInscriptionsFablabPage),
+                element: withSimpleAdminProtection(AdminInscriptionsFablabPage),
               },
             ],
           },
@@ -151,24 +156,28 @@ const adminRoutes: RouteObject[] = [
             path: 'contenus',
             children: [
               {
+                // Page d'index des contenus
+                index: true,
+                element: withSimpleAdminProtection(AdminContenusIndexPage),
+              },
+              {
                 path: 'istm',
-                element: withAdminProtection(AdminContenusISTMPage),
+                element: withSimpleAdminProtection(AdminContenusISTMPage),
               },
               {
                 path: 'formations',
-                // Utilisation temporaire d'une page de substitution jusqu'à correction de l'export
-                element: withAdminProtection(AdminContenusISTMPage), // TODO: Remplacer par AdminContenusFormationsPage quand l'export sera corrigé
+                element: withSimpleAdminProtection(AdminContenusFormationsPage),
               },
               {
                 path: 'fablab',
-                element: withDirectAdminProtection(AdminContenusFablabPage),
+                element: withDirectSimpleAdminProtection(AdminContenusFablabPage),
               },
             ],
           },
           // Routes pour la galerie
           {
             path: 'galerie',
-            element: withAdminProtection(AdminGaleriePage),
+            element: withSimpleAdminProtection(AdminGaleriePage),
           },
           // Routes pour les réservations
           {
@@ -177,18 +186,18 @@ const adminRoutes: RouteObject[] = [
               {
                 // Route index redirige vers les statistiques
                 index: true,
-                element: withAdminProtection(AdminReservationsStatsPage),
+                element: withSimpleAdminProtection(AdminReservationsStatsPage),
               },
               {
                 path: 'stats',
-                element: withAdminProtection(AdminReservationsStatsPage),
+                element: withSimpleAdminProtection(AdminReservationsStatsPage),
               }
             ],
           },
           // Routes pour la bibliothèque
           {
             path: 'bibliotheque',
-            element: withAdminProtection(AdminBibliotequePage),
+            element: withSimpleAdminProtection(AdminBibliotequePage),
           },
           // Routes pour les paramètres (authentification simple, pas de vérification de rôle)
           {
