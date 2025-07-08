@@ -61,20 +61,28 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Pour les routes protégées non-admin (par exemple réservation)
   if (requireAuth) {
-    const fablabUser = localStorage.getItem('fablabUser');
+    // Vérifier l'authentification FabLab via clé d'abonnement
+    const subscriberInfo = localStorage.getItem('subscriberInfo');
     
-    if (!fablabUser) {
-      return <Navigate to="/fablab/login" state={{ from: location }} replace />;
+    if (!subscriberInfo) {
+      return <Navigate to="/subscription-verification" state={{ from: location }} replace />;
     }
     
     try {
-      const userData = JSON.parse(fablabUser);
-      if (!userData.loggedIn || !userData.verified) {
-        return <Navigate to="/fablab/login" state={{ from: location }} replace />;
+      const userData = JSON.parse(subscriberInfo);
+      if (!userData.verified || !userData.isActive) {
+        return <Navigate to="/subscription-verification" state={{ from: location }} replace />;
+      }
+      
+      // Vérifier la validité de l'abonnement (date d'expiration)
+      if (userData.expiresAt && new Date(userData.expiresAt) < new Date()) {
+        localStorage.removeItem('subscriberInfo');
+        return <Navigate to="/subscription-verification" state={{ from: location }} replace />;
       }
     } catch (error) {
-      console.error('Erreur lors du parsing des données utilisateur:', error);
-      return <Navigate to="/fablab/login" state={{ from: location }} replace />;
+      console.error('Erreur lors du parsing des données d\'abonnement:', error);
+      localStorage.removeItem('subscriberInfo');
+      return <Navigate to="/subscription-verification" state={{ from: location }} replace />;
     }
   }
 
