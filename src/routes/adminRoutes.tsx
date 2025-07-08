@@ -58,6 +58,15 @@ const withAdminProtection = (Component: React.LazyExoticComponent<React.Componen
   </ProtectedRoute>
 );
 
+// Helper function for components that require only authentication (no role checking)
+const withSimpleAdminProtection = (Component: React.LazyExoticComponent<React.ComponentType<any>>) => (
+  <ProtectedRoute simpleAdminAuth={true} fallbackPath="/admin/login">
+    <Suspense fallback={<AdminLoadingSpinner />}>
+      <Component />
+    </Suspense>
+  </ProtectedRoute>
+);
+
 // Helper function for direct imported components
 const withDirectAdminProtection = (Component: React.ComponentType<any>, requiredRoles?: string[]) => (
   <ProtectedRoute adminRequired={true} requiredRoles={requiredRoles as any} fallbackPath="/admin/login">
@@ -114,10 +123,10 @@ const adminRoutes: RouteObject[] = [
             path: 'profile',
             element: withAdminProtection(AdminProfilePage),
           },
-          // Routes pour À Propos
+          // Routes pour À Propos (authentification simple, pas de vérification de rôle)
           {
             path: 'a-propos',
-            element: withAdminProtection(AdminAboutPage),
+            element: withSimpleAdminProtection(AdminAboutPage),
           },
           // Routes pour la gestion des inscriptions
           {
@@ -181,10 +190,10 @@ const adminRoutes: RouteObject[] = [
             path: 'bibliotheque',
             element: withAdminProtection(AdminBibliotequePage),
           },
-          // Routes pour les paramètres
+          // Routes pour les paramètres (authentification simple, pas de vérification de rôle)
           {
             path: 'parametres',
-            element: withAdminProtection(AdminParametresPage),
+            element: withSimpleAdminProtection(AdminParametresPage),
           },
           // Route pour les utilisateurs et rôles (Super admin uniquement)
           {

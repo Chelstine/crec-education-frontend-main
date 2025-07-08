@@ -81,7 +81,7 @@ const AdminContenusISTMPage: React.FC<AdminContenusISTMPageProps> = () => {
     try {
       setIsLoading(true);
       const data = await api.get('/programs');
-      setPrograms(data);
+      setPrograms(Array.isArray(data) ? data : []);
     } catch (error) {
       // Utiliser des données par défaut au lieu d'afficher une erreur
       setPrograms([]);
@@ -94,7 +94,7 @@ const AdminContenusISTMPage: React.FC<AdminContenusISTMPageProps> = () => {
   const loadRentreeScolaire = async () => {
     try {
       const data = await api.get('/rentree-scolaire');
-      setRentreeScolaire(data);
+      setRentreeScolaire(Array.isArray(data) ? data : []);
     } catch (error) {
       // Utiliser des données par défaut
       setRentreeScolaire([]);
@@ -578,11 +578,11 @@ const AdminContenusISTMPage: React.FC<AdminContenusISTMPageProps> = () => {
             <CardHeader>
               <CardTitle>Programmes existants</CardTitle>
               <CardDescription>
-                {programs.length} programme(s) configuré(s)
+                {Array.isArray(programs) ? programs.length : 0} programme(s) configuré(s)
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {programs.length === 0 ? (
+              {!Array.isArray(programs) || programs.length === 0 ? (
                 <p className="text-center text-slate-500 py-8">
                   Aucun programme configuré
                 </p>
@@ -690,7 +690,7 @@ const AdminContenusISTMPage: React.FC<AdminContenusISTMPageProps> = () => {
                 <div>
                   <label className="text-sm font-medium mb-2 block">Places par filière</label>
                   <div className="space-y-2">
-                    {programs.filter(p => p.statut === 'active').map((program) => (
+                    {Array.isArray(programs) ? programs.filter(p => p.statut === 'active').map((program) => (
                       <div key={program.id} className="flex items-center justify-between p-2 border rounded">
                         <span className="text-sm">{program.title}</span>
                         <Input
@@ -701,7 +701,7 @@ const AdminContenusISTMPage: React.FC<AdminContenusISTMPageProps> = () => {
                           min="0"
                         />
                       </div>
-                    ))}
+                    )) : null}
                   </div>
                 </div>
 
@@ -739,11 +739,11 @@ const AdminContenusISTMPage: React.FC<AdminContenusISTMPageProps> = () => {
             <CardHeader>
               <CardTitle>Rentrées scolaires</CardTitle>
               <CardDescription>
-                {rentreeScolaire.length} rentrée(s) configurée(s)
+                {Array.isArray(rentreeScolaire) ? rentreeScolaire.length : 0} rentrée(s) configurée(s)
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {rentreeScolaire.length === 0 ? (
+              {!Array.isArray(rentreeScolaire) || rentreeScolaire.length === 0 ? (
                 <p className="text-center text-slate-500 py-8">
                   Aucune rentrée scolaire configurée
                 </p>

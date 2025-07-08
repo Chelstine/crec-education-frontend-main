@@ -7,6 +7,7 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAuth?: boolean;
   adminRequired?: boolean;
+  simpleAdminAuth?: boolean; // Nouvelle propriété pour auth admin simple
   permissions?: string[];
   requiredRoles?: AdminRole[];
   requiredPermissions?: string[];
@@ -20,6 +21,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children, 
   requireAuth = true,
   adminRequired = false,
+  simpleAdminAuth = false,
   permissions = [],
   requiredRoles = [],
   requiredPermissions = [],
@@ -27,6 +29,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const location = useLocation();
   const { isAuthenticated, hasRole, hasPermission, canAccessRoute } = useAuth();
+
+  // Pour l'authentification admin simple (pages à propos et paramètres)
+  if (simpleAdminAuth) {
+    if (!isAuthenticated) {
+      return <Navigate to={fallbackPath} state={{ from: location }} replace />;
+    }
+    return <>{children}</>;
+  }
 
   // Pour les routes admin avec nouveau système de permissions
   if (adminRequired || requiredRoles.length > 0 || requiredPermissions.length > 0) {

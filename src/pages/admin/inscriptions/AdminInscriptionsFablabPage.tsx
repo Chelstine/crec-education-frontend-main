@@ -200,7 +200,7 @@ const AdminInscriptionsFablabPage: React.FC = () => {
       setIsLoading(true);
       // Appel API réel
       const data = await api.get('/fablab/inscriptions');
-      setInscriptions(data);
+      setInscriptions(Array.isArray(data) ? data : []);
     } catch (error) {
       setInscriptions([]); // Pas de mock, liste vide si erreur
     } finally {
@@ -229,7 +229,7 @@ const AdminInscriptionsFablabPage: React.FC = () => {
       // Génération d'une clé d'accès unique pour la page de réservation
       const accessKey = `FL${new Date().getFullYear()}${String(Math.floor(Math.random() * 999) + 1).padStart(3, '0')}`;
       
-      setInscriptions(inscriptions.map(i => 
+      setInscriptions(Array.isArray(inscriptions) ? inscriptions.map(i => 
         i.id === inscription.id 
           ? { 
               ...i, 
@@ -239,7 +239,7 @@ const AdminInscriptionsFablabPage: React.FC = () => {
               accessKey // Cette clé sera envoyée par email à l'abonné
             }
           : i
-      ));
+      ) : []);
       
       // Notification de succès et explication qu'un email sera envoyé
       alert(`Abonnement approuvé. Une clé d'accès (${accessKey}) sera envoyée à ${inscription.email}`);
@@ -259,7 +259,7 @@ const AdminInscriptionsFablabPage: React.FC = () => {
     
     try {
       // Mettre à jour le statut de l'inscription
-      setInscriptions(inscriptions.map(i => 
+      setInscriptions(Array.isArray(inscriptions) ? inscriptions.map(i => 
         i.id === currentInscription.id 
           ? { 
               ...i, 
@@ -269,7 +269,7 @@ const AdminInscriptionsFablabPage: React.FC = () => {
               rejectionReason: rejectionReason || 'Reçu de paiement non valide ou informations incomplètes'
             }
           : i
-      ));
+      ) : []);
       
       setIsRejectDialogOpen(false);
       setRejectionReason('');
@@ -288,7 +288,7 @@ const AdminInscriptionsFablabPage: React.FC = () => {
     if (!currentInscription) return;
     
     try {
-      setInscriptions(inscriptions.filter(i => i.id !== currentInscription.id));
+      setInscriptions(Array.isArray(inscriptions) ? inscriptions.filter(i => i.id !== currentInscription.id) : []);
       setTotalInscriptions(totalInscriptions - 1);
       setIsDeleteDialogOpen(false);
       
@@ -299,7 +299,7 @@ const AdminInscriptionsFablabPage: React.FC = () => {
 
   const handleExportData = () => {
     // Logique d'export CSV
-    const csvData = inscriptions.map(i => ({
+    const csvData = (Array.isArray(inscriptions) ? inscriptions : []).map(i => ({
       'Prénom': i.firstName,
       'Nom': i.lastName,
       'Email': i.email,
@@ -320,25 +320,25 @@ const AdminInscriptionsFablabPage: React.FC = () => {
   const stats = [
     {
       title: "Total inscriptions",
-      value: inscriptions.length,
+      value: Array.isArray(inscriptions) ? inscriptions.length : 0,
       iconComponent: Users,
       color: "bg-blue-100"
     },
     {
       title: "En attente",
-      value: inscriptions.filter(i => i.status === 'pending').length,
+      value: Array.isArray(inscriptions) ? inscriptions.filter(i => i.status === 'pending').length : 0,
       iconComponent: Clock,
       color: "bg-amber-100"
     },
     {
       title: "Approuvées",
-      value: inscriptions.filter(i => i.status === 'approved').length,
+      value: Array.isArray(inscriptions) ? inscriptions.filter(i => i.status === 'approved').length : 0,
       iconComponent: CheckCircle,
       color: "bg-green-100"
     },
     {
       title: "Rejetées",
-      value: inscriptions.filter(i => i.status === 'rejected').length,
+      value: Array.isArray(inscriptions) ? inscriptions.filter(i => i.status === 'rejected').length : 0,
       iconComponent: XCircle,
       color: "bg-red-100"
     }
@@ -541,7 +541,7 @@ const AdminInscriptionsFablabPage: React.FC = () => {
         <CardContent>
           <DataTable
             columns={columns}
-            data={inscriptions}
+            data={Array.isArray(inscriptions) ? inscriptions : []}
             keyField="id"
             isLoading={isLoading}
             totalItems={totalInscriptions}
