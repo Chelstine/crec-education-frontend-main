@@ -16,39 +16,17 @@ const SubscriptionVerification = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  // Utilisateurs de test avec clés sécurisées
-  const testUsers = [
-    { 
-      name: 'Marie Kouassi', 
-      key: 'FL8K29X7',
-      plan: 'yearly',
-      usageLimit: 40,
-      usageCount: 12,
-      accessHours: '8h-18h',
-      allowedMachines: ['imprimante-3d', 'decoupe-laser', 'cnc'],
-      isActive: true
-    },
-    { 
-      name: 'Jean Dupont', 
-      key: 'FL2M94H3',
-      plan: 'monthly',
-      usageLimit: 20,
-      usageCount: 8,
-      accessHours: '9h-17h',
-      allowedMachines: ['imprimante-3d', 'decoupe-laser'],
-      isActive: true
-    },
-    { 
-      name: 'Aminata Diallo', 
-      key: 'FL5X71N9',
-      plan: 'yearly',
-      usageLimit: 40,
-      usageCount: 5,
-      accessHours: '8h-18h',
-      allowedMachines: ['imprimante-3d', 'decoupe-laser', 'cnc', 'broderie'],
-      isActive: true
-    }
-  ];
+  // Utilisateur de test avec clé simplifiée
+  const testUser = { 
+    name: 'Marie Kouassi', 
+    key: 'bonjour',
+    plan: 'etudiant',
+    maxReservations: 15,
+    currentReservations: 3,
+    accessHours: '8h-18h',
+    allowedMachines: ['imprimante-3d', 'decoupe-laser', 'cnc'],
+    isActive: true
+  };
 
   const handleVerify = async () => {
     if (!name.trim() || !subscriptionKey.trim()) {
@@ -59,29 +37,27 @@ const SubscriptionVerification = () => {
     setLoading(true);
     setError('');
 
-    // Vérification pour les utilisateurs test
-    const matchingUser = testUsers.find(user => 
-      user.name.toLowerCase() === name.toLowerCase() && user.key === subscriptionKey
-    );
+    // Vérification pour l'utilisateur test
+    const isValidUser = testUser.name.toLowerCase() === name.toLowerCase() && testUser.key === subscriptionKey;
     
-    if (matchingUser) {
+    if (isValidUser) {
       // Stocker les informations de l'utilisateur test dans localStorage
       localStorage.setItem('subscriberInfo', JSON.stringify({
-        name: matchingUser.name,
-        key: matchingUser.key,
-        plan: matchingUser.plan,
+        name: testUser.name,
+        key: testUser.key,
+        plan: testUser.plan,
         verified: true,
-        accessHours: matchingUser.accessHours,
-        allowedMachines: matchingUser.allowedMachines,
-        usageLimit: matchingUser.usageLimit,
-        usageCount: matchingUser.usageCount,
-        isActive: matchingUser.isActive,
-        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1 an pour l'utilisateur test
+        accessHours: testUser.accessHours,
+        allowedMachines: testUser.allowedMachines,
+        maxReservations: testUser.maxReservations,
+        currentReservations: testUser.currentReservations,
+        isActive: testUser.isActive,
+        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
       }));
 
       toast({
         title: 'Vérification réussie',
-        description: `Bienvenue ${matchingUser.name} au FabLab CREC!`,
+        description: `Bienvenue ${testUser.name} au FabLab CREC!`,
         variant: 'default',
       });
 
@@ -89,7 +65,7 @@ const SubscriptionVerification = () => {
         state: { 
           fromSubscription: true,
           message: 'Votre abonnement test a été vérifié avec succès!',
-          planName: matchingUser.plan === 'monthly' ? 'mensuel' : 'annuel'
+          planName: testUser.plan === 'etudiant' ? 'étudiant' : 'professionnel'
         }
       });
       return;
@@ -197,14 +173,15 @@ const SubscriptionVerification = () => {
 
             {/* Section de test pour le développement */}
             <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-              <h4 className="text-sm font-semibold text-blue-800 mb-2">Comptes de test disponibles:</h4>
+              <h4 className="text-sm font-semibold text-blue-800 mb-2">Compte de test disponible:</h4>
               <div className="space-y-2 text-xs text-blue-700">
-                {testUsers.map((user, index) => (
-                  <div key={index} className="flex justify-between">
-                    <span>{user.name}</span>
-                    <span className="font-mono">{user.key}</span>
-                  </div>
-                ))}
+                <div className="flex justify-between">
+                  <span>{testUser.name}</span>
+                  <span className="font-mono">{testUser.key}</span>
+                </div>
+                <div className="text-xs text-blue-600">
+                  Plan: {testUser.plan} ({testUser.maxReservations} réservations max)
+                </div>
               </div>
             </div>
           </div>

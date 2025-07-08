@@ -6,8 +6,8 @@ import { RouterProvider } from 'react-router-dom';
 import { Suspense } from 'react';
 import router from './routes';
 import { LanguageProvider } from './context/LanguageContext';
-import { NotificationProvider } from './contexts/NotificationContext';
-import { FabLabProvider } from './contexts/FabLabContext';
+import { NotificationProvider } from './context/NotificationContext';
+import { FabLabProvider } from './context/FabLabContext';
 import { AuthProvider } from './context/AuthContext';
 
 const queryClient = new QueryClient();

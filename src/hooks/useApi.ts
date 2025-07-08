@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Event, GalleryItem, LibraryResource, OpenFormation, FablabMachine, FablabProject, FormationRegistration, UniversityApplication } from '../types';
 
 // Mock data pour les machines FabLab
@@ -358,7 +358,7 @@ export const useFablabMachines = () => {
     queryFn: async () => {
       // TODO: Remplacer par un appel API réel
       return new Promise((resolve) => {
-        setTimeout(() => resolve([]), 500);
+        setTimeout(() => resolve(mockFablabMachines), 500);
       });
     }
   });
@@ -492,4 +492,296 @@ export const useUniversityApplications = () => {
       });
     }
   });
+};
+
+/**
+ * Hook pour les inscriptions de formations
+ */
+export const useFormationInscription = () => {
+  return useQuery({
+    queryKey: ['formationInscription'],
+    queryFn: async () => {
+      // Simulation des données d'inscription
+      return {
+        data: {
+          success: true,
+          message: 'Inscription envoyée avec succès'
+        }
+      };
+    }
+  });
+};
+
+/**
+ * Hook pour les soumissions de contact
+ */
+export const useContactSubmission = () => {
+  return useQuery({
+    queryKey: ['contactSubmission'],
+    queryFn: async () => {
+      return {
+        data: {
+          success: true,
+          message: 'Message envoyé avec succès'
+        }
+      };
+    }
+  });
+};
+
+/**
+ * Hook pour la vérification d'abonnement FabLab
+ */
+export const useFablabSubscriptionVerification = () => {
+  return useQuery({
+    queryKey: ['fablabSubscriptionVerification'],
+    queryFn: async () => {
+      return {
+        data: {
+          verified: true,
+          subscription: {
+            id: 'sub-1',
+            type: 'monthly',
+            status: 'active'
+          }
+        }
+      };
+    }
+  });
+};
+
+/**
+ * Hook pour les tarifs horaires des machines
+ */
+export const useMachineHourlyRates = () => {
+  return useQuery({
+    queryKey: ['machineHourlyRates'],
+    queryFn: async () => {
+      const mockRates = [
+        { machineId: '1', hourlyRate: 2500, currency: 'FCFA' },
+        { machineId: '2', hourlyRate: 1500, currency: 'FCFA' },
+        { machineId: '3', hourlyRate: 3000, currency: 'FCFA' }
+      ];
+      return { data: mockRates };
+    }
+  });
+};
+
+/**
+ * Hook pour les abonnements FabLab
+ */
+export const useFablabSubscriptions = () => {
+  return useQuery({
+    queryKey: ['fablabSubscriptions'],
+    queryFn: async () => {
+      const mockSubscriptions = [
+        { 
+          id: 'sub-1', 
+          type: 'student',
+          subscriptionType: 'STUDENT',
+          firstName: 'Marie',
+          lastName: 'Kouassi',
+          userName: 'Marie Kouassi',
+          email: 'marie.kouassi@crec.com',
+          phone: '+229 67 89 12 34',
+          price: 15000, 
+          maxHoursPerMonth: 15,
+          duration: 1,
+          startDate: new Date().toISOString(),
+          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          status: 'APPROVED',
+          isActive: true,
+          paymentMethod: 'mobile_money',
+          subscriptionKey: 'bonjour',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        { 
+          id: 'sub-2', 
+          type: 'professional',
+          subscriptionType: 'YEARLY',
+          firstName: 'Jean',
+          lastName: 'Dupont',
+          userName: 'Jean Dupont',
+          email: 'jean.dupont@crec.com',
+          phone: '+229 65 43 21 09',
+          price: 150000, 
+          maxHoursPerMonth: 20,
+          duration: 12,
+          startDate: new Date().toISOString(),
+          endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+          status: 'APPROVED',
+          isActive: true,
+          paymentMethod: 'bank_transfer',
+          subscriptionKey: 'professionnel123',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ];
+      return { data: mockSubscriptions };
+    }
+  });
+};
+
+/**
+ * Hook pour les réservations utilisateur
+ */
+export const useUserReservations = (subscriptionId?: string) => {
+  return useQuery({
+    queryKey: ['userReservations', subscriptionId],
+    queryFn: async () => {
+      const mockReservations = [
+        {
+          id: 'res-1',
+          machineId: '1',
+          machineName: 'Imprimante 3D',
+          date: '2024-07-10',
+          startTime: '14:00',
+          endTime: '16:00',
+          status: 'confirmed'
+        }
+      ];
+      return mockReservations;
+    },
+    enabled: !!subscriptionId
+  });
+};
+
+/**
+ * Hook pour l'usage d'abonnement
+ */
+export const useSubscriptionUsage = (subscriptionId?: string) => {
+  return useQuery({
+    queryKey: ['subscriptionUsage', subscriptionId],
+    queryFn: async () => {
+      const mockUsage = {
+        subscriptionId: subscriptionId || 'sub-1',
+        currentMonth: { 
+          totalHours: 10, 
+          sessionsCount: 8,
+          lastSession: '2024-07-05T10:00:00Z'
+        },
+        previousMonth: {
+          totalHours: 13,
+          sessionsCount: 10
+        },
+        yearToDate: {
+          totalHours: 85,
+          sessionsCount: 45
+        },
+        maxHoursPerMonth: 15,
+        hoursLeft: 5,
+        used: 10 // Pour compatibilité avec ancienne API
+      };
+      return mockUsage;
+    },
+    enabled: !!subscriptionId
+  });
+};
+
+/**
+ * Hook pour les créneaux disponibles
+ */
+export const useAvailableSlots = (machineId?: string, date?: string) => {
+  return useQuery({
+    queryKey: ['availableSlots', machineId, date],
+    queryFn: async () => {
+      const mockSlots = [
+        { time: '09:00', available: true },
+        { time: '10:00', available: false },
+        { time: '11:00', available: true },
+        { time: '14:00', available: true },
+        { time: '15:00', available: true },
+        { time: '16:00', available: false }
+      ];
+      return mockSlots;
+    },
+    enabled: !!machineId && !!date
+  });
+};
+
+/**
+ * Hook pour créer une réservation FabLab
+ */
+export const useCreateFablabReservation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (reservationData: {
+      machineId: string;
+      date: string;
+      startTime: string;
+      endTime: string;
+      purpose?: string;
+    }) => {
+      // Simulation d'un délai de création
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      return {
+        success: true,
+        reservationId: 'res-' + Date.now(),
+        message: 'Réservation créée avec succès'
+      };
+    },
+    onSuccess: () => {
+      // Invalider les queries liées aux réservations
+      queryClient.invalidateQueries({ queryKey: ['userReservations'] });
+      queryClient.invalidateQueries({ queryKey: ['availableSlots'] });
+    }
+  });
+};
+
+/**
+ * Hook pour annuler une réservation
+ */
+export const useCancelReservation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (reservationId: string) => {
+      // Simulation d'un délai d'annulation
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      return {
+        success: true,
+        message: 'Réservation annulée avec succès'
+      };
+    },
+    onSuccess: () => {
+      // Invalider les queries liées aux réservations
+      queryClient.invalidateQueries({ queryKey: ['userReservations'] });
+      queryClient.invalidateQueries({ queryKey: ['availableSlots'] });
+    }
+  });
+};
+
+/**
+ * Hook générique pour les opérations CRUD API
+ */
+export const useApi = () => {
+  const get = async (endpoint: string) => {
+    // Simulation d'une requête GET
+    console.log(`GET ${endpoint}`);
+    return { data: [] };
+  };
+
+  const post = async (endpoint: string, data: any) => {
+    // Simulation d'une requête POST
+    console.log(`POST ${endpoint}`, data);
+    return { data: { id: Date.now().toString(), ...data } };
+  };
+
+  const put = async (endpoint: string, data: any) => {
+    // Simulation d'une requête PUT
+    console.log(`PUT ${endpoint}`, data);
+    return { data: { ...data } };
+  };
+
+  const del = async (endpoint: string) => {
+    // Simulation d'une requête DELETE
+    console.log(`DELETE ${endpoint}`);
+    return { data: { success: true } };
+  };
+
+  return { get, post, put, delete: del };
 };

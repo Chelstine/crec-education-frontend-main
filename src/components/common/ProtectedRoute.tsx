@@ -61,11 +61,20 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Pour les routes protégées non-admin (par exemple réservation)
   if (requireAuth) {
-    const subscriberInfo = localStorage.getItem('subscriberInfo');
-    const isVerified = subscriberInfo ? JSON.parse(subscriberInfo).verified : false;
+    const fablabUser = localStorage.getItem('fablabUser');
     
-    if (!isVerified) {
-      return <Navigate to="/subscription-verification" state={{ from: location }} replace />;
+    if (!fablabUser) {
+      return <Navigate to="/fablab/login" state={{ from: location }} replace />;
+    }
+    
+    try {
+      const userData = JSON.parse(fablabUser);
+      if (!userData.loggedIn || !userData.verified) {
+        return <Navigate to="/fablab/login" state={{ from: location }} replace />;
+      }
+    } catch (error) {
+      console.error('Erreur lors du parsing des données utilisateur:', error);
+      return <Navigate to="/fablab/login" state={{ from: location }} replace />;
     }
   }
 

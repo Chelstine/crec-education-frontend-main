@@ -39,21 +39,21 @@ const InscriptionUniversitairePage = lazy(() => import('@/pages/formations/Inscr
 const ReservationPage = lazy(() => import('@/pages/reservation/ReservationPage'));
 const SubscriptionPage = lazy(() => import('@/pages/reservation/SubscriptionPage'));
 const SubscriptionVerification = lazy(() => import('@/pages/reservation/SubscriptionVerification'));
+const FablabLoginPage = lazy(() => import('@/pages/auth/FablabLoginPage'));
 
 // Pages Événements
 const EventsPage = lazy(() => import('@/pages/events/EventsPage'));
 const EventDetailPage = lazy(() => import('@/pages/events/EventDetailPage'));
 const CalendarPage = lazy(() => import('@/pages/events/CalendarPage'));
 
-// Pages Dons
+// Pages Dons et Bibliothèque
 const DonatePage = lazy(() => import('@/pages/DonatePage'));
-const BibliothequeEnLignePage = lazy(() => import('@/pages/BibliothequeEnLignePage'));
+const OnlineLibraryPage = lazy(() => import('@/pages/library/OnlineLibraryPage'));
 
 // Pages d'authentification et profil utilisateur
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const RegistrationPage = lazy(() => import('@/pages/auth/RegistrationPage'));
 const UserProfilePage = lazy(() => import('@/pages/profile/UserProfilePage'));
-const OnlineLibraryPage = lazy(() => import('@/pages/library/OnlineLibraryPage'));
 
 // Helper function to wrap lazy components with Suspense
 const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType<any>>) => (
@@ -93,10 +93,6 @@ const routes: RouteObject[] = [
         element: withSuspense(GalleryPage),
       },
       {
-        path: 'bibliotheque',
-        element: withSuspense(BibliothequeEnLignePage),
-      },
-      {
         path: 'library',
         element: withSuspense(OnlineLibraryPage),
       },
@@ -113,6 +109,10 @@ const routes: RouteObject[] = [
       {
         path: 'register',
         element: withSuspense(RegistrationPage),
+      },
+      {
+        path: 'fablab/login',
+        element: withSuspense(FablabLoginPage),
       },
       
       // Pages utilisateur protégées

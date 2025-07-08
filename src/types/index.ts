@@ -717,3 +717,33 @@ export interface LibraryResource {
   updatedAt: string;
   createdBy?: string;
 }
+
+/**
+ * Types pour les abonnements FabLab avec limites de réservations
+ */
+export type SubscriptionPlan = 'etudiant' | 'pro';
+
+export interface SubscriptionLimits {
+  etudiant: {
+    maxReservations: 15;
+    name: 'Étudiant';
+  };
+  pro: {
+    maxReservations: 20;
+    name: 'Professionnel';
+  };
+}
+
+export interface UserSubscription {
+  id: string;
+  name: string;
+  key: string;
+  plan: SubscriptionPlan;
+  verified: boolean;
+  accessHours: string;
+  allowedMachines: string[];
+  maxReservations: number;
+  currentReservations: number;
+  isActive: boolean;
+  expiresAt: string;
+}

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { useApi } from '@/hooks/useApi';
+import { useFablabMachines, useApi } from '@/hooks/useApi';
 import { Loader2, Plus, Edit, Trash2, Wrench, Settings, FolderOpen, Users, CreditCard } from 'lucide-react';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 
@@ -99,7 +99,7 @@ const AdminContenusFablabPage: React.FC = () => {
         case 'equipements':
           try {
             const equipData = await api.get('/fablab/equipements');
-            setEquipements(equipData);
+            setEquipements(equipData.data);
           } catch {
             setEquipements([]); // Ne pas injecter de données mockées
           }
@@ -107,7 +107,7 @@ const AdminContenusFablabPage: React.FC = () => {
         case 'projets':
           try {
             const projData = await api.get('/fablab/projets');
-            setProjets(projData);
+            setProjets(projData.data);
           } catch {
             setProjets([]); // Ne pas injecter de données mockées
           }
@@ -115,7 +115,7 @@ const AdminContenusFablabPage: React.FC = () => {
         case 'services':
           try {
             const servData = await api.get('/fablab/services');
-            setServices(servData);
+            setServices(servData.data);
           } catch {
             setServices([]); // Ne pas injecter de données mockées
           }
@@ -123,7 +123,7 @@ const AdminContenusFablabPage: React.FC = () => {
         case 'tarifs':
           try {
             const tarifData = await api.get('/fablab/tarifs');
-            setTarifs(tarifData);
+            setTarifs(tarifData.data);
           } catch {
             setTarifs([]); // Ne pas injecter de données mockées
           }
@@ -205,7 +205,7 @@ const AdminContenusFablabPage: React.FC = () => {
       } else {
         const response = await api.post(endpoint, data);
         toast({ title: 'Succès', description: 'Élément créé avec succès' });
-        data.id = response.id || `temp-${Date.now()}`;
+        data.id = response.data.id || `temp-${Date.now()}`;
         switch (activeSection) {
           case 'equipements':
             setEquipements([...equipements, data]);

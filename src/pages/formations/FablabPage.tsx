@@ -21,7 +21,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useFabLab } from '@/contexts/FabLabContext';
+import { useFabLab } from '@/context/FabLabContext';
 
 const FablabPage = () => {
   // State pour le filtrage des projets

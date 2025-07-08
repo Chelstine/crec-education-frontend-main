@@ -1,9 +1,10 @@
 
+@import './styles/responsive.css';
+
+/* Tailwind CSS directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import './styles/responsive.css';
 
 @layer base {
   :root {
