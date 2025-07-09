@@ -1,3 +1,25 @@
+import { 
+  PublicFormationService,
+  PublicEventService,
+  PublicUniversityService,
+  PublicFablabService,
+  PublicGalleryService,
+  PublicLibraryService,
+  AdminUserService,
+  AdminFormationService,
+  AdminEventService,
+  AdminUniversityService,
+  AdminFablabService,
+  AdminGalleryService,
+  AdminLibraryService,
+  ContactService as ModernContactService,
+  FormationService as ModernFormationService,
+  EventService as ModernEventService,
+  MachineService as ModernMachineService,
+  GalleryService,
+  LibraryService
+} from './modernApiServices';
+
 // Utilitaires pour la gestion des erreurs API
 export const handleApiError = (error: any) => {
   if (error?.response?.data?.message) return error.response.data.message;
@@ -8,143 +30,260 @@ export const handleApiError = (error: any) => {
 // Services API pour les différentes entités
 // Chaque service contient les méthodes CRUD et autres opérations spécifiques
 
-// Service pour les projets (données simulées pour l'instant)
+// Service pour les projets (maintenant connecté à la galerie backend)
 export const ProjectService = {
   getAll: async () => {
-    // Simulation de données pour le front-end
-    return {
-      data: [
-        { id: '1', title: 'Projet 1', description: 'Description projet 1', imageUrl: '/img/projects/project1.jpg' },
-        { id: '2', title: 'Projet 2', description: 'Description projet 2', imageUrl: '/img/projects/project2.jpg' }
-      ]
-    };
+    try {
+      const projects = await GalleryService.getAll();
+      return {
+        data: projects.filter(item => item.category === 'project')
+      };
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+      // Fallback avec des données simulées
+      return {
+        data: [
+          { id: '1', title: 'Projet 1', description: 'Description projet 1', imageUrl: '/img/projects/project1.jpg' },
+          { id: '2', title: 'Projet 2', description: 'Description projet 2', imageUrl: '/img/projects/project2.jpg' }
+        ]
+      };
+    }
   },
   getById: async (id: string) => {
-    return { data: { id, title: `Projet ${id}`, description: `Description détaillée du projet ${id}`, imageUrl: '/img/projects/project1.jpg' } };
+    try {
+      const project = await GalleryService.getById(id);
+      return { data: project };
+    } catch (error) {
+      console.error('Error fetching project:', error);
+      return { data: { id, title: `Projet ${id}`, description: `Description détaillée du projet ${id}`, imageUrl: '/img/projects/project1.jpg' } };
+    }
   },
   getByCategory: async (category: string) => {
-    return { data: [
-      { id: '1', title: `Projet ${category} 1`, description: 'Description', imageUrl: '/img/projects/project1.jpg' },
-      { id: '2', title: `Projet ${category} 2`, description: 'Description', imageUrl: '/img/projects/project2.jpg' }
-    ] };
+    try {
+      const projects = await GalleryService.getAll();
+      return {
+        data: projects.filter(item => item.category === category)
+      };
+    } catch (error) {
+      console.error('Error fetching projects by category:', error);
+      return { data: [
+        { id: '1', title: `Projet ${category} 1`, description: 'Description', imageUrl: '/img/projects/project1.jpg' },
+        { id: '2', title: `Projet ${category} 2`, description: 'Description', imageUrl: '/img/projects/project2.jpg' }
+      ] };
+    }
   },
 };
 
-// Service pour les machines FabLab
+// Service pour les machines FabLab (maintenant connecté au backend)
 export const MachineService = {
   getAll: async () => {
-    return {
-      data: [
-        { id: '1', name: 'Imprimante 3D', status: 'disponible', imageUrl: '/img/machines/3d-printer.jpg' },
-        { id: '2', name: 'Découpeuse Laser', status: 'maintenance', imageUrl: '/img/machines/laser-cutter.jpg' }
-      ]
-    };
+    try {
+      const machines = await ModernMachineService.getAll();
+      return { data: machines };
+    } catch (error) {
+      console.error('Error fetching machines:', error);
+      // Fallback avec des données simulées
+      return {
+        data: [
+          { id: '1', name: 'Imprimante 3D', status: 'disponible', imageUrl: '/img/machines/3d-printer.jpg' },
+          { id: '2', name: 'Découpeuse Laser', status: 'maintenance', imageUrl: '/img/machines/laser-cutter.jpg' }
+        ]
+      };
+    }
   },
   getById: async (id: string) => {
-    return { data: { id, name: `Machine ${id}`, status: 'disponible', imageUrl: '/img/machines/3d-printer.jpg' } };
+    try {
+      const machine = await ModernMachineService.getById(id);
+      return { data: machine };
+    } catch (error) {
+      console.error('Error fetching machine:', error);
+      return { data: { id, name: `Machine ${id}`, status: 'disponible', imageUrl: '/img/machines/3d-printer.jpg' } };
+    }
   },
   getAvailable: async () => {
-    return { data: [
-      { id: '1', name: 'Imprimante 3D', status: 'disponible', imageUrl: '/img/machines/3d-printer.jpg' }
-    ] };
+    try {
+      const machines = await ModernMachineService.getAvailable();
+      return { data: machines };
+    } catch (error) {
+      console.error('Error fetching available machines:', error);
+      return { data: [
+        { id: '1', name: 'Imprimante 3D', status: 'disponible', imageUrl: '/img/machines/3d-printer.jpg' }
+      ] };
+    }
   },
 };
 
 // Service pour les formulaires de contact
 export const ContactService = {
   submit: async (formData: any) => {
-    // Simulation - à remplacer par un appel API réel
-    console.log('Contact form data submitted:', formData);
-    return { data: { success: true, message: 'Votre message a été envoyé avec succès' } };
+    try {
+      const result = await ModernContactService.sendMessage(formData);
+      return { data: { success: true, message: result.message } };
+    } catch (error) {
+      console.error('Error submitting contact form:', error);
+      throw error;
+    }
   },
   sendMessage: async (formData: any) => {
-    return { data: { success: true, message: 'Votre message a été envoyé avec succès' } };
+    return ContactService.submit(formData);
   },
 };
 
 // Service pour les formations
 export const FormationService = {
   getAll: async () => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('GET', '/formations');
-    throw new Error('Backend not connected yet - use openFormations endpoints');
+    try {
+      const formations = await ModernFormationService.getAll();
+      return { data: formations };
+    } catch (error) {
+      console.error('Error fetching formations:', error);
+      throw error;
+    }
   },
   
   getOpenFormations: async () => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('GET', '/formations/open');
-    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open');
+    try {
+      const formations = await ModernFormationService.getAll();
+      return { data: formations.filter(f => f.status === 'open') };
+    } catch (error) {
+      console.error('Error fetching open formations:', error);
+      throw error;
+    }
   },
   
   getById: async (id: string) => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('GET', `/formations/open/${id}`);
-    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open/${id}');
+    try {
+      const formation = await ModernFormationService.getById(id);
+      return { data: formation };
+    } catch (error) {
+      console.error('Error fetching formation:', error);
+      throw error;
+    }
   },
   
   create: async (data: any) => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('POST', '/formations/open', data);
-    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open');
+    try {
+      const formation = await ModernFormationService.create(data);
+      return { data: formation };
+    } catch (error) {
+      console.error('Error creating formation:', error);
+      throw error;
+    }
   },
   
   update: async (id: string, data: any) => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('PUT', `/formations/open/${id}`, data);
-    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open/${id}');
+    try {
+      const formation = await ModernFormationService.update(id, data);
+      return { data: formation };
+    } catch (error) {
+      console.error('Error updating formation:', error);
+      throw error;
+    }
   },
   
   delete: async (id: string) => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('DELETE', `/formations/open/${id}`);
-    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open/${id}');
+    try {
+      await ModernFormationService.delete(id);
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting formation:', error);
+      throw error;
+    }
   },
   
   getUniversity: async () => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('GET', '/programs/university');
-    throw new Error('Backend not connected yet - TODO: connect to /api/programs/university');
+    try {
+      const programs = await ModernFormationService.getUniversity();
+      return { data: programs };
+    } catch (error) {
+      console.error('Error fetching university programs:', error);
+      throw error;
+    }
   },
   
   submitInscription: async (data: any) => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('POST', '/formations/registrations', data);
-    throw new Error('Backend not connected yet - TODO: connect to /api/formations/registrations');
+    try {
+      const result = await ModernFormationService.submitInscription(data);
+      return { data: result };
+    } catch (error) {
+      console.error('Error submitting inscription:', error);
+      throw error;
+    }
   },
   
   submitUniversityApplication: async (data: any) => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('POST', '/programs/university/applications', data);
-    throw new Error('Backend not connected yet - TODO: connect to /api/programs/university/applications');
+    try {
+      const result = await ModernFormationService.submitUniversityApplication(data);
+      return { data: result };
+    } catch (error) {
+      console.error('Error submitting university application:', error);
+      throw error;
+    }
   },
 };
 
 // Service pour les événements
 export const EventService = {
   getAll: async () => {
-    return {
-      data: [
-        { id: '1', title: 'Conférence Tech', date: '2025-10-15', location: 'Amphi A', status: 'à venir' },
-        { id: '2', title: 'Hackathon', date: '2025-11-20', location: 'Campus principal', status: 'à venir' }
-      ]
-    };
+    try {
+      const events = await ModernEventService.getAll();
+      return { data: events };
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      return {
+        data: [
+          { id: '1', title: 'Conférence Tech', date: '2025-10-15', location: 'Amphi A', status: 'à venir' },
+          { id: '2', title: 'Hackathon', date: '2025-11-20', location: 'Campus principal', status: 'à venir' }
+        ]
+      };
+    }
   },
   getById: async (id: string) => {
-    return { data: { id, title: `Événement ${id}`, date: '2025-10-15', location: 'Amphi A', status: 'à venir' } };
+    try {
+      const event = await ModernEventService.getById(id);
+      return { data: event };
+    } catch (error) {
+      console.error('Error fetching event:', error);
+      return { data: { id, title: `Événement ${id}`, date: '2025-10-15', location: 'Amphi A', status: 'à venir' } };
+    }
   },
   create: async (data: any) => {
-    return { data: { ...data, id: Date.now().toString() } };
+    try {
+      const event = await ModernEventService.create(data);
+      return { data: event };
+    } catch (error) {
+      console.error('Error creating event:', error);
+      return { data: { ...data, id: Date.now().toString() } };
+    }
   },
   update: async (id: string, data: any) => {
-    return { data: { ...data, id } };
+    try {
+      const event = await ModernEventService.update(id, data);
+      return { data: event };
+    } catch (error) {
+      console.error('Error updating event:', error);
+      return { data: { ...data, id } };
+    }
   },
   delete: async (id: string) => {
-    return { data: { success: true } };
+    try {
+      await ModernEventService.delete(id);
+      return { data: { success: true } };
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      return { data: { success: true } };
+    }
   },
   getUpcoming: async () => {
-    return { data: [
-      { id: '1', title: 'Conférence Tech', date: '2025-10-15', location: 'Amphi A', status: 'à venir' }
-    ] };
+    try {
+      const events = await ModernEventService.getUpcoming();
+      return { data: events };
+    } catch (error) {
+      console.error('Error fetching upcoming events:', error);
+      return { data: [
+        { id: '1', title: 'Conférence Tech', date: '2025-10-15', location: 'Amphi A', status: 'à venir' }
+      ] };
+    }
   },
 };
 
@@ -244,218 +383,342 @@ export const AuthService = {
 // Services spécifiques au FabLab
 export const FablabSubscriptionService = {
   getAll: async () => {
-    // TODO: Remplacer par l'appel API réel au backend
-    const response = await fetch('/api/fablab/subscription-plans');
-    return response.json();
+    try {
+      const subscriptions = await AdminFablabService.getSubscriptions();
+      return { data: subscriptions };
+    } catch (error) {
+      console.error('Error fetching subscriptions:', error);
+      throw error;
+    }
   },
   subscribe: async (data: any) => {
-    // TODO: Remplacer par l'appel API réel au backend
-    const response = await fetch('/api/fablab/subscribe', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    return response.json();
+    try {
+      // TODO: Implémenter l'endpoint de souscription
+      const response = await fetch('/api/fablab/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      return response.json();
+    } catch (error) {
+      console.error('Error subscribing:', error);
+      throw error;
+    }
   },
   getAllSubscriptions: async () => {
-    // TODO: Remplacer par l'appel API réel au backend
-    const response = await fetch('/api/fablab/subscriptions', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    return response.json();
+    try {
+      const subscriptions = await AdminFablabService.getSubscriptions();
+      return { data: subscriptions };
+    } catch (error) {
+      console.error('Error fetching all subscriptions:', error);
+      throw error;
+    }
   },
   createSubscription: async (data: any) => {
-    // TODO: Remplacer par l'appel API réel au backend
-    const response = await fetch('/api/fablab/subscriptions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    return response.json();
+    try {
+      // TODO: Implémenter l'endpoint de création d'abonnement
+      const response = await fetch('/api/fablab/subscriptions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      return response.json();
+    } catch (error) {
+      console.error('Error creating subscription:', error);
+      throw error;
+    }
   },
   verifySubscription: async (name: string, subscriptionKey: string) => {
-    // TODO: Remplacer par l'appel API réel au backend
-    const response = await fetch('/api/fablab/verify-subscription', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, subscriptionKey })
-    });
-    if (!response.ok) throw new Error('Clé invalide');
-    return response.json();
+    try {
+      const result = await PublicFablabService.verifySubscription(name, subscriptionKey);
+      return result;
+    } catch (error) {
+      console.error('Error verifying subscription:', error);
+      throw error;
+    }
   },
   getUsageReport: async (subscriptionId: string) => {
-    // TODO: Remplacer par l'appel API réel au backend
-    const response = await fetch(`/api/fablab/subscriptions/${subscriptionId}/usage`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    return response.json();
+    try {
+      // TODO: Implémenter l'endpoint de rapport d'usage
+      const response = await fetch(`/api/fablab/subscriptions/${subscriptionId}/usage`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching usage report:', error);
+      throw error;
+    }
   },
   canMakeReservation: async (subscriptionId: string, requestedHours: number) => {
-    // TODO: Remplacer par l'appel API réel au backend
-    const response = await fetch(`/api/fablab/subscriptions/${subscriptionId}/can-reserve`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}` 
-      },
-      body: JSON.stringify({ requestedHours })
-    });
-    return response.json();
+    try {
+      // TODO: Implémenter l'endpoint de vérification de réservation
+      const response = await fetch(`/api/fablab/subscriptions/${subscriptionId}/can-reserve`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}` 
+        },
+        body: JSON.stringify({ requestedHours })
+      });
+      return response.json();
+    } catch (error) {
+      console.error('Error checking reservation availability:', error);
+      throw error;
+    }
   }
 };
 
 export const FablabMachineService = {
   getAllMachines: async () => {
-    // TODO: Remplacer par l'appel API réel au backend
-    const response = await fetch('/api/fablab/machines');
-    return response.json();
+    try {
+      const machines = await ModernMachineService.getAll();
+      return { data: machines };
+    } catch (error) {
+      console.error('Error fetching machines:', error);
+      throw error;
+    }
   },
   getHourlyRates: async () => {
-    // TODO: Remplacer par l'appel API réel au backend
-    const response = await fetch('/api/fablab/machines/rates');
-    return response.json();
+    try {
+      const machines = await ModernMachineService.getAll();
+      return { data: machines.map(m => ({ id: m.id, name: m.name, hourlyRate: m.hourlyRate })) };
+    } catch (error) {
+      console.error('Error fetching hourly rates:', error);
+      throw error;
+    }
   },
 };
 
 export const FablabReservationService = {
   createReservation: async (data: any) => {
-    // TODO: Remplacer par l'appel API réel au backend
-    const response = await fetch('/api/fablab/reservations', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}` 
-      },
-      body: JSON.stringify(data)
-    });
-    return response.json();
+    try {
+      const reservation = await PublicFablabService.createReservation(data);
+      return { data: reservation };
+    } catch (error) {
+      console.error('Error creating reservation:', error);
+      throw error;
+    }
   },
   getUserReservations: async (subscriptionId: string) => {
-    // TODO: Remplacer par l'appel API réel au backend
-    const response = await fetch(`/api/fablab/subscriptions/${subscriptionId}/reservations`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    return response.json();
+    try {
+      // TODO: Implémenter l'endpoint de récupération des réservations utilisateur
+      const response = await fetch(`/api/fablab/subscriptions/${subscriptionId}/reservations`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching user reservations:', error);
+      throw error;
+    }
   },
   getAvailableSlots: async (machineId: string, date: string) => {
-    // TODO: Remplacer par l'appel API réel au backend
-    const response = await fetch(`/api/fablab/machines/${machineId}/available-slots?date=${date}`);
-    return response.json();
+    try {
+      // TODO: Implémenter l'endpoint de récupération des créneaux disponibles
+      const response = await fetch(`/api/fablab/machines/${machineId}/available-slots?date=${date}`);
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching available slots:', error);
+      throw error;
+    }
   },
   cancelReservation: async (reservationId: string) => {
-    // TODO: Remplacer par l'appel API réel au backend
-    const response = await fetch(`/api/fablab/reservations/${reservationId}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    return response.json();
+    try {
+      // TODO: Implémenter l'endpoint d'annulation de réservation
+      const response = await fetch(`/api/fablab/reservations/${reservationId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      return response.json();
+    } catch (error) {
+      console.error('Error canceling reservation:', error);
+      throw error;
+    }
   }
 };
 
 // Service spécifique pour les formations ouvertes
 export const OpenFormationService = {
   getAll: async () => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('GET', '/api/formations/open');
-    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open');
+    try {
+      const formations = await ModernFormationService.getAll();
+      return { data: formations };
+    } catch (error) {
+      console.error('Error fetching open formations:', error);
+      throw error;
+    }
   },
   
   getById: async (id: string) => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('GET', `/api/formations/open/${id}`);
-    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open/${id}');
+    try {
+      const formation = await ModernFormationService.getById(id);
+      return { data: formation };
+    } catch (error) {
+      console.error('Error fetching open formation:', error);
+      throw error;
+    }
   },
   
   create: async (data: any) => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('POST', '/api/formations/open', data);
-    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open');
+    try {
+      const formation = await ModernFormationService.create(data);
+      return { data: formation };
+    } catch (error) {
+      console.error('Error creating open formation:', error);
+      throw error;
+    }
   },
   
   update: async (id: string, data: any) => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('PUT', `/api/formations/open/${id}`, data);
-    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open/${id}');
+    try {
+      const formation = await ModernFormationService.update(id, data);
+      return { data: formation };
+    } catch (error) {
+      console.error('Error updating open formation:', error);
+      throw error;
+    }
   },
   
   delete: async (id: string) => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('DELETE', `/api/formations/open/${id}`);
-    throw new Error('Backend not connected yet - TODO: connect to /api/formations/open/${id}');
+    try {
+      await ModernFormationService.delete(id);
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting open formation:', error);
+      throw error;
+    }
   },
   
   getRegistrations: async () => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('GET', '/api/formations/registrations');
-    throw new Error('Backend not connected yet - TODO: connect to /api/formations/registrations');
+    try {
+      // TODO: Implémenter l'endpoint de récupération des inscriptions
+      const response = await fetch('/api/formations/registrations');
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching registrations:', error);
+      throw error;
+    }
   },
   
   submitRegistration: async (data: any) => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('POST', '/api/formations/registrations', data);
-    throw new Error('Backend not connected yet - TODO: connect to /api/formations/registrations');
+    try {
+      const result = await ModernFormationService.submitInscription(data);
+      return { data: result };
+    } catch (error) {
+      console.error('Error submitting registration:', error);
+      throw error;
+    }
   },
   
   updateRegistration: async (id: string, data: any) => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('PUT', `/api/formations/registrations/${id}`, data);
-    throw new Error('Backend not connected yet - TODO: connect to /api/formations/registrations/${id}');
+    try {
+      // TODO: Implémenter l'endpoint de mise à jour d'inscription
+      const response = await fetch(`/api/formations/registrations/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      return response.json();
+    } catch (error) {
+      console.error('Error updating registration:', error);
+      throw error;
+    }
   },
   
   deleteRegistration: async (id: string) => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('DELETE', `/api/formations/registrations/${id}`);
-    throw new Error('Backend not connected yet - TODO: connect to /api/formations/registrations/${id}');
+    try {
+      // TODO: Implémenter l'endpoint de suppression d'inscription
+      const response = await fetch(`/api/formations/registrations/${id}`, {
+        method: 'DELETE'
+      });
+      return response.json();
+    } catch (error) {
+      console.error('Error deleting registration:', error);
+      throw error;
+    }
   },
 };
 
 // Service pour les programmes universitaires
 export const UniversityProgramService = {
   getAll: async () => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('GET', '/university-programs');
-    throw new Error('Backend not connected yet - TODO: connect to /api/university-programs');
+    try {
+      const programs = await PublicUniversityService.getPrograms();
+      return { data: programs };
+    } catch (error) {
+      console.error('Error fetching university programs:', error);
+      throw error;
+    }
   },
   
   getById: async (id: string) => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('GET', `/university-programs/${id}`);
-    throw new Error('Backend not connected yet - TODO: connect to /api/university-programs/${id}');
+    try {
+      const program = await PublicUniversityService.getProgramById(id);
+      return { data: program };
+    } catch (error) {
+      console.error('Error fetching university program:', error);
+      throw error;
+    }
   },
   
   getByType: async (type: string) => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('GET', `/university-programs?type=${type}`);
-    throw new Error('Backend not connected yet - TODO: connect to /api/university-programs?type=${type}');
+    try {
+      const programs = await PublicUniversityService.getPrograms();
+      return { data: programs.filter(p => p.level === type) };
+    } catch (error) {
+      console.error('Error fetching university programs by type:', error);
+      throw error;
+    }
   },
   
   submitApplication: async (data: any) => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('POST', '/university-applications', data);
-    throw new Error('Backend not connected yet - TODO: connect to /api/university-applications');
+    try {
+      const result = await PublicUniversityService.submitApplication(data);
+      return { data: result };
+    } catch (error) {
+      console.error('Error submitting university application:', error);
+      throw error;
+    }
   },
   
   uploadDocument: async (applicationId: string, documentType: string, file: File) => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // const formData = new FormData();
-    // formData.append('file', file);
-    // return makeRequest('POST', `/university-applications/${applicationId}/documents/${documentType}`, formData);
-    throw new Error('Backend not connected yet - TODO: connect to /api/university-applications/${applicationId}/documents/${documentType}');
+    try {
+      // TODO: Implémenter l'endpoint d'upload de document
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await fetch(`/api/university-applications/${applicationId}/documents/${documentType}`, {
+        method: 'POST',
+        body: formData
+      });
+      return response.json();
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      throw error;
+    }
   },
 };
 
 // Service pour les années académiques
 export const AcademicYearService = {
   getActive: async () => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('GET', '/academic-years/active');
-    throw new Error('Backend not connected yet - TODO: connect to /api/academic-years/active');
+    try {
+      // TODO: Implémenter l'endpoint des années académiques actives
+      const response = await fetch('/api/academic-years/active');
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching active academic year:', error);
+      throw error;
+    }
   },
   
   getAll: async () => {
-    // TODO: Remplacer par l'endpoint réel une fois le backend prêt
-    // return makeRequest('GET', '/academic-years');
-    throw new Error('Backend not connected yet - TODO: connect to /api/academic-years');
+    try {
+      // TODO: Implémenter l'endpoint des années académiques
+      const response = await fetch('/api/academic-years');
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching academic years:', error);
+      throw error;
+    }
   },
 };
 

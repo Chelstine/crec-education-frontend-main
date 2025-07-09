@@ -106,8 +106,8 @@ export interface TimeSlot {
  */
 export interface User {
   id: string;
-  firstName: string;
-  lastName: string;
+  firstname: string;
+  lastname: string;
   email: string;
   roles: AdminRole[];
   avatar?: string;
@@ -746,4 +746,257 @@ export interface UserSubscription {
   currentReservations: number;
   isActive: boolean;
   expiresAt: string;
+}
+
+// =================== BACKEND COMPATIBLE TYPES ===================
+// Types qui correspondent exactement aux schemas backend
+
+export interface BackendUser {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  phone?: string;
+  roles: string[];
+  permissions?: string[];
+  avatar?: string;
+  is_active: boolean;
+  last_login?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BackendEvent {
+  id: string;
+  title: string;
+  description?: string;
+  long_description?: string;
+  event_type: string;
+  start_date: string; // ISO DateTime
+  end_date?: string; // ISO DateTime
+  location?: string;
+  address?: string;
+  image?: string;
+  max_participants?: number;
+  current_participants: number;
+  registration_required: boolean;
+  registration_deadline?: string; // ISO DateTime
+  is_published: boolean;
+  is_featured: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BackendFormation {
+  id: string;
+  title: string;
+  description?: string;
+  long_description?: string;
+  image?: string;
+  duration?: string;
+  price: number;
+  max_participants: number;
+  start_date?: string; // ISO DateTime
+  end_date?: string; // ISO DateTime
+  schedule?: string;
+  prerequisites?: string;
+  syllabus?: any;
+  instructor?: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BackendUniversityProgram {
+  id: string;
+  name: string;
+  title: string;
+  description?: string;
+  long_description?: string;
+  duration?: string;
+  degree?: string;
+  level?: string;
+  department?: string;
+  capacity: number;
+  current_applications: number;
+  application_deadline?: string; // ISO Date
+  start_date?: string; // ISO Date
+  tuition_fee: number;
+  inscription_fee: number;
+  currency: string;
+  is_active: boolean;
+  is_visible: boolean;
+  allow_online_application: boolean;
+  requires_documents: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BackendFablabMachine {
+  id: string;
+  name: string;
+  code?: string;
+  type?: string;
+  description?: string;
+  features?: any; // JSON object
+  image_url?: string;
+  hourly_rate: number;
+  status: string;
+  requires_training: boolean;
+  max_booking_hours: number;
+  location?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BackendFablabSubscription {
+  id: string;
+  public_user_id?: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone?: string;
+  profession?: string;
+  subscription_type: string;
+  duration: number;
+  price: number;
+  max_hours_per_month: number;
+  start_date?: string; // ISO Date
+  end_date?: string; // ISO Date
+  payment_method?: string;
+  payment_reference?: string;
+  subscription_key?: string;
+  status: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BackendGalleryItem {
+  id: string;
+  title: string;
+  description?: string;
+  image_url: string;
+  category?: string;
+  tags?: any; // JSON object
+  photographer?: string;
+  location?: string;
+  capture_date?: string; // ISO DateTime
+  is_published: boolean;
+  is_featured: boolean;
+  order_index: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BackendLibraryResource {
+  id: string;
+  title: string;
+  author?: string;
+  description?: string;
+  category?: string;
+  type: string;
+  publisher?: string;
+  publication_year?: number;
+  isbn?: string;
+  cover_image?: string;
+  pdf_url?: string;
+  download_url?: string;
+  read_online_url?: string;
+  is_available: boolean;
+  is_digital: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// =================== TYPE CONVERTERS ===================
+// Fonctions pour convertir entre les types backend et frontend
+
+export const convertBackendUserToFrontend = (backendUser: BackendUser): User => ({
+  id: backendUser.id,
+  firstname: backendUser.first_name,
+  lastname: backendUser.last_name,
+  email: backendUser.email,
+  roles: backendUser.roles as AdminRole[],
+  avatar: backendUser.avatar,
+  createdAt: backendUser.created_at,
+  lastLogin: backendUser.last_login,
+  isActive: backendUser.is_active,
+  permissions: backendUser.permissions
+});
+
+export const convertBackendEventToFrontend = (backendEvent: BackendEvent): Event => ({
+  id: backendEvent.id,
+  title: backendEvent.title,
+  description: backendEvent.description || '',
+  longDescription: backendEvent.long_description,
+  eventType: backendEvent.event_type as Event['eventType'],
+  startDate: backendEvent.start_date,
+  endDate: backendEvent.end_date,
+  location: backendEvent.location || '',
+  address: backendEvent.address,
+  image: backendEvent.image,
+  maxParticipants: backendEvent.max_participants,
+  currentParticipants: backendEvent.current_participants,
+  registrationRequired: backendEvent.registration_required,
+  registrationDeadline: backendEvent.registration_deadline,
+  isPublished: backendEvent.is_published,
+  isFeatured: backendEvent.is_featured,
+  createdAt: backendEvent.created_at,
+  updatedAt: backendEvent.updated_at
+});
+
+export const convertBackendMachineToFrontend = (backendMachine: BackendFablabMachine): FablabMachine => ({
+  id: backendMachine.id,
+  name: backendMachine.name,
+  code: backendMachine.code,
+  type: backendMachine.type,
+  description: backendMachine.description,
+  status: backendMachine.status,
+  imageUrl: backendMachine.image_url,
+  image: backendMachine.image_url,
+  hourlyRate: backendMachine.hourly_rate,
+  requiresTraining: backendMachine.requires_training,
+  maxBookingHours: backendMachine.max_booking_hours,
+  location: backendMachine.location,
+  features: backendMachine.features ? Object.values(backendMachine.features) : [],
+  createdAt: backendMachine.created_at,
+  updatedAt: backendMachine.updated_at
+});
+
+export const convertBackendGalleryToFrontend = (backendItem: BackendGalleryItem): GalleryItem => ({
+  id: backendItem.id,
+  title: backendItem.title,
+  description: backendItem.description,
+  imageUrl: backendItem.image_url,
+  category: backendItem.category || '',
+  tags: backendItem.tags ? Object.values(backendItem.tags) : [],
+  photographer: backendItem.photographer,
+  location: backendItem.location,
+  captureDate: backendItem.capture_date,
+  isPublished: backendItem.is_published,
+  isFeatured: backendItem.is_featured,
+  order: backendItem.order_index,
+  createdAt: backendItem.created_at,
+  updatedAt: backendItem.updated_at
+});
+
+// =================== API RESPONSE TYPES ===================
+
+export interface ApiResponse<T> {
+  data?: T;
+  message?: string;
+  success?: boolean;
+}
+
+export interface LoginResponse {
+  access_token: string;
+  token_type: string;
+  user: BackendUser;
+}
+
+export interface SubscriptionVerificationResponse {
+  success: boolean;
+  data?: any;
+  message: string;
 }
