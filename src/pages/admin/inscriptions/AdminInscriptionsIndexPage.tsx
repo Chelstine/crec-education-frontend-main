@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, 
@@ -17,6 +17,36 @@ import { Badge } from '../../../components/ui/badge';
 const AdminInscriptionsIndexPage: React.FC = () => {
   const navigate = useNavigate();
 
+  // États pour les statistiques
+  const [stats, setStats] = useState({
+    istm: { pending: '0 en attente', approved: '0 approuvée', total: '0 total' },
+    formations: { pending: '0 en attente', approved: '0 approuvée', total: '0 total' },
+    fablab: { pending: '0 en attente', approved: '0 approuvée', total: '0 total' }
+  });
+
+  // Charger les statistiques depuis l'API
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        // TODO: Remplacer par les vrais appels API
+        // const response = await fetch('/api/admin/inscriptions/stats');
+        // const data = await response.json();
+        // setStats(data);
+        
+        // Pour l'instant, garder les statistiques à zéro
+        setStats({
+          istm: { pending: '0 en attente', approved: '0 approuvée', total: '0 total' },
+          formations: { pending: '0 en attente', approved: '0 approuvée', total: '0 total' },
+          fablab: { pending: '0 en attente', approved: '0 approuvée', total: '0 total' }
+        });
+      } catch (error) {
+        console.error('Erreur lors du chargement des statistiques:', error);
+      }
+    };
+
+    loadStats();
+  }, []);
+
   const inscriptionSections = [
     {
       id: 'istm',
@@ -32,11 +62,7 @@ const AdminInscriptionsIndexPage: React.FC = () => {
         'Suivi des frais d\'inscription',
         'Génération des listes d\'admission'
       ],
-      stats: {
-        pending: '12 en attente',
-        approved: '45 approuvées',
-        total: '57 total'
-      }
+      stats: stats.istm
     },
     {
       id: 'formations',
@@ -52,11 +78,7 @@ const AdminInscriptionsIndexPage: React.FC = () => {
         'Validation des prérequis',
         'Émission des certificats'
       ],
-      stats: {
-        pending: '8 en attente',
-        approved: '32 approuvées',
-        total: '40 total'
-      }
+      stats: stats.formations
     },
     {
       id: 'fablab',
@@ -72,11 +94,7 @@ const AdminInscriptionsIndexPage: React.FC = () => {
         'Gestion des abonnements',
         'Suivi de l\'utilisation des machines'
       ],
-      stats: {
-        pending: '5 en attente',
-        approved: '23 approuvées',
-        total: '28 total'
-      }
+      stats: stats.fablab
     }
   ];
 

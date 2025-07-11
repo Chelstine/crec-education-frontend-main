@@ -40,6 +40,7 @@ const ReservationPage = lazy(() => import('@/pages/reservation/ReservationPage')
 const SubscriptionPage = lazy(() => import('@/pages/reservation/SubscriptionPage'));
 const SubscriptionVerification = lazy(() => import('@/pages/reservation/SubscriptionVerification'));
 const FablabLoginPage = lazy(() => import('@/pages/auth/FablabLoginPage'));
+const FabLabVisualizationPage = lazy(() => import('@/pages/reservation/FabLabVisualizationPage'));
 
 // Pages Événements
 const EventsPage = lazy(() => import('@/pages/events/EventsPage'));
@@ -53,7 +54,7 @@ const OnlineLibraryPage = lazy(() => import('@/pages/library/OnlineLibraryPage')
 // Pages d'authentification et profil utilisateur
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const RegistrationPage = lazy(() => import('@/pages/auth/RegistrationPage'));
-const UserProfilePage = lazy(() => import('@/pages/profile/UserProfilePage'));
+const UserProfilePage = lazy(() => import('./pages/profile/UserProfilePage'));
 
 // Helper function to wrap lazy components with Suspense
 const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType<any>>) => (
@@ -208,6 +209,10 @@ const routes: RouteObject[] = [
             {withSuspense(ReservationPage)}
           </ProtectedRoute>
         ),
+      },
+      {
+        path: 'fablab',
+        element: withSuspense(FabLabVisualizationPage),
       },
     ],
   },

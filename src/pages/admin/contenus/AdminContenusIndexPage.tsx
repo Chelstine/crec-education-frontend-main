@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   FileText, 
@@ -17,6 +17,36 @@ import { Badge } from '../../../components/ui/badge';
 const AdminContenusIndexPage: React.FC = () => {
   const navigate = useNavigate();
 
+  // États pour les statistiques
+  const [stats, setStats] = useState({
+    istm: { programs: '0 programme', active: '0 actif', draft: '0 brouillon' },
+    formations: { programs: '0 formation', active: '0 active', draft: '0 en préparation' },
+    fablab: { programs: '0 équipement', active: '0 disponible', draft: '0 en maintenance' }
+  });
+
+  // Charger les statistiques depuis l'API
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        // TODO: Remplacer par les vrais appels API
+        // const response = await fetch('/api/admin/contenus/stats');
+        // const data = await response.json();
+        // setStats(data);
+        
+        // Pour l'instant, garder les statistiques à zéro
+        setStats({
+          istm: { programs: '0 programme', active: '0 actif', draft: '0 brouillon' },
+          formations: { programs: '0 formation', active: '0 active', draft: '0 en préparation' },
+          fablab: { programs: '0 équipement', active: '0 disponible', draft: '0 en maintenance' }
+        });
+      } catch (error) {
+        console.error('Erreur lors du chargement des statistiques:', error);
+      }
+    };
+
+    loadStats();
+  }, []);
+
   const contentSections = [
     {
       id: 'istm',
@@ -32,11 +62,7 @@ const AdminContenusIndexPage: React.FC = () => {
         'Configuration des frais d\'inscription',
         'Paramétrage de la rentrée scolaire'
       ],
-      stats: {
-        programs: '12 programmes',
-        active: '10 actifs',
-        draft: '2 brouillons'
-      }
+      stats: stats.istm
     },
     {
       id: 'formations',
@@ -52,11 +78,7 @@ const AdminContenusIndexPage: React.FC = () => {
         'Configuration des prérequis',
         'Planning et calendrier des sessions'
       ],
-      stats: {
-        programs: '8 formations',
-        active: '6 actives',
-        draft: '2 en préparation'
-      }
+      stats: stats.formations
     },
     {
       id: 'fablab',
@@ -72,11 +94,7 @@ const AdminContenusIndexPage: React.FC = () => {
         'Gestion des tarifs et abonnements',
         'Documentation et tutoriels'
       ],
-      stats: {
-        programs: '15 équipements',
-        active: '12 disponibles',
-        draft: '3 en maintenance'
-      }
+      stats: stats.fablab
     }
   ];
 

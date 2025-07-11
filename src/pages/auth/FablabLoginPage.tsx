@@ -17,10 +17,10 @@ const FablabLoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Utilisateur de test
+  // Utilisateur pour la connexion au FabLab - ces informations doivent être validées avec le backend
   const testUser = { 
-    name: 'Marie Kouassi', 
-    key: 'bonjour',
+    name: '', 
+    key: '',
     plan: 'etudiant' as const,
     maxReservations: 15,
     currentReservations: 3,

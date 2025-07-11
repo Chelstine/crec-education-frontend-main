@@ -44,19 +44,8 @@ const AdminUtilisateursRolesPage: React.FC = () => {
         // const data = await response.json();
         // setUsers(data);
         
-        // En attendant l'API, nous utilisons un seul utilisateur super admin
-        setUsers([
-          {
-            id: '1',
-            firstName: 'Super',
-            lastName: 'Admin',
-            email: 'superadmin@crec.bj',
-            roles: ['super_admin'],
-            isActive: true,
-            createdAt: '2024-01-01',
-            lastLogin: '2024-07-01'
-          }
-        ]);
+        // Initialiser avec une liste vide
+        setUsers([]);
       } catch (error) {
         console.error('Erreur lors du chargement des utilisateurs:', error);
       } finally {

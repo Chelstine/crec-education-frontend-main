@@ -138,7 +138,9 @@ const AdminLayout: React.FC = () => {
   // Récupère les initiales de l'utilisateur
   const getInitials = () => {
     if (!user) return 'UA';
-    return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`;
+    const firstInitial = user.firstname?.charAt(0) || 'U';
+    const lastInitial = user.lastname?.charAt(0) || 'A';
+    return `${firstInitial}${lastInitial}`;
   };
 
   return (
@@ -196,7 +198,7 @@ const AdminLayout: React.FC = () => {
                     </AvatarFallback>
                   </Avatar>
                   <div className="hidden md:block text-left">
-                    <p className="text-sm font-medium">{user?.firstName} {user?.lastName}</p>
+                    <p className="text-sm font-medium">{user?.firstname} {user?.lastname}</p>
                     <p className="text-xs text-slate-500">{user?.roles?.[0]}</p>
                   </div>
                 </Button>

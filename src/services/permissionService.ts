@@ -121,7 +121,14 @@ export const hasPermission = (userRoles: AdminRole[], permission: string): boole
  * Vérifie si un utilisateur a au moins un des rôles spécifiés
  */
 export const hasRole = (userRoles: AdminRole[], requiredRoles: AdminRole[]): boolean => {
-  return requiredRoles.some(role => userRoles.includes(role));
+  console.log('Checking roles - User roles:', userRoles, 'Required roles:', requiredRoles);
+  // Convertir toutes les chaînes en minuscules pour la comparaison pour éviter les problèmes de casse
+  const normalizedUserRoles = userRoles.map(r => String(r).toLowerCase());
+  const normalizedRequiredRoles = requiredRoles.map(r => String(r).toLowerCase());
+  console.log('Normalized - User:', normalizedUserRoles, 'Required:', normalizedRequiredRoles);
+  const result = normalizedRequiredRoles.some(role => normalizedUserRoles.includes(role));
+  console.log('Role check result:', result);
+  return result;
 };
 
 /**

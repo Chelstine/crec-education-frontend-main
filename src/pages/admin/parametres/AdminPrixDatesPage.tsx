@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,26 +26,7 @@ interface PrixDate {
 }
 
 const AdminPrixDatesPage: React.FC = () => {
-  const [prixDates, setPrixDates] = useState<PrixDate[]>([
-    {
-      id: '1',
-      formation: 'Formation Universitaire - Licence',
-      prix: 500000,
-      devise: 'FCFA',
-      dateDebut: '2024-09-01',
-      dateFin: '2025-06-30',
-      description: 'Tarif année académique 2024-2025'
-    },
-    {
-      id: '2',
-      formation: 'Formation Ouverte - Informatique',
-      prix: 150000,
-      devise: 'FCFA',
-      dateDebut: '2024-01-01',
-      dateFin: '2024-12-31',
-      description: 'Formation courte en informatique'
-    }
-  ]);
+  const [prixDates, setPrixDates] = useState<PrixDate[]>([]);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newPrixDate, setNewPrixDate] = useState<Partial<PrixDate>>({
@@ -58,6 +39,29 @@ const AdminPrixDatesPage: React.FC = () => {
   });
   const [isAdding, setIsAdding] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Charger les données depuis l'API
+  useEffect(() => {
+    const loadPrixDates = async () => {
+      try {
+        // TODO: Remplacer par l'appel API réel
+        // const response = await fetch('/api/admin/prix-dates');
+        // const data = await response.json();
+        // setPrixDates(data);
+        
+        // Pour l'instant, garder la liste vide
+        setPrixDates([]);
+      } catch (error) {
+        console.error('Erreur lors du chargement des prix et dates:', error);
+        setMessage({ 
+          type: 'error', 
+          text: 'Impossible de charger les prix et dates' 
+        });
+      }
+    };
+
+    loadPrixDates();
+  }, []);
 
   const handleSave = async (prixDate: PrixDate) => {
     try {

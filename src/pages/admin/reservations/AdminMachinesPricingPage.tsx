@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -49,20 +49,10 @@ const AdminMachinesPricingPage: React.FC = () => {
   const { toast } = useToast();
   
   // États pour les machines
-  const [machines, setMachines] = useState<FablabMachine[]>([
-    { id: 'machine-001', name: 'Imprimante 3D Ender 3', status: 'available', needsTraining: false },
-    { id: 'machine-002', name: 'Graveur Laser F50', status: 'available', needsTraining: true },
-    { id: 'machine-003', name: 'Imprimante 3D Ender-5 S1', status: 'maintenance', needsTraining: true },
-    { id: 'machine-004', name: 'Kit Arduino et composants', status: 'available', needsTraining: false }
-  ]);
+  const [machines, setMachines] = useState<FablabMachine[]>([]);
 
   // États pour les prix
-  const [hourlyRates, setHourlyRates] = useState<MachineHourlyRate[]>([
-    { machineId: 'machine-001', hourlyRate: 2500 },
-    { machineId: 'machine-002', hourlyRate: 5000 },
-    { machineId: 'machine-003', hourlyRate: 3500 },
-    { machineId: 'machine-004', hourlyRate: 1500 }
-  ]);
+  const [hourlyRates, setHourlyRates] = useState<MachineHourlyRate[]>([]);
 
   // États pour les modales et formulaires
   const [isMachineDialogOpen, setIsMachineDialogOpen] = useState(false);
@@ -81,6 +71,36 @@ const AdminMachinesPricingPage: React.FC = () => {
     machineId: '',
     hourlyRate: 0
   });
+
+  // Charger les données depuis l'API
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // TODO: Remplacer par les vrais appels API
+        // const [machinesResponse, ratesResponse] = await Promise.all([
+        //   fetch('/api/admin/fablab/machines'),
+        //   fetch('/api/admin/fablab/hourly-rates')
+        // ]);
+        // const machinesData = await machinesResponse.json();
+        // const ratesData = await ratesResponse.json();
+        // setMachines(machinesData);
+        // setHourlyRates(ratesData);
+        
+        // Pour l'instant, garder les listes vides
+        setMachines([]);
+        setHourlyRates([]);
+      } catch (error) {
+        console.error('Erreur lors du chargement des données:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les données des machines",
+          variant: "destructive"
+        });
+      }
+    };
+
+    loadData();
+  }, [toast]);
 
   // Fonctions pour les machines
   const handleCreateMachine = () => {

@@ -117,6 +117,7 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
       await put(`/api/admin/inscriptions/formations/${inscription.id}/approve`, {
         status: 'approved',
         reviewedAt: new Date().toISOString(),
+        sendEmail: true,
       });
 
       setInscriptions(prev => 
@@ -148,6 +149,8 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
         status: 'rejected',
         reviewedAt: new Date().toISOString(),
         notes: reason,
+        rejectionReason: reason,
+        sendEmail: true,
       });
 
       setInscriptions(prev => 

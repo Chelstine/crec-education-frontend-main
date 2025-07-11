@@ -840,12 +840,12 @@ const FablabPage = () => {
                 </div>
               </div>
               
-              <Link to="/subscription-verification" className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:border-amber-200 transition-all">
+              <Link to="/reservation/fablab" className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:border-amber-200 transition-all">
                 <div className="flex items-center gap-3">
                   <CalendarDays className="w-5 h-5 text-purple-600" />
                   <div>
-                    <h3 className="font-semibold text-jesuit-dark">Réserver une machine</h3>
-                    <p className="text-sm text-gray-600">En ligne ou par téléphone</p>
+                    <h3 className="font-semibold text-jesuit-dark">Voir l'état du FabLab</h3>
+                    <p className="text-sm text-gray-600">Statut des machines en temps réel</p>
                   </div>
                 </div>
               </Link>
@@ -925,10 +925,10 @@ const FablabPage = () => {
                   Nous contacter
                 </Button>
               </Link>
-              <Link to="/subscription-verification">
+              <Link to="/reservation/fablab">
                 <Button className="min-w-[200px] bg-crec-gold hover:bg-amber-500 text-white group transition-all duration-300">
                   <CalendarDays className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-                  Réserver maintenant
+                  Voir le FabLab en temps réel
                 </Button>
               </Link>
             </motion.div>

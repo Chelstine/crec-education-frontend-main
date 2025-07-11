@@ -10,8 +10,8 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const AdminLoginPage: React.FC = () => {
-  const [email, setEmail] = useState('chelstineogoubiyi@gmail.com'); // Prérempli pour faciliter les tests
-  const [password, setPassword] = useState('kylie'); // Prérempli pour faciliter les tests
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -125,12 +125,7 @@ const AdminLoginPage: React.FC = () => {
                 ) : 'Se connecter'}
               </Button>
               
-              <div className="mt-4 text-sm text-slate-600">
-                <p className="text-center">
-                  Identifiants de test: <br />
-                  <span className="font-medium">chelstineogoubiyi@gmail.com / kylie</span>
-                </p>
-              </div>
+            
             </div>
           </form>
         </div>

@@ -115,6 +115,9 @@ export interface User {
   lastLogin?: string;
   isActive: boolean;
   permissions?: string[];
+  // Propriétés additionnelles pour le profil utilisateur
+  phone?: string;
+  organization?: string;
 }
 
 /**

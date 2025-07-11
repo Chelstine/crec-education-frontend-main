@@ -89,6 +89,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const userHasRole = (roles: AdminRole[]): boolean => {
+    // Debug: afficher les rôles de l'utilisateur et les rôles requis
+    console.log('User roles:', user?.roles, 'Required roles:', roles);
     return !!user && hasRole(user.roles, roles);
   };
 

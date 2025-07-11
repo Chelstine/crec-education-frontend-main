@@ -55,38 +55,8 @@ const AdminDashboardPage: React.FC = () => {
         // setStats(response.data.stats);
         // setRecentActivity(response.data.activities);
         
-        // Pour l'instant, données vides ou d'exemple
-        setStats([
-          { 
-            title: "Inscriptions",
-            value: "0",
-            change: "0%",
-            trend: "neutral",
-            description: "Nouvelles demandes" 
-          },
-          { 
-            title: "Utilisateurs",
-            value: "0",
-            change: "0%",
-            trend: "neutral",
-            description: "Ce mois-ci" 
-          },
-          { 
-            title: "Événements",
-            value: "0",
-            change: "0%",
-            trend: "neutral",
-            description: "À venir" 
-          },
-          { 
-            title: "Réservations",
-            value: "0",
-            change: "0%",
-            trend: "neutral",
-            description: "FabLab cette semaine" 
-          }
-        ]);
-        
+        // Initialiser avec des données vides
+        setStats([]);
         setRecentActivity([]);
         
       } catch (error) {
@@ -151,7 +121,7 @@ const AdminDashboardPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-slate-800">
-          Bienvenue, {user?.firstName || 'Administrateur'}
+          Bienvenue, {user?.firstname || 'Administrateur'}
         </h1>
         <p className="text-sm text-slate-500">
           {new Date().toLocaleDateString('fr-FR', { 

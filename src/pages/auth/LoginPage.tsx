@@ -225,40 +225,7 @@ const LoginPage: React.FC = () => {
                 )}
               </Button>
 
-              {/* Accès direct pour le développement */}
-              <div className="border-t border-gray-200 pt-4 mt-4">
-                <p className="text-xs text-gray-500 mb-2">Accès rapide pour le développement :</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => {
-                      setFormData({
-                        email: "admin@crec.edu",
-                        password: "admin123",
-                        rememberMe: false
-                      });
-                    }}
-                    className="text-xs"
-                  >
-                    Admin
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => {
-                      setFormData({
-                        email: "user@crec.edu",
-                        password: "user123",
-                        rememberMe: false
-                      });
-                    }}
-                    className="text-xs"
-                  >
-                    Utilisateur
-                  </Button>
-                </div>
-              </div>
+              {/* Les identifiants de test ont été retirés */}
             </form>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
