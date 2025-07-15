@@ -37,7 +37,6 @@ const InscriptionUniversitairePage = lazy(() => import('@/pages/formations/Inscr
 
 // Pages Réservation
 const ReservationPage = lazy(() => import('@/pages/reservation/ReservationPage'));
-const SubscriptionPage = lazy(() => import('@/pages/reservation/SubscriptionPage'));
 const SubscriptionVerification = lazy(() => import('@/pages/reservation/SubscriptionVerification'));
 const FablabLoginPage = lazy(() => import('@/pages/auth/FablabLoginPage'));
 const FabLabVisualizationPage = lazy(() => import('@/pages/reservation/FabLabVisualizationPage'));
@@ -169,7 +168,7 @@ const routes: RouteObject[] = [
       // Pages Abonnement (sans header)
       {
         path: 'subscription',
-        element: withSuspense(SubscriptionPage),
+        element: withSuspense(FablabInscriptionPage),
       },
       {
         path: 'subscription-verification',
