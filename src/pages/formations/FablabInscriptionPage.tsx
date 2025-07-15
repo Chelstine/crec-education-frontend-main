@@ -29,14 +29,11 @@ const FablabInscriptionPage = () => {
     setShowConfirmation(true);
   };
   
-  const inscriptionMutation = useFormationInscription(handleInscriptionSuccess);
+  const inscriptionMutation = useFormationInscription();
 
   const workshops = [
-    { value: "impression-3d", label: "Impression 3D", price: "25,000" },
-    { value: "arduino", label: "Arduino & Électronique", price: "30,000" },
-    { value: "robotique", label: "Robotique", price: "40,000" },
-    { value: "iot", label: "Internet des Objets (IoT)", price: "35,000" },
-    { value: "menuiserie", label: "Menuiserie Numérique", price: "20,000" }
+    { value: "Abonnement Etudiant", label: "Abonnement Etudiant", price: "15,000" },
+    { value: "Abonnement Professionel", label: "Abonnement Professionel", price: "20,000" },
   ];
 
   const paymentMethods = [
@@ -88,7 +85,7 @@ const FablabInscriptionPage = () => {
     if (!formData.email.trim()) newErrors.email = "L'email est requis";
     if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Format d'email invalide";
     if (!formData.phone.trim()) newErrors.phone = "Le téléphone est requis";
-    if (!formData.workshop) newErrors.workshop = "Veuillez sélectionner un atelier";
+    if (!formData.workshop) newErrors.workshop = "Veuillez sélectionner une formule d'abonnement ";
     if (!formData.paymentReceipt) newErrors.paymentReceipt = "Le reçu de paiement est requis";
 
     setErrors(newErrors);
@@ -194,10 +191,10 @@ const FablabInscriptionPage = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="workshop">Atelier *</Label>
+                  <Label htmlFor="workshop">Formule d'abonnement*</Label>
                   <Select onValueChange={(value) => handleSelectChange("workshop", value)}>
                     <SelectTrigger className={errors.workshop ? "border-red-500" : ""}>
-                      <SelectValue placeholder="Sélectionnez un atelier" />
+                      <SelectValue placeholder="Sélectionnez une formule " />
                     </SelectTrigger>
                     <SelectContent>
                       {workshops.map((workshop) => (
@@ -208,32 +205,6 @@ const FablabInscriptionPage = () => {
                     </SelectContent>
                   </Select>
                   {errors.workshop && <p className="text-red-500 text-sm mt-1">{errors.workshop}</p>}
-                </div>
-
-                <div>
-                  <Label htmlFor="experience">Niveau d'expérience</Label>
-                  <Select onValueChange={(value) => handleSelectChange("experience", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez votre niveau" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="debutant">Débutant</SelectItem>
-                      <SelectItem value="intermediaire">Intermédiaire</SelectItem>
-                      <SelectItem value="avance">Avancé</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="motivation">Motivation (optionnel)</Label>
-                  <Textarea
-                    id="motivation"
-                    name="motivation"
-                    value={formData.motivation}
-                    onChange={handleInputChange}
-                    placeholder="Pourquoi souhaitez-vous rejoindre cet atelier ?"
-                    rows={3}
-                  />
                 </div>
 
                 <div>

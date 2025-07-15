@@ -241,7 +241,7 @@ const defaultTariffs: FabLabTariff[] = [
     price: 15000,
     unit: 'mois',
     duration: '1 mois',
-    benefits: ['Accès illimité aux machines', 'Formations de base incluses', 'Support technique', 'Stockage de projets'],
+    benefits: ['15 Forfaits accordés pour la réservation', 'Formations de base incluses', 'Support technique'],
     restrictions: ['Réservé aux étudiants avec carte'],
     status: 'active',
     createdAt: new Date().toISOString(),
@@ -255,7 +255,7 @@ const defaultTariffs: FabLabTariff[] = [
     price: 25000,
     unit: 'mois',
     duration: '1 mois',
-    benefits: ['Tout de l\'abonnement Étudiant', 'Accès prioritaire aux machines', 'Formations avancées incluses', 'Projets commerciaux autorisés', 'Support technique prioritaire'],
+    benefits: ['20 Forfaits accordés pour la réservation', 'Accès prioritaire aux machines', 'Support technique incluse', 'Formation accompagnée incluse' ],
     restrictions: [],
     status: 'active',
     createdAt: new Date().toISOString(),
@@ -301,53 +301,14 @@ export const FabLabProvider: React.FC<FabLabProviderProps> = ({ children }) => {
   const [services, setServices] = useState<FabLabService[]>(defaultServices);
   const [tariffs, setTariffs] = useState<FabLabTariff[]>(defaultTariffs);
 
-  // Load data from localStorage on mount
+  // Réinitialise le localStorage à chaque chargement pour forcer les valeurs par défaut
   useEffect(() => {
-    const savedDescription = localStorage.getItem('fablab-description');
-    const savedProjects = localStorage.getItem('fablab-projects');
-    const savedMachines = localStorage.getItem('fablab-machines');
-    const savedServices = localStorage.getItem('fablab-services');
-    const savedTariffs = localStorage.getItem('fablab-tariffs');
-
-    if (savedDescription) {
-      try {
-        setDescription(JSON.parse(savedDescription));
-      } catch (error) {
-        console.error('Error loading description:', error);
-      }
-    }
-
-    if (savedProjects) {
-      try {
-        setProjects(JSON.parse(savedProjects));
-      } catch (error) {
-        console.error('Error loading projects:', error);
-      }
-    }
-
-    if (savedMachines) {
-      try {
-        setMachines(JSON.parse(savedMachines));
-      } catch (error) {
-        console.error('Error loading machines:', error);
-      }
-    }
-
-    if (savedServices) {
-      try {
-        setServices(JSON.parse(savedServices));
-      } catch (error) {
-        console.error('Error loading services:', error);
-      }
-    }
-
-    if (savedTariffs) {
-      try {
-        setTariffs(JSON.parse(savedTariffs));
-      } catch (error) {
-        console.error('Error loading tariffs:', error);
-      }
-    }
+    localStorage.removeItem('fablab-description');
+    localStorage.removeItem('fablab-projects');
+    localStorage.removeItem('fablab-machines');
+    localStorage.removeItem('fablab-services');
+    localStorage.removeItem('fablab-tariffs');
+    // Les states utiliseront les valeurs par défaut
   }, []);
 
   // Save data to localStorage when state changes

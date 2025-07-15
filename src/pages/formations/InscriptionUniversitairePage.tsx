@@ -52,12 +52,62 @@ interface PaymentMethodOption {
 }
 
 const InscriptionUniversitairePage = () => {
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedFiles, setSelectedFiles] = useState<Record<string, File>>({});
+  // Liste des documents à uploader
+  const documentFields = [
+    {
+      key: "payment_receipt",
+      label: "Reçu de paiement de l'inscription",
+      required: true,
+      accept: ".pdf,.jpg,.png",
+      formats: "pdf, jpg, png",
+      maxSize: 5 * 1024 * 1024
+    },
+    {
+      key: "transcript",
+      label: "Relevé de notes du Bac",
+      required: true,
+      accept: ".pdf,.jpg,.png",
+      formats: "pdf, jpg, png",
+      maxSize: 5 * 1024 * 1024
+    },
+    {
+      key: "diploma",
+      label: "Diplôme du Bac ou attestation",
+      required: true,
+      accept: ".pdf,.jpg,.png",
+      formats: "pdf, jpg, png",
+      maxSize: 5 * 1024 * 1024
+    },
+    {
+      key: "id_card",
+      label: "Pièce d'identité (CNI ou Passeport)",
+      required: true,
+      accept: ".pdf,.jpg,.png",
+      formats: "pdf, jpg, png",
+      maxSize: 5 * 1024 * 1024
+    },
+    {
+      key: "passport_photo_1",
+      label: "Photo d'identité format passeport (1)",
+      required: true,
+      accept: ".jpg,.jpeg,.png",
+      formats: "jpg, jpeg, png",
+      maxSize: 2 * 1024 * 1024
+    },
+    {
+      key: "passport_photo_2",
+      label: "Photo d'identité format passeport (2)",
+      required: true,
+      accept: ".jpg,.jpeg,.png",
+      formats: "jpg, jpeg, png",
+      maxSize: 2 * 1024 * 1024
+    }
+  ];
   const [paymentMethod, setPaymentMethod] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
-  const [selectedProgram, setSelectedProgram] = useState<UniversityProgram | null>(null);
-  
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -77,241 +127,14 @@ const InscriptionUniversitairePage = () => {
     paymentReference: "",
     agreeToTerms: false,
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // Données mockées pour les programmes universitaires (en attendant la connexion backend)
-  const programsMocked: UniversityProgram[] = [
-    {
-      id: "prog-1",
-      name: "Licence en Développement Logiciel",
-      title: "Licence en Développement Logiciel",
-      description: "Formation complète en développement d'applications et systèmes informatiques modernes",
-      longDescription: "Formation complète en développement d'applications et systèmes informatiques modernes avec une approche pratique et professionnelle",
-      duration: "3 ans",
-      degree: "licence",
-      level: "licence",
-      department: "Informatique",
-      capacity: 50,
-      currentApplications: 0,
-      applicationDeadline: "2024-07-15",
-      startDate: "2024-09-01",
-      tuitionFee: 850000,
-      inscriptionFee: 150000,
-      currency: "FCFA",
-      requirements: ["Baccalauréat série C, D ou F", "Moyenne générale ≥ 12/20"],
-      objectives: [
-        "Maîtriser les langages de programmation modernes",
-        "Développer des applications web et mobiles",
-        "Comprendre les architectures logicielles",
-        "Gérer des projets de développement"
-      ],
-      careerOutlooks: [
-        "Développeur Full-Stack",
-        "Ingénieur logiciel",
-        "Chef de projet IT",
-        "Architecte logiciel"
-      ],
-      documentTypes: [
-        {
-          id: "doc-1",
-          name: "birth_certificate",
-          description: "Acte de naissance",
-          isRequired: true,
-          maxSizeBytes: 5242880,
-          maxSizeInMB: 5,
-          acceptedFormats: ["pdf", "jpg", "png"],
-          allowedFormats: ["pdf", "jpg", "png"]
-        },
-        {
-          id: "doc-2",
-          name: "bac_certificate",
-          description: "Diplôme du Baccalauréat",
-          isRequired: true,
-          maxSizeBytes: 5242880,
-          maxSizeInMB: 5,
-          acceptedFormats: ["pdf", "jpg", "png"],
-          allowedFormats: ["pdf", "jpg", "png"]
-        },
-        {
-          id: "doc-3",
-          name: "transcripts",
-          description: "Relevés de notes du Bac",
-          isRequired: true,
-          maxSizeBytes: 5242880,
-          maxSizeInMB: 5,
-          acceptedFormats: ["pdf", "jpg", "png"],
-          allowedFormats: ["pdf", "jpg", "png"]
-        },
-        {
-          id: "doc-4",
-          name: "id_photo",
-          description: "Photo de la pièce d'identité",
-          isRequired: true,
-          maxSizeBytes: 2097152,
-          maxSizeInMB: 2,
-          acceptedFormats: ["jpg", "png"],
-          allowedFormats: ["jpg", "png"]
-        },
-        {
-          id: "doc-5",
-          name: "passport_photos",
-          description: "Photos d'identité (2 exemplaires)",
-          isRequired: true,
-          maxSizeBytes: 2097152,
-          maxSizeInMB: 2,
-          acceptedFormats: ["jpg", "png"],
-          allowedFormats: ["jpg", "png"]
-        }
-      ],
-      isActive: true,
-      isVisible: true,
-      allowOnlineApplication: true,
-      requiresDocuments: true,
-      createdAt: "2024-01-01",
-      updatedAt: "2024-01-15"
-    },
-    {
-      id: "prog-2",
-      name: "Master en Data Science",
-      title: "Master en Data Science",
-      description: "Formation avancée en analyse de données et intelligence artificielle",
-      longDescription: "Formation avancée en analyse de données et intelligence artificielle avec une approche pratique et professionnelle",
-      duration: "2 ans",
-      degree: "master",
-      level: "master",
-      department: "Informatique",
-      capacity: 30,
-      currentApplications: 0,
-      applicationDeadline: "2024-07-20",
-      startDate: "2024-09-15",
-      tuitionFee: 1200000,
-      inscriptionFee: 200000,
-      currency: "FCFA",
-      requirements: ["Licence en Informatique ou équivalent", "Moyenne générale ≥ 14/20"],
-      objectives: [
-        "Maîtriser les techniques d'analyse de données",
-        "Développer des modèles d'IA et de machine learning",
-        "Utiliser les outils de Big Data",
-        "Interpréter et visualiser les données"
-      ],
-      careerOutlooks: [
-        "Data Scientist",
-        "Analyste de données",
-        "Consultant BI",
-        "Ingénieur Machine Learning"
-      ],
-      documentTypes: [
-        {
-          id: "doc-1",
-          name: "birth_certificate",
-          description: "Acte de naissance",
-          isRequired: true,
-          maxSizeBytes: 5242880,
-          maxSizeInMB: 5,
-          acceptedFormats: ["pdf", "jpg", "png"],
-          allowedFormats: ["pdf", "jpg", "png"]
-        },
-        {
-          id: "doc-6",
-          name: "bachelor_diploma",
-          description: "Diplôme de Licence",
-          isRequired: true,
-          maxSizeBytes: 5242880,
-          maxSizeInMB: 5,
-          acceptedFormats: ["pdf", "jpg", "png"],
-          allowedFormats: ["pdf", "jpg", "png"]
-        },
-        {
-          id: "doc-7",
-          name: "university_transcripts",
-          description: "Relevés de notes universitaires",
-          isRequired: true,
-          maxSizeBytes: 5242880,
-          maxSizeInMB: 5,
-          acceptedFormats: ["pdf", "jpg", "png"],
-          allowedFormats: ["pdf", "jpg", "png"]
-        }
-      ],
-      isActive: true,
-      isVisible: true,
-      allowOnlineApplication: true,
-      requiresDocuments: true,
-      createdAt: "2024-01-01",
-      updatedAt: "2024-01-15"
-    },
-    {
-      id: "prog-3",
-      name: "Licence en Théologie",
-      title: "Licence en Théologie",
-      description: "Formation théologique ignatienne complète",
-      longDescription: "Formation théologique ignatienne complète avec une approche spirituelle et académique",
-      duration: "3 ans",
-      degree: "licence",
-      level: "licence",
-      department: "Théologie",
-      capacity: 40,
-      currentApplications: 0,
-      applicationDeadline: "2024-08-01",
-      startDate: "2024-09-01",
-      tuitionFee: 600000,
-      inscriptionFee: 100000,
-      currency: "FCFA",
-      requirements: ["Baccalauréat toutes séries", "Motivation pour la théologie"],
-      objectives: [
-        "Approfondir la connaissance de l'Écriture Sainte",
-        "Étudier la tradition théologique",
-        "Développer une spiritualité ignatienne",
-        "Former à l'accompagnement pastoral"
-      ],
-      careerOutlooks: [
-        "Enseignant en théologie",
-        "Accompagnateur spirituel",
-        "Responsable pastoral",
-        "Formateur en spiritualité"
-      ],
-      documentTypes: [
-        {
-          id: "doc-1",
-          name: "birth_certificate",
-          description: "Acte de naissance",
-          isRequired: true,
-          maxSizeBytes: 5242880,
-          maxSizeInMB: 5,
-          acceptedFormats: ["pdf", "jpg", "png"],
-          allowedFormats: ["pdf", "jpg", "png"]
-        },
-        {
-          id: "doc-2",
-          name: "bac_certificate",
-          description: "Diplôme du Baccalauréat",
-          isRequired: true,
-          maxSizeBytes: 5242880,
-          maxSizeInMB: 5,
-          acceptedFormats: ["pdf", "jpg", "png"],
-          allowedFormats: ["pdf", "jpg", "png"]
-        },
-        {
-          id: "doc-8",
-          name: "recommendation_letter",
-          description: "Lettre de recommandation pastorale",
-          isRequired: true,
-          maxSizeBytes: 5242880,
-          maxSizeInMB: 5,
-          acceptedFormats: ["pdf", "doc", "docx"],
-          allowedFormats: ["pdf", "doc", "docx"]
-        }
-      ],
-      isActive: true,
-      isVisible: true,
-      allowOnlineApplication: true,
-      requiresDocuments: true,
-      createdAt: "2024-01-01",
-      updatedAt: "2024-01-15"
-    }
+  const programs = [
+    { id: "prog-1", name: "Licence en Développement Logiciel" },
+    { id: "prog-2", name: "Master en Data Science" },
+    { id: "prog-3", name: "Licence en Théologie" }
   ];
 
   // Données mockées pour l'année académique (en attendant la connexion backend)
-  const activeAcademicYearMocked = {
+  const activeAcademicYear = {
     id: "year-1",
     name: "2024-2025",
     startDate: "2024-09-01",
@@ -323,77 +146,46 @@ const InscriptionUniversitairePage = () => {
     updatedAt: "2024-01-15"
   };
 
-  // Utilisation des données mockées (en attendant la connexion backend)
-  const programs: UniversityProgram[] = programsMocked;
-  const activeAcademicYear = activeAcademicYearMocked;
-
   const paymentMethods: PaymentMethodOption[] = [
-    {
-      id: "om",
-      name: "Orange Money",
-      type: "mobile_money",
-      accountNumber: "+229 91 00 00 00",
-      accountName: "CREC-OM-001",
-      isActive: true
-    },
+  
     {
       id: "mtn",
       name: "MTN MoMo",
       type: "mobile_money", 
-      accountNumber: "+229 96 00 00 00",
-      accountName: "CREC-MTN-001",
-      isActive: true
-    },
-    {
-      id: "afb",
-      name: "Afriland First Bank",
-      type: "bank_transfer",
-      accountNumber: "40001 00000 12345678901 23",
-      accountName: "CREC EDUCATION",
+      accountNumber: "+229 01 xx xx xx xx",
+      accountName: "indisponible actuellement",
       isActive: true
     },
     {
       id: "uba",
-      name: "UBA Cameroun",
+      name: "UBA Bank",
       type: "bank_transfer",
-      accountNumber: "10033 00000 12345678901 45", 
-      accountName: "CREC EDUCATION",
+      accountNumber: "A venir", 
+      accountName: "indisponible actuellement",
       isActive: true
     }
   ];
 
-  useEffect(() => {
-    if (formData.program) {
-      const program = programs.find(p => p.id === formData.program);
-      setSelectedProgram(program || null);
-    }
-  }, [formData.program]);
+  // Suppression de la logique de selectedProgram
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, files } = e.target;
     if (files && files[0]) {
       const file = files[0];
-      const documentType = selectedProgram?.documentTypes.find(doc => doc.name === name);
-      
-      // Validate file size
-      if (documentType && file.size > documentType.maxSizeInMB * 1024 * 1024) {
-        setErrors(prev => ({ 
-          ...prev, 
-          [name]: `Le fichier ne doit pas dépasser ${documentType.maxSizeInMB}MB` 
-        }));
-        return;
+      // Validation pour tous les documents
+      const docField = documentFields.find(d => d.key === name);
+      if (docField) {
+        if (file.size > docField.maxSize) {
+          setErrors(prev => ({ ...prev, [name]: `Le fichier ne doit pas dépasser 5MB` }));
+          return;
+        }
+        const allowedFormats = docField.formats.split(',').map(f => f.trim());
+        const fileExtension = file.name.split('.').pop()?.toLowerCase();
+        if (!allowedFormats.includes(fileExtension || "")) {
+          setErrors(prev => ({ ...prev, [name]: `Format non autorisé. Formats acceptés: ${docField.formats}` }));
+          return;
+        }
       }
-      
-      // Validate file format
-      const fileExtension = file.name.split('.').pop()?.toLowerCase();
-      if (documentType && !documentType.allowedFormats.includes(fileExtension || '')) {
-        setErrors(prev => ({ 
-          ...prev, 
-          [name]: `Format non autorisé. Formats acceptés: ${documentType.allowedFormats.join(', ')}` 
-        }));
-        return;
-      }
-      
       setSelectedFiles(prev => ({ ...prev, [name]: file }));
       setErrors(prev => ({ ...prev, [name]: "" }));
     }
@@ -406,7 +198,6 @@ const InscriptionUniversitairePage = () => {
       setErrors(prev => ({ ...prev, [name]: "" }));
     }
   };
-
   const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) {
@@ -442,13 +233,11 @@ const InscriptionUniversitairePage = () => {
     
     if (step === 3) {
       // Documents validation
-      if (selectedProgram) {
-        selectedProgram.documentTypes.forEach(doc => {
-          if (doc.isRequired && !selectedFiles[doc.name]) {
-            newErrors[doc.name] = `${doc.description} est requis.`;
-          }
-        });
-      }
+      documentFields.forEach(doc => {
+        if (doc.required && !selectedFiles[doc.key]) {
+          newErrors[doc.key] = `Le document "${doc.label}" est requis.`;
+        }
+      });
       if (!formData.motivation) newErrors.motivation = "La lettre de motivation est requise.";
     }
     
@@ -511,12 +300,7 @@ const InscriptionUniversitairePage = () => {
         motivation: formData.motivation,
         status: "PENDING",
         submittedAt: new Date().toISOString(),
-        // Ajout des URLs de documents (temporaire pour demo)
-        photoUrl: selectedFiles['id_photo'] ? URL.createObjectURL(selectedFiles['id_photo']) : undefined,
-        cvUrl: undefined,
-        diplomaUrl: selectedFiles['bac_certificate'] ? URL.createObjectURL(selectedFiles['bac_certificate']) : undefined,
-        transcriptUrl: selectedFiles['transcripts'] ? URL.createObjectURL(selectedFiles['transcripts']) : undefined,
-        birthCertificateUrl: selectedFiles['birth_certificate'] ? URL.createObjectURL(selectedFiles['birth_certificate']) : undefined,
+        paymentReceiptUrl: selectedFiles['payment_receipt'] ? URL.createObjectURL(selectedFiles['payment_receipt']) : undefined,
         academicYearId: activeAcademicYear?.id || 'academic-2024-2025'
       };
 
@@ -805,84 +589,20 @@ const InscriptionUniversitairePage = () => {
                       <SelectTrigger className="border-gray-300 focus:border-blue-500">
                         <SelectValue placeholder="Sélectionnez un programme" />
                       </SelectTrigger>
-                      <SelectContent>
-                        {programs.map((program) => (
-                          <SelectItem key={program.id} value={program.id}>
-                            {program.name} - {program.degree.toUpperCase()}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
+                  <SelectContent>
+                    {programs.map((program) => (
+                      <SelectItem key={program.id} value={program.id}>
+                        {program.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                     </Select>
                     {errors.program && (
                       <p className="text-sm text-red-600">{errors.program}</p>
                     )}
                   </div>
 
-                  {selectedProgram && (
-                    <Card className="bg-blue-50 border-blue-200">
-                      <CardContent className="p-4">
-                        <h3 className="font-semibold text-blue-900 mb-2">{selectedProgram.title}</h3>
-                        <p className="text-sm text-blue-800 mb-3">{selectedProgram.description}</p>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-blue-600" />
-                            <span>Durée: {selectedProgram.duration}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <DollarSign className="w-4 h-4 text-green-600" />
-                            <span>Inscription: {formatPrice(selectedProgram.inscriptionFee)} FCFA</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Users className="w-4 h-4 text-purple-600" />
-                            <span>Places: {selectedProgram.capacity}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Award className="w-4 h-4 text-orange-600" />
-                            <span>Niveau: {selectedProgram.degree.toUpperCase()}</span>
-                          </div>
-                        </div>
-
-                        <Tabs defaultValue="objectives" className="mt-4">
-                          <TabsList>
-                            <TabsTrigger value="objectives">Compétences</TabsTrigger>
-                            <TabsTrigger value="careers">Débouchés</TabsTrigger>
-                            <TabsTrigger value="requirements">Prérequis</TabsTrigger>
-                          </TabsList>
-                          <TabsContent value="objectives" className="mt-3">
-                            <ul className="space-y-1 text-sm">
-                              {selectedProgram.objectives.map((obj, idx) => (
-                                <li key={idx} className="flex items-start gap-2">
-                                  <Target className="w-3 h-3 text-blue-600 mt-1 flex-shrink-0" />
-                                  {obj}
-                                </li>
-                              ))}
-                            </ul>
-                          </TabsContent>
-                          <TabsContent value="careers" className="mt-3">
-                            <ul className="space-y-1 text-sm">
-                              {selectedProgram.careerOutlooks.map((career, idx) => (
-                                <li key={idx} className="flex items-start gap-2">
-                                  <Briefcase className="w-3 h-3 text-green-600 mt-1 flex-shrink-0" />
-                                  {career}
-                                </li>
-                              ))}
-                            </ul>
-                          </TabsContent>
-                          <TabsContent value="requirements" className="mt-3">
-                            <ul className="space-y-1 text-sm">
-                              {selectedProgram.requirements.map((req, idx) => (
-                                <li key={idx} className="flex items-start gap-2">
-                                  <CheckCircle className="w-3 h-3 text-red-600 mt-1 flex-shrink-0" />
-                                  {req}
-                                </li>
-                              ))}
-                            </ul>
-                          </TabsContent>
-                        </Tabs>
-                      </CardContent>
-                    </Card>
-                  )}
+                  {/* Suppression de l'affichage détaillé du programme */}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
@@ -982,7 +702,7 @@ const InscriptionUniversitairePage = () => {
             )}
 
             {/* Step 3: Documents and Motivation */}
-            {currentStep === 3 && selectedProgram && (
+            {currentStep === 3 && (
               <Card className="bg-white/90 backdrop-blur-sm shadow-2xl">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-2xl">
@@ -990,89 +710,123 @@ const InscriptionUniversitairePage = () => {
                     Documents et motivation
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div className="flex items-start gap-3">
-                      <Info className="w-5 h-5 text-blue-600 mt-0.5" />
-                      <div>
-                        <h3 className="font-semibold text-blue-800 mb-2">Documents requis pour ce programme</h3>
-                        <p className="text-blue-700 text-sm">
-                          Assurez-vous que vos documents sont dans les formats acceptés et ne dépassent pas la taille maximale.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {selectedProgram && selectedProgram.documentTypes.map(doc => (
-                      <div key={doc.name} className="space-y-2">
-                        <Label htmlFor={doc.name} className="flex items-center gap-2">
-                          <FileText className="w-4 h-4" />
-                          {doc.description} {doc.isRequired && <span className="text-red-500">*</span>}
-                        </Label>
-                        <div className="relative">
-                          <Input
-                            id={doc.name}
-                            name={doc.name}
-                            type="file"
-                            required={doc.isRequired}
-                            onChange={handleFileChange}
-                            accept={doc.allowedFormats.map(format => `.${format}`).join(',')}
-                            className="hidden"
-                          />
-                          <label
-                            htmlFor={doc.name}
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition w-full"
-                          >
-                            <Upload className="w-5 h-5 text-blue-600" />
-                            <span className="text-gray-700 text-sm">
-                              {selectedFiles[doc.name] ? selectedFiles[doc.name].name : "Choisir un fichier"}
-                            </span>
-                          </label>
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          Formats: {doc.allowedFormats.join(', ')} | Taille max: {doc.maxSizeInMB}MB
-                        </div>
-                        {selectedFiles[doc.name] && (
-                          <div className="flex items-center gap-2 text-sm text-green-600">
-                            <CheckCircle className="w-4 h-4" />
-                            Fichier sélectionné: {selectedFiles[doc.name].name}
+                <CardContent className="space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Colonne 1 : Reçu, relevé, diplôme, pièce d'identité */}
+                    <div className="space-y-6">
+                      {documentFields.filter(doc => !doc.key.startsWith('passport_photo')).map(doc => (
+                        <div key={doc.key} className="space-y-2">
+                          <Label htmlFor={doc.key} className="flex items-center gap-2">
+                            <Upload className="w-4 h-4" />
+                            {doc.label} {doc.required && <span className="text-red-500">*</span>}
+                          </Label>
+                          <div className="relative">
+                            <Input
+                              id={doc.key}
+                              name={doc.key}
+                              type="file"
+                              required={doc.required}
+                              onChange={handleFileChange}
+                              accept={doc.accept}
+                              className="hidden"
+                            />
+                            <label
+                              htmlFor={doc.key}
+                              className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition w-full"
+                            >
+                              <Upload className="w-5 h-5 text-blue-600" />
+                              <span className="text-gray-700 text-sm">
+                                {selectedFiles[doc.key] ? selectedFiles[doc.key].name : "Choisir un fichier"}
+                              </span>
+                            </label>
                           </div>
-                        )}
-                        {errors[doc.name] && (
-                          <p className="text-sm text-red-600">{errors[doc.name]}</p>
-                        )}
+                          <div className="text-xs text-gray-500">
+                            Formats: {doc.formats} | Taille max: {doc.maxSize >= 1024*1024 ? `${doc.maxSize/(1024*1024)}MB` : `${doc.maxSize/1024}KB`}
+                          </div>
+                          {selectedFiles[doc.key] && (
+                            <div className="flex items-center gap-2 text-sm text-green-600">
+                              <CheckCircle className="w-4 h-4" />
+                              Fichier sélectionné: {selectedFiles[doc.key].name}
+                            </div>
+                          )}
+                          {errors[doc.key] && (
+                            <p className="text-sm text-red-600">{errors[doc.key]}</p>
+                          )}
+                        </div>
+                      ))}
+                      {/* Photos passeport côte à côte */}
+                      <div className="flex flex-col md:flex-row gap-6">
+                        {documentFields.filter(doc => doc.key.startsWith('passport_photo')).map(doc => (
+                          <div key={doc.key} className="space-y-2 flex-1">
+                            <Label htmlFor={doc.key} className="flex items-center gap-2">
+                              <Upload className="w-4 h-4" />
+                              {doc.label} {doc.required && <span className="text-red-500">*</span>}
+                            </Label>
+                            <div className="relative">
+                              <Input
+                                id={doc.key}
+                                name={doc.key}
+                                type="file"
+                                required={doc.required}
+                                onChange={handleFileChange}
+                                accept={doc.accept}
+                                className="hidden"
+                              />
+                              <label
+                                htmlFor={doc.key}
+                                className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition w-full"
+                              >
+                                <Upload className="w-5 h-5 text-blue-600" />
+                                <span className="text-gray-700 text-sm">
+                                  {selectedFiles[doc.key] ? selectedFiles[doc.key].name : "Choisir un fichier"}
+                                </span>
+                              </label>
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              Formats: {doc.formats} | Taille max: {doc.maxSize >= 1024*1024 ? `${doc.maxSize/(1024*1024)}MB` : `${doc.maxSize/1024}KB`}
+                            </div>
+                            {selectedFiles[doc.key] && (
+                              <div className="flex items-center gap-2 text-sm text-green-600">
+                                <CheckCircle className="w-4 h-4" />
+                                Fichier sélectionné: {selectedFiles[doc.key].name}
+                              </div>
+                            )}
+                            {errors[doc.key] && (
+                              <p className="text-sm text-red-600">{errors[doc.key]}</p>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="motivation" className="flex items-center gap-2">
-                      <BookOpen className="w-4 h-4" />
-                      Lettre de motivation *
-                    </Label>
-                    <Textarea
-                      name="motivation"
-                      rows={8}
-                      required
-                      placeholder="Partagez vos aspirations, vos motivations et ce que vous attendez de votre parcours au CREC. Expliquez pourquoi vous souhaitez rejoindre ce programme et comment il s'inscrit dans votre projet professionnel..."
-                      value={formData.motivation}
-                      onChange={handleInputChange}
-                      className="border-gray-300 focus:border-blue-500"
-                    />
-                    <div className="text-xs text-gray-500">
-                      Minimum recommandé: 300 mots
                     </div>
-                    {errors.motivation && (
-                      <p className="text-sm text-red-600">{errors.motivation}</p>
-                    )}
+                    {/* Lettre de motivation */}
+                    <div className="space-y-2">
+                      <Label htmlFor="motivation" className="flex items-center gap-2">
+                        <BookOpen className="w-4 h-4" />
+                        Lettre de motivation *
+                      </Label>
+                      <Textarea
+                        name="motivation"
+                        rows={8}
+                        required
+                        placeholder="Partagez vos aspirations, vos motivations et ce que vous attendez de votre parcours au CREC. Expliquez pourquoi vous souhaitez rejoindre ce programme et comment il s'inscrit dans votre projet professionnel..."
+                        value={formData.motivation}
+                        onChange={handleInputChange}
+                        className="border-gray-300 focus:border-blue-500"
+                      />
+                      <div className="text-xs text-gray-500">
+                        Minimum recommandé: 300 mots
+                      </div>
+                      {errors.motivation && (
+                        <p className="text-sm text-red-600">{errors.motivation}</p>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             )}
 
             {/* Step 4: Payment and Confirmation */}
-            {currentStep === 4 && selectedProgram && (
+            {currentStep === 4 && (
               <Card className="bg-white/90 backdrop-blur-sm shadow-2xl">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-2xl">
@@ -1088,18 +842,11 @@ const InscriptionUniversitairePage = () => {
                       <div className="space-y-2">
                         <div className="flex justify-between">
                           <span>Programme:</span>
-                          <span className="font-medium">{selectedProgram.title}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Niveau:</span>
-                          <Badge variant="secondary">{selectedProgram.degree.toUpperCase()}</Badge>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Frais d'inscription:</span>
-                          <span className="font-bold text-green-600">
-                            {formatPrice(selectedProgram.inscriptionFee)} FCFA
+                          <span className="font-medium">
+                            {programs.find(p => p.id === formData.program)?.name || "Programme non sélectionné"}
                           </span>
                         </div>
+                        {/* Niveau et frais d'inscription non disponibles dans la version simplifiée */}
                       </div>
                     </CardContent>
                   </Card>

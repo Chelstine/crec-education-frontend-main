@@ -97,6 +97,10 @@ const routes: RouteObject[] = [
         element: withSuspense(OnlineLibraryPage),
       },
       {
+        path: 'library/online',
+        element: withSuspense(OnlineLibraryPage),
+      },
+      {
         path: 'donate',
         element: withSuspense(DonatePage),
       },

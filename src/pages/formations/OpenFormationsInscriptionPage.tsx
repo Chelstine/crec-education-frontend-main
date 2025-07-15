@@ -51,7 +51,7 @@ const OpenFormationsInscriptionPage = () => {
     setShowSuccess(true);
   };
   
-  const inscriptionMutation = useFormationInscription(handleInscriptionSuccess);
+  const inscriptionMutation = useFormationInscription();
 
   const formations = [
     { value: "anglais", label: "Anglais", price: "15,000" },
