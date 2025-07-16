@@ -3,7 +3,7 @@ import { RouteObject } from 'react-router-dom';
 import AdminLayout from '../layouts/AdminLayout';
 import ProtectedRoute from '../components/common/ProtectedRoute';
 // Import direct sans lazy loading pour éviter l'erreur
-import AdminContenusFablabPage from '../pages/admin/contenus/AdminContenusFablabPage';
+const AdminContenusFablabPage = lazy(() => import('../pages/admin/contenus/AdminContenusFablabPage').then(m => ({ default: m.default })));
 
 // Loading component for lazy admin routes
 const AdminLoadingSpinner = () => (
@@ -21,7 +21,7 @@ const AdminDashboardPage = lazy(() => import('../pages/admin/AdminDashboardPage'
 const AdminProfilePage = lazy(() => import('../pages/admin/AdminProfilePage'));
 
 // Pages À Propos
-const AdminAboutPage = lazy(() => import('../pages/admin/a-propos/AdminAboutPage'));
+// (Supprimé: AdminAboutPage CRUD admin)
 
 // Pages d'index pour les sections
 const AdminInscriptionsIndexPage = lazy(() => import('../pages/admin/inscriptions/AdminInscriptionsIndexPage'));
@@ -38,13 +38,13 @@ const AdminContenusFormationsPage = lazy(() => import('../pages/admin/contenus/A
 // AdminContenusFablabPage est importé directement en haut du fichier
 
 // Pages de galerie
-const AdminGaleriePage = lazy(() => import('../pages/admin/galerie/AdminGaleriePage'));
+const AdminGaleriePage = lazy(() => import('../pages/admin/contenus/AdminGaleriePage'));
 
 // Pages de réservations
-const AdminReservationsStatsPage = lazy(() => import('../pages/admin/reservations/AdminReservationsStatsPage'));
+const AdminReservationsPage = lazy(() => import('@/pages/admin/contenus/AdminReservationsPage').then(m => ({ default: m.default })));
 
 // Pages de bibliothèque
-const AdminBibliotequePage = lazy(() => import('../pages/admin/bibliotheque/AdminBibliotequePage'));
+const AdminBibliotequePage = lazy(() => import('../pages/admin/contenus/AdminBibliotequePage'));
 
 // Pages de paramètres
 const AdminParametresPage = lazy(() => import('../pages/admin/parametres/AdminParametresPage'));
@@ -123,11 +123,7 @@ const adminRoutes: RouteObject[] = [
             path: 'profile',
             element: withSimpleAdminProtection(AdminProfilePage),
           },
-          // Routes pour À Propos (authentification simple, pas de vérification de rôle)
-          {
-            path: 'a-propos',
-            element: withSimpleAdminProtection(AdminAboutPage),
-          },
+          // (Supprimé: route admin a-propos CRUD)
           // Routes pour la gestion des inscriptions
           {
             path: 'inscriptions',
@@ -174,31 +170,43 @@ const adminRoutes: RouteObject[] = [
               },
             ],
           },
-          // Routes pour la galerie
+          // Routes pour les contenus (galerie et bibliothèque incluses)
           {
-            path: 'galerie',
-            element: withSimpleAdminProtection(AdminGaleriePage),
+            path: 'contenus',
+            children: [
+              {
+                path: 'galerie',
+                element: withSimpleAdminProtection(AdminGaleriePage),
+              },
+              {
+                path: 'bibliotheque',
+                element: withSimpleAdminProtection(AdminBibliotequePage),
+              },
+              // autres contenus existants
+              {
+                path: 'fablab',
+                element: withSimpleAdminProtection(AdminContenusFablabPage),
+              },
+              {
+                path: 'formations',
+                element: withSimpleAdminProtection(AdminContenusFormationsPage),
+              },
+              {
+                path: 'istm',
+                element: withSimpleAdminProtection(AdminContenusISTMPage),
+              },
+              {
+                index: true,
+                element: withSimpleAdminProtection(AdminContenusIndexPage),
+              },
+            ],
           },
           // Routes pour les réservations
           {
             path: 'reservations',
-            children: [
-              {
-                // Route index redirige vers les statistiques
-                index: true,
-                element: withSimpleAdminProtection(AdminReservationsStatsPage),
-              },
-              {
-                path: 'stats',
-                element: withSimpleAdminProtection(AdminReservationsStatsPage),
-              }
-            ],
+            element: withSimpleAdminProtection(AdminReservationsPage),
           },
-          // Routes pour la bibliothèque
-          {
-            path: 'bibliotheque',
-            element: withSimpleAdminProtection(AdminBibliotequePage),
-          },
+          // (bibliotheque déplacée sous contenus)
           // Routes pour les paramètres (authentification simple, pas de vérification de rôle)
           {
             path: 'parametres',

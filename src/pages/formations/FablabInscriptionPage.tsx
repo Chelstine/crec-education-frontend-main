@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { Upload, CreditCard, Smartphone, Building, AlertCircle, Loader2 } from "lucide-react";
-import { useFormationInscription } from "@/hooks/useApi";
+import { useMutation } from "@tanstack/react-query";
 import { InscriptionForm } from "@/types/index";
 import SubscriptionConfirmation from "@/components/common/SubscriptionConfirmation";
 
@@ -29,7 +29,14 @@ const FablabInscriptionPage = () => {
     setShowConfirmation(true);
   };
   
-  const inscriptionMutation = useFormationInscription();
+  const inscriptionMutation = useMutation({
+    mutationFn: async (data: any) => {
+      // Simuler un appel API
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return { success: true, message: "Inscription envoyée avec succès" };
+    },
+    onSuccess: handleInscriptionSuccess
+  });
 
   const workshops = [
     { value: "Abonnement Etudiant", label: "Abonnement Etudiant", price: "15,000" },
