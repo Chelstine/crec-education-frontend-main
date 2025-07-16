@@ -189,7 +189,6 @@ const InscriptionUniversitairePage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formErrors = validateStep(3);
-    
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
       toast.error("Veuillez corriger les erreurs dans le formulaire");
@@ -197,40 +196,63 @@ const InscriptionUniversitairePage = () => {
     }
 
     setIsSubmitting(true);
-    
     try {
-      const applicationData: Partial<UniversityApplication> = {
-        programId: formData.program,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        dateOfBirth: formData.dob,
-        placeOfBirth: formData.city,
-        nationality: formData.nationality,
-        address: formData.city,
-        parentName: formData.parentNames,
-        parentPhone: formData.parentPhone,
-        status: "PENDING",
-        submittedAt: new Date().toISOString(),
-        paymentReceiptUrl: selectedFiles['combined_documents'] ? URL.createObjectURL(selectedFiles['combined_documents']) : undefined,
-        academicYearId: activeAcademicYear?.id || 'academic-2024-2025',
-        lastDiploma: formData.program === "prog-2" ? undefined : formData.bacMention,
-        lastSchool: formData.program === "prog-2" ? undefined : formData.highSchool,
-        graduationYear: formData.program === "prog-2" ? undefined : parseInt(formData.graduationYear),
-        licenseYear: formData.program === "prog-2" ? parseInt(formData.licenseYear) : undefined,
-        licenseUniversity: formData.program === "prog-2" ? formData.licenseUniversity : undefined,
-      };
-
-      console.log("Application submitted:", applicationData);
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast.success("Votre candidature a été soumise avec succès!");
-      toast.info("Vous recevrez un email de confirmation dans quelques minutes.");
-      
+      // Créer un FormData pour envoyer les fichiers + données
+      const formDataToSend = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          formDataToSend.append(key, value.toString());
+        }
+      });
+      if (selectedFiles['combined_documents']) {
+        formDataToSend.append('documents', selectedFiles['combined_documents']);
+      }
+      // Envoi à Laravel (new_backend)
+      const response = await fetch('http://localhost:8000/api/applications', {
+        method: 'POST',
+        body: formDataToSend,
+        // Pas besoin de headers 'Content-Type' pour FormData !
+      });
+      if (!response.ok) {
+        let errorMsg = 'Erreur serveur';
+        try {
+          const errorData = await response.json();
+          errorMsg = errorData.message || errorMsg;
+        } catch {}
+        throw new Error(errorMsg);
+      }
+      const data = await response.json();
+      toast.success("Inscription envoyée avec succès !");
+      toast.info("Vous recevrez un email de confirmation sous peu.");
+      // Reset du formulaire si besoin
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        city: "",
+        dob: "",
+        nationality: "",
+        gender: "",
+        program: "",
+        highSchool: "",
+        bacMention: "",
+        graduationYear: "",
+        parentNames: "",
+        parentPhone: "",
+        agreeToTerms: false,
+        licenseYear: "",
+        licenseUniversity: "",
+      });
+      setSelectedFiles({});
+      setCurrentStep(1);
     } catch (error) {
-      console.error("Error submitting application:", error);
-      toast.error("Une erreur est survenue lors de la soumission. Veuillez réessayer.");
+      console.error("Erreur:", error);
+      if (error instanceof Error) {
+        toast.error(error.message || "Échec de l'envoi. Veuillez réessayer.");
+      } else {
+        toast.error("Échec de l'envoi. Veuillez réessayer.");
+      }
     } finally {
       setIsSubmitting(false);
     }
