@@ -124,7 +124,7 @@ const AdminContenusIndexPage: React.FC = () => {
                 <PlusCircle className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-green-800">35</p>
+                {/* <p className="text-2xl font-bold text-green-800">35</p> */}
                 <p className="text-sm text-green-600">Contenus actifs</p>
               </div>
             </div>

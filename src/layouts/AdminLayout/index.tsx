@@ -44,12 +44,13 @@ const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Redirection si l'utilisateur n'est pas admin (dans un useEffect)
+  // Redirection si l'utilisateur n'est pas admin
   React.useEffect(() => {
     if (!isAdmin) {
       navigate('/admin/login');
     }
   }, [isAdmin, navigate]);
+
   if (!isAdmin) {
     return null;
   }
@@ -59,59 +60,47 @@ const AdminLayout: React.FC = () => {
     navigate('/admin/login');
   };
   
-  // Navigation items - Structure modulaire mise à jour
+  // Navigation items
   const navItems = [
-    { 
-      path: '/admin/dashboard', 
-      name: 'Tableau de bord', 
+    {
+      path: '/admin/dashboard',
+      name: 'Tableau de bord',
       iconComponent: LayoutDashboard
     },
-    { 
-      path: '/admin/a-propos', 
-      name: 'À propos', 
-      iconComponent: FileText
-    },
-    { 
-      path: '/admin/inscriptions', 
-      name: 'Inscriptions', 
+    // { path: '/admin/login', name: 'Connexion', iconComponent: User }, // supprimé
+    {
+      path: '/admin/inscriptions',
+      name: 'Inscriptions',
       iconComponent: User,
       children: [
         { path: '/admin/inscriptions/istm', name: 'ISTM Université' },
         { path: '/admin/inscriptions/formations', name: 'Formations ouvertes' },
-        { path: '/admin/inscriptions/fablab', name: 'FabLab' },
+        { path: '/admin/inscriptions/fablab', name: 'FabLab' }
       ]
     },
-    { 
-      path: '/admin/contenus', 
-      name: 'Gestion du contenu', 
+    {
+      path: '/admin/contenus',
+      name: 'Gestion du contenu',
       iconComponent: BookOpen,
       children: [
         { path: '/admin/contenus/istm', name: 'Programmes ISTM' },
         { path: '/admin/contenus/formations', name: 'Formations ouvertes' },
         { path: '/admin/contenus/fablab', name: 'Ressources FabLab' },
-      ] 
+        { path: '/admin/contenus/bibliotheque', name: 'Bibliothèque' },
+        { path: '/admin/contenus/galerie', name: 'Galerie' }
+      ]
     },
-    { 
-      path: '/admin/galerie', 
-      name: 'Galerie', 
-      iconComponent: Image
-    },
-    { 
-      path: '/admin/reservations/stats', 
-      name: 'Réservations', 
+    {
+      path: '/admin/reservations',
+      name: 'Réservations',
       iconComponent: Calendar
     },
-    { 
-      path: '/admin/bibliotheque', 
-      name: 'Bibliothèque', 
-      iconComponent: Library
-    },
-    { 
-      path: '/admin/parametres', 
-      name: 'Paramètres', 
+    {
+      path: '/admin/parametres',
+      name: 'Paramètres',
       iconComponent: Settings,
       children: [
-        { path: '/admin/parametres', name: 'Paramètres généraux' },
+        { path: '/admin/profile', name: 'Profil' },
         { path: '/admin/parametres/utilisateurs-roles', name: 'Utilisateurs & Rôles' }
       ]
     },
@@ -205,7 +194,6 @@ const AdminLayout: React.FC = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/admin/profile')}>
                   <User className="mr-2 h-4 w-4" />
                   <span>Profil</span>

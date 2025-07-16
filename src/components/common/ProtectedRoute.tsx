@@ -47,7 +47,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
     // Vérifier les rôles si spécifiés
     if (requiredRoles.length > 0 && !hasRole(requiredRoles)) {
-      return <Navigate to="/admin/unauthorized" replace />;
+      return null;
     }
 
     // Vérifier les permissions si spécifiées
@@ -57,13 +57,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       );
       
       if (!hasAllPermissions) {
-        return <Navigate to="/admin/unauthorized" replace />;
+        return null;
       }
     }
 
     // Vérifier l'accès à la route actuelle
     if (!canAccessRoute(location.pathname)) {
-      return <Navigate to="/admin/unauthorized" replace />;
+      return null;
     }
 
     return <>{children}</>;

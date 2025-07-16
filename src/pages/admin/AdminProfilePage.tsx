@@ -20,11 +20,19 @@ const AdminProfilePage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Mon Profil</h1>
-        <p className="text-gray-600 mt-2">
-          Informations de votre compte administrateur
-        </p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Mon Profil</h1>
+          <p className="text-gray-600 mt-2">
+            Informations de votre compte administrateur
+          </p>
+        </div>
+        <button
+          className="bg-crec-gold hover:bg-crec-gold/80 text-white font-semibold px-4 py-2 rounded shadow"
+          onClick={() => alert('Fonction de modification à implémenter')}
+        >
+          Modifier le profil
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -39,11 +47,11 @@ const AdminProfilePage: React.FC = () => {
           <CardContent className="space-y-4">
             <div>
               <label className="text-sm font-medium text-gray-500">Prénom</label>
-              <p className="text-lg">{user.firstName || 'Non défini'}</p>
+              <p className="text-lg">{user.firstname || 'Non défini'}</p>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-500">Nom</label>
-              <p className="text-lg">{user.lastName || 'Non défini'}</p>
+              <p className="text-lg">{user.lastname || 'Non défini'}</p>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-500">Email</label>
