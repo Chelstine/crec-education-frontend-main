@@ -62,7 +62,7 @@ const HomePage = () => {
       title: "Formations Ouvertes",
       subtitle: "Programmes accessibles à tous",
       description: "Des formations courtes et pratiques pour développer des compétences spécifiques et répondre aux besoins immédiats du marché, conçues pour être accessibles à tous les profils.",
-      image: '/img/formation-ouverte.png',
+      image: '/img/open.webp',
       link: '/formations/ouvertes',
       icon: <Users className="h-12 w-12 text-blue-600" />,
       color: "from-blue-500/20 to-blue-600/30"
