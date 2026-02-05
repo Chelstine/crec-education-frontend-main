@@ -6,7 +6,7 @@ import LangSwitcher from '@/components/common/LangSwitcher';
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const dropdownTimeoutRef = useRef<number | null>(null);
 
   // Fonction modifiée pour gérer les dropdowns - maintenant ils restent ouverts tant que la souris est dessus
   const handleMouseEnter = (name: string) => {
@@ -59,7 +59,6 @@ const Header = () => {
       name: 'Événements', 
       path: '/events',
       dropdown: [
-        { name: 'Calendrier', path: '/calendar' },
         { name: 'Conférences', path: '/events' },
       ],
     },
@@ -82,7 +81,7 @@ const Header = () => {
         {/* Logo */}
         <div className="flex-shrink-0">
           <Link to="/" className="block">
-            <img src="/img/logo.png" alt="CREC Logo" className="h-10 md:h-14 w-auto max-w-full object-contain" style={{display: 'block'}} />
+            <img src="/img/logo.png" alt="CREC Logo" className="h-10 md:h-14 w-auto max-w-full object-contain block" />
           </Link>
         </div>
         {/* Desktop nav */}

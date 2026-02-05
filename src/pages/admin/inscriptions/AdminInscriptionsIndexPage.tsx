@@ -1,250 +1,466 @@
+// src/pages/admin/inscriptions/AdminInscriptionsIndexPage.tsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Users, 
   GraduationCap, 
   Wrench, 
-  BookOpen,
-  ArrowRight,
-  CheckCircle,
-  Clock,
-  UserCheck
-} from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card';
-import { Button } from '../../../components/ui/button';
-import { Badge } from '../../../components/ui/badge';
+  Building, 
+  Clock, 
+  CheckCircle, 
+  XCircle,
+  TrendingUp,
+  Eye
+} from "lucide-react";
+import inscriptionService, { RecentInscription } from '@/services/inscription-service';
+import StatCard from '@/components/admin/StatCard';
+import { useNavigate } from 'react-router-dom';
+import { toast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const AdminInscriptionsIndexPage: React.FC = () => {
   const navigate = useNavigate();
+  const [stats, setStats] = useState<any>(null);
+  const [recentInscriptions, setRecentInscriptions] = useState<RecentInscription[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // États pour les statistiques
-  const [stats, setStats] = useState({
-    istm: { pending: '0 en attente', approved: '0 approuvée', total: '0 total' },
-    formations: { pending: '0 en attente', approved: '0 approuvée', total: '0 total' },
-    fablab: { pending: '0 en attente', approved: '0 approuvée', total: '0 total' }
-  });
-
-  // Charger les statistiques depuis l'API
   useEffect(() => {
-    const loadStats = async () => {
-      try {
-        // TODO: Remplacer par les vrais appels API
-        // const response = await fetch('/api/admin/inscriptions/stats');
-        // const data = await response.json();
-        // setStats(data);
-        
-        // Pour l'instant, garder les statistiques à zéro
-        setStats({
-          istm: { pending: '0 en attente', approved: '0 approuvée', total: '0 total' },
-          formations: { pending: '0 en attente', approved: '0 approuvée', total: '0 total' },
-          fablab: { pending: '0 en attente', approved: '0 approuvée', total: '0 total' }
-        });
-      } catch (error) {
-        console.error('Erreur lors du chargement des statistiques:', error);
-      }
-    };
-
-    loadStats();
+    loadDashboard();
   }, []);
 
-  const inscriptionSections = [
-    {
-      id: 'istm',
-      title: 'Inscriptions ISTM',
-      description: 'Gérez les candidatures et admissions pour les programmes universitaires de l\'Institut Supérieur de Technologie Matteo Ricci.',
-      icon: GraduationCap,
-      path: '/admin/inscriptions/istm',
-      color: 'bg-blue-50 border-blue-200',
-      iconColor: 'text-blue-600',
-      features: [
-        'Validation des dossiers académiques',
-        'Gestion des programmes (Licence, Master, Doctorat)',
-        'Suivi des frais d\'inscription',
-        'Génération des listes d\'admission'
-      ],
-      stats: stats.istm
-    },
-    {
-      id: 'formations',
-      title: 'Inscriptions Formations',
-      description: 'Administrez les inscriptions aux formations professionnelles et certifiantes proposées par le CREC.',
-      icon: BookOpen,
-      path: '/admin/inscriptions/formations',
-      color: 'bg-green-50 border-green-200',
-      iconColor: 'text-green-600',
-      features: [
-        'Formations courtes et certifiantes',
-        'Gestion des places disponibles',
-        'Validation des prérequis',
-        'Émission des certificats'
-      ],
-      stats: stats.formations
-    },
-    {
-      id: 'fablab',
-      title: 'Inscriptions FabLab',
-      description: 'Validez les demandes d\'accès au FabLab et gérez les abonnements des makers et créateurs.',
-      icon: Wrench,
-      path: '/admin/inscriptions/fablab',
-      color: 'bg-orange-50 border-orange-200',
-      iconColor: 'text-orange-600',
-      features: [
-        'Validation des reçus de paiement',
-        'Génération des clés d\'accès',
-        'Gestion des abonnements',
-        'Suivi de l\'utilisation des machines'
-      ],
-      stats: stats.fablab
+  const loadDashboard = async () => {
+    try {
+      setLoading(true);
+      const response = await inscriptionService.getDashboardData();
+      setStats(response.data.stats);
+      setRecentInscriptions(response.data.recent_inscriptions);
+    } catch (error) {
+      console.error('Erreur chargement données:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les données des inscriptions.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'approved': return 'bg-green-100 text-green-800';
+      case 'rejected': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'pending': return 'En attente';
+      case 'approved': return 'Approuvée';
+      case 'rejected': return 'Rejetée';
+      default: return status;
+    }
+  };
+
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'fablab': return 'bg-blue-100 text-blue-800';
+      case 'formations': return 'bg-purple-100 text-purple-800';
+      case 'university': return 'bg-orange-100 text-orange-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getTypeLabel = (type: string) => {
+    switch (type) {
+      case 'fablab': return 'FabLab';
+      case 'formations': return 'Formation';
+      case 'university': return 'Université';
+      default: return type;
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-6 py-8">
+        <div className="mb-8">
+          <Skeleton className="h-8 w-64 mb-2" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {[...Array(8)].map((_, i) => (
+            <Skeleton key={i} className="h-32" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8">
+    <div className="container mx-auto px-6 py-8">
       {/* En-tête */}
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="p-3 bg-blue-100 rounded-full">
-            <Users className="w-8 h-8 text-blue-600" />
-          </div>
-          <h1 className="text-3xl font-bold text-slate-800">Gestion des Inscriptions</h1>
-        </div>
-        <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-          Centralisez et gérez toutes les inscriptions de votre établissement. 
-          Validez les candidatures, approuvez les dossiers et suivez l'évolution des inscriptions 
-          pour l'ISTM, les formations professionnelles et le FabLab.
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Gestion des Inscriptions
+        </h1>
+        <p className="text-gray-600">
+          Vue d'ensemble et gestion des inscriptions pour tous les services du centre.
         </p>
       </div>
 
-      {/* Statistiques globales */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-600 rounded-full">
-                <Clock className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-blue-800">25</p>
-                <p className="text-sm text-blue-600">En attente de validation</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-r from-green-50 to-green-100 border-green-200">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-600 rounded-full">
-                <CheckCircle className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-green-800">100</p>
-                <p className="text-sm text-green-600">Inscriptions approuvées</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-600 rounded-full">
-                <UserCheck className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-purple-800">125</p>
-                <p className="text-sm text-purple-600">Total des inscriptions</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Sections d'inscription */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-        {inscriptionSections.map((section) => (
-          <Card 
-            key={section.id} 
-            className={`${section.color} hover:shadow-lg transition-all duration-300 group cursor-pointer`}
-            onClick={() => navigate(section.path)}
-          >
-            <CardHeader className="pb-4">
-              <div className="flex items-center gap-3 mb-2">
-                <div className={`p-2 bg-white rounded-lg shadow-sm`}>
-                  <section.icon className={`w-6 h-6 ${section.iconColor}`} />
-                </div>
-                <CardTitle className="text-lg font-semibold text-slate-800">
-                  {section.title}
-                </CardTitle>
-              </div>
-              <CardDescription className="text-slate-600 leading-relaxed">
-                {section.description}
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-              {/* Fonctionnalités */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium text-slate-700">Fonctionnalités :</h4>
-                <ul className="space-y-1">
-                  {section.features.map((feature, index) => (
-                    <li key={index} className="text-xs text-slate-600 flex items-center gap-2">
-                      <div className="w-1 h-1 bg-slate-400 rounded-full"></div>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Statistiques */}
-              <div className="flex flex-wrap gap-2 pt-2">
-                <Badge variant="secondary" className="text-xs">
-                  {section.stats.pending}
-                </Badge>
-                <Badge variant="secondary" className="text-xs">
-                  {section.stats.approved}
-                </Badge>
-                <Badge variant="outline" className="text-xs">
-                  {section.stats.total}
-                </Badge>
-              </div>
-
-              {/* Bouton d'action */}
-              <Button 
-                className="w-full mt-4 group-hover:bg-slate-700 transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(section.path);
-                }}
-              >
-                Gérer les inscriptions
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Section d'aide */}
-      <Card className="bg-gradient-to-r from-slate-50 to-slate-100 border-slate-200">
-        <CardContent className="p-6">
-          <div className="text-center space-y-3">
-            <h3 className="text-lg font-semibold text-slate-800">Besoin d'aide ?</h3>
-            <p className="text-slate-600 text-sm max-w-2xl mx-auto">
-              Consultez notre guide d'administration ou contactez le support technique 
-              pour toute question concernant la gestion des inscriptions.
-            </p>
-            <div className="flex gap-3 justify-center mt-4">
-              <Button variant="outline" size="sm">
-                Guide d'utilisation
-              </Button>
-              <Button variant="outline" size="sm">
-                Contacter le support
-              </Button>
+      {/* Guide d'utilisation */}
+      <Card className="mb-8 border-blue-200 bg-blue-50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-blue-900">
+            <Users className="h-5 w-5" />
+            Guide de gestion des inscriptions
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-blue-800">
+          <div className="space-y-3">
+            <p className="font-medium">En tant qu'administrateur des inscriptions, vous pouvez :</p>
+            <ul className="list-disc list-inside space-y-2 ml-4">
+              <li><strong>Consulter</strong> toutes les inscriptions par catégorie (FabLab, Formations, Université)</li>
+              <li><strong>Approuver</strong> les inscriptions en vérifiant les informations et reçus de paiement</li>
+              <li><strong>Rejeter</strong> les inscriptions avec une raison détaillée</li>
+              <li><strong>Envoyer automatiquement</strong> des emails de confirmation ou de refus</li>
+              <li><strong>Suivre</strong> les statistiques et l'évolution des inscriptions</li>
+            </ul>
+            <div className="mt-4 p-3 bg-blue-100 rounded-lg">
+              <p className="text-sm">
+                <strong>Important :</strong> Une fois qu'une inscription est approuvée, un email automatique est envoyé 
+                avec les informations nécessaires (identifiants pour le FabLab, dates de début pour les formations, etc.).
+              </p>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Statistiques globales */}
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <StatCard
+            title="Total FabLab"
+            value={stats.fablab.total}
+            icon={Wrench}
+            color="blue"
+          />
+          <StatCard
+            title="Total Formations"
+            value={stats.formations.total}
+            icon={GraduationCap}
+            color="purple"
+          />
+          <StatCard
+            title="Total Université"
+            value={stats.university.total}
+            icon={Building}
+            color="orange"
+          />
+          <StatCard
+            title="En attente global"
+            value={stats.fablab.pending + stats.formations.pending + stats.university.pending}
+            icon={Clock}
+            color="yellow"
+          />
+        </div>
+      )}
+
+      {/* Statistiques détaillées par catégorie */}
+      {stats && (
+        <Tabs defaultValue="overview" className="mb-8">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+            <TabsTrigger value="fablab">FabLab</TabsTrigger>
+            <TabsTrigger value="formations">Formations</TabsTrigger>
+            <TabsTrigger value="university">Université</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">Inscriptions approuvées</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-green-600 mb-2">
+                    {stats.fablab.approved + stats.formations.approved + stats.university.approved}
+                  </div>
+                  <div className="space-y-1 text-sm text-gray-600">
+                    <div>FabLab: {stats.fablab.approved}</div>
+                    <div>Formations: {stats.formations.approved}</div>
+                    <div>Université: {stats.university.approved}</div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">En attente de traitement</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-yellow-600 mb-2">
+                    {stats.fablab.pending + stats.formations.pending + stats.university.pending}
+                  </div>
+                  <div className="space-y-1 text-sm text-gray-600">
+                    <div>FabLab: {stats.fablab.pending}</div>
+                    <div>Formations: {stats.formations.pending}</div>
+                    <div>Université: {stats.university.pending}</div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">Inscriptions rejetées</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-red-600 mb-2">
+                    {stats.fablab.rejected + stats.formations.rejected + stats.university.rejected}
+                  </div>
+                  <div className="space-y-1 text-sm text-gray-600">
+                    <div>FabLab: {stats.fablab.rejected}</div>
+                    <div>Formations: {stats.formations.rejected}</div>
+                    <div>Université: {stats.university.rejected}</div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="fablab">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Wrench className="h-5 w-5" />
+                  Statistiques FabLab
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold">{stats.fablab.total}</div>
+                    <div className="text-sm text-gray-600">Total</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-yellow-600">{stats.fablab.pending}</div>
+                    <div className="text-sm text-gray-600">En attente</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">{stats.fablab.approved}</div>
+                    <div className="text-sm text-gray-600">Approuvées</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-600">{stats.fablab.rejected}</div>
+                    <div className="text-sm text-gray-600">Rejetées</div>
+                  </div>
+                </div>
+                <div className="mt-6">
+                  <Button onClick={() => navigate('/admin/inscriptions/fablab')}>
+                    <Eye className="w-4 h-4 mr-2" />
+                    Gérer les inscriptions FabLab
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="formations">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <GraduationCap className="h-5 w-5" />
+                  Statistiques Formations
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold">{stats.formations.total}</div>
+                    <div className="text-sm text-gray-600">Total</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-yellow-600">{stats.formations.pending}</div>
+                    <div className="text-sm text-gray-600">En attente</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">{stats.formations.approved}</div>
+                    <div className="text-sm text-gray-600">Approuvées</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-600">{stats.formations.rejected}</div>
+                    <div className="text-sm text-gray-600">Rejetées</div>
+                  </div>
+                </div>
+                <div className="mt-6">
+                  <Button onClick={() => navigate('/admin/inscriptions/formations')}>
+                    <Eye className="w-4 h-4 mr-2" />
+                    Gérer les inscriptions Formations
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="university">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building className="h-5 w-5" />
+                  Statistiques Université University
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold">{stats.university.total}</div>
+                    <div className="text-sm text-gray-600">Total</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-yellow-600">{stats.university.pending}</div>
+                    <div className="text-sm text-gray-600">En attente</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">{stats.university.approved}</div>
+                    <div className="text-sm text-gray-600">Approuvées</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-600">{stats.university.rejected}</div>
+                    <div className="text-sm text-gray-600">Rejetées</div>
+                  </div>
+                </div>
+                <div className="mt-6">
+                  <Button onClick={() => navigate('/admin/inscriptions/university')}>
+                    <Eye className="w-4 h-4 mr-2" />
+                    Gérer les inscriptions University
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      )}
+
+      {/* Inscriptions récentes */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Inscriptions récentes
+          </CardTitle>
+          <CardDescription>
+            Les 20 dernières inscriptions soumises, toutes catégories confondues.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {recentInscriptions.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              Aucune inscription récente à afficher.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {recentInscriptions.map((inscription) => (
+                <div key={`${inscription.type}-${inscription.id}`} 
+                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Badge className={getTypeColor(inscription.type)}>
+                        {getTypeLabel(inscription.type)}
+                      </Badge>
+                      <Badge className={getStatusColor(inscription.status)}>
+                        {getStatusText(inscription.status)}
+                      </Badge>
+                    </div>
+                    <div className="font-medium">{inscription.name}</div>
+                    <div className="text-sm text-gray-600">{inscription.email}</div>
+                    <div className="text-sm text-gray-500">{inscription.details}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm text-gray-500">
+                      {formatDate(inscription.created_at)}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-2"
+                      onClick={() => navigate(`/admin/inscriptions/${inscription.type}`)}
+                    >
+                      Voir détails
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Actions rapides */}
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => navigate('/admin/inscriptions/fablab')}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-blue-700">
+              <Wrench className="h-5 w-5" />
+              Inscriptions FabLab
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 mb-4">
+              Gérer les inscriptions aux abonnements FabLab et générer les identifiants d'accès.
+            </p>
+            <Button className="w-full">Accéder</Button>
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => navigate('/admin/inscriptions/formations')}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-purple-700">
+              <GraduationCap className="h-5 w-5" />
+              Inscriptions Formations
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 mb-4">
+              Traiter les inscriptions aux formations ouvertes et envoyer les confirmations.
+            </p>
+            <Button className="w-full">Accéder</Button>
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => navigate('/admin/inscriptions/university')}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-orange-700">
+              <Building className="h-5 w-5" />
+              Inscriptions University
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 mb-4">
+              Examiner les candidatures universitaires et valider les dossiers académiques.
+            </p>
+            <Button className="w-full">Accéder</Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

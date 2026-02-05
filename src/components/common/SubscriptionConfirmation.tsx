@@ -40,7 +40,7 @@ const SubscriptionConfirmation: React.FC<SubscriptionConfirmationProps> = ({
   const [autoRedirect, setAutoRedirect] = useState(true);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setTimeout>;
     
     if (isOpen && autoRedirect && countdown > 0) {
       timer = setTimeout(() => {
@@ -66,7 +66,7 @@ const SubscriptionConfirmation: React.FC<SubscriptionConfirmationProps> = ({
         }
       });
     } else {
-      navigate('/formations');
+      navigate('/');
     }
   };
 

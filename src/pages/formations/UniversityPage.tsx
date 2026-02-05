@@ -1,152 +1,90 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Calendar, FileText, Users, GraduationCap, BookOpen, DollarSign, CheckCircle2 } from 'lucide-react';
-
-type SimpleUniversityProgram = {
-  id: string;
-  name: string;
-  description: string;
-  duration: string;
-  degree: string;
-  capacity: number;
-  tuitionFee: number;
-  currency: string;
-  requirements: string[];
-  careerOutlooks: string[];
-};
-
-const programs: SimpleUniversityProgram[] = [
-  {
-    id: '1',
-    name: 'Développement de logiciels',
-    description:
-      "Concevez des logiciels robustes et éthiques avec des langages modernes (Java, Python), des méthodologies agiles et une approche centrée sur la résolution de problèmes sociétaux.",
-    duration: '3 ans',
-    degree: 'licence',
-    capacity: 50,
-    tuitionFee: 800000,
-    currency: 'FCFA',
-    requirements: [
-      'Baccalauréat série C, D ou équivalent',
-      'Bases en mathématiques',
-      'Logique et raisonnement',
-    ],
-    careerOutlooks: [
-      'Développeur logiciel',
-      'Ingénieur logiciel',
-      'Architecte logiciel',
-      'Testeur QA',
-    ],
-  },
-  {
-    id: '2',
-    name: 'Développement Web & Mobile',
-    description:
-      "Créez des applications web et mobiles innovantes et accessibles, en maîtrisant HTML, CSS, JavaScript, React, Flutter et le design d'interfaces utilisateur.",
-    duration: '3 ans',
-    degree: 'licence',
-    capacity: 45,
-    tuitionFee: 800000,
-    currency: 'FCFA',
-    requirements: [
-      'Baccalauréat série C, D ou équivalent',
-      'Créativité et sens artistique',
-      'Bases en logique',
-    ],
-    careerOutlooks: [
-      'Développeur front-end',
-      'Développeur mobile',
-      'Intégrateur web',
-      'Product builder',
-    ],
-  },
-  {
-    id: '3',
-    name: 'Science des données',
-    description:
-      "Exploitez les données pour éclairer les décisions avec Python, SQL, PowerBI et des techniques d'intelligence artificielle, dans une perspective éthique et responsable.",
-    duration: '3 ans',
-    degree: 'licence',
-    capacity: 35,
-    tuitionFee: 850000,
-    currency: 'FCFA',
-    requirements: [
-      'Baccalauréat série C, D ou équivalent',
-      'Bases en mathématiques et statistiques',
-      'Curiosité analytique',
-    ],
-    careerOutlooks: [
-      'Data analyst',
-      'Business analyst',
-      'Consultant data',
-      'Data scientist',
-    ],
-  },
-];
+import { Calendar, FileText, Users, GraduationCap, BookOpen, DollarSign, CheckCircle2, ChevronDown, ChevronRight } from 'lucide-react';
+import { useUniversityPrograms } from '@/hooks/useUniversityPrograms';
+import { PublicUniversityProgram } from '@/types/university';
 
 const UniversityPage = () => {
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'licence':
-        return 'bg-amber-100 text-amber-800';
-      case 'master':
-        return 'bg-blue-100 text-blue-800';
-      case 'specialisation':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+  const { data: programs = [], isLoading, error } = useUniversityPrograms();
+  const [expandedPrograms, setExpandedPrograms] = useState<Record<number, boolean>>({});
+
+  const toggleProgram = (programId: number) => {
+    setExpandedPrograms(prev => ({
+      ...prev,
+      [programId]: !prev[programId]
+    }));
+  };
+
+  const getLevelLabel = (level: string) => {
+    switch (level.toUpperCase()) {
+      case 'CERTIFICATE': return 'Certificat';
+      case 'DIPLOMA': return 'Diplôme';
+      case 'BACHELOR': return 'Licence';
+      case 'LICENCE': return 'Licence';
+      case 'MASTER': return 'Master';
+      case 'DOCTORATE': return 'Doctorat';
+      default: return level;
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
+  const getDurationLabel = (duration: string) => {
+    switch (duration) {
+      case '3_MONTHS': return '3 mois';
+      case '6_MONTHS': return '6 mois';
+      case '1_YEAR': return '1 an';
+      case '2_YEARS': return '2 ans';
+      case '3_YEARS': return '3 ans';
+      case '4_YEARS': return '4 ans';
+      case '5_YEARS': return '5 ans';
+      default: return duration;
+    }
   };
+
+  const formatCurrency = (amount: number, currency: string = 'FCFA') => {
+    return new Intl.NumberFormat('fr-FR').format(amount) + ` ${currency}`;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement des programmes...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-5xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Erreur de chargement</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Réessayer
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-gray-50">
       {/* Hero Section */}
       <section className="relative w-full overflow-hidden">
         <div className="absolute inset-0 bg-[url('/img/crec3.jpg')] bg-cover bg-center" />
-        <div className="absolute inset-0 bg-gradient-to-r from-crec-darkblue/80 via-crec-darkblue/60 to-crec-darkblue/90 backdrop-blur-[2px]" />
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.15 }}
-          transition={{ duration: 1.5 }}
-          className="absolute top-20 right-20 w-64 h-64 rounded-full bg-crec-gold blur-3xl"
-        />
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.1 }}
-          transition={{ duration: 1.5, delay: 0.3 }}
-          className="absolute bottom-10 left-10 w-96 h-96 rounded-full bg-blue-500 blur-3xl"
-        />
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-blue-900/60 to-blue-900/90 backdrop-blur-[2px]" />
         <div className="min-h-[350px] md:min-h-[400px] flex flex-col items-center justify-center text-center relative z-10 text-white p-6 md:p-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="max-w-4xl mx-auto"
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8 }}
-              className="mb-4 inline-flex px-4 py-2 rounded-full items-center bg-white/10 backdrop-blur-md border border-white/20"
-            >
-              <motion.div
-                animate={{
-                  scale: [1, 1.05, 1],
-                  transition: {
-                    repeat: Infinity,
-                    repeatType: 'reverse',
-                    duration: 1.5,
-                  },
-                }}
-                className="w-2 h-2 rounded-full bg-crec-gold mr-2"
-              />
+          <div className="max-w-4xl mx-auto">
+            <div className="mb-4 inline-flex px-4 py-2 rounded-full items-center bg-white/10 backdrop-blur-md border border-white/20">
+              <div className="w-2 h-2 rounded-full bg-yellow-500 mr-2" />
               <span className="text-sm font-medium">Excellence Académique</span>
-            </motion.div>
+            </div>
             <h1 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6 tracking-tight">
               ISTMR
             </h1>
@@ -159,7 +97,7 @@ const UniversityPage = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/formations/university/inscription"
-                className="px-6 py-3 bg-crec-gold text-white font-medium rounded-full hover:bg-amber-500 transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="px-6 py-3 bg-yellow-500 text-white font-medium rounded-full hover:bg-yellow-600 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 S'inscrire maintenant
               </Link>
@@ -170,7 +108,7 @@ const UniversityPage = () => {
                 Nous contacter
               </Link>
             </div>
-          </motion.div>
+          </div>
         </div>
         <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
           <svg
@@ -188,22 +126,10 @@ const UniversityPage = () => {
       {/* About Section */}
       <section id="about" className="py-16 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4">
-          <motion.h2
-            className="text-3xl md:text-4xl font-bold text-center text-blue-900 mb-8"
-            initial={{ opacity: 0, y: -20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-blue-900 mb-8">
             À propos de l'ISTMR
-          </motion.h2>
-          <motion.div
-            className="space-y-6 text-gray-700 text-lg leading-relaxed text-justify"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
+          </h2>
+          <div className="space-y-6 text-gray-700 text-lg leading-relaxed text-justify">
             <p>
               Fondé par la Compagnie de Jésus au Bénin, l'Institut des Sciences et
               Technologies Matteo Ricci (ISTMR) forme des techniciens, ingénieurs et
@@ -223,38 +149,20 @@ const UniversityPage = () => {
               d'extension vers les télécommunications et l'électronique, soutenus par
               un réseau de 195 universités jésuites.
             </p>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Matteo Ricci Section */}
-      <section id="matteo-ricci" className="py-16 bg-gradient-to-br from-amber-50 to-blue-50">
+      <section id="matteo-ricci" className="py-16 bg-gradient-to-br from-yellow-50 to-blue-50">
         <div className="max-w-6xl mx-auto px-4">
-          <motion.h2
-            className="text-3xl md:text-4xl font-bold text-center text-blue-900 mb-8"
-            initial={{ opacity: 0, y: -20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-blue-900 mb-8">
             Matteo Ricci (1552-1610)
-          </motion.h2>
-          <motion.p
-            className="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          </h2>
+          <p className="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12">
             Pionnier du dialogue interculturel et de l'éducation scientifique
-          </motion.p>
-          <motion.div
-            className="flex justify-center gap-4 mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          </p>
+          <div className="flex justify-center gap-4 mb-12">
             <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden shadow-md">
               <img
                 src="/img/matteo-ricci/matteo1.jpeg"
@@ -276,14 +184,9 @@ const UniversityPage = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-          </motion.div>
+          </div>
           <div className="grid md:grid-cols-2 gap-12">
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-            >
+            <div>
               <div className="space-y-6">
                 <div className="bg-white p-6 rounded-xl shadow-md">
                   <h3 className="text-xl font-semibold text-blue-900 mb-3">
@@ -317,16 +220,11 @@ const UniversityPage = () => {
                   </p>
                 </div>
               </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-            >
+            </div>
+            <div>
               <div className="bg-white p-8 rounded-xl shadow-md text-center">
-                <div className="w-24 h-24 mx-auto bg-amber-100 rounded-full flex items-center justify-center mb-6">
-                  <BookOpen className="w-12 h-12 text-white" />
+                <div className="w-24 h-24 mx-auto bg-yellow-100 rounded-full flex items-center justify-center mb-6">
+                  <BookOpen className="w-12 h-12 text-blue-900" />
                 </div>
                 <blockquote className="text-lg italic text-blue-900 mb-4">
                   "L'amitié est la seule voie qui mène les cœurs des hommes vers la
@@ -334,50 +232,38 @@ const UniversityPage = () => {
                 </blockquote>
                 <p className="text-blue-900 font-medium">— Matteo Ricci</p>
                 <div className="grid grid-cols-2 gap-4 mt-6">
-                  <div className="bg-amber-50 p-4 rounded-lg">
-                    <p className="text-2xl font-bold text-amber-600">28</p>
+                  <div className="bg-yellow-50 p-4 rounded-lg">
+                    <p className="text-2xl font-bold text-yellow-600">28</p>
                     <p className="text-sm text-gray-700">ans en Chine</p>
                   </div>
-                  <div className="bg-amber-50 p-4 rounded-lg">
-                    <p className="text-2xl font-bold text-amber-600">1610</p>
+                  <div className="bg-yellow-50 p-4 rounded-lg">
+                    <p className="text-2xl font-bold text-yellow-600">1610</p>
                     <p className="text-sm text-gray-700">décès à Pékin</p>
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Rentrée Scolaire Section */}
-      <section className="py-16 bg-gradient-to-b from-crec-darkblue to-blue-900 text-white">
+      <section className="py-16 bg-gradient-to-b from-blue-900 to-blue-800 text-white">
         <div className="max-w-4xl mx-auto px-4">
-          <motion.h2
-            className="text-3xl md:text-4xl font-bold text-center mb-6"
-            initial={{ opacity: 0, y: -20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-6">
             Rentrée Scolaire 2025-2026
-          </motion.h2>
+          </h2>
           <div className="flex justify-center mb-8">
-            <div className="w-20 h-1 bg-crec-gold"></div>
+            <div className="w-20 h-1 bg-yellow-500"></div>
           </div>
           <div className="bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-2xl shadow-xl">
             <div className="text-center mb-6">
-              <div className="inline-flex items-center px-4 py-2 rounded-full bg-crec-gold text-white mx-auto">
-                <Calendar className="w-4 h-4 mr-2 text-white" />
+              <div className="inline-flex items-center px-4 py-2 rounded-full bg-yellow-500 text-white mx-auto">
+                <Calendar className="w-4 h-4 mr-2" />
                 <span className="font-medium">Première promotion</span>
               </div>
             </div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="max-w-2xl mx-auto"
-            >
+            <div className="max-w-2xl mx-auto">
               <h3 className="text-2xl font-bold text-center mb-4">
                 Préparez votre avenir numérique avec l'ISTMR
               </h3>
@@ -386,33 +272,100 @@ const UniversityPage = () => {
                 pour l'année académique 2025-2026. Rejoignez cette aventure unique et devenez les
                 pionniers d'une formation d'excellence au service du développement de l'Afrique.
               </p>
-              <div className="grid md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white/5 rounded-lg p-4 border border-white/10 flex flex-col items-center text-center">
-                  <Calendar className="w-8 h-8 text-crec-gold mb-2" />
-                  <h4 className="font-medium mb-1">Début des cours</h4>
-                  <p className="text-white/80">2 octobre 2025</p>
+              
+              {/* Informations dynamiques basées sur les programmes */}
+              {programs.length > 0 && (
+                <div className="grid md:grid-cols-3 gap-6 mb-8">
+                  {/* Date de début - utilise la première date trouvée */}
+                  {(() => {
+                    const programWithStartDate = programs.find(p => p.start_date);
+                    return programWithStartDate ? (
+                      <div className="bg-white/5 rounded-lg p-4 border border-white/10 flex flex-col items-center text-center">
+                        <Calendar className="w-8 h-8 text-yellow-500 mb-2" />
+                        <h4 className="font-medium mb-1">Début des cours</h4>
+                        <p className="text-white/80">
+                          {programWithStartDate.start_date ? new Date(programWithStartDate.start_date).toLocaleDateString('fr-FR', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                          }) : 'À confirmer'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="bg-white/5 rounded-lg p-4 border border-white/10 flex flex-col items-center text-center">
+                        <Calendar className="w-8 h-8 text-yellow-500 mb-2" />
+                        <h4 className="font-medium mb-1">Début des cours</h4>
+                        <p className="text-white/80">2 octobre 2025</p>
+                      </div>
+                    );
+                  })()}
+                  
+                  {/* Période d'inscription - utilise la première date limite trouvée */}
+                  {(() => {
+                    const programWithDeadline = programs.find(p => p.registration_deadline);
+                    return programWithDeadline ? (
+                      <div className="bg-white/5 rounded-lg p-4 border border-white/10 flex flex-col items-center text-center">
+                        <FileText className="w-8 h-8 text-yellow-500 mb-2" />
+                        <h4 className="font-medium mb-1">Date limite d'inscription</h4>
+                        <p className="text-white/80">
+                          {programWithDeadline.registration_deadline ? new Date(programWithDeadline.registration_deadline).toLocaleDateString('fr-FR', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                          }) : 'À confirmer'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="bg-white/5 rounded-lg p-4 border border-white/10 flex flex-col items-center text-center">
+                        <FileText className="w-8 h-8 text-yellow-500 mb-2" />
+                        <h4 className="font-medium mb-1">Période d'inscription</h4>
+                        <p className="text-white/80">15 mai - 30 sept. 2025</p>
+                      </div>
+                    );
+                  })()}
+                  
+                  {/* Places disponibles - somme des capacités */}
+                  <div className="bg-white/5 rounded-lg p-4 border border-white/10 flex flex-col items-center text-center">
+                    <Users className="w-8 h-8 text-yellow-500 mb-2" />
+                    <h4 className="font-medium mb-1">Places disponibles</h4>
+                    <p className="text-white/80">
+                      {programs.reduce((total, program) => total + (program.capacity || 0), 0)} au total
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-white/5 rounded-lg p-4 border border-white/10 flex flex-col items-center text-center">
-                  <FileText className="w-8 h-8 text-crec-gold mb-2" />
-                  <h4 className="font-medium mb-1">Période d'inscription</h4>
-                  <p className="text-white/80">15 mai - 30 sept. 2025</p>
+              )}
+              
+              {/* Section statique si aucun programme */}
+              {programs.length === 0 && (
+                <div className="grid md:grid-cols-3 gap-6 mb-8">
+                  <div className="bg-white/5 rounded-lg p-4 border border-white/10 flex flex-col items-center text-center">
+                    <Calendar className="w-8 h-8 text-yellow-500 mb-2" />
+                    <h4 className="font-medium mb-1">Début des cours</h4>
+                    <p className="text-white/80">2 octobre 2025</p>
+                  </div>
+                  <div className="bg-white/5 rounded-lg p-4 border border-white/10 flex flex-col items-center text-center">
+                    <FileText className="w-8 h-8 text-yellow-500 mb-2" />
+                    <h4 className="font-medium mb-1">Période d'inscription</h4>
+                    <p className="text-white/80">15 mai - 30 sept. 2025</p>
+                  </div>
+                  <div className="bg-white/5 rounded-lg p-4 border border-white/10 flex flex-col items-center text-center">
+                    <Users className="w-8 h-8 text-yellow-500 mb-2" />
+                    <h4 className="font-medium mb-1">Places disponibles</h4>
+                    <p className="text-white/80">30 par filière</p>
+                  </div>
                 </div>
-                <div className="bg-white/5 rounded-lg p-4 border border-white/10 flex flex-col items-center text-center">
-                  <Users className="w-8 h-8 text-crec-gold mb-2" />
-                  <h4 className="font-medium mb-1">Places disponibles</h4>
-                  <p className="text-white/80">30 par filière</p>
-                </div>
-              </div>
+              )}
+              
               <div className="text-center">
                 <Link
                   to="/formations/university/inscription"
-                  className="inline-flex items-center px-8 py-3 bg-white text-crec-darkblue rounded-full hover:bg-crec-gold hover:text-white transition-all duration-300 font-medium shadow-md hover:shadow-lg"
+                  className="inline-flex items-center px-8 py-3 bg-white text-blue-900 rounded-full hover:bg-yellow-500 hover:text-white transition-all duration-300 font-medium shadow-md hover:shadow-lg"
                 >
                   <FileText className="w-5 h-5 mr-2" />
                   Réserver ma place
                 </Link>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
@@ -420,131 +373,241 @@ const UniversityPage = () => {
       {/* Programs Section */}
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4">
-          <motion.h2
-            className="text-3xl md:text-4xl font-bold text-center text-blue-900 mb-12"
-            initial={{ opacity: 0, y: -20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-blue-900 mb-12">
             Nos programmes en informatique
-          </motion.h2>
-          {programs.map((program, i) => (
-            <motion.div
-              key={program.id}
-              className="mb-12 border-b border-gray-200 pb-12 last:border-0 last:pb-0"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.2 }}
-            >
-              <div className="flex flex-col md:flex-row gap-8">
-                {/* Image */}
-                <div className="md:w-1/3">
-                  <div className="rounded-xl overflow-hidden shadow-lg">
-                    <img
-                      src="/img/dev-logiciel.png"
-                      alt={program.name}
-                      className="w-full h-64 object-cover"
-                    />
+          </h2>
+          {programs.length === 0 ? (
+            <div className="text-center py-12">
+              <GraduationCap className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">Programmes en cours de préparation</h3>
+              <p className="text-gray-500">Nos programmes seront bientôt disponibles. Revenez prochainement !</p>
+            </div>
+          ) : (
+            programs
+              .filter(program => program.is_active)
+              .map((program, i) => (
+                <div
+                  key={program.id}
+                  className="mb-12 border-b border-gray-200 pb-12 last:border-0 last:pb-0"
+                >
+                  <div className="flex flex-col md:flex-row gap-8">
+                    {/* Image */}
+                    <div className="md:w-1/3">
+                      <div className="rounded-xl overflow-hidden shadow-lg">
+                        <img
+                          src={program.image || "/img/dev-logiciel.png"}
+                          alt={program.name}
+                          className="w-full h-64 object-cover"
+                        />
+                      </div>
+                    </div>
+                    {/* Content */}
+                    <div className="md:w-2/3">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                          {getLevelLabel(program.level)}
+                        </span>
+                        <div className="flex items-center gap-1 text-sm text-gray-600">
+                          <Calendar className="w-4 h-4 text-blue-900" />
+                          <span>{getDurationLabel(program.duration || '3_YEARS')}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-sm text-gray-600">
+                          <Users className="w-4 h-4 text-blue-900" />
+                          <span>Capacité: <strong>{program.capacity}</strong> étudiants</span>
+                        </div>
+                        {program.is_featured && (
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Mis en avant
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-2xl font-bold text-blue-900 mb-3">
+                        {program.name}
+                      </h3>
+                      <p className="text-gray-700 text-base mb-6 leading-relaxed">
+                        {program.description}
+                      </p>
+                      <div className="grid md:grid-cols-2 gap-6 mb-6">
+                        {/* Prérequis */}
+                        {program.requirements && program.requirements.length > 0 && (
+                          <div className="bg-blue-50 p-5 rounded-lg shadow-sm border border-blue-100">
+                            <h4 className="text-blue-900 font-semibold mb-3 flex items-center gap-2">
+                              <BookOpen className="w-5 h-5 text-white bg-blue-900 p-1 rounded-full" />
+                              Prérequis
+                            </h4>
+                            <ul className="space-y-2">
+                              {program.requirements.map((req, j) => (
+                                <li key={j} className="flex items-start gap-2">
+                                  <CheckCircle2 className="w-4 h-4 text-blue-600 mt-1 shrink-0" />
+                                  <span className="text-gray-700 text-sm">{req}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {/* Débouchés */}
+                        {program.career_opportunities && program.career_opportunities.length > 0 && (
+                          <div className="bg-green-50 p-5 rounded-lg shadow-sm border border-green-100">
+                            <h4 className="text-blue-900 font-semibold mb-3 flex items-center gap-2">
+                              <GraduationCap className="w-5 h-5 text-white bg-blue-900 p-1 rounded-full" />
+                              Débouchés professionnels
+                            </h4>
+                            <ul className="space-y-2">
+                              {program.career_opportunities.map((deb, j) => (
+                                <li key={j} className="flex items-start gap-2">
+                                  <CheckCircle2 className="w-4 h-4 text-green-600 mt-1 shrink-0" />
+                                  <span className="text-gray-700 text-sm">{deb}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="w-5 h-5 text-blue-900" />
+                          <span className="text-blue-900 font-semibold">
+                            {formatCurrency(program.tuition_fee, program.currency || 'FCFA')} / an
+                          </span>
+                        </div>
+                        <Link
+                          to="/formations/university/inscription"
+                          className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-900 text-white rounded-lg hover:bg-yellow-500 transition-all duration-300 font-medium"
+                        >
+                          S'inscrire à cette formation
+                          <FileText className="w-4 h-4" />
+                        </Link>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                {/* Content */}
-                <div className="md:w-2/3">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${getTypeColor(program.degree)}`}
-                    >
-                      {program.degree === 'licence' ? 'Licence' : 'Master'}
-                    </span>
-                    <div className="flex items-center gap-1 text-sm text-gray-600">
-                      <Calendar className="w-4 h-4 text-crec-darkblue" />
-                      <span>{program.duration}</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-sm text-gray-600">
-                      <Users className="w-4 h-4 text-crec-darkblue" />
-                      <span>Capacité: <strong>{program.capacity}</strong> étudiants</span>
-                    </div>
-                  </div>
-                  <h3 className="text-2xl font-bold text-crec-darkblue mb-3">
-                    {program.name}
-                  </h3>
-                  <p className="text-gray-700 text-base mb-6 leading-relaxed">
-                    {program.description}
-                  </p>
-                  <div className="grid md:grid-cols-2 gap-6 mb-6">
-                    {/* Prérequis */}
-                    <div className="bg-blue-50 p-5 rounded-lg shadow-sm border border-blue-100">
-                      <h4 className="text-crec-darkblue font-semibold mb-3 flex items-center gap-2">
-                        <BookOpen className="w-5 h-5 text-white bg-crec-darkblue p-1 rounded-full" />
-                        Prérequis
-                      </h4>
-                      <ul className="space-y-2">
-                        {program.requirements.map((req, j) => (
-                          <li key={j} className="flex items-start gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-blue-600 mt-1 shrink-0" />
-                            <span className="text-gray-700 text-sm">{req}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    {/* Débouchés */}
-                    <div className="bg-green-50 p-5 rounded-lg shadow-sm border border-green-100">
-                      <h4 className="text-crec-darkblue font-semibold mb-3 flex items-center gap-2">
-                        <GraduationCap className="w-5 h-5 text-white bg-crec-darkblue p-1 rounded-full" />
-                        Débouchés professionnels
-                      </h4>
-                      <ul className="space-y-2">
-                        {program.careerOutlooks.map((deb, j) => (
-                          <li key={j} className="flex items-start gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-green-600 mt-1 shrink-0" />
-                            <span className="text-gray-700 text-sm">{deb}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="w-5 h-5 text-crec-darkblue" />
-                      <span className="text-crec-darkblue font-semibold">
-                        {formatCurrency(program.tuitionFee)} / an
-                      </span>
-                    </div>
-                    <Link
-                      to="/formations/university/inscription"
-                      className="inline-flex items-center gap-2 px-6 py-2.5 bg-crec-darkblue text-white rounded-lg hover:bg-crec-gold transition-all duration-300 font-medium"
-                    >
-                      S'inscrire à cette formation
-                      <FileText className="w-4 h-4" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+              ))
+          )}
         </div>
       </section>
+
+      {/* Curriculum and Documents Requirements Section */}
+      {programs.length > 0 && programs.some(p => (p.curriculum && p.curriculum.length > 0) || (p.admission_requirements && p.admission_requirements.length > 0)) && (
+        <section className="py-16 bg-gradient-to-br from-blue-50 to-indigo-50">
+          <div className="max-w-6xl mx-auto px-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-blue-900 mb-12">
+              Curriculum et exigences documentaires
+            </h2>
+            <div className="space-y-6">
+              {programs
+                .filter(program => program.is_active && ((program.curriculum && program.curriculum.length > 0) || (program.admission_requirements && program.admission_requirements.length > 0)))
+                .map((program, i) => {
+                  const isExpanded = expandedPrograms[program.id] || false;
+                  return (
+                    <div
+                      key={program.id}
+                      className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden"
+                    >
+                      {/* Header clickable */}
+                      <div 
+                        className="p-6 cursor-pointer hover:bg-blue-50 transition-colors duration-200"
+                        onClick={() => toggleProgram(program.id)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-blue-900 rounded-full flex items-center justify-center">
+                              <GraduationCap className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                              <h3 className="text-xl md:text-2xl font-bold text-blue-900">
+                                {program.name}
+                              </h3>
+                              <p className="text-blue-600 font-medium">
+                                {getLevelLabel(program.level)} - {getDurationLabel(program.duration || '3_YEARS')}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 text-blue-600">
+                            <span className="text-sm font-medium hidden md:inline">
+                              {isExpanded ? 'Masquer' : 'Voir le détail'}
+                            </span>
+                            {isExpanded ? (
+                              <ChevronDown className="w-6 h-6 transition-transform duration-200" />
+                            ) : (
+                              <ChevronRight className="w-6 h-6 transition-transform duration-200" />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Content collapsible */}
+                      <div className={`transition-all duration-300 overflow-hidden ${isExpanded ? 'max-h-none opacity-100' : 'max-h-0 opacity-0'}`}>
+                        <div className="p-6 pt-0">
+                          <div className="grid md:grid-cols-2 gap-8">
+                            {/* Curriculum Section */}
+                            {program.curriculum && program.curriculum.length > 0 && (
+                              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200">
+                                <h4 className="text-blue-900 font-bold text-lg mb-4 flex items-center gap-2">
+                                  <BookOpen className="w-5 h-5 text-white bg-blue-900 p-1 rounded-full" />
+                                  Programme d'études (Curriculum)
+                                </h4>
+                                <div className="space-y-3">
+                                  {program.curriculum.map((item, j) => (
+                                    <div key={j} className="flex items-start gap-3 bg-white p-3 rounded-lg shadow-sm">
+                                      <div className="w-6 h-6 bg-blue-900 text-white rounded-full flex items-center justify-center text-xs font-bold mt-0.5">
+                                        {j + 1}
+                                      </div>
+                                      <span className="text-gray-700 text-sm leading-relaxed">{item}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Admission Requirements Section */}
+                            {program.admission_requirements && program.admission_requirements.length > 0 && (
+                              <div className="bg-gradient-to-br from-amber-50 to-orange-100 p-6 rounded-xl border border-amber-200">
+                                <h4 className="text-blue-900 font-bold text-lg mb-4 flex items-center gap-2">
+                                  <FileText className="w-5 h-5 text-white bg-blue-900 p-1 rounded-full" />
+                                  Documents requis pour l'admission
+                                </h4>
+                                <div className="space-y-3">
+                                  {program.admission_requirements.map((req, j) => (
+                                    <div key={j} className="flex items-start gap-3 bg-white p-3 rounded-lg shadow-sm">
+                                      <CheckCircle2 className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+                                      <span className="text-gray-700 text-sm leading-relaxed">{req}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Call to action for this specific program */}
+                          <div className="mt-6 pt-6 border-t border-gray-200 text-center">
+                            <p className="text-gray-600 mb-4">
+                              Intéressé(e) par ce programme ? Commencez votre inscription dès maintenant.
+                            </p>
+                            <Link
+                              to="/formations/university/inscription"
+                              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-900 text-white rounded-lg hover:bg-yellow-500 transition-all duration-300 font-medium shadow-md hover:shadow-lg"
+                            >
+                              <FileText className="w-5 h-5" />
+                              M'inscrire à {program.name}
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Faculty Section */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4">
-          <motion.h2
-            className="text-3xl md:text-4xl font-bold text-center text-blue-900 mb-12"
-            initial={{ opacity: 0, y: -20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-blue-900 mb-12">
             Notre corps enseignant
-          </motion.h2>
-          <motion.div
-            className="space-y-6"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
+          </h2>
+          <div className="space-y-6">
             <p className="text-gray-700 text-lg leading-relaxed text-justify">
               L'ISTMR s'appuie sur une équipe d'enseignants qualifiés, composée de
               professeurs, docteurs, ingénieurs et chercheurs issus du réseau jésuite
@@ -552,13 +615,7 @@ const UniversityPage = () => {
               corps enseignant allie expertise académique et engagement éthique.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <motion.div
-                className="bg-white p-6 rounded-xl shadow-md"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-              >
+              <div className="bg-white p-6 rounded-xl shadow-md">
                 <h3 className="text-lg font-semibold text-blue-900">
                   Professeurs et Docteurs
                 </h3>
@@ -568,14 +625,8 @@ const UniversityPage = () => {
                 <p className="text-gray-700 text-sm mt-2">
                   Expertise : Sciences informatiques et technologies
                 </p>
-              </motion.div>
-              <motion.div
-                className="bg-white p-6 rounded-xl shadow-md"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-              >
+              </div>
+              <div className="bg-white p-6 rounded-xl shadow-md">
                 <h3 className="text-lg font-semibold text-blue-900">
                   Ingénieurs et Praticiens
                 </h3>
@@ -583,14 +634,8 @@ const UniversityPage = () => {
                 <p className="text-gray-700 text-sm mt-2">
                   Expertise : Développement et gestion de projets
                 </p>
-              </motion.div>
-              <motion.div
-                className="bg-white p-6 rounded-xl shadow-md"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
+              </div>
+              <div className="bg-white p-6 rounded-xl shadow-md">
                 <h3 className="text-lg font-semibold text-blue-900">
                   Chercheurs Internationaux
                 </h3>
@@ -598,32 +643,26 @@ const UniversityPage = () => {
                 <p className="text-gray-700 text-sm mt-2">
                   Expertise : Innovation et recherche appliquée
                 </p>
-              </motion.div>
+              </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Admission Process Section */}
       <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-6xl mx-auto px-4">
-          <motion.div
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: -20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-crec-darkblue mb-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-blue-900 mb-4">
               Comment s'inscrire
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
               Suivez notre processus d'inscription simple et efficace pour rejoindre l'ISTMR et commencer votre parcours de formation.
             </p>
-          </motion.div>
+          </div>
           <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
             <div className="relative">
-              <div className="absolute left-0 md:left-[50%] top-0 bottom-0 w-0.5 bg-crec-gold/20 hidden md:block"></div>
+              <div className="absolute left-0 md:left-[50%] top-0 bottom-0 w-0.5 bg-yellow-500/20 hidden md:block"></div>
               <div className="space-y-12">
                 {[
                   {
@@ -636,7 +675,7 @@ const UniversityPage = () => {
                     icon: Calendar,
                     title: 'Soumission de votre candidature',
                     desc: 'Déposez votre dossier complet via notre plateforme en ligne ou directement à notre secrétariat avant la date limite du 30 septembre 2025.',
-                    color: 'bg-amber-100 text-amber-600 border-amber-200',
+                    color: 'bg-yellow-100 text-yellow-600 border-yellow-200',
                   },
                   {
                     icon: GraduationCap,
@@ -651,36 +690,32 @@ const UniversityPage = () => {
                     color: 'bg-purple-100 text-purple-600 border-purple-200',
                   },
                 ].map((step, i) => (
-                  <motion.div
+                  <div
                     key={i}
                     className={`flex ${i % 2 === 1 ? 'md:flex-row-reverse' : ''} items-center gap-6 md:gap-12`}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: i * 0.1 }}
                   >
                     <div className="relative shrink-0">
                       <div className={`w-16 h-16 rounded-full flex items-center justify-center ${step.color} shadow-sm border z-10`}>
                         <step.icon className="w-8 h-8" />
                       </div>
-                      <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-crec-darkblue text-white flex items-center justify-center text-sm font-bold">
+                      <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-blue-900 text-white flex items-center justify-center text-sm font-bold">
                         {i + 1}
                       </div>
                     </div>
                     <div className={`flex-1 p-6 rounded-xl bg-gray-50 border border-gray-100 shadow-sm ${i % 2 === 1 ? 'text-right' : ''}`}>
-                      <h3 className="font-bold text-lg text-crec-darkblue mb-2">
+                      <h3 className="font-bold text-lg text-blue-900 mb-2">
                         {step.title}
                       </h3>
                       <p className="text-gray-600">{step.desc}</p>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </div>
             <div className="mt-12 pt-6 border-t border-gray-200 text-center">
               <Link
                 to="/formations/university/inscription"
-                className="inline-flex items-center gap-2 px-8 py-3 bg-crec-darkblue text-white rounded-lg hover:bg-crec-gold transition-all duration-300 font-medium shadow-lg"
+                className="inline-flex items-center gap-2 px-8 py-3 bg-blue-900 text-white rounded-lg hover:bg-yellow-500 transition-all duration-300 font-medium shadow-lg"
               >
                 <FileText className="w-5 h-5" />
                 Commencer mon inscription maintenant

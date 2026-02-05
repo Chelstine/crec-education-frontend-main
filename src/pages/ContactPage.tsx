@@ -108,7 +108,7 @@ const ContactPage = () => {
       {/* Hero Section - Modern and Elegant */}
       <section className="relative w-full overflow-hidden">
         {/* Background with parallax effect */}
-        <div className="absolute inset-0 bg-[url('/img/crec1.png')] bg-cover bg-center" />
+        <div className="absolute inset-0 bg-[url('/img/crec1.jpg')] bg-cover bg-center" />
         <div className="absolute inset-0 bg-gradient-to-r from-crec-darkblue/80 via-crec-darkblue/60 to-crec-darkblue/90 backdrop-blur-[2px]" />
         
         {/* Accent elements */}
@@ -495,7 +495,7 @@ const ContactPage = () => {
                     <div className="flex flex-col">
                       <span className="text-sm text-slate-500">Jésuites Bénin</span>
                       <a href="mailto:jesuites-benin@gmail.com" className="hover:text-crec-gold transition-colors break-all">
-                        jesuites-benin@gmail.com
+                        jesuitesbenin@gmail.com
                       </a>
                     </div>
                   </div>

@@ -22,6 +22,9 @@ const FormationForm: React.FC<FormationFormProps> = ({ formData, handleChange, i
   const [localFormData, setLocalFormData] = useState(formData || {
     title: '',
     description: '',
+    long_description: '',
+    prerequisites: '',
+    syllabus: '',
     category: '',
     duration: '',
     price: 0,
@@ -33,8 +36,8 @@ const FormationForm: React.FC<FormationFormProps> = ({ formData, handleChange, i
     level: 'Débutant',
     status: 'draft',
     image: '',
-    startDate: '',
-    endDate: ''
+    start_date: '',
+    end_date: ''
   });
 
   const handleLocalChange = (field: string, value: any) => {
@@ -83,16 +86,44 @@ const FormationForm: React.FC<FormationFormProps> = ({ formData, handleChange, i
 
       {/* Description */}
       <div>
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">Description courte</Label>
         <Textarea
           id="description"
           value={localFormData.description}
           onChange={(e) => handleLocalChange('description', e.target.value)}
-          placeholder="Description détaillée de la formation..."
+          placeholder="Brève description de la formation..."
           className="mt-1"
-          rows={4}
+          rows={3}
           disabled={isSubmitting}
           required
+        />
+      </div>
+
+      {/* Description longue */}
+      <div>
+        <Label htmlFor="long_description">Description détaillée</Label>
+        <Textarea
+          id="long_description"
+          value={localFormData.long_description || ''}
+          onChange={(e) => handleLocalChange('long_description', e.target.value)}
+          placeholder="Description détaillée et complète de la formation..."
+          className="mt-1"
+          rows={6}
+          disabled={isSubmitting}
+        />
+      </div>
+
+      {/* Prérequis */}
+      <div>
+        <Label htmlFor="prerequisites">Prérequis</Label>
+        <Textarea
+          id="prerequisites"
+          value={localFormData.prerequisites || ''}
+          onChange={(e) => handleLocalChange('prerequisites', e.target.value)}
+          placeholder="Prérequis nécessaires pour cette formation..."
+          className="mt-1"
+          rows={3}
+          disabled={isSubmitting}
         />
       </div>
 
@@ -243,12 +274,12 @@ const FormationForm: React.FC<FormationFormProps> = ({ formData, handleChange, i
 
         {/* Date de début */}
         <div>
-          <Label htmlFor="startDate">Date de début</Label>
+          <Label htmlFor="start_date">Date de début</Label>
           <Input
-            id="startDate"
+            id="start_date"
             type="date"
-            value={localFormData.startDate.split('T')[0]}
-            onChange={(e) => handleLocalChange('startDate', e.target.value)}
+            value={localFormData.start_date?.split('T')[0] || ''}
+            onChange={(e) => handleLocalChange('start_date', e.target.value)}
             className="mt-1"
             disabled={isSubmitting}
           />
@@ -256,12 +287,12 @@ const FormationForm: React.FC<FormationFormProps> = ({ formData, handleChange, i
 
         {/* Date de fin */}
         <div>
-          <Label htmlFor="endDate">Date de fin</Label>
+          <Label htmlFor="end_date">Date de fin</Label>
           <Input
-            id="endDate"
+            id="end_date"
             type="date"
-            value={localFormData.endDate.split('T')[0]}
-            onChange={(e) => handleLocalChange('endDate', e.target.value)}
+            value={localFormData.end_date?.split('T')[0] || ''}
+            onChange={(e) => handleLocalChange('end_date', e.target.value)}
             className="mt-1"
             disabled={isSubmitting}
           />
@@ -285,6 +316,23 @@ const FormationForm: React.FC<FormationFormProps> = ({ formData, handleChange, i
             </SelectContent>
           </Select>
         </div>
+      </div>
+
+      {/* Programme/Syllabus */}
+      <div>
+        <Label htmlFor="syllabus">Programme de formation</Label>
+        <Textarea
+          id="syllabus"
+          value={localFormData.syllabus || ''}
+          onChange={(e) => handleLocalChange('syllabus', e.target.value)}
+          placeholder="Programme détaillé de la formation (une ligne par module/chapitre)..."
+          className="mt-1"
+          rows={8}
+          disabled={isSubmitting}
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          Entrez chaque module/chapitre sur une nouvelle ligne. Ces éléments seront affichés comme une liste à puces.
+        </p>
       </div>
     </div>
   );

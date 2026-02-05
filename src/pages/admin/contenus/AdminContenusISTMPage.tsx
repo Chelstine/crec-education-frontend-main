@@ -1,796 +1,834 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card';
-import { Button } from '../../../components/ui/button';
-import { Input } from '../../../components/ui/input';
-import { Textarea } from '../../../components/ui/textarea';
-import { useToast } from '../../../hooks/use-toast';
-import { useApi } from '../../../hooks/useApi';
-import { Loader2, Plus, Edit, Trash2, School, Calendar, Users, Upload } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Plus, X, Edit, Trash2, Search, Loader2, Upload } from 'lucide-react';
+import { universityService } from '@/services/universityService';
+import { CreateUniversityProgramRequest } from '@/types/university';
 
-interface Program {
-  id: string;
-  title: string;
-  description?: string;
+interface UniversityProgram {
+  id?: number;
+  title: string; // Changé de 'name' à 'title'
+  slug?: string;
+  description: string;
   image?: string;
-  competences?: string[];
-  debouches?: string[];
-  profil?: string;
-  type: 'licence' | 'master' | 'doctorat';
-  duree?: string;
-  inscrits?: number;
-  capacite?: number;
-  fraisInscription?: number;
-  statut: 'active' | 'inactive';
+  level: 'LICENCE' | 'MASTER' | 'DOCTORAT';
+  duration: string; // Changé pour correspondre à l'API
+  capacity: number;
+  annual_fee: number; // Changé de 'tuition_fee' à 'annual_fee'
+  prerequisites?: string[]; // Changé de 'requirements' à 'prerequisites'
+  admission_requirements?: string[];
+  career_opportunities?: string[];
+  program_details?: string[];
+  curriculum?: string[];
+  is_active: boolean;
+  is_featured: boolean;
+  registration_deadline?: string;
+  start_date?: string;
+  created_at?: string;
+  updated_at?: string;
+  // Champs pour l'upload
+  imageFile?: File;
+  previewUrl?: string;
 }
 
-interface RentreeScolaire {
-  id: string;
-  anneeAcademique: string;
-  dateDebutCours: string;
-  periodeInscriptionDebut: string;
-  periodeInscriptionFin: string;
-  placesParFiliere: { [filiereId: string]: number };
-}
-
-interface AdminContenusISTMPageProps {}
-
-const AdminContenusISTMPage: React.FC<AdminContenusISTMPageProps> = () => {
-  const [programs, setPrograms] = useState<Program[]>([]);
-  const [rentreeScolaire, setRentreeScolaire] = useState<RentreeScolaire[]>([]);
-  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
-  const [selectedRentree, setSelectedRentree] = useState<RentreeScolaire | null>(null);
+const AdminContenusISTMPage: React.FC = () => {
+  const [programs, setPrograms] = useState<UniversityProgram[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeTab, setActiveTab] = useState<'programs' | 'rentree'>('programs');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingProgram, setEditingProgram] = useState<UniversityProgram | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   
-  const [formData, setFormData] = useState({
+  // Variables pour les champs dynamiques
+  const [newRequirement, setNewRequirement] = useState('');
+  const [newAdmissionRequirement, setNewAdmissionRequirement] = useState('');
+  const [newCareerOpportunity, setNewCareerOpportunity] = useState('');
+  const [newProgramDetail, setNewProgramDetail] = useState('');
+  const [newCurriculumItem, setNewCurriculumItem] = useState('');
+
+  const [formData, setFormData] = useState<UniversityProgram>({
     title: '',
     description: '',
     image: '',
-    competences: [] as string[],
-    debouches: [] as string[],
-    profil: '',
-    type: 'licence' as 'licence' | 'master' | 'doctorat',
-    duree: '',
-    inscrits: 0,
-    capacite: 0,
-    fraisInscription: 0,
-    statut: 'active' as 'active' | 'inactive'
+    level: 'LICENCE',
+    duration: '3_YEARS',
+    capacity: 30,
+    annual_fee: 800000,
+    prerequisites: [],
+    admission_requirements: [],
+    career_opportunities: [],
+    program_details: [],
+    curriculum: [],
+    is_active: true,
+    is_featured: false,
+    registration_deadline: '',
+    start_date: ''
   });
 
-  const [rentreeFormData, setRentreeFormData] = useState({
-    anneeAcademique: '',
-    dateDebutCours: '',
-    periodeInscriptionDebut: '',
-    periodeInscriptionFin: '',
-    placesParFiliere: {} as { [key: string]: number }
-  });
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      description: '',
+      image: '',
+      level: 'LICENCE',
+      duration: '3_YEARS',
+      capacity: 30,
+      annual_fee: 800000,
+      prerequisites: [],
+      admission_requirements: [],
+      career_opportunities: [],
+      program_details: [],
+      curriculum: [],
+      is_active: true,
+      is_featured: false,
+      registration_deadline: '',
+      start_date: ''
+    });
+    setNewRequirement('');
+    setNewAdmissionRequirement('');
+    setNewCareerOpportunity('');
+    setNewProgramDetail('');
+    setNewCurriculumItem('');
+  };
 
-  const [newCompetence, setNewCompetence] = useState('');
-  const [newDebouche, setNewDebouche] = useState('');
-
-  const api = useApi();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    loadPrograms();
-    loadRentreeScolaire();
-  }, []);
-
-  const loadPrograms = async () => {
-    try {
-      setIsLoading(true);
-      const data = await api.get('/programs');
-      setPrograms(Array.isArray(data) ? data : []);
-    } catch (error) {
-      // Utiliser des données par défaut au lieu d'afficher une erreur
-      setPrograms([]);
-      console.log('API non disponible, utilisation de données par défaut');
-    } finally {
-      setIsLoading(false);
+  // Fonctions helper pour les arrays
+  const addRequirement = () => {
+    if (newRequirement.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        prerequisites: [...(prev.prerequisites || []), newRequirement.trim()]
+      }));
+      setNewRequirement('');
     }
   };
 
-  const loadRentreeScolaire = async () => {
-    try {
-      const data = await api.get('/rentree-scolaire');
-      setRentreeScolaire(Array.isArray(data) ? data : []);
-    } catch (error) {
-      // Utiliser des données par défaut
-      setRentreeScolaire([]);
-      console.log('API non disponible pour rentrée scolaire');
+  const removeRequirement = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      prerequisites: prev.prerequisites?.filter((_, i) => i !== index) || []
+    }));
+  };
+
+  const addAdmissionRequirement = () => {
+    if (newAdmissionRequirement.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        admission_requirements: [...(prev.admission_requirements || []), newAdmissionRequirement.trim()]
+      }));
+      setNewAdmissionRequirement('');
+    }
+  };
+
+  const removeAdmissionRequirement = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      admission_requirements: prev.admission_requirements?.filter((_, i) => i !== index) || []
+    }));
+  };
+
+  const addCareerOpportunity = () => {
+    if (newCareerOpportunity.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        career_opportunities: [...(prev.career_opportunities || []), newCareerOpportunity.trim()]
+      }));
+      setNewCareerOpportunity('');
+    }
+  };
+
+  const removeCareerOpportunity = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      career_opportunities: prev.career_opportunities?.filter((_, i) => i !== index) || []
+    }));
+  };
+
+  const addProgramDetail = () => {
+    if (newProgramDetail.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        program_details: [...(prev.program_details || []), newProgramDetail.trim()]
+      }));
+      setNewProgramDetail('');
+    }
+  };
+
+  const removeProgramDetail = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      program_details: prev.program_details?.filter((_, i) => i !== index) || []
+    }));
+  };
+
+  const addCurriculumItem = () => {
+    if (newCurriculumItem.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        curriculum: [...(prev.curriculum || []), newCurriculumItem.trim()]
+      }));
+      setNewCurriculumItem('');
+    }
+  };
+
+  const removeCurriculumItem = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      curriculum: prev.curriculum?.filter((_, i) => i !== index) || []
+    }));
+  };
+
+  // Gestion de l'upload d'image
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setFormData(prev => ({
+        ...prev,
+        imageFile: file,
+        previewUrl: previewUrl
+      }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title.trim()) return;
+    
+    if (!formData.title.trim()) {
+      alert('Le nom du programme est obligatoire');
+      return;
+    }
 
     try {
       setIsSubmitting(true);
-      if (selectedProgram) {
-        await api.put(`/programs/${selectedProgram.id}`, formData);
-        toast({
-          title: "Succès",
-          description: "Programme modifié avec succès"
-        });
+      
+      // Générer automatiquement le slug à partir du titre
+      const generateSlug = (title: string): string => {
+        return title
+          .toLowerCase()
+          .trim()
+          .replace(/[àáâäæãåā]/g, 'a')
+          .replace(/[çćčĉ]/g, 'c')
+          .replace(/[dđď]/g, 'd')
+          .replace(/[èéêëēėę]/g, 'e')
+          .replace(/[îïíīįì]/g, 'i')
+          .replace(/[ñń]/g, 'n')
+          .replace(/[ôöòóœøōõ]/g, 'o')
+          .replace(/[ûüùúū]/g, 'u')
+          .replace(/[ÿý]/g, 'y')
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '');
+      };
+      
+      // Utiliser directement le service universityService
+      const submitData: CreateUniversityProgramRequest = {
+        title: formData.title,
+        slug: formData.slug || generateSlug(formData.title),
+        description: formData.description,
+        level: formData.level,
+        duration: formData.duration,
+        capacity: formData.capacity,
+        annual_fee: formData.annual_fee,
+        prerequisites: formData.prerequisites || [],
+        admission_requirements: formData.admission_requirements || [],
+        career_opportunities: formData.career_opportunities || [],
+        program_details: formData.program_details || [],
+        curriculum: formData.curriculum || [],
+        is_active: formData.is_active,
+        is_featured: formData.is_featured,
+        registration_deadline: formData.registration_deadline,
+        start_date: formData.start_date,
+        image: formData.imageFile
+      };
+
+      if (editingProgram?.id) {
+        // Mise à jour
+        const updatedProgram = await universityService.updateProgram(editingProgram.id, submitData);
+        setPrograms(prev => prev.map(p => 
+          p.id === editingProgram.id ? updatedProgram : p
+        ));
+        alert('Programme modifié avec succès');
       } else {
-        await api.post('/programs', formData);
-        toast({
-          title: "Succès",
-          description: "Programme créé avec succès"
-        });
+        // Création
+        const newProgram = await universityService.createProgram(submitData);
+        setPrograms(prev => [...prev, newProgram]);
+        alert('Programme créé avec succès');
       }
-      await loadPrograms();
+
+      setIsDialogOpen(false);
       resetForm();
+      setEditingProgram(null);
     } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue",
-        variant: "destructive"
-      });
+      console.error('Erreur:', error);
+      alert('Une erreur est survenue');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleRentreeSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!rentreeFormData.anneeAcademique.trim()) return;
-
-    try {
-      setIsSubmitting(true);
-      if (selectedRentree) {
-        await api.put(`/rentree-scolaire/${selectedRentree.id}`, rentreeFormData);
-        toast({
-          title: "Succès",
-          description: "Rentrée scolaire modifiée avec succès"
-        });
-      } else {
-        await api.post('/rentree-scolaire', rentreeFormData);
-        toast({
-          title: "Succès",
-          description: "Rentrée scolaire créée avec succès"
-        });
-      }
-      await loadRentreeScolaire();
-      resetRentreeForm();
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleEdit = (program: UniversityProgram) => {
+    setEditingProgram(program);
+    setFormData(program);
+    setIsDialogOpen(true);
   };
 
-  const handleEdit = (program: Program) => {
-    setSelectedProgram(program);
-    setFormData({
-      title: program.title,
-      description: program.description || '',
-      image: program.image || '',
-      competences: program.competences || [],
-      debouches: program.debouches || [],
-      profil: program.profil || '',
-      type: program.type || 'licence',
-      duree: program.duree || '',
-      inscrits: program.inscrits || 0,
-      capacite: program.capacite || 0,
-      fraisInscription: program.fraisInscription || 0,
-      statut: program.statut || 'active'
-    });
-  };
-
-  const handleEditRentree = (rentree: RentreeScolaire) => {
-    setSelectedRentree(rentree);
-    setRentreeFormData({
-      anneeAcademique: rentree.anneeAcademique,
-      dateDebutCours: rentree.dateDebutCours,
-      periodeInscriptionDebut: rentree.periodeInscriptionDebut,
-      periodeInscriptionFin: rentree.periodeInscriptionFin,
-      placesParFiliere: rentree.placesParFiliere || {}
-    });
-  };
-
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce programme ?')) return;
 
     try {
-      await api.delete(`/programs/${id}`);
-      toast({
-        title: "Succès",
-        description: "Programme supprimé avec succès"
+      const response = await fetch(`/api/admin/content/university-programs/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          'Accept': 'application/json'
+        }
       });
-      await loadPrograms();
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de supprimer le programme",
-        variant: "destructive"
-      });
-    }
-  };
 
-  const handleDeleteRentree = async (id: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cette rentrée scolaire ?')) return;
-
-    try {
-      await api.delete(`/rentree-scolaire/${id}`);
-      toast({
-        title: "Succès",
-        description: "Rentrée scolaire supprimée avec succès"
-      });
-      await loadRentreeScolaire();
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de supprimer la rentrée scolaire",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const resetForm = () => {
-    setSelectedProgram(null);
-    setFormData({
-      title: '',
-      description: '',
-      image: '',
-      competences: [],
-      debouches: [],
-      profil: '',
-      type: 'licence',
-      duree: '',
-      inscrits: 0,
-      capacite: 0,
-      fraisInscription: 0,
-      statut: 'active'
-    });
-    setNewCompetence('');
-    setNewDebouche('');
-  };
-
-  const resetRentreeForm = () => {
-    setSelectedRentree(null);
-    setRentreeFormData({
-      anneeAcademique: '',
-      dateDebutCours: '',
-      periodeInscriptionDebut: '',
-      periodeInscriptionFin: '',
-      placesParFiliere: {}
-    });
-  };
-
-  const addCompetence = () => {
-    if (newCompetence.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        competences: [...prev.competences, newCompetence.trim()]
-      }));
-      setNewCompetence('');
-    }
-  };
-
-  const removeCompetence = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      competences: prev.competences.filter((_, i) => i !== index)
-    }));
-  };
-
-  const addDebouche = () => {
-    if (newDebouche.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        debouches: [...prev.debouches, newDebouche.trim()]
-      }));
-      setNewDebouche('');
-    }
-  };
-
-  const removeDebouche = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      debouches: prev.debouches.filter((_, i) => i !== index)
-    }));
-  };
-
-  const updatePlacesFiliere = (filiereId: string, places: number) => {
-    setRentreeFormData(prev => ({
-      ...prev,
-      placesParFiliere: {
-        ...prev.placesParFiliere,
-        [filiereId]: places
+      if (!response.ok) {
+        throw new Error('Erreur lors de la suppression');
       }
-    }));
+
+      setPrograms(prev => prev.filter(p => p.id !== id));
+      alert('Programme supprimé avec succès');
+    } catch (error) {
+      console.error('Erreur:', error);
+      alert('Erreur lors de la suppression');
+    }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
-    );
-  }
+  const fetchPrograms = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/admin/content/university-programs', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors du chargement');
+      }
+
+      const result = await response.json();
+      setPrograms(result.data || []);
+    } catch (error) {
+      console.error('Erreur:', error);
+      alert('Erreur lors du chargement des programmes');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPrograms();
+  }, []);
+
+  const filteredPrograms = programs.filter(program =>
+    (program.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (program.description || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const getLevelLabel = (level: string) => {
+    switch (level) {
+      case 'LICENCE': return 'Licence';
+      case 'MASTER': return 'Master';
+      case 'DOCTORAT': return 'Doctorat';
+      default: return level;
+    }
+  };
+
+  const getDurationLabel = (duration: string) => {
+    switch (duration) {
+      case '3_MONTHS': return '3 mois';
+      case '6_MONTHS': return '6 mois';
+      case '1_YEAR': return '1 an';
+      case '2_YEARS': return '2 ans';
+      case '3_YEARS': return '3 ans';
+      case '4_YEARS': return '4 ans';
+      case '5_YEARS': return '5 ans';
+      default: return duration;
+    }
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <School className="w-8 h-8 text-amber-600" />
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800">Programmes ISTM</h1>
-            <p className="text-slate-600">Gérer les programmes universitaires et la rentrée scolaire</p>
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Gestion des Programmes Universitaires</h1>
+        <Button
+          onClick={() => {
+            resetForm();
+            setEditingProgram(null);
+            setIsDialogOpen(true);
+          }}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Nouveau Programme
+        </Button>
+      </div>
+
+      {/* Barre de recherche */}
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Rechercher un programme..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Liste des programmes */}
+      {isLoading ? (
+        <div className="flex justify-center items-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin" />
         </div>
-      </div>
-
-      {/* Onglets */}
-      <div className="flex space-x-1 bg-slate-100 p-1 rounded-lg w-fit">
-        <button
-          onClick={() => setActiveTab('programs')}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-            activeTab === 'programs'
-              ? 'bg-white text-amber-600 shadow-sm'
-              : 'text-slate-600 hover:text-slate-800'
-          }`}
-        >
-          <School className="w-4 h-4 inline mr-2" />
-          Programmes
-        </button>
-        <button
-          onClick={() => setActiveTab('rentree')}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-            activeTab === 'rentree'
-              ? 'bg-white text-amber-600 shadow-sm'
-              : 'text-slate-600 hover:text-slate-800'
-          }`}
-        >
-          <Calendar className="w-4 h-4 inline mr-2" />
-          Rentrée scolaire
-        </button>
-      </div>
-
-      {activeTab === 'programs' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Formulaire de programme */}
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {selectedProgram ? 'Modifier le programme' : 'Nouveau programme'}
-              </CardTitle>
-              <CardDescription>
-                {selectedProgram ? 'Modifiez les informations du programme' : 'Créez un nouveau programme universitaire'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Titre du programme</label>
-                  <Input
-                    value={formData.title}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="ex: Développement de logiciels"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
+      ) : (
+        <div className="grid gap-6">
+          {filteredPrograms.map((program) => (
+            <Card key={program.id}>
+              <CardHeader>
+                <div className="flex justify-between items-start">
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Type</label>
-                    <select
-                      value={formData.type}
-                      onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as any }))}
-                      className="w-full p-2 border border-gray-300 rounded-md"
-                    >
-                      <option value="licence">Licence</option>
-                      <option value="master">Master</option>
-                      <option value="doctorat">Doctorat</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Durée</label>
-                    <Input
-                      value={formData.duree}
-                      onChange={(e) => setFormData(prev => ({ ...prev, duree: e.target.value }))}
-                      placeholder="ex: 3 ans"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Description</label>
-                  <Textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="Description détaillée du programme..."
-                    rows={3}
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Image (URL)</label>
-                  <Input
-                    value={formData.image}
-                    onChange={(e) => setFormData(prev => ({ ...prev, image: e.target.value }))}
-                    placeholder="/img/programme.png"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Profil recherché</label>
-                  <Textarea
-                    value={formData.profil}
-                    onChange={(e) => setFormData(prev => ({ ...prev, profil: e.target.value }))}
-                    placeholder="Profil type de l'étudiant recherché..."
-                    rows={2}
-                  />
-                </div>
-
-                {/* Compétences */}
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Compétences</label>
-                  <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <Input
-                        value={newCompetence}
-                        onChange={(e) => setNewCompetence(e.target.value)}
-                        placeholder="Ajouter une compétence..."
-                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCompetence())}
-                      />
-                      <Button type="button" onClick={addCompetence} size="sm">
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {formData.competences.map((comp, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
-                        >
-                          {comp}
-                          <button
-                            type="button"
-                            onClick={() => removeCompetence(index)}
-                            className="text-blue-600 hover:text-blue-800"
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
+                    <CardTitle className="flex items-center gap-2">
+                      {program.title}
+                      {program.is_featured && <Badge variant="default">Mis en avant</Badge>}
+                      {!program.is_active && <Badge variant="secondary">Inactif</Badge>}
+                    </CardTitle>
+                    <div className="flex gap-2 mt-2">
+                      <Badge variant="outline">{getLevelLabel(program.level)}</Badge>
+                      <Badge variant="outline">{getDurationLabel(program.duration || '3_YEARS')}</Badge>
+                      <Badge variant="outline">{program.capacity || 0} places</Badge>
+                      <Badge variant="outline">{(program.annual_fee || 0).toLocaleString()} FCFA</Badge>
                     </div>
                   </div>
-                </div>
-
-                {/* Débouchés */}
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Débouchés</label>
-                  <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <Input
-                        value={newDebouche}
-                        onChange={(e) => setNewDebouche(e.target.value)}
-                        placeholder="Ajouter un débouché..."
-                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addDebouche())}
-                      />
-                      <Button type="button" onClick={addDebouche} size="sm">
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {formData.debouches.map((debouche, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"
-                        >
-                          {debouche}
-                          <button
-                            type="button"
-                            onClick={() => removeDebouche(index)}
-                            className="text-green-600 hover:text-green-800"
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Capacité d'accueil</label>
-                    <Input
-                      type="number"
-                      value={formData.capacite}
-                      onChange={(e) => setFormData(prev => ({ ...prev, capacite: parseInt(e.target.value) || 0 }))}
-                      placeholder="30"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Nombre d'inscrits</label>
-                    <Input
-                      type="number"
-                      value={formData.inscrits}
-                      onChange={(e) => setFormData(prev => ({ ...prev, inscrits: parseInt(e.target.value) || 0 }))}
-                      placeholder="25"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Frais d'inscription (FCFA)</label>
-                    <Input
-                      type="number"
-                      value={formData.fraisInscription}
-                      onChange={(e) => setFormData(prev => ({ ...prev, fraisInscription: parseInt(e.target.value) || 0 }))}
-                      placeholder="450000"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Statut</label>
-                    <select
-                      value={formData.statut}
-                      onChange={(e) => setFormData(prev => ({ ...prev, statut: e.target.value as any }))}
-                      className="w-full p-2 border border-gray-300 rounded-md"
-                    >
-                      <option value="active">Actif</option>
-                      <option value="inactive">Inactif</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="flex gap-2 pt-4">
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="flex-1"
-                  >
-                    {isSubmitting ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : selectedProgram ? (
-                      <Edit className="w-4 h-4 mr-2" />
-                    ) : (
-                      <Plus className="w-4 h-4 mr-2" />
-                    )}
-                    {selectedProgram ? 'Modifier' : 'Créer'}
-                  </Button>
-                  {selectedProgram && (
+                  <div className="flex gap-2">
                     <Button
-                      type="button"
+                      size="sm"
                       variant="outline"
-                      onClick={resetForm}
+                      onClick={() => handleEdit(program)}
                     >
-                      Annuler
+                      <Edit className="h-4 w-4" />
                     </Button>
-                  )}
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-
-          {/* Liste des programmes */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Programmes existants</CardTitle>
-              <CardDescription>
-                {Array.isArray(programs) ? programs.length : 0} programme(s) configuré(s)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {!Array.isArray(programs) || programs.length === 0 ? (
-                <p className="text-center text-slate-500 py-8">
-                  Aucun programme configuré
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {programs.map((program) => (
-                    <div
-                      key={program.id}
-                      className="flex items-center justify-between p-3 border border-slate-200 rounded-lg"
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => program.id && handleDelete(program.id)}
                     >
-                      <div className="flex-1">
-                        <h3 className="font-medium text-slate-800">{program.title}</h3>
-                        <p className="text-sm text-slate-600 capitalize">
-                          {program.type} • {program.duree} • {program.inscrits}/{program.capacite} inscrits
-                        </p>
-                        <p className="text-xs text-slate-500">
-                          {program.fraisInscription?.toLocaleString()} FCFA • 
-                          <span className={`ml-1 ${program.statut === 'active' ? 'text-green-600' : 'text-red-600'}`}>
-                            {program.statut === 'active' ? 'Actif' : 'Inactif'}
-                          </span>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">{program.description}</p>
+                
+                {program.prerequisites && program.prerequisites.length > 0 && (
+                  <div className="mb-2">
+                    <strong>Prérequis:</strong>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {program.prerequisites.map((req, index) => (
+                        <Badge key={index} variant="secondary">{req}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {program.career_opportunities && program.career_opportunities.length > 0 && (
+                  <div className="mb-2">
+                    <strong>Débouchés:</strong>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {program.career_opportunities.map((opportunity, index) => (
+                        <Badge key={index} variant="secondary">{opportunity}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Dialog pour ajouter/modifier */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingProgram ? 'Modifier le programme' : 'Nouveau programme universitaire'}
+            </DialogTitle>
+            <DialogDescription>
+              Remplissez les informations du programme universitaire.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Informations de base */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <Label htmlFor="name">Nom du programme *</Label>
+                <Input
+                  id="name"
+                  value={formData.title}
+                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="Ex: Master en Intelligence Artificielle"
+                  required
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  rows={4}
+                  placeholder="Description détaillée du programme"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="level">Niveau</Label>
+                <Select
+                  value={formData.level}
+                  onValueChange={(value: 'LICENCE' | 'MASTER' | 'DOCTORAT') => 
+                    setFormData(prev => ({ ...prev, level: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="LICENCE">Licence</SelectItem>
+                    <SelectItem value="MASTER">Master</SelectItem>
+                    <SelectItem value="DOCTORAT">Doctorat</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="duration">Durée</Label>
+                <Select
+                  value={formData.duration}
+                  onValueChange={(value: string) => 
+                    setFormData(prev => ({ ...prev, duration: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="3_MONTHS">3 mois</SelectItem>
+                    <SelectItem value="6_MONTHS">6 mois</SelectItem>
+                    <SelectItem value="1_YEAR">1 an</SelectItem>
+                    <SelectItem value="2_YEARS">2 ans</SelectItem>
+                    <SelectItem value="3_YEARS">3 ans</SelectItem>
+                    <SelectItem value="4_YEARS">4 ans</SelectItem>
+                    <SelectItem value="5_YEARS">5 ans</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="capacity">Capacité d'accueil</Label>
+                <Input
+                  id="capacity"
+                  type="number"
+                  value={formData.capacity}
+                  onChange={(e) => setFormData(prev => ({ ...prev, capacity: parseInt(e.target.value) || 0 }))}
+                  min="0"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="annual_fee">Frais de scolarité annuels (FCFA)</Label>
+                <Input
+                  id="annual_fee"
+                  type="number"
+                  value={formData.annual_fee}
+                  onChange={(e) => setFormData(prev => ({ ...prev, annual_fee: parseInt(e.target.value) || 0 }))}
+                  min="0"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="registration_deadline">Date limite d'inscription</Label>
+                <Input
+                  id="registration_deadline"
+                  type="date"
+                  value={formData.registration_deadline || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, registration_deadline: e.target.value }))}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="start_date">Date de début</Label>
+                <Input
+                  id="start_date"
+                  type="date"
+                  value={formData.start_date || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Label htmlFor="image">Image du programme</Label>
+                <div className="mt-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    id="image-upload"
+                  />
+                  <label
+                    htmlFor="image-upload"
+                    className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50"
+                  >
+                    {formData.previewUrl || formData.image ? (
+                      <img
+                        src={formData.previewUrl || formData.image}
+                        alt="Preview"
+                        className="h-full w-full object-cover rounded-lg"
+                      />
+                    ) : (
+                      <div className="text-center">
+                        <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                        <p className="mt-2 text-sm text-gray-600">
+                          Cliquez pour sélectionner une image
                         </p>
                       </div>
-                      <div className="flex gap-1 ml-4">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(program)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDelete(program.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+                    )}
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Prérequis */}
+            <div>
+              <Label htmlFor="requirements">Prérequis</Label>
+              <div className="flex gap-2 mb-2">
+                <Input
+                  value={newRequirement}
+                  onChange={(e) => setNewRequirement(e.target.value)}
+                  placeholder="Ajouter un prérequis"
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addRequirement())}
+                />
+                <Button type="button" onClick={addRequirement} variant="outline">
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              {formData.prerequisites && formData.prerequisites.length > 0 && (
+                <div className="space-y-2">
+                  {formData.prerequisites.map((req, index) => (
+                    <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                      <span className="flex-1">{req}</span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => removeRequirement(index)}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
                     </div>
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </div>
-      )}
+            </div>
 
-      {activeTab === 'rentree' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Formulaire de rentrée scolaire */}
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {selectedRentree ? 'Modifier la rentrée' : 'Nouvelle rentrée scolaire'}
-              </CardTitle>
-              <CardDescription>
-                {selectedRentree ? 'Modifiez les données de rentrée' : 'Configurez une nouvelle rentrée scolaire'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleRentreeSubmit} className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Année académique</label>
-                  <Input
-                    value={rentreeFormData.anneeAcademique}
-                    onChange={(e) => setRentreeFormData(prev => ({ ...prev, anneeAcademique: e.target.value }))}
-                    placeholder="2024-2025"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Date de début des cours</label>
-                  <Input
-                    type="date"
-                    value={rentreeFormData.dateDebutCours}
-                    onChange={(e) => setRentreeFormData(prev => ({ ...prev, dateDebutCours: e.target.value }))}
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Début des inscriptions</label>
-                    <Input
-                      type="date"
-                      value={rentreeFormData.periodeInscriptionDebut}
-                      onChange={(e) => setRentreeFormData(prev => ({ ...prev, periodeInscriptionDebut: e.target.value }))}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Fin des inscriptions</label>
-                    <Input
-                      type="date"
-                      value={rentreeFormData.periodeInscriptionFin}
-                      onChange={(e) => setRentreeFormData(prev => ({ ...prev, periodeInscriptionFin: e.target.value }))}
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Places par filière */}
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Places par filière</label>
-                  <div className="space-y-2">
-                    {Array.isArray(programs) ? programs.filter(p => p.statut === 'active').map((program) => (
-                      <div key={program.id} className="flex items-center justify-between p-2 border rounded">
-                        <span className="text-sm">{program.title}</span>
-                        <Input
-                          type="number"
-                          value={rentreeFormData.placesParFiliere[program.id] || 0}
-                          onChange={(e) => updatePlacesFiliere(program.id, parseInt(e.target.value) || 0)}
-                          className="w-20"
-                          min="0"
-                        />
-                      </div>
-                    )) : null}
-                  </div>
-                </div>
-
-                <div className="flex gap-2 pt-4">
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="flex-1"
-                  >
-                    {isSubmitting ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : selectedRentree ? (
-                      <Edit className="w-4 h-4 mr-2" />
-                    ) : (
-                      <Plus className="w-4 h-4 mr-2" />
-                    )}
-                    {selectedRentree ? 'Modifier' : 'Créer'}
-                  </Button>
-                  {selectedRentree && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={resetRentreeForm}
-                    >
-                      Annuler
-                    </Button>
-                  )}
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-
-          {/* Liste des rentrées scolaires */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Rentrées scolaires</CardTitle>
-              <CardDescription>
-                {Array.isArray(rentreeScolaire) ? rentreeScolaire.length : 0} rentrée(s) configurée(s)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {!Array.isArray(rentreeScolaire) || rentreeScolaire.length === 0 ? (
-                <p className="text-center text-slate-500 py-8">
-                  Aucune rentrée scolaire configurée
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {rentreeScolaire.map((rentree) => (
-                    <div
-                      key={rentree.id}
-                      className="flex items-center justify-between p-3 border border-slate-200 rounded-lg"
-                    >
-                      <div className="flex-1">
-                        <h3 className="font-medium text-slate-800">{rentree.anneeAcademique}</h3>
-                        <p className="text-sm text-slate-600">
-                          Cours: {new Date(rentree.dateDebutCours).toLocaleDateString()}
-                        </p>
-                        <p className="text-xs text-slate-500">
-                          Inscriptions: {new Date(rentree.periodeInscriptionDebut).toLocaleDateString()} - {new Date(rentree.periodeInscriptionFin).toLocaleDateString()}
-                        </p>
-                        <p className="text-xs text-slate-500">
-                          {Object.values(rentree.placesParFiliere || {}).reduce((a, b) => a + b, 0)} places au total
-                        </p>
-                      </div>
-                      <div className="flex gap-1 ml-4">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditRentree(rentree)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDeleteRentree(rentree.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+            {/* Conditions d'admission */}
+            <div>
+              <Label htmlFor="admission_requirements">Conditions d'admission</Label>
+              <div className="flex gap-2 mb-2">
+                <Input
+                  value={newAdmissionRequirement}
+                  onChange={(e) => setNewAdmissionRequirement(e.target.value)}
+                  placeholder="Ajouter une condition d'admission"
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addAdmissionRequirement())}
+                />
+                <Button type="button" onClick={addAdmissionRequirement} variant="outline">
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              {formData.admission_requirements && formData.admission_requirements.length > 0 && (
+                <div className="space-y-2">
+                  {formData.admission_requirements.map((req, index) => (
+                    <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                      <span className="flex-1">{req}</span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => removeAdmissionRequirement(index)}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
                     </div>
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </div>
-      )}
+            </div>
+
+            {/* Débouchés professionnels */}
+            <div>
+              <Label htmlFor="career_opportunities">Débouchés professionnels</Label>
+              <div className="flex gap-2 mb-2">
+                <Input
+                  value={newCareerOpportunity}
+                  onChange={(e) => setNewCareerOpportunity(e.target.value)}
+                  placeholder="Ajouter un débouché professionnel"
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCareerOpportunity())}
+                />
+                <Button type="button" onClick={addCareerOpportunity} variant="outline">
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              {formData.career_opportunities && formData.career_opportunities.length > 0 && (
+                <div className="space-y-2">
+                  {formData.career_opportunities.map((opportunity, index) => (
+                    <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                      <span className="flex-1">{opportunity}</span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => removeCareerOpportunity(index)}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Détails du programme */}
+            <div>
+              <Label htmlFor="program_details">Détails du programme</Label>
+              <div className="flex gap-2 mb-2">
+                <Input
+                  value={newProgramDetail}
+                  onChange={(e) => setNewProgramDetail(e.target.value)}
+                  placeholder="Ajouter un détail du programme"
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addProgramDetail())}
+                />
+                <Button type="button" onClick={addProgramDetail} variant="outline">
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              {formData.program_details && formData.program_details.length > 0 && (
+                <div className="space-y-2">
+                  {formData.program_details.map((detail, index) => (
+                    <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                      <span className="flex-1">{detail}</span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => removeProgramDetail(index)}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Programme pédagogique */}
+            <div>
+              <Label htmlFor="curriculum">Programme pédagogique</Label>
+              <div className="flex gap-2 mb-2">
+                <Input
+                  value={newCurriculumItem}
+                  onChange={(e) => setNewCurriculumItem(e.target.value)}
+                  placeholder="Ajouter un élément du curriculum"
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCurriculumItem())}
+                />
+                <Button type="button" onClick={addCurriculumItem} variant="outline">
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              {formData.curriculum && formData.curriculum.length > 0 && (
+                <div className="space-y-2">
+                  {formData.curriculum.map((item, index) => (
+                    <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                      <span className="flex-1">{item}</span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => removeCurriculumItem(index)}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Options */}
+            <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="is_active"
+                  checked={formData.is_active}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: checked }))}
+                />
+                <Label htmlFor="is_active">Programme actif</Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="is_featured"
+                  checked={formData.is_featured}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_featured: checked }))}
+                />
+                <Label htmlFor="is_featured">Programme mis en avant</Label>
+              </div>
+            </div>
+
+            {/* Boutons d'action */}
+            <div className="flex justify-end gap-2 pt-4">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => {
+                  setIsDialogOpen(false);
+                  resetForm();
+                }}
+                disabled={isSubmitting}
+              >
+                Annuler
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    {editingProgram ? 'Modification...' : 'Création...'}
+                  </>
+                ) : (
+                  editingProgram ? 'Modifier' : 'Créer'
+                )}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

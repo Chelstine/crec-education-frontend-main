@@ -10,11 +10,13 @@ const api = axios.create({
   },
 });
 
-// Intercepteurs pour gérer les tokens JWT d'authentification
+// Intercepteur requête : ajoute automatiquement le token JWT à chaque requête protégée
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('auth_token');
     if (token) {
+      // S'assure que headers existe bien
+      config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -24,31 +26,31 @@ api.interceptors.request.use(
   }
 );
 
-// Intercepteur pour gérer les erreurs de réponse
+// Intercepteur réponse : gestion globale des erreurs (notamment 401)
 api.interceptors.response.use(
   (response) => {
     return response;
   },
   async (error) => {
     const originalRequest = error.config;
-    
-    // Gestion des erreurs d'authentification (401)
+
+    // Gestion des erreurs 401 (non autorisé)
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      
-      try {
-        // On pourrait ajouter ici une logique de rafraîchissement de token
-        // const refreshToken = localStorage.getItem('refresh_token');
-        // const response = await api.post('/auth/refresh-token', { refreshToken });
-        // localStorage.setItem('auth_token', response.data.accessToken);
-        // return api(originalRequest);
-      } catch (refreshError) {
-        // En cas d'échec du rafraîchissement, déconnecter l'utilisateur
-        localStorage.removeItem('auth_token');
-        // Redirection vers la page de connexion (à implémenter)
-      }
+
+      // ➔ Ici, tu pourrais gérer un refresh_token si tu en implémentes un plus tard
+      // const refreshToken = localStorage.getItem('refresh_token');
+      // const response = await api.post('/auth/refresh-token', { refreshToken });
+      // localStorage.setItem('auth_token', response.data.access_token);
+      // return api(originalRequest);
+
+      // Si pas de refresh, déconnecte l'utilisateur et efface le token
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_info');
+      // ➔ Tu peux déclencher une redirection ici, exemple :
+      // window.location.href = '/admin/login';
     }
-    
+
     return Promise.reject(error);
   }
 );

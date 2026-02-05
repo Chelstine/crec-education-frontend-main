@@ -1,9 +1,38 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Camera } from 'lucide-react';
+import { Camera, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { useGallery } from '@/hooks/useGallery';
 
 const GalleryPage = () => {
+  const { data: galleryItems = [], isLoading, error } = useGallery();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-crec-gold mx-auto mb-4" />
+          <p className="text-gray-600">Chargement de la galerie...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Erreur lors du chargement de la galerie</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-crec-gold text-white rounded hover:bg-crec-gold/90"
+          >
+            Réessayer
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section - Style harmonisé */}
@@ -71,7 +100,7 @@ const GalleryPage = () => {
         </div>
       </section>
 
-      {/* Gallery Content - Placeholder only */}
+      {/* Gallery Content */}
       <section className="py-12">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-16">
@@ -81,24 +110,85 @@ const GalleryPage = () => {
             </p>
           </div>
 
-          {/* Placeholder message */}
-          <div className="flex justify-center items-center py-16">
-            <Card className="mx-auto max-w-md w-full shadow-lg">
-              <CardContent className="flex flex-col items-center p-8">
-                <Camera className="w-14 h-14 text-gray-400 mb-4" />
-                <h3 className="text-xl font-semibold mb-2 text-gray-700">Bientôt disponible</h3>
-                <p className="text-gray-500 text-center mb-2">
-                  La galerie photo n'est pas encore disponible.<br />
-                  Nous y travaillons activement pour vous proposer nos plus beaux souvenirs du CREC.
-                </p>
-                <span className="text-xs text-gray-400">Revenez bientôt pour découvrir nos images !</span>
-              </CardContent>
-            </Card>
-          </div>
+          {galleryItems.length === 0 ? (
+            <div className="flex justify-center items-center py-16">
+              <Card className="mx-auto max-w-md w-full shadow-lg">
+                <CardContent className="flex flex-col items-center p-8">
+                  <Camera className="w-14 h-14 text-gray-400 mb-4" />
+                  <h3 className="text-xl font-semibold mb-2 text-gray-700">Aucune photo disponible</h3>
+                  <p className="text-gray-500 text-center mb-2">
+                    La galerie photo n'est pas encore alimentée.<br />
+                    Revenez bientôt pour découvrir nos plus beaux souvenirs du CREC.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {galleryItems.map((item, index) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="group cursor-pointer"
+                >
+                  <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
+                    <div className="relative">
+                      <img
+                        src={item.media_url}
+                        alt={item.title}
+                        className="w-full h-64 object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/img/placeholder-gallery.jpg';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <Camera className="h-8 w-8 text-white" />
+                      </div>
+                      {item.is_featured && (
+                        <div className="absolute top-4 right-4">
+                          <span className="bg-crec-gold text-white px-2 py-1 rounded-full text-xs font-medium">
+                            À la une
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <CardContent className="p-4">
+                      <h3 className="font-semibold text-lg mb-2 text-gray-900 group-hover:text-crec-gold transition-colors">
+                        {item.title}
+                      </h3>
+                      {item.description && (
+                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                          {item.description}
+                        </p>
+                      )}
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {item.tags?.slice(0, 3).map((tag, tagIndex) => (
+                          <span
+                            key={tagIndex}
+                            className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex justify-between items-center text-xs text-gray-500">
+                        {item.location && <span>{item.location}</span>}
+                        {item.capture_date && (
+                          <span>{new Date(item.capture_date).toLocaleDateString('fr-FR')}</span>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </div>
   );
-};
+}
 
 export default GalleryPage;

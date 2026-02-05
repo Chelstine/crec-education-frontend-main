@@ -1,131 +1,191 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import authService from '../services/auth-service';
-import { User, AdminRole } from '../types';
-import { hasPermission, hasRole, isSuperAdmin, canAccessSection, checkRoutePermission } from '../services/permissionService';
+import { BackendUser, AdminRole } from '@/types';
 
-interface AuthContextType {
-  user: User | null;
+export interface AuthContextType {
+  user: BackendUser | null;
+  setUser: (user: BackendUser | null) => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  isSuperAdmin: boolean;
-  isContentAdmin: boolean;
-  isInscriptionAdmin: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  mustChangePassword: boolean;
+  login: (email: string, password: string) => Promise<{ requiresPasswordChange: boolean }>;
+  logout: () => Promise<void>;
+  getCurrentUser: () => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string, confirmPassword: string) => Promise<void>;
   loading: boolean;
+  isAuthLoading: boolean;
   error: string | null;
-  // Fonctions de vérification des permissions
-  hasPermission: (permission: string) => boolean;
   hasRole: (roles: AdminRole[]) => boolean;
-  canAccessSection: (section: string) => boolean;
-  canAccessRoute: (routePath: string) => boolean;
+  clearError: () => void;
+  updateProfile: (profileData: { nom: string; prenom: string; email: string }) => Promise<BackendUser>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<BackendUser | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Vérification de l'utilisateur au tout premier chargement (refresh)
   useEffect(() => {
-    const initAuth = async () => {
-      try {
-        setLoading(true);
-        const isAuth = authService.isAuthenticated();
-        
-        if (isAuth) {
-          const currentUser = authService.getCurrentUser();
-          if (currentUser) {
-            setUser(currentUser);
-          } else {
-            // Si nous avons un token mais pas d'infos utilisateur, déconnexion
-            authService.logout();
-          }
-        }
-      } catch (err) {
-        console.error('Erreur d\'initialisation de l\'authentification:', err);
-        setError('Erreur lors de l\'initialisation de l\'authentification');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initAuth();
+    setIsAuthLoading(true);
+    authService.fetchCurrentUser()
+      .then(fetchedUser => setUser(fetchedUser))
+      .catch(() => setUser(null))
+      .finally(() => setIsAuthLoading(false));
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<{ requiresPasswordChange: boolean }> => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      setError(null);
-      
       const response = await authService.login(email, password);
-      setUser(response.user);
+      setUser(response.admin);
+      return { requiresPasswordChange: response.admin?.must_change_password === true };
     } catch (err: any) {
-      console.error('Erreur de connexion:', err);
-      setError(err.response?.data?.message || 'Identifiants incorrects');
+      const errorMessage =
+        err?.response?.data?.message ||
+        err?.message ||
+        'Identifiants incorrects ou problème réseau';
+      setError(errorMessage);
+      setUser(null);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = async (): Promise<void> => {
+    try {
+      if (authService.isAuthenticated()) {
+        await authService.logout();
+      }
+    } catch (err) {
+      // On catch juste pour ne pas bloquer le logout côté front
+      console.error("Erreur lors du logout:", err);
+    } finally {
+      setUser(null);
+      setError(null);
+    }
+  };
+
+  const getCurrentUser = async (): Promise<void> => {
+    if (!authService.isAuthenticated()) {
+      setUser(null);
+      return;
+    }
+    setLoading(true);
+    try {
+      const backendUser = await authService.fetchCurrentUser();
+      if (backendUser) {
+        setUser(backendUser);
+      } else {
+        setUser(null);
+        authService.clearAuth();
+      }
+    } catch (err: any) {
+      if (err?.response?.status === 401) {
+        authService.clearAuth();
+        setUser(null);
+      }
+      setError(
+        err?.response?.data?.message ||
+        err?.message ||
+        "Erreur lors de la récupération de l'utilisateur"
+      );
       throw err;
     } finally {
       setLoading(false);
     }
   };
 
-  const logout = () => {
-    authService.logout();
-    setUser(null);
+  const changePassword = async (
+    currentPassword: string,
+    newPassword: string,
+    confirmPassword: string
+  ): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    try {
+      if (newPassword !== confirmPassword) {
+        throw new Error('Les mots de passe ne correspondent pas');
+      }
+      await authService.changePassword(currentPassword, newPassword, confirmPassword);
+      await getCurrentUser();
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.message ||
+        err?.message ||
+        'Erreur lors du changement de mot de passe'
+      );
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Vérifie si l'utilisateur a le rôle admin (compatibilité)
-  const isAdmin = !!user && (user.roles.includes('super_admin') || user.roles.includes('content_admin') || user.roles.includes('inscription_admin'));
-  
-  // Vérifie les rôles spécifiques
-  const userIsSuperAdmin = !!user && isSuperAdmin(user.roles);
-  const isContentAdmin = !!user && user.roles.includes('content_admin');
-  const isInscriptionAdmin = !!user && user.roles.includes('inscription_admin');
-
-  // Fonctions de vérification des permissions
-  const userHasPermission = (permission: string): boolean => {
-    return !!user && hasPermission(user.roles, permission);
+  const updateProfile = async (profileData: { nom: string; prenom: string; email: string }): Promise<BackendUser> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await authService.updateProfile(profileData);
+      setUser(response);
+      return response;
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.message ||
+        err?.message ||
+        'Erreur lors de la mise à jour du profil'
+      );
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const userHasRole = (roles: AdminRole[]): boolean => {
-    // Debug: afficher les rôles de l'utilisateur et les rôles requis
-    console.log('User roles:', user?.roles, 'Required roles:', roles);
-    return !!user && hasRole(user.roles, roles);
+  const hasRole = (roles: AdminRole[]): boolean => {
+    if (!user || !user.role) return false;
+    return roles.includes(user.role as AdminRole);
   };
 
-  const userCanAccessSection = (section: string): boolean => {
-    return !!user && canAccessSection(user.roles, section);
-  };
+  const clearError = () => setError(null);
 
-  const canAccessRoute = (routePath: string): boolean => {
-    return !!user && checkRoutePermission(user.roles, routePath);
-  };
+  // Valeurs calculées
+  const isAdmin = !!user && !!user.role;
+  const mustChangePassword = !!user?.must_change_password;
+  const isAuthenticated = !!user;
 
-  const value = {
+  const value: AuthContextType = {
     user,
-    isAuthenticated: !!user,
+    setUser,
+    isAuthenticated,
     isAdmin,
-    isSuperAdmin: userIsSuperAdmin,
-    isContentAdmin,
-    isInscriptionAdmin,
+    mustChangePassword,
     login,
     logout,
+    getCurrentUser,
+    changePassword,
     loading,
+    isAuthLoading,
     error,
-    hasPermission: userHasPermission,
-    hasRole: userHasRole,
-    canAccessSection: userCanAccessSection,
-    canAccessRoute
+    hasRole,
+    clearError,
+    updateProfile,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth doit être utilisé à l\'intérieur d\'un AuthProvider');
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
   }
   return context;
 };

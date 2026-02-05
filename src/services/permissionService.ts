@@ -56,8 +56,8 @@ export const ADMIN_PERMISSIONS: Record<AdminRole, AdminPermissions> = {
     ]
   },
   
-  content_admin: {
-    role: 'content_admin',
+  admin_contenu: {
+    role: 'admin_contenu',
     description: 'Gestion du contenu des pages (sauf inscriptions)',
     permissions: [
       // Gestion du contenu uniquement
@@ -86,8 +86,8 @@ export const ADMIN_PERMISSIONS: Record<AdminRole, AdminPermissions> = {
     ]
   },
   
-  inscription_admin: {
-    role: 'inscription_admin',
+  admin_inscription: {
+    role: 'admin_inscription',
     description: 'Gestion des inscriptions uniquement',
     permissions: [
       // Gestion des inscriptions uniquement
@@ -156,10 +156,10 @@ export const canAccessSection = (userRoles: AdminRole[], section: string): boole
     case 'galerie':
     case 'bibliotheque':
     case 'reservations':
-      return hasRole(userRoles, ['super_admin', 'content_admin']);
+      return hasRole(userRoles, ['super_admin', 'admin_contenu']);
       
     case 'inscriptions':
-      return hasRole(userRoles, ['super_admin', 'inscription_admin']);
+      return hasRole(userRoles, ['super_admin', 'admin_inscription']);
       
     default:
       return false;
@@ -229,11 +229,11 @@ export const checkRoutePermission = (userRoles: AdminRole[], routePath: string):
   }
   
   if (contentAdminRoutes.some(route => routePath.startsWith(route))) {
-    return hasRole(userRoles, ['super_admin', 'content_admin']);
+    return hasRole(userRoles, ['super_admin', 'admin_contenu']);
   }
   
   if (inscriptionAdminRoutes.some(route => routePath.startsWith(route))) {
-    return hasRole(userRoles, ['super_admin', 'inscription_admin']);
+    return hasRole(userRoles, ['super_admin', 'admin_inscription']);
   }
   
   return false;

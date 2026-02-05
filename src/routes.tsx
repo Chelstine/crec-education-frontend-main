@@ -27,7 +27,6 @@ const JesuitesPage = lazy(() => import('@/pages/about/JesuitesPage')); // Histoi
 const EquipePage = lazy(() => import('@/pages/about/EquipePage')); // Notre équipe
 
 // Pages Formations
-const FormationsHubPage = lazy(() => import('@/pages/formations/FormationsHubPage'));
 const OpenFormationsPage = lazy(() => import('@/pages/formations/OpenFormationsPage'));
 const UniversityPage = lazy(() => import('@/pages/formations/UniversityPage'));
 const FablabPage = lazy(() => import('@/pages/formations/FablabPage'));
@@ -43,8 +42,6 @@ const FabLabVisualizationPage = lazy(() => import('@/pages/reservation/FabLabVis
 
 // Pages Événements
 const EventsPage = lazy(() => import('@/pages/events/EventsPage'));
-const EventDetailPage = lazy(() => import('@/pages/events/EventDetailPage'));
-const CalendarPage = lazy(() => import('@/pages/events/CalendarPage'));
 
 // Pages Dons et Bibliothèque
 const DonatePage = lazy(() => import('@/pages/DonatePage'));
@@ -52,6 +49,8 @@ const OnlineLibraryPage = lazy(() => import('@/pages/library/OnlineLibraryPage')
 
 // Pages d'authentification et profil utilisateur
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
+const ForgotPasswordPage = lazy(() => import('@/pages/auth/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('@/pages/auth/ResetPasswordPage'));
 const RegistrationPage = lazy(() => import('@/pages/auth/RegistrationPage'));
 const UserProfilePage = lazy(() => import('./pages/profile/UserProfilePage'));
 
@@ -111,12 +110,30 @@ const routes: RouteObject[] = [
         element: withSuspense(LoginPage),
       },
       {
+        path: 'forgotten-password',
+        element: withSuspense(ForgotPasswordPage),
+      },
+      {
+        path: 'reset-password',
+        element: withSuspense(ResetPasswordPage),
+      },
+      {
         path: 'register',
         element: withSuspense(RegistrationPage),
       },
       {
         path: 'fablab/login',
         element: withSuspense(FablabLoginPage),
+      },
+      
+      // Routes admin spécifiques
+      {
+        path: 'admin/forgot-password',
+        element: withSuspense(ForgotPasswordPage),
+      },
+      {
+        path: 'admin/reset-password',
+        element: withSuspense(ResetPasswordPage),
       },
       
       // Pages utilisateur protégées
@@ -139,11 +156,7 @@ const routes: RouteObject[] = [
         element: withSuspense(EquipePage),
       },
 
-      // Pages Formations
-      {
-        path: 'formations',
-        element: withSuspense(FormationsHubPage),
-      },
+      // Pages Formations spécifiques
       {
         path: 'formations/ouvertes',
         element: withSuspense(OpenFormationsPage),
@@ -184,14 +197,7 @@ const routes: RouteObject[] = [
         path: 'events',
         element: withSuspense(EventsPage),
       },
-      {
-        path: 'events/:id',
-        element: withSuspense(EventDetailPage),
-      },
-      {
-        path: 'calendar',
-        element: withSuspense(CalendarPage),
-      },
+     
 
       // 404 - doit être en dernier
       {
@@ -208,7 +214,7 @@ const routes: RouteObject[] = [
       {
         index: true,
         element: (
-          <ProtectedRoute requireAuth={true}>
+          <ProtectedRoute>
             {withSuspense(ReservationPage)}
           </ProtectedRoute>
         ),

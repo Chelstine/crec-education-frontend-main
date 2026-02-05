@@ -2,8 +2,6 @@ import { lazy, Suspense } from 'react';
 import { RouteObject } from 'react-router-dom';
 import AdminLayout from '../layouts/AdminLayout';
 import ProtectedRoute from '../components/common/ProtectedRoute';
-// Import direct sans lazy loading pour éviter l'erreur
-const AdminContenusFablabPage = lazy(() => import('../pages/admin/contenus/AdminContenusFablabPage').then(m => ({ default: m.default })));
 
 // Loading component for lazy admin routes
 const AdminLoadingSpinner = () => (
@@ -20,28 +18,25 @@ const AdminLoginPage = lazy(() => import('../pages/admin/AdminLoginPage'));
 const AdminDashboardPage = lazy(() => import('../pages/admin/AdminDashboardPage'));
 const AdminProfilePage = lazy(() => import('../pages/admin/AdminProfilePage'));
 
-// Pages À Propos
-// (Supprimé: AdminAboutPage CRUD admin)
-
 // Pages d'index pour les sections
 const AdminInscriptionsIndexPage = lazy(() => import('../pages/admin/inscriptions/AdminInscriptionsIndexPage'));
 const AdminContenusIndexPage = lazy(() => import('../pages/admin/contenus/AdminContenusIndexPage'));
 
 // Pages de gestion des inscriptions
-const AdminInscriptionsISTMPage = lazy(() => import('../pages/admin/inscriptions/AdminInscriptionsISTMPage'));
+const AdminInscriptionsUniversityPage = lazy(() => import('../pages/admin/inscriptions/AdminInscriptionsUniversityPage'));
 const AdminInscriptionsFormationsPage = lazy(() => import('../pages/admin/inscriptions/AdminInscriptionsFormationsPage'));
 const AdminInscriptionsFablabPage = lazy(() => import('../pages/admin/inscriptions/AdminInscriptionsFablabPage'));
 
 // Pages de gestion du contenu
 const AdminContenusISTMPage = lazy(() => import('../pages/admin/contenus/AdminContenusISTMPage'));
 const AdminContenusFormationsPage = lazy(() => import('../pages/admin/contenus/AdminContenusFormationsPage'));
-// AdminContenusFablabPage est importé directement en haut du fichier
+const AdminContenusFablabPage = lazy(() => import('../pages/admin/contenus/AdminContenusFablabPage'));
 
 // Pages de galerie
 const AdminGaleriePage = lazy(() => import('../pages/admin/contenus/AdminGaleriePage'));
 
 // Pages de réservations
-const AdminReservationsPage = lazy(() => import('@/pages/admin/contenus/AdminReservationsPage').then(m => ({ default: m.default })));
+const AdminReservationsPage = lazy(() => import('../pages/admin/contenus/AdminReservationsPage'));
 
 // Pages de bibliothèque
 const AdminBibliotequePage = lazy(() => import('../pages/admin/contenus/AdminBibliotequePage'));
@@ -49,6 +44,12 @@ const AdminBibliotequePage = lazy(() => import('../pages/admin/contenus/AdminBib
 // Pages de paramètres
 const AdminParametresPage = lazy(() => import('../pages/admin/parametres/AdminParametresPage'));
 const AdminUtilisateursRolesPage = lazy(() => import('../pages/admin/parametres/AdminUtilisateursRolesPage'));
+
+// Pages d'événements
+const AdminContenusEvenementsPage = lazy(() => import('../pages/admin/contenus/AdminContenusEvenementsPage'));
+
+// Pages de partenaires
+const AdminPartenairesPage = lazy(() => import('../pages/admin/contenus/AdminPartenairesPage'));
 
 // Helper function to wrap admin components with Suspense and Protection
 const withAdminProtection = (Component: React.LazyExoticComponent<React.ComponentType<any>>, requiredRoles?: string[]) => (
@@ -123,7 +124,7 @@ const adminRoutes: RouteObject[] = [
             path: 'profile',
             element: withSimpleAdminProtection(AdminProfilePage),
           },
-          // (Supprimé: route admin a-propos CRUD)
+    
           // Routes pour la gestion des inscriptions
           {
             path: 'inscriptions',
@@ -133,13 +134,16 @@ const adminRoutes: RouteObject[] = [
                 index: true,
                 element: withSimpleAdminProtection(AdminInscriptionsIndexPage),
               },
-              {
-                path: 'istm',
-                element: withSimpleAdminProtection(AdminInscriptionsISTMPage),
-              },
+              // Route ISTM supprimée, seule la route university doit exister
               {
                 path: 'formations',
                 element: withSimpleAdminProtection(AdminInscriptionsFormationsPage),
+              },
+              {
+                path: 'university',
+                element: withSimpleAdminProtection(
+                  lazy(() => import('../pages/admin/inscriptions/AdminInscriptionsUniversityPage'))
+                ),
               },
               {
                 path: 'fablab',
@@ -166,38 +170,23 @@ const adminRoutes: RouteObject[] = [
               },
               {
                 path: 'fablab',
-                element: withDirectSimpleAdminProtection(AdminContenusFablabPage),
+                element: withSimpleAdminProtection(AdminContenusFablabPage),
               },
-            ],
-          },
-          // Routes pour les contenus (galerie et bibliothèque incluses)
-          {
-            path: 'contenus',
-            children: [
               {
                 path: 'galerie',
                 element: withSimpleAdminProtection(AdminGaleriePage),
               },
               {
+                path: 'partenaires',
+                element: withSimpleAdminProtection(AdminPartenairesPage),
+              },
+              {
                 path: 'bibliotheque',
                 element: withSimpleAdminProtection(AdminBibliotequePage),
               },
-              // autres contenus existants
               {
-                path: 'fablab',
-                element: withSimpleAdminProtection(AdminContenusFablabPage),
-              },
-              {
-                path: 'formations',
-                element: withSimpleAdminProtection(AdminContenusFormationsPage),
-              },
-              {
-                path: 'istm',
-                element: withSimpleAdminProtection(AdminContenusISTMPage),
-              },
-              {
-                index: true,
-                element: withSimpleAdminProtection(AdminContenusIndexPage),
+                path: 'evenements',
+                element: withSimpleAdminProtection(AdminContenusEvenementsPage),
               },
             ],
           },
@@ -206,7 +195,6 @@ const adminRoutes: RouteObject[] = [
             path: 'reservations',
             element: withSimpleAdminProtection(AdminReservationsPage),
           },
-          // (bibliotheque déplacée sous contenus)
           // Routes pour les paramètres (authentification simple, pas de vérification de rôle)
           {
             path: 'parametres',

@@ -11,7 +11,7 @@ import {
   useFablabMachines,
   useMachineHourlyRates,
   useFablabSubscriptions,
-  useUserReservations,
+  useUserReservations,  
   useSubscriptionUsage,
   useAvailableSlots,
   useCreateFablabReservation,

@@ -61,19 +61,19 @@ const AboutPage = () => {
 
   const history = [
     {
-      year: '2012',
-      title: 'Fondation du CREC',
-      description: "Création du Centre de Recherche, d'Étude et de Créativité par la Compagnie de Jésus au Bénin."
+      year: '1982 ',
+      title: 'Invitation de Mgr Isidore de Souza',
+      description: "Prise en charge d'une paroisse et l'initiation d'un projet de développement."
     },
     {
-      year: '2014',
-      title: 'Premiers programmes',
-      description: "Lancement des premiers programmes de formation et de recherche."
+      year: '1985',
+      title: 'Arrivée des premiers jésuites',
+      description: "Les premiers jésuites, Jean-Noel Crespel et Yves Richard, arrivent au Bénin."
     },
     {
-      year: '2016',
+      year: '1985 à 2000',
       title: 'Expansion',
-      description: "Développement des partenariats internationaux et élargissement des activités."
+      description: "Développement des partenariats internationaux et élargissement des activités. "
     },
     {
       year: '2018',
@@ -182,6 +182,9 @@ const AboutPage = () => {
           <h2 className="text-3xl font-bold mb-12 text-center text-crec-dark">Notre Mission</h2>
           <div className="max-w-4xl mx-auto text-crec-dark space-y-6">
             <p>Le Centre de Recherche, d'Étude et de Créativité (CREC), fondé par la Compagnie de Jésus, se veut un lieu où se conjuguent excellence académique, innovation technologique et service du bien commun.</p>
+            <p>Pendant une décennie nous avons œuvré dans le secteur  de la bonne gouvernance avec des projets sur des valeurs démocratiques , la participation  responsable aux élections , la lutte contre la corruption et la formation de jeunes leader dans l'entreprenariat.</p>
+            <p>L'engagement  dans le secteur educatif était circonscrit à l'offre d'une bibliothèque et des cours d'appuis pour les élèves du primaire et du  secondaire  en classe d'examens : CM2, 3ème et la Terminal.</p>
+            <p>Aujourd'hui le CREC de manière résolue ,  s'engage dans l'education supérieure.</p>
             <p>Son projet-phare, l’Institut des Sciences et Technologies Matteo Ricci (ISTMR), rend hommage à un jésuite pionnier du dialogue entre les cultures par les sciences et l’amitié. Il propose des formations exigeantes et humaines, ancrées dans la tradition éducative ignatienne.</p>
           </div>
         </div>
@@ -191,6 +194,7 @@ const AboutPage = () => {
       <section className="py-16 bg-crec-light">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold mb-12 text-center text-crec-dark">Notre Histoire</h2>
+          <p>Le centre de Recherche d'Etude et de Créativité (CREC) est le fruit d'un long discernement sur la mission de la compagnie de jésus (les jésuites) au Bénin. Tout a commencé par une invitation addresée le 6 Aout 1982 par Mgr Isidore de Souza, alors coadjuteur de l'archidiocèse de Cotonou au Père Galli,  Supérieur Provincial des jésuites de l'Afrique de l'ouest , pour la prise en charge d'une paroisse et l'initiation d'un projet de développement. Il a fallu trois années pour que les premiers jésuites Jean-Noel Crespel et Yves Richard arrivent en 1985. De commun accord avec l'archeveque , l'option était le monde rural. L'apprentissage du Fon s'imposait pour  une insertion effective dans le milieu de sèhouè tandique les projets de developpement s'entrevoyaient dans la ligen  de la formation  de jeunes agriculteurs. Pendant 15 ans , Sèhouè a été à la fois le lieu d'apprentissage de la complexité de la réalité sociale et de connaissance dans l'église locale.</p>
           <div className="relative">
             <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-crec-gold"></div>
             {history.map((item, idx) => (

@@ -177,7 +177,7 @@ const LoginPage: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <Label htmlFor="password">Mot de passe</Label>
-                  <Link to="/forgotten-password" className="text-xs text-blue-600 hover:underline">
+                  <Link to="/admin/forgot-password" className="text-xs text-blue-600 hover:underline">
                     Mot de passe oublié ?
                   </Link>
                 </div>

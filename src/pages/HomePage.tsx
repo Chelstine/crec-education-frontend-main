@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import '../heroDiaporama.css';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import Banner from '@/components/common/Banner';
 import SectionTitle from '@/components/common/SectionTitle';
@@ -6,6 +7,7 @@ import { Card } from '@/components/common/Card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
+import { usePartners } from '@/hooks/useApi';
 import { Leaf, Gavel, Users, BookOpen, GraduationCap, Library, ChevronRight, Globe, Award, Mail } from 'lucide-react';
 
 
@@ -15,6 +17,9 @@ const HomePage = () => {
   const opacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
   const [activeTab, setActiveTab] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Hook pour récupérer les partenaires depuis l'API
+  const { data: partners = [], isLoading: partnersLoading, error: partnersError } = usePartners();
 
   // Fonction pour scroll vers la section formations avec une animation fluide
   const scrollToFormations = (e: React.MouseEvent) => {
@@ -62,7 +67,7 @@ const HomePage = () => {
       title: "Formations Ouvertes",
       subtitle: "Programmes accessibles à tous",
       description: "Des formations courtes et pratiques pour développer des compétences spécifiques et répondre aux besoins immédiats du marché, conçues pour être accessibles à tous les profils.",
-      image: '/img/formation-ouverte.png',
+      image: '/img/open.webp',
       link: '/formations/ouvertes',
       icon: <Users className="h-12 w-12 text-blue-600" />,
       color: "from-blue-500/20 to-blue-600/30"
@@ -76,28 +81,6 @@ const HomePage = () => {
       link: '/formations/fablab',
       icon: <Award className="h-12 w-12 text-emerald-600" />,
       color: "from-emerald-500/20 to-emerald-600/30"
-    }
-  ];
-
-  // Données pour les partenaires
-  const partners = [
-    { 
-      name: "IFRI", 
-      logo: "/img/ifri-logo.png",
-      link: "https://ifri-uac.bj/",
-      description: "Institut de Formation et de Recherche en Informatique"
-    },
-    { 
-      name: "PJAO", 
-      logo: "/img/pjao.png",
-      link: "https://jesuitespao.com/",
-      description: "Province Jésuite de l'Afrique de l'Ouest"
-    },
-    { 
-      name: "FAO", 
-      logo: "/img/fao.png",
-      link: "https://www.fao.org/",
-      description: "Organisation des Nations Unies pour l'alimentation et l'agriculture"
     }
   ];
 
@@ -139,13 +122,9 @@ const HomePage = () => {
               className="absolute inset-0 w-full h-full"
               style={{ zIndex: i === currentImageIndex ? 2 : 1 }}
             >
-              <div 
-                className="absolute inset-0 bg-cover bg-center" 
-                style={{ 
-                  backgroundImage: `url(${img})`,
-                  backgroundPosition: 'center',
-                  backgroundSize: 'cover'
-                }}
+              <div
+                className="hero-diaporama-bg"
+                data-bg-image={img}
               />
             </motion.div>
           ))}
@@ -296,7 +275,7 @@ const HomePage = () => {
                   viewport={{ once: true }}
                   className="text-lg text-slate-600 mb-8 leading-relaxed"
                 >
-                  <span className="text-crec-darkblue font-semibold">Fondée sur des valeurs jésuites</span>, notre institution s'engage à offrir une formation intégrale de la personne, alliant excellence académique et développement humain pour servir la société congolaise et africaine.
+                  <span className="text-crec-darkblue font-semibold">Fondée sur des valeurs jésuites</span>, notre institution s'engage à offrir une formation intégrale de la personne, alliant excellence académique et développement humain pour servir la société béninoise et africaine.
                 </motion.p>
 
                 {/* Navigation par onglets */}
@@ -917,51 +896,66 @@ const HomePage = () => {
             </motion.div>
             
             <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16">
-              {partners.map((partner, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.8, y: 20 }}
-                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  className="flex flex-col items-center group"
-                  whileHover={{ y: -5 }}
-                >
-                  {partner.link ? (
-                    <a 
-                      href={partner.link} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="flex flex-col items-center transition-transform duration-300"
-                      title={partner.description}
-                    >
-                      <div className="bg-white py-5 px-10 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-slate-100 hover:border-crec-gold/30">
-                        <img 
-                          src={partner.logo} 
-                          alt={partner.name} 
-                          className="h-16 sm:h-20 w-auto max-w-full object-contain crec-partner-logo-img transition-all duration-300 group-hover:opacity-90"
-                        />
+              {partnersLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-crec-gold"></div>
+                  <span className="ml-3 text-slate-600">Chargement des partenaires...</span>
+                </div>
+              ) : partnersError ? (
+                <div className="text-center py-8">
+                  <p className="text-slate-500">Impossible de charger les partenaires</p>
+                </div>
+              ) : partners.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-slate-500">Aucun partenaire disponible</p>
+                </div>
+              ) : (
+                partners.map((partner, index) => (
+                  <motion.div
+                    key={partner.id || index}
+                    initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                    whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    className="flex flex-col items-center group"
+                    whileHover={{ y: -5 }}
+                  >
+                    {partner.website_url ? (
+                      <a 
+                        href={partner.website_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex flex-col items-center transition-transform duration-300"
+                        title={partner.description}
+                      >
+                        <div className="bg-white py-5 px-10 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-slate-100 hover:border-crec-gold/30">
+                          <img 
+                            src={partner.logo_url} 
+                            alt={partner.name} 
+                            className="h-16 sm:h-20 w-auto max-w-full object-contain crec-partner-logo-img transition-all duration-300 group-hover:opacity-90"
+                          />
+                        </div>
+                        <span className="text-sm text-slate-600 mt-3 text-center font-medium group-hover:text-crec-darkblue transition-colors duration-300">
+                          {partner.name}
+                        </span>
+                      </a>
+                    ) : (
+                      <div className="flex flex-col items-center" title={partner.description}>
+                        <div className="bg-white py-5 px-10 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-slate-100">
+                          <img 
+                            src={partner.logo_url} 
+                            alt={partner.name} 
+                            className="h-16 sm:h-20 w-auto max-w-full object-contain crec-partner-logo-img"
+                          />
+                        </div>
+                        <span className="text-sm text-slate-600 mt-3 text-center font-medium">
+                          {partner.name}
+                        </span>
                       </div>
-                      <span className="text-sm text-slate-600 mt-3 text-center font-medium group-hover:text-crec-darkblue transition-colors duration-300">
-                        {partner.name}
-                      </span>
-                    </a>
-                  ) : (
-                    <div className="flex flex-col items-center" title={partner.description}>
-                      <div className="bg-white py-5 px-10 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-slate-100">
-                        <img 
-                          src={partner.logo} 
-                          alt={partner.name} 
-                          className="h-16 sm:h-20 w-auto max-w-full object-contain crec-partner-logo-img"
-                        />
-                      </div>
-                      <span className="text-sm text-slate-600 mt-3 text-center font-medium">
-                        {partner.name}
-                      </span>
-                    </div>
-                  )}
-                </motion.div>
-              ))}
+                    )}
+                  </motion.div>
+                ))
+              )}
             </div>
           </div>
         </div>

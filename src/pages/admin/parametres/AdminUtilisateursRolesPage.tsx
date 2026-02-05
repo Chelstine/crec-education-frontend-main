@@ -1,459 +1,692 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
-  Users, 
-  Shield, 
   Plus, 
+  Search, 
+  Edit2, 
   Trash2, 
-  Edit,
-  Save,
-  Search,
-  Info,
-  Mail,
-  Calendar
+  Key, 
+  Users, 
+  Filter,
+  AlertTriangle,
+  CheckCircle,
+  Loader2,
+  X
 } from 'lucide-react';
-import { ADMIN_PERMISSIONS } from '@/services/permissionService';
-
-interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  roles: string[];
-  isActive: boolean;
-  createdAt: string;
-  lastLogin?: string;
-}
+import { useAuth } from '@/context/AuthContext';
+import authService from '@/services/auth-service';
+import { BackendUser, AdminRole, CreateAdminRequest, UpdateAdminRequest } from '@/types';
 
 const AdminUtilisateursRolesPage: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, hasRole } = useAuth();
+  const [admins, setAdmins] = useState<BackendUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   
-  // Charger les utilisateurs depuis l'API
-  React.useEffect(() => {
-    const fetchUsers = async () => {
-      setIsLoading(true);
-      try {
-        // TODO: Intégrer l'appel API réel
-        // const response = await fetch('/api/admin/users');
-        // const data = await response.json();
-        // setUsers(data);
-        
-        // Initialiser avec une liste vide
-        setUsers([]);
-      } catch (error) {
-        console.error('Erreur lors du chargement des utilisateurs:', error);
-      } finally {
-        setIsLoading(false);
+  // États pour les filtres et recherche
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState<AdminRole | 'all'>('all');
+  
+  // États pour les modals/formulaires
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingAdmin, setEditingAdmin] = useState<BackendUser | null>(null);
+  const [showPasswordReset, setShowPasswordReset] = useState<BackendUser | null>(null);
+
+  // Formulaires
+  const [newAdmin, setNewAdmin] = useState<CreateAdminRequest>({
+    nom: '',
+    prenom: '',
+    email: '',
+    role: 'admin_contenu' // Valeur par défaut
+  });
+
+  const [editForm, setEditForm] = useState<UpdateAdminRequest>({
+    nom: '',
+    prenom: '',
+    email: '',
+    role: 'admin_contenu'
+  });
+
+  // Vérifier les permissions
+  if (!hasRole(['super_admin'])) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Alert className="border-red-200 bg-red-50">
+          <AlertTriangle className="h-4 w-4 text-red-600" />
+          <AlertDescription className="text-red-800">
+            Accès refusé. Cette page est réservée aux Super Administrateurs.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  // Charger les admins
+  const loadAdmins = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await authService.getAdmins();
+      
+      // ✅ CORRECTION ERREURS LIGNE 81-82 - Vérification stricte du type de response
+      if (Array.isArray(response)) {
+        setAdmins(response);
+      } else if (response && typeof response === 'object' && 'data' in response) {
+        // Vérification que data existe et est un tableau
+        const responseWithData = response as { data?: BackendUser[] };
+        if (Array.isArray(responseWithData.data)) {
+          setAdmins(responseWithData.data);
+        } else {
+          console.warn('response.data n\'est pas un tableau:', responseWithData.data);
+          setAdmins([]);
+        }
+      } else {
+        console.warn('Format de réponse inattendu:', response);
+        setAdmins([]);
       }
-    };
-    
-    fetchUsers();
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors du chargement des administrateurs');
+      setAdmins([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAdmins();
   }, []);
 
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedRole, setSelectedRole] = useState<string>('all');
-  const [isAdding, setIsAdding] = useState(false);
-  const [newUser, setNewUser] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    roles: [] as string[]
-  });
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  // Auto-clear des messages
+  useEffect(() => {
+    if (success || error) {
+      const timer = setTimeout(() => {
+        setSuccess(null);
+        setError(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [success, error]);
 
-  const availableRoles = Object.keys(ADMIN_PERMISSIONS);
+  // Créer un admin
+  const handleCreateAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setActionLoading(-1); // -1 pour création
+      const createdAdmin = await authService.createAdmin(newAdmin);
+      
+      // Gérer la réponse selon le format avec vérifications strictes
+      if (createdAdmin && typeof createdAdmin === 'object') {
+        const adminToAdd = 'data' in createdAdmin ? 
+          (createdAdmin as { data: BackendUser }).data : 
+          createdAdmin as BackendUser;
+        setAdmins(prev => [...prev, adminToAdd]);
+      }
+      
+      setSuccess('Administrateur créé avec succès !');
+      setShowCreateForm(false);
+      setNewAdmin({ nom: '', prenom: '', email: '', role: 'admin_contenu' });
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de la création');
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
-  const filteredUsers = users.filter(user => {
+  // Modifier un admin
+  const handleEditAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingAdmin) return;
+
+    try {
+      setActionLoading(Number(editingAdmin.id));
+      const updatedAdmin = await authService.updateAdmin(Number(editingAdmin.id), editForm);
+      
+      const adminToUpdate = 'data' in updatedAdmin ? 
+        (updatedAdmin as { data: BackendUser }).data : 
+        updatedAdmin as BackendUser;
+      
+      setAdmins(prev => prev.map(admin => 
+        admin.id === editingAdmin.id ? adminToUpdate : admin
+      ));
+      
+      setSuccess('Administrateur modifié avec succès !');
+      setEditingAdmin(null);
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de la modification');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Supprimer un admin
+  const handleDeleteAdmin = async (adminToDelete: BackendUser) => {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer ${adminToDelete.prenom} ${adminToDelete.nom} ?`)) {
+      return;
+    }
+
+    // Empêcher la suppression du Super Admin ou de soi-même
+    if (adminToDelete.role === 'super_admin') {
+      setError('Impossible de supprimer le Super Administrateur');
+      return;
+    }
+
+    if (Number(adminToDelete.id) === Number(user?.id)) {
+      setError('Vous ne pouvez pas supprimer votre propre compte');
+      return;
+    }
+
+    try {
+      setActionLoading(Number(adminToDelete.id));
+      await authService.deleteAdmin(Number(adminToDelete.id));
+      setAdmins(prev => prev.filter(admin => admin.id !== adminToDelete.id));
+      setSuccess('Administrateur supprimé avec succès !');
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de la suppression');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Réinitialiser le mot de passe
+  const handleResetPassword = async (adminToReset: BackendUser) => {
+    if (!confirm(`Réinitialiser le mot de passe de ${adminToReset.prenom} ${adminToReset.nom} ?`)) {
+      return;
+    }
+
+    try {
+      setActionLoading(Number(adminToReset.id));
+      const result = await authService.resetAdminPassword(Number(adminToReset.id));
+      setShowPasswordReset(adminToReset);
+      setSuccess(`Mot de passe réinitialisé. Nouveau mot de passe temporaire : ${result.temporary_password}`);
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de la réinitialisation');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Ouvrir le formulaire d'édition
+  const openEditForm = (admin: BackendUser) => {
+    setEditingAdmin(admin);
+    setEditForm({
+      nom: admin.nom,
+      prenom: admin.prenom,
+      email: admin.email,
+      role: admin.role === 'super_admin' ? 'admin_contenu' : admin.role as 'admin_contenu' | 'admin_inscription'
+    });
+  };
+
+  // Fonctions utilitaires
+  const getRoleBadgeVariant = (role: AdminRole): "default" | "secondary" | "destructive" | "outline" => {
+    switch (role) {
+      case 'super_admin': return 'destructive';
+      case 'admin_contenu': return 'default';  
+      case 'admin_inscription': return 'secondary';
+      default: return 'outline';
+    }
+  };
+
+  const getRoleDisplayName = (role: AdminRole): string => {
+    switch (role) {
+      case 'super_admin': return 'Super Admin';
+      case 'admin_contenu': return 'Admin Contenu';
+      case 'admin_inscription': return 'Admin Inscription';
+      default: return 'Utilisateur';
+    }
+  };
+
+  const roleDescriptions: { [key in AdminRole]: string } = {
+    super_admin: 'Super Admin - Tous les droits',
+    admin_contenu: 'Admin Contenus - Gestion du site',
+    admin_inscription: 'Admin Inscriptions - Validation des inscriptions',
+  };
+
+  // Filtrage des admins
+  const filteredAdmins = admins.filter(admin => {
     const matchesSearch = 
-      user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      admin.nom?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      admin.prenom?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      admin.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      admin.nom_complet?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesRole = selectedRole === 'all' || user.roles.includes(selectedRole);
+    const matchesRole = roleFilter === 'all' || admin.role === roleFilter;
     
     return matchesSearch && matchesRole;
   });
 
-  const handleSave = async (userId: string) => {
-    try {
-      // Ici, vous intégreriez l'appel API pour sauvegarder
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simulation
-      
-      setMessage({ type: 'success', text: 'Utilisateur mis à jour avec succès!' });
-      setEditingId(null);
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Erreur lors de la mise à jour.' });
-    }
-  };
-
-  const handleAdd = async () => {
-    if (!newUser.firstName || !newUser.lastName || !newUser.email || newUser.roles.length === 0) {
-      setMessage({ type: 'error', text: 'Veuillez remplir tous les champs obligatoires.' });
-      return;
-    }
-
-    try {
-      const id = Date.now().toString();
-      const nouveauUser: User = {
-        ...newUser,
-        id,
-        isActive: true,
-        createdAt: new Date().toISOString().split('T')[0]
-      };
-
-      setUsers(prev => [...prev, nouveauUser]);
-      setNewUser({
-        firstName: '',
-        lastName: '',
-        email: '',
-        roles: []
-      });
-      setIsAdding(false);
-      setMessage({ type: 'success', text: 'Utilisateur ajouté avec succès!' });
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Erreur lors de l\'ajout.' });
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    // Vérifier si c'est l'admin suprême (id=1 ou rôle super_admin)
-    const userToDelete = users.find(u => u.id === id);
-    if (userToDelete?.roles.includes('super_admin')) {
-      setMessage({ type: 'error', text: 'L\'administrateur suprême ne peut pas être supprimé!' });
-      return;
-    }
-    
-    if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
-      try {
-        // TODO: Intégrer l'appel API réel
-        // await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
-        
-        setUsers(prev => prev.filter(u => u.id !== id));
-        setMessage({ type: 'success', text: 'Utilisateur supprimé avec succès!' });
-      } catch (error) {
-        setMessage({ type: 'error', text: 'Erreur lors de la suppression.' });
-      }
-    }
-  };
-
-  const handleUserChange = (id: string, field: keyof User, value: any) => {
-    setUsers(prev => prev.map(user => 
-      user.id === id ? { ...user, [field]: value } : user
-    ));
-  };
-
-  const toggleUserRole = (userId: string, role: string) => {
-    const user = users.find(u => u.id === userId);
-    if (user) {
-      const newRoles = user.roles.includes(role)
-        ? user.roles.filter(r => r !== role)
-        : [...user.roles, role];
-      handleUserChange(userId, 'roles', newRoles);
-    }
-  };
-
-  const toggleNewUserRole = (role: string) => {
-    setNewUser(prev => ({
-      ...prev,
-      roles: prev.roles.includes(role)
-        ? prev.roles.filter(r => r !== role)
-        : [...prev.roles, role]
-    }));
-  };
-
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'super_admin': return 'bg-red-100 text-red-800';
-      case 'content_admin': return 'bg-blue-100 text-blue-800';
-      case 'inscription_admin': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  // Statistiques
+  const stats = {
+    total: admins.length,
+    super_admin: admins.filter(a => a.role === 'super_admin').length,
+    admin_contenu: admins.filter(a => a.role === 'admin_contenu').length,
+    admin_inscription: admins.filter(a => a.role === 'admin_inscription').length,
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-          <Users className="h-8 w-8 mr-3 text-blue-600" />
-          Gestion des Utilisateurs et Rôles
-        </h1>
-        <p className="text-gray-600 mt-2">
-          Gérez les utilisateurs administrateurs et leurs permissions
-        </p>
+    <div className="container mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Gestion des Administrateurs</h1>
+          <p className="text-gray-600 mt-2">Créer, modifier et gérer les comptes administrateurs</p>
+        </div>
+        <Button onClick={() => setShowCreateForm(true)} className="flex items-center gap-2">
+          <Plus className="w-4 h-4" />
+          Nouvel Admin
+        </Button>
       </div>
 
-      {message && (
-        <Alert className={`mb-6 ${message.type === 'error' ? 'border-red-500' : 'border-green-500'}`}>
-          <Info className="h-4 w-4" />
-          <AlertDescription>{message.text}</AlertDescription>
+      {/* Messages */}
+      {success && (
+        <Alert className="mb-6 border-green-200 bg-green-50">
+          <CheckCircle className="h-4 w-4 text-green-600" />
+          <AlertDescription className="text-green-800">{success}</AlertDescription>
         </Alert>
       )}
 
-      {/* Filtres et recherche */}
+      {error && (
+        <Alert className="mb-6 border-red-200 bg-red-50">
+          <AlertTriangle className="h-4 w-4 text-red-600" />
+          <AlertDescription className="text-red-800">{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* Statistiques */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Total Admins</p>
+                <p className="text-2xl font-bold">{stats.total}</p>
+              </div>
+              <Users className="w-8 h-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Super Admins</p>
+                <p className="text-2xl font-bold text-red-600">{stats.super_admin}</p>
+              </div>
+              <Badge variant="destructive" className="text-xs">SA</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Admin Contenu</p>
+                <p className="text-2xl font-bold text-blue-600">{stats.admin_contenu}</p>
+              </div>
+              <Badge variant="default" className="text-xs">AC</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Admin Inscription</p>
+                <p className="text-2xl font-bold text-purple-600">{stats.admin_inscription}</p>
+              </div>
+              <Badge variant="secondary" className="text-xs">AI</Badge>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filtres et Recherche */}
       <Card className="mb-6">
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row gap-4">
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <Label htmlFor="search">Rechercher</Label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
-                  id="search"
-                  placeholder="Rechercher par nom ou email..."
+                  placeholder="Rechercher par nom, prénom ou email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
                 />
               </div>
             </div>
-            <div>
-              <Label htmlFor="roleFilter">Filtrer par rôle</Label>
+            
+            <div className="sm:w-48">
               <select
-                id="roleFilter"
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value as AdminRole | 'all')}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-crec-gold"
+                aria-label="Filtrer par rôle d'utilisateur"
+                title="Filtrer par rôle d'utilisateur"
               >
                 <option value="all">Tous les rôles</option>
-                {availableRoles.map(role => (
-                  <option key={role} value={role}>
-                    {ADMIN_PERMISSIONS[role]?.description}
-                  </option>
-                ))}
+                <option value="super_admin">Super Admin</option>
+                <option value="admin_contenu">Admin Contenu</option>
+                <option value="admin_inscription">Admin Inscription</option>
               </select>
-            </div>
-            <div className="flex items-end">
-              <Button 
-                onClick={() => setIsAdding(true)}
-                className="bg-green-600 hover:bg-green-700"
-                disabled={isAdding}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Ajouter un utilisateur
-              </Button>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Formulaire d'ajout */}
-      {isAdding && (
-        <Card className="mb-6 border-green-200">
-          <CardHeader>
-            <CardTitle className="text-green-700">Nouvel utilisateur</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="newFirstName">Prénom *</Label>
-                <Input
-                  id="newFirstName"
-                  value={newUser.firstName}
-                  onChange={(e) => setNewUser(prev => ({ ...prev, firstName: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="newLastName">Nom *</Label>
-                <Input
-                  id="newLastName"
-                  value={newUser.lastName}
-                  onChange={(e) => setNewUser(prev => ({ ...prev, lastName: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="newEmail">Email *</Label>
-                <Input
-                  id="newEmail"
-                  type="email"
-                  value={newUser.email}
-                  onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
-                />
-              </div>
+      {/* Liste des Admins */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            Administrateurs ({filteredAdmins.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin text-crec-gold" />
             </div>
-
-            <div className="space-y-2">
-              <Label>Rôles *</Label>
-              <div className="flex flex-wrap gap-2">
-                {availableRoles.map(role => (
-                  <Badge
-                    key={role}
-                    variant={newUser.roles.includes(role) ? "default" : "outline"}
-                    className={`cursor-pointer ${newUser.roles.includes(role) ? getRoleColor(role) : ''}`}
-                    onClick={() => toggleNewUserRole(role)}
-                  >
-                    {ADMIN_PERMISSIONS[role]?.description}
-                  </Badge>
-                ))}
-              </div>
+          ) : filteredAdmins.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              Aucun administrateur trouvé
             </div>
-
-            <div className="flex space-x-2">
-              <Button onClick={handleAdd} className="bg-green-600 hover:bg-green-700">
-                <Save className="h-4 w-4 mr-2" />
-                Ajouter
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  setIsAdding(false);
-                  setNewUser({ firstName: '', lastName: '', email: '', roles: [] });
-                }}
-              >
-                Annuler
-              </Button>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-3">Nom</th>
+                    <th className="text-left p-3">Email</th>
+                    <th className="text-left p-3">Rôle</th>
+                    <th className="text-left p-3">Créé le</th>
+                    <th className="text-right p-3">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredAdmins.map((admin) => (
+                    <tr key={admin.id} className="border-b hover:bg-gray-50">
+                      <td className="p-3">
+                        <div>
+                          <div className="font-medium">
+                            {admin.prenom} {admin.nom}
+                            {Number(admin.id) === Number(user?.id) && (
+                              <Badge variant="outline" className="ml-2 text-xs">Vous</Badge>
+                            )}
+                          </div>
+                          <div className="text-sm text-gray-500">{admin.nom_complet}</div>
+                        </div>
+                      </td>
+                      <td className="p-3">{admin.email}</td>
+                      <td className="p-3">
+                        <Badge variant={getRoleBadgeVariant(admin.role)}>
+                          {getRoleDisplayName(admin.role)}
+                        </Badge>
+                      </td>
+                      <td className="p-3 text-sm text-gray-500">
+                        {new Date(admin.created_at).toLocaleDateString('fr-FR')}
+                      </td>
+                      <td className="p-3">
+                        <div className="flex items-center gap-2 justify-end">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openEditForm(admin)}
+                            disabled={actionLoading === Number(admin.id)}
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </Button>
+                          
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleResetPassword(admin)}
+                            disabled={actionLoading === Number(admin.id)}
+                          >
+                            {actionLoading === Number(admin.id) ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Key className="w-4 h-4" />
+                            )}
+                          </Button>
+                          
+                          {admin.role !== 'super_admin' && Number(admin.id) !== Number(user?.id) && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDeleteAdmin(admin)}
+                              disabled={actionLoading === Number(admin.id)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </CardContent>
+      </Card>
 
-      {/* Liste des utilisateurs */}
-      <div className="space-y-4">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-32">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
-            <span className="ml-2 text-gray-500">Chargement des utilisateurs...</span>
-          </div>
-        ) : filteredUsers.length === 0 ? (
-          <div className="bg-slate-100 rounded-lg p-6 text-center">
-            <Users className="h-10 w-10 text-slate-400 mx-auto mb-2" />
-            <h3 className="text-lg font-medium text-slate-700">Aucun utilisateur trouvé</h3>
-            <p className="text-slate-500 mt-1">Utilisez le bouton ci-dessus pour ajouter des utilisateurs</p>
-          </div>
-        ) : (
-          filteredUsers.map((user) => (
-          <Card key={user.id}>
+      {/* Modal Création */}
+      {showCreateForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <Card className="w-full max-w-md">
             <CardHeader>
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <CardTitle className="flex items-center">
-                    <Mail className="h-5 w-5 mr-2 text-blue-600" />
-                    {editingId === user.id ? (
-                      <div className="flex space-x-2">
-                        <Input
-                          value={user.firstName}
-                          onChange={(e) => handleUserChange(user.id, 'firstName', e.target.value)}
-                          placeholder="Prénom"
-                        />
-                        <Input
-                          value={user.lastName}
-                          onChange={(e) => handleUserChange(user.id, 'lastName', e.target.value)}
-                          placeholder="Nom"
-                        />
-                      </div>
-                    ) : (
-                      `${user.firstName} ${user.lastName}`
-                    )}
-                  </CardTitle>
-                  <CardDescription>
-                    {editingId === user.id ? (
-                      <Input
-                        type="email"
-                        value={user.email}
-                        onChange={(e) => handleUserChange(user.id, 'email', e.target.value)}
-                      />
-                    ) : (
-                      user.email
-                    )}
-                  </CardDescription>
-                </div>
-                <div className="flex space-x-2">
-                  <Badge variant={user.isActive ? "default" : "secondary"}>
-                    {user.isActive ? 'Actif' : 'Inactif'}
-                  </Badge>
-                  {editingId === user.id ? (
-                    <>
-                      <Button 
-                        size="sm"
-                        onClick={() => handleSave(user.id)}
-                        className="bg-green-600 hover:bg-green-700"
-                      >
-                        <Save className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setEditingId(null)}
-                      >
-                        Annuler
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button 
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setEditingId(user.id)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDelete(user.id)}
-                        className="text-red-600 hover:text-red-700"
-                        disabled={user.roles.includes('super_admin')}
-                        title={user.roles.includes('super_admin') ? "L'administrateur suprême ne peut pas être supprimé" : "Supprimer cet utilisateur"}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </>
-                  )}
-                </div>
+              <div className="flex items-center justify-between">
+                <CardTitle>Nouvel Administrateur</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowCreateForm(false)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Rôles</Label>
-                  {editingId === user.id ? (
-                    <div className="flex flex-wrap gap-2">
-                      {availableRoles.map(role => (
-                        <Badge
-                          key={role}
-                          variant={user.roles.includes(role) ? "default" : "outline"}
-                          className={`cursor-pointer ${user.roles.includes(role) ? getRoleColor(role) : ''}`}
-                          onClick={() => toggleUserRole(user.id, role)}
-                        >
-                          {ADMIN_PERMISSIONS[role]?.description}
-                        </Badge>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex flex-wrap gap-2">
-                      {user.roles.map(role => (
-                        <Badge key={role} className={getRoleColor(role)}>
-                          {ADMIN_PERMISSIONS[role]?.description}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
+              <form onSubmit={handleCreateAdmin} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="prenom">Prénom</Label>
+                    <Input
+                      id="prenom"
+                      value={newAdmin.prenom}
+                      onChange={(e) => setNewAdmin(prev => ({ ...prev, prenom: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="nom">Nom</Label>
+                    <Input
+                      id="nom"
+                      value={newAdmin.nom}
+                      onChange={(e) => setNewAdmin(prev => ({ ...prev, nom: e.target.value }))}
+                      required
+                    />
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    <span>Créé le: {new Date(user.createdAt).toLocaleDateString('fr-FR')}</span>
-                  </div>
-                  {user.lastLogin && (
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      <span>Dernière connexion: {new Date(user.lastLogin).toLocaleDateString('fr-FR')}</span>
-                    </div>
-                  )}
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={newAdmin.email}
+                    onChange={(e) => setNewAdmin(prev => ({ ...prev, email: e.target.value }))}
+                    required
+                  />
                 </div>
-              </div>
+
+                <div>
+                  <Label htmlFor="role">Rôle</Label>
+                  <select
+                    id="role"
+                    value={newAdmin.role}
+                    onChange={(e) => setNewAdmin(prev => ({ 
+                      ...prev, 
+                      role: e.target.value as 'admin_contenu' | 'admin_inscription'
+                    }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-crec-gold"
+                    aria-label="Sélectionner le rôle de l'administrateur"
+                    title="Sélectionner le rôle de l'administrateur"
+                    required
+                  >
+                    <option value="admin_contenu">Admin Contenu</option>
+                    <option value="admin_inscription">Admin Inscription</option>
+                  </select>
+                  {/* ✅ CORRECTION ERREUR LIGNE 637 - Vérification que newAdmin.role existe */}
+                  <p className="text-xs text-gray-500 mt-1">
+                    {newAdmin.role && roleDescriptions[newAdmin.role as AdminRole]}
+                  </p>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button 
+                    type="submit" 
+                    disabled={actionLoading === -1}
+                    className="flex-1"
+                  >
+                    {actionLoading === -1 ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        Création...
+                      </>
+                    ) : (
+                      'Créer l\'admin'
+                    )}
+                  </Button>
+                  <Button 
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowCreateForm(false)}
+                    className="flex-1"
+                  >
+                    Annuler
+                  </Button>
+                </div>
+              </form>
             </CardContent>
           </Card>
-        ))
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Modal Édition */}
+      {editingAdmin && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Modifier {editingAdmin.prenom} {editingAdmin.nom}</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setEditingAdmin(null)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleEditAdmin} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="edit-prenom">Prénom</Label>
+                    <Input
+                      id="edit-prenom"
+                      value={editForm.prenom}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, prenom: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-nom">Nom</Label>
+                    <Input
+                      id="edit-nom"
+                      value={editForm.nom}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, nom: e.target.value }))}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="edit-email">Email</Label>
+                  <Input
+                    id="edit-email"
+                    type="email"
+                    value={editForm.email}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
+                    required
+                  />
+                </div>
+
+                {editingAdmin.role !== 'super_admin' && (
+                  <div>
+                    <Label htmlFor="edit-role">Rôle</Label>
+                    <select
+                      id="edit-role"
+                      value={editForm.role}
+                      onChange={(e) => setEditForm(prev => ({ 
+                        ...prev, 
+                        role: e.target.value as 'admin_contenu' | 'admin_inscription'
+                      }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-crec-gold"
+                      aria-label="Modifier le rôle de l'administrateur"
+                      title="Modifier le rôle de l'administrateur"
+                      required
+                    >
+                      <option value="admin_contenu">Admin Contenu</option>
+                      <option value="admin_inscription">Admin Inscription</option>
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {editForm.role && roleDescriptions[editForm.role as AdminRole]}
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-4">
+                  <Button 
+                    type="submit" 
+                    disabled={actionLoading === Number(editingAdmin.id)}
+                    className="flex-1"
+                  >
+                    {actionLoading === Number(editingAdmin.id) ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        Modification...
+                      </>
+                    ) : (
+                      'Modifier'
+                    )}
+                  </Button>
+                  <Button 
+                    type="button"
+                    variant="outline"
+                    onClick={() => setEditingAdmin(null)}
+                    className="flex-1"
+                  >
+                    Annuler
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };

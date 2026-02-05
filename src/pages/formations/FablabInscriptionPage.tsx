@@ -1,347 +1,341 @@
+// src/pages/formations/FablabInscriptionPage.tsx
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
-import { Upload, CreditCard, Smartphone, Building, AlertCircle, Loader2 } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
-import { InscriptionForm } from "@/types/index";
-import SubscriptionConfirmation from "@/components/common/SubscriptionConfirmation";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "@/hooks/use-toast";
+import { Loader2, Upload, FileText, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import inscriptionService, { FablabInscriptionData } from '@/services/inscription-service';
+import { DocumentFileUpload } from '@/components/common/DocumentFileUpload';
 
-const FablabInscriptionPage = () => {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    workshop: "",
-    experience: "",
-    motivation: "",
-    paymentReceipt: null as File | null
+const FablabInscriptionPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState<Omit<FablabInscriptionData, 'paymentReceipt'> & { paymentReceipt?: File }>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    workshop: 'Abonnement Etudiant',
+    experience: '',
+    motivation: '',
+    paymentReceipt: undefined
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  
-  const handleInscriptionSuccess = () => {
-    setShowConfirmation(true);
-  };
-  
-  const inscriptionMutation = useMutation({
-    mutationFn: async (data: any) => {
-      // Simuler un appel API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return { success: true, message: "Inscription envoyée avec succès" };
-    },
-    onSuccess: handleInscriptionSuccess
-  });
 
-  const workshops = [
-    { value: "Abonnement Etudiant", label: "Abonnement Etudiant", price: "15,000" },
-    { value: "Abonnement Professionel", label: "Abonnement Professionel", price: "20,000" },
-  ];
-
-  const paymentMethods = [
-    {
-      type: "Mobile Money",
-      accounts: [
-         { name: "MTN MoMo", number: "+229 01 xx xx xx xx", account: "indisponible actuellement" }
-      ]
-    },
-    {
-      type: "Banque",
-      accounts: [
-        { name: "Bank of Africa (BOA)", number: "à venir ", account: "à venir " },
-        { name: "UBA Bénin", number: "à venir ", account: "à venir" }
-      ]
-    }
-  ];
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
-    }
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormData(prev => ({ ...prev, paymentReceipt: file }));
-      if (errors.paymentReceipt) {
-        setErrors(prev => ({ ...prev, paymentReceipt: "" }));
-      }
-    }
-  };
-
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.firstName.trim()) newErrors.firstName = "Le prénom est requis";
-    if (!formData.lastName.trim()) newErrors.lastName = "Le nom est requis";
-    if (!formData.email.trim()) newErrors.email = "L'email est requis";
-    if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Format d'email invalide";
-    if (!formData.phone.trim()) newErrors.phone = "Le téléphone est requis";
-    if (!formData.workshop) newErrors.workshop = "Veuillez sélectionner une formule d'abonnement ";
-    if (!formData.paymentReceipt) newErrors.paymentReceipt = "Le reçu de paiement est requis";
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'Le prénom est requis.';
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Le nom est requis.';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'L\'email est requis.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Le format de l\'email est invalide.';
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Le téléphone est requis.';
+    }
+
+    if (!formData.workshop) {
+      newErrors.workshop = 'Veuillez sélectionner une formule d\'abonnement.';
+    }
+
+    if (!formData.paymentReceipt) {
+      newErrors.paymentReceipt = 'Le reçu de paiement est requis.';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validateForm()) {
-      const inscriptionData: InscriptionForm = {
-        name: `${formData.firstName} ${formData.lastName}`,
-        email: formData.email,
-        formation: formData.workshop,
-        paymentMethod: "offline", // Since we're using offline payment
-        phoneNumber: formData.phone
-      };
-
-      try {
-        await inscriptionMutation.mutateAsync(inscriptionData);
-        // Reset du formulaire en cas de succès
-        setFormData({
-          firstName: "",
-          lastName: "",
-          email: "",
-          phone: "",
-          workshop: "",
-          experience: "",
-          motivation: "",
-          paymentReceipt: null
-        });
-      } catch (error) {
-        // L'erreur est gérée par le hook
-      }
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
-  const selectedWorkshop = workshops.find(w => w.value === formData.workshop);
+  const handleFileChange = (file: File | null) => {
+    if (file) {
+      setFormData(prev => ({ ...prev, paymentReceipt: file }));
+      if (errors.paymentReceipt) {
+        setErrors(prev => ({ ...prev, paymentReceipt: '' }));
+      }
+    } else {
+      setFormData(prev => ({ ...prev, paymentReceipt: undefined }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      toast({
+        title: "Erreur de validation",
+        description: "Veuillez corriger les erreurs dans le formulaire.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.paymentReceipt) {
+      toast({
+        title: "Erreur",
+        description: "Le reçu de paiement est requis.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const inscriptionData: FablabInscriptionData = {
+        ...formData,
+        paymentReceipt: formData.paymentReceipt
+      };
+
+      const response = await inscriptionService.submitFablabInscription(inscriptionData);
+
+      if (response.data.success) {
+        toast({
+          title: "Inscription soumise !",
+          description: "Votre inscription FabLab a été soumise avec succès. Vous recevrez un email de confirmation.",
+        });
+
+        // Rediriger vers une page de confirmation ou revenir à la page FabLab
+        navigate('/formations/fablab', { 
+          state: { 
+            inscriptionSuccess: true,
+            inscriptionId: response.data.data.id 
+          } 
+        });
+      }
+    } catch (error: any) {
+      console.error('Erreur inscription FabLab:', error);
+      
+      const errorMessage = error.response?.data?.message || 'Erreur lors de l\'inscription. Veuillez réessayer.';
+      
+      // Traiter les erreurs de validation du backend
+      if (error.response?.status === 422 && error.response?.data?.errors) {
+        const backendErrors = error.response.data.errors;
+        setErrors(backendErrors);
+      }
+
+      toast({
+        title: "Erreur d'inscription",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-crec-dark mb-4">Inscription FabLab</h1>
-          <p className="text-gray-600">Rejoignez nos ateliers de fabrication numérique</p>
-        </div>
+    <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">
+            Inscription FabLab
+          </CardTitle>
+          <CardDescription className="text-center">
+            Remplissez ce formulaire pour vous inscrire au FabLab et accéder à nos équipements de fabrication numérique.
+          </CardDescription>
+        </CardHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Formulaire d'inscription */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Informations personnelles</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="firstName">Prénom *</Label>
-                    <Input
-                      id="firstName"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      className={errors.firstName ? "border-red-500" : ""}
-                    />
-                    {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
-                  </div>
-                  <div>
-                    <Label htmlFor="lastName">Nom *</Label>
-                    <Input
-                      id="lastName"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      className={errors.lastName ? "border-red-500" : ""}
-                    />
-                    {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
-                  </div>
-                </div>
+        <CardContent>
+          <Alert className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Assurez-vous d'avoir effectué le paiement avant de soumettre votre inscription. 
+              Le reçu de paiement est obligatoire pour valider votre inscription.
+            </AlertDescription>
+          </Alert>
 
-                <div>
-                  <Label htmlFor="email">Email *</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className={errors.email ? "border-red-500" : ""}
-                  />
-                  {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-                </div>
-
-                <div>
-                  <Label htmlFor="phone">Téléphone *</Label>
-                  <Input
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    className={errors.phone ? "border-red-500" : ""}
-                  />
-                  {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-                </div>
-
-                <div>
-                  <Label htmlFor="workshop">Formule d'abonnement*</Label>
-                  <Select onValueChange={(value) => handleSelectChange("workshop", value)}>
-                    <SelectTrigger className={errors.workshop ? "border-red-500" : ""}>
-                      <SelectValue placeholder="Sélectionnez une formule " />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {workshops.map((workshop) => (
-                        <SelectItem key={workshop.value} value={workshop.value}>
-                          {workshop.label} - {workshop.price} FCFA
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.workshop && <p className="text-red-500 text-sm mt-1">{errors.workshop}</p>}
-                </div>
-
-                <div>
-                  <Label htmlFor="paymentReceipt">Reçu de paiement *</Label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-crec-gold transition-colors">
-                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <input
-                      type="file"
-                      id="paymentReceipt"
-                      accept="image/*,.pdf"
-                      onChange={handleFileChange}
-                      className="hidden"
-                    />
-                    <label htmlFor="paymentReceipt" className="cursor-pointer">
-                      <span className="text-crec-gold font-semibold">Cliquez pour télécharger</span>
-                      <p className="text-gray-500 text-sm mt-1">
-                        {formData.paymentReceipt ? formData.paymentReceipt.name : "PNG, JPG ou PDF (max. 10MB)"}
-                      </p>
-                    </label>
-                  </div>
-                  {errors.paymentReceipt && <p className="text-red-500 text-sm mt-1">{errors.paymentReceipt}</p>}
-                </div>
-
-                <Button 
-                  type="submit" 
-                  className="w-full bg-crec-gold hover:bg-crec-gold/90"
-                  disabled={inscriptionMutation.isPending}
-                >
-                  {inscriptionMutation.isPending ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Inscription en cours...
-                    </>
-                  ) : (
-                    'Soumettre l\'inscription'
-                  )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-
-          {/* Informations de paiement */}
-          <div className="space-y-6">
-            {/* Message de service indisponible */}
-            <Card className="border-amber-200 bg-amber-50">
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
-                  <div>
-                    <h3 className="font-semibold text-amber-800 mb-2">Service de paiement en ligne temporairement indisponible</h3>
-                    <p className="text-amber-700 text-sm mb-3">
-                      Nous travaillons actuellement sur l'amélioration de notre système de paiement en ligne. 
-                      En attendant, vous pouvez effectuer votre paiement via nos comptes bancaires ou Mobile Money.
-                    </p>
-                    <p className="text-amber-700 text-sm font-medium">
-                      Veuillez utiliser les informations de paiement ci-dessous :
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="w-5 h-5" />
-                  Informations de paiement CREC
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {selectedWorkshop && (
-                  <div className="bg-crec-light p-4 rounded-lg mb-6">
-                    <h3 className="font-semibold text-crec-dark mb-2">Atelier sélectionné :</h3>
-                    <p className="text-lg font-bold text-crec-gold">{selectedWorkshop.label}</p>
-                    <p className="text-2xl font-bold text-crec-dark">{selectedWorkshop.price} FCFA</p>
-                  </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Informations personnelles */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">Prénom *</Label>
+                <Input
+                  id="firstName"
+                  value={formData.firstName}
+                  onChange={(e) => handleInputChange('firstName', e.target.value)}
+                  placeholder="Votre prénom"
+                  className={errors.firstName ? 'border-red-500' : ''}
+                  disabled={loading}
+                />
+                {errors.firstName && (
+                  <p className="text-sm text-red-500">{errors.firstName}</p>
                 )}
+              </div>
 
-                <div className="space-y-4">
-                  {paymentMethods.map((method, index) => (
-                    <div key={index} className="border rounded-lg p-4">
-                      <h3 className="font-semibold mb-3 flex items-center gap-2">
-                        {method.type === "Mobile Money" ? (
-                          <Smartphone className="w-4 h-4" />
-                        ) : (
-                          <Building className="w-4 h-4" />
-                        )}
-                        {method.type}
-                      </h3>
-                      <div className="space-y-2">
-                        {method.accounts.map((account, idx) => (
-                          <div key={idx} className="bg-gray-50 p-3 rounded text-sm">
-                            <p className="font-medium">{account.name}</p>
-                            <p className="text-gray-600">Numéro : {account.number}</p>
-                            <p className="text-gray-600">Nom : {account.account}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Nom *</Label>
+                <Input
+                  id="lastName"
+                  value={formData.lastName}
+                  onChange={(e) => handleInputChange('lastName', e.target.value)}
+                  placeholder="Votre nom"
+                  className={errors.lastName ? 'border-red-500' : ''}
+                  disabled={loading}
+                />
+                {errors.lastName && (
+                  <p className="text-sm text-red-500">{errors.lastName}</p>
+                )}
+              </div>
+            </div>
 
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mt-6">
-                  <div className="flex items-start gap-2">
-                    <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
-                    <div>
-                      <h4 className="font-semibold text-amber-800 mb-2">Instructions de paiement :</h4>
-                      <ol className="text-sm text-amber-700 space-y-1">
-                        <li>1. Effectuez le paiement via l'un des comptes ci-dessus</li>
-                        <li>2. Prenez une capture d'écran du reçu de paiement</li>
-                        <li>3. Téléchargez le reçu dans le formulaire</li>
-                        <li>4. Soumettez votre inscription</li>
-                      </ol>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  placeholder="votre.email@exemple.com"
+                  className={errors.email ? 'border-red-500' : ''}
+                  disabled={loading}
+                />
+                {errors.email && (
+                  <p className="text-sm text-red-500">{errors.email}</p>
+                )}
+              </div>
 
-      {/* Confirmation Dialog avec redirection */}
-      <SubscriptionConfirmation
-        isOpen={showConfirmation}
-        onClose={() => setShowConfirmation(false)}
-        subscriptionType="fablab"
-        planName={selectedWorkshop?.label || "FabLab"}
-        userEmail={formData.email}
-      />
+              <div className="space-y-2">
+                <Label htmlFor="phone">Téléphone *</Label>
+                <Input
+                  id="phone"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  placeholder="+229 XX XX XX XX"
+                  className={errors.phone ? 'border-red-500' : ''}
+                  disabled={loading}
+                />
+                {errors.phone && (
+                  <p className="text-sm text-red-500">{errors.phone}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Formule d'abonnement */}
+            <div className="space-y-2">
+              <Label htmlFor="workshop">Formule d'abonnement *</Label>
+              <Select
+                value={formData.workshop}
+                onValueChange={(value) => handleInputChange('workshop', value)}
+                disabled={loading}
+              >
+                <SelectTrigger className={errors.workshop ? 'border-red-500' : ''}>
+                  <SelectValue placeholder="Sélectionnez une formule" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Abonnement Etudiant">
+                    Abonnement Étudiant
+                  </SelectItem>
+                  <SelectItem value="Abonnement Professionel">
+                    Abonnement Professionnel
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.workshop && (
+                <p className="text-sm text-red-500">{errors.workshop}</p>
+              )}
+            </div>
+
+            {/* Expérience */}
+            <div className="space-y-2">
+              <Label htmlFor="experience">Expérience préalable (optionnel)</Label>
+              <Textarea
+                id="experience"
+                value={formData.experience}
+                onChange={(e) => handleInputChange('experience', e.target.value)}
+                placeholder="Décrivez votre expérience avec les outils de fabrication numérique..."
+                rows={3}
+                disabled={loading}
+              />
+            </div>
+
+            {/* Motivation */}
+            <div className="space-y-2">
+              <Label htmlFor="motivation">Motivation (optionnel)</Label>
+              <Textarea
+                id="motivation"
+                value={formData.motivation}
+                onChange={(e) => handleInputChange('motivation', e.target.value)}
+                placeholder="Pourquoi souhaitez-vous rejoindre le FabLab ?"
+                rows={3}
+                disabled={loading}
+              />
+            </div>
+
+            {/* Reçu de paiement */}
+            <div className="space-y-2">
+              <Label>Reçu de paiement *</Label>
+              <DocumentFileUpload
+                onFileChange={handleFileChange}
+                accept={{
+                  'image/*': ['.jpg', '.jpeg', '.png'],
+                  'application/pdf': ['.pdf']
+                }}
+                maxSize={10 * 1024 * 1024} // 10MB
+                description="Téléchargez votre reçu de paiement (JPG, PNG ou PDF, max 10MB)"
+                disabled={loading}
+              />
+              {errors.paymentReceipt && (
+                <p className="text-sm text-red-500">{errors.paymentReceipt}</p>
+              )}
+            </div>
+
+            {/* Boutons */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-6">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate('/formations/fablab')}
+                disabled={loading}
+                className="flex-1"
+              >
+                Annuler
+              </Button>
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="flex-1"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Soumission en cours...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Soumettre l'inscription
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };

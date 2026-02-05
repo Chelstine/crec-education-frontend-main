@@ -1,414 +1,405 @@
+// src/pages/formations/OpenFormationsInscriptionPage.tsx
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-/* ====== COMMENTAIRES PÉDAGOGIQUES ====== */
-/*
- * OBJECTIF D'APPRENTISSAGE :
- * Ce fichier illustre l'architecture React moderne avec TypeScript
- * 
- * CONCEPTS COUVERTS :
- * - Organisation et structure des imports React
- * - Typage TypeScript avec interfaces et types
- * - Hooks React (useState, useEffect, hooks personnalisés)
- * - Gestion d'état local et global
- * - Composition de composants et props
- * - Navigation avec React Router
- * - Patterns de développement modernes
- * 
- * STRUCTURE RECOMMANDÉE :
- * 1. Imports organisés par catégorie (React, Navigation, UI, etc.)
- * 2. Définition des types et interfaces TypeScript
- * 3. Composant principal avec logique métier
- * 4. Fonctions utilitaires et handlers d'événements
- * 5. Rendu JSX avec structure sémantique HTML
- */
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
-import { Upload, CreditCard, Smartphone, Building, AlertCircle, BookOpen, CheckCircle, Loader2 } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
-import { InscriptionForm } from "@/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "@/hooks/use-toast";
+import { Loader2, Upload, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import inscriptionService, { FormationInscriptionData } from '@/services/inscription-service';
+import formationService, { Formation } from '@/services/formation-service';
+import { DocumentFileUpload } from '@/components/common/DocumentFileUpload';
 
 
-const OpenFormationsInscriptionPage = () => {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    formation: "",
-    level: "",
-    motivation: "",
-    paymentReceipt: null as File | null
+
+const levelOptions = {
+  'debutant': 'Débutant',
+  'intermediaire': 'Intermédiaire',
+  'avance': 'Avancé'
+};
+
+const OpenFormationsInscriptionPage: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const selectedFormation = location.state?.selectedFormation;
+
+
+  const [loading, setLoading] = useState(false);
+  const [formationsLoading, setFormationsLoading] = useState(true);
+  const [formations, setFormations] = useState<{slug: string, name: string}[]>([]);
+  const [formData, setFormData] = useState<Omit<FormationInscriptionData, 'paymentReceipt' | 'formation'> & { formation_slug: string; paymentReceipt?: File }>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    formation_slug: selectedFormation || '',
+    level: 'debutant',
+    motivation: '',
+    paymentReceipt: undefined
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [showSuccess, setShowSuccess] = useState(false);
-  
-  const handleInscriptionSuccess = () => {
-    setShowSuccess(true);
-  };
-  
-  const inscriptionMutation = useMutation({
-    mutationFn: async (data: any) => {
-      // Simuler un appel API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return { success: true, message: "Inscription envoyée avec succès" };
-    },
-    onSuccess: handleInscriptionSuccess
-  });
 
-  const formations = [
-    { value: "anglais", label: "Anglais", price: "15,000" },
-    { value: "francais", label: "Français", price: "12,000" },
-    { value: "informatique", label: "Informatique de base", price: "20,000" },
-    { value: "bureautique", label: "Bureautique (Word, Excel, PowerPoint)", price: "18,000" },
-    { value: "accompagnement", label: "Accompagnement scolaire", price: "10,000" },
-    { value: "entrepreneuriat", label: "Entrepreneuriat", price: "25,000" }
-  ];
-
-  const paymentMethods = [
-    {
-      type: "Mobile Money",
-      accounts: [
-        { name: "Orange Money", number: "62 05 05 05", account: "CREC BENIN" },
-        { name: "MTN MoMo", number: "96 00 00 00", account: "CREC BENIN" }
-      ]
-    },
-    {
-      type: "Banque",
-      accounts: [
-        { name: "Bank of Africa (BOA)", number: "10000 00001 123456789 15", account: "CENTRE DE RECHERCHE D'ETUDE ET DE CREATIVITE" },
-        { name: "Ecobank Bénin", number: "05290000123456", account: "CENTRE DE RECHERCHE D'ETUDE ET DE CREATIVITE" }
-      ]
-    }
-  ];
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
-    }
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormData(prev => ({ ...prev, paymentReceipt: file }));
-      if (errors.paymentReceipt) {
-        setErrors(prev => ({ ...prev, paymentReceipt: "" }));
+  // Charger les formations ouvertes disponibles
+  useEffect(() => {
+    const loadFormations = async () => {
+      try {
+        setFormationsLoading(true);
+        const formationsData = await formationService.getFormationsByType('open');
+        const formationOptions = formationsData.map(f => ({
+          slug: f.slug,
+          name: f.title || f.slug
+        }));
+        setFormations(formationOptions);
+        
+        // Si aucune formation sélectionnée et qu'il y en a, prendre la première
+        if (!selectedFormation && formationOptions.length > 0) {
+          setFormData(prev => ({ ...prev, formation_slug: formationOptions[0].slug }));
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des formations:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les formations disponibles.",
+          variant: "destructive",
+        });
+        // Fallback: liste statique en cas d'erreur avec les slugs corrects du backend
+        const fallbackFormations = [
+          { slug: 'anglais', name: 'Anglais' },
+          { slug: 'francais', name: 'Français' },
+          { slug: 'informatique', name: 'Informatique de base' },
+          { slug: 'bureautique', name: 'Bureautique (Word, Excel, PowerPoint)' },
+          { slug: 'accompagnement', name: 'Accompagnement scolaire' },
+          { slug: 'entrepreneuriat', name: 'Entrepreneuriat' }
+        ];
+        setFormations(fallbackFormations);
+        setFormData(prev => ({ ...prev, formation_slug: fallbackFormations[0].slug }));
+      } finally {
+        setFormationsLoading(false);
       }
-    }
-  };
+    };
 
-  const validateForm = () => {
+    loadFormations();
+  }, [selectedFormation]);
+
+  const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.firstName.trim()) newErrors.firstName = "Le prénom est requis";
-    if (!formData.lastName.trim()) newErrors.lastName = "Le nom est requis";
-    if (!formData.email.trim()) newErrors.email = "L'email est requis";
-    if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Format d'email invalide";
-    if (!formData.phone.trim()) newErrors.phone = "Le téléphone est requis";
-    if (!formData.formation) newErrors.formation = "Veuillez sélectionner une formation";
-    if (!formData.paymentReceipt) newErrors.paymentReceipt = "Le reçu de paiement est requis";
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'Le prénom est requis.';
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Le nom est requis.';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'L\'email est requis.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Le format de l\'email est invalide.';
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Le téléphone est requis.';
+    }
+
+    if (!formData.formation_slug) {
+      newErrors.formation_slug = 'Veuillez sélectionner une formation.';
+    }
+
+    if (!formData.paymentReceipt) {
+      newErrors.paymentReceipt = 'Le reçu de paiement est requis.';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validateForm()) {
-      // On envoie les données du formulaire sans typage strict
-      try {
-        const inscriptionData: InscriptionForm = {
-          name: `${formData.firstName} ${formData.lastName}`,
-          email: formData.email,
-          formation: formData.formation // Utilise le nom correct de propriété
-        };
-        await inscriptionMutation.mutateAsync(inscriptionData);
-        setFormData({
-          firstName: "",
-          lastName: "",
-          email: "",
-          phone: "",
-          formation: "",
-          level: "",
-          motivation: "",
-          paymentReceipt: null
-        });
-      } catch (error) {
-        // L'erreur est gérée par le hook
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  }
+
+  const handleFileChange = (file: File | null) => {
+    if (file) {
+      setFormData(prev => ({ ...prev, paymentReceipt: file }));
+      if (errors.paymentReceipt) {
+        setErrors(prev => ({ ...prev, paymentReceipt: '' }));
       }
+    } else {
+      setFormData(prev => ({ ...prev, paymentReceipt: undefined }));
     }
   };
 
-  const selectedFormation = formations.find(f => f.value === formData.formation);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      toast({
+        title: "Erreur de validation",
+        description: "Veuillez corriger les erreurs dans le formulaire.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.paymentReceipt) {
+      toast({
+        title: "Erreur",
+        description: "Le reçu de paiement est requis.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const inscriptionData: FormationInscriptionData = {
+        ...formData,
+        paymentReceipt: formData.paymentReceipt
+      };
+
+      const response = await inscriptionService.submitFormationInscription(inscriptionData);
+
+      if (response.data.success) {
+        toast({
+          title: "Inscription soumise !",
+          description: "Votre inscription a été soumise avec succès. Vous recevrez un email de confirmation.",
+        });
+
+        navigate('/formations/open-formations', { 
+          state: { 
+            inscriptionSuccess: true,
+            inscriptionId: response.data.data.id,
+            formation: response.data.data.formation
+          } 
+        });
+      }
+    } catch (error: any) {
+      console.error('Erreur inscription Formation:', error);
+      
+      const errorMessage = error.response?.data?.message || 'Erreur lors de l\'inscription. Veuillez réessayer.';
+      
+      if (error.response?.status === 422 && error.response?.data?.errors) {
+        const backendErrors = error.response.data.errors;
+        setErrors(backendErrors);
+      }
+
+      toast({
+        title: "Erreur d'inscription",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-crec-dark mb-4 flex items-center justify-center gap-3">
-            <BookOpen className="w-8 h-8 text-crec-gold" />
-            Inscription Formations Ouvertes
-          </h1>
-          <p className="text-gray-600">Développez vos compétences avec nos formations continues</p>
-        </div>
+    <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">
+            Inscription Formation
+          </CardTitle>
+          <CardDescription className="text-center">
+            Inscrivez-vous à nos formations pour développer vos compétences.
+          </CardDescription>
+        </CardHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Formulaire d'inscription */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Informations personnelles</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="firstName">Prénom *</Label>
-                    <Input
-                      id="firstName"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      className={errors.firstName ? "border-red-500" : ""}
-                    />
-                    {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
-                  </div>
-                  <div>
-                    <Label htmlFor="lastName">Nom *</Label>
-                    <Input
-                      id="lastName"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      className={errors.lastName ? "border-red-500" : ""}
-                    />
-                    {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
-                  </div>
-                </div>
+        <CardContent>
+          <Alert className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Assurez-vous d'avoir effectué le paiement avant de soumettre votre inscription. 
+              Le reçu de paiement est obligatoire pour valider votre inscription.
+            </AlertDescription>
+          </Alert>
 
-                <div>
-                  <Label htmlFor="email">Email *</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className={errors.email ? "border-red-500" : ""}
-                  />
-                  {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-                </div>
-
-                <div>
-                  <Label htmlFor="phone">Téléphone *</Label>
-                  <Input
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    className={errors.phone ? "border-red-500" : ""}
-                  />
-                  {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-                </div>
-
-                <div>
-                  <Label htmlFor="formation">Formation *</Label>
-                  <Select onValueChange={(value) => handleSelectChange("formation", value)}>
-                    <SelectTrigger className={errors.formation ? "border-red-500" : ""}>
-                      <SelectValue placeholder="Sélectionnez une formation" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {formations.map((formation) => (
-                        <SelectItem key={formation.value} value={formation.value}>
-                          {formation.label} - {formation.price} FCFA
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.formation && <p className="text-red-500 text-sm mt-1">{errors.formation}</p>}
-                </div>
-
-                <div>
-                  <Label htmlFor="level">Niveau actuel</Label>
-                  <Select onValueChange={(value) => handleSelectChange("level", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez votre niveau" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="debutant">Débutant</SelectItem>
-                      <SelectItem value="intermediaire">Intermédiaire</SelectItem>
-                      <SelectItem value="avance">Avancé</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="motivation">Motivation (optionnel)</Label>
-                  <Textarea
-                    id="motivation"
-                    name="motivation"
-                    value={formData.motivation}
-                    onChange={handleInputChange}
-                    placeholder="Pourquoi souhaitez-vous suivre cette formation ?"
-                    rows={3}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="paymentReceipt">Reçu de paiement *</Label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-crec-gold transition-colors">
-                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <input
-                      type="file"
-                      id="paymentReceipt"
-                      accept="image/*,.pdf"
-                      onChange={handleFileChange}
-                      className="hidden"
-                    />
-                    <label htmlFor="paymentReceipt" className="cursor-pointer">
-                      <span className="text-crec-gold font-semibold">Cliquez pour télécharger</span>
-                      <p className="text-gray-500 text-sm mt-1">
-                        {formData.paymentReceipt ? formData.paymentReceipt.name : "PNG, JPG ou PDF (max. 10MB)"}
-                      </p>
-                    </label>
-                  </div>
-                  {errors.paymentReceipt && <p className="text-red-500 text-sm mt-1">{errors.paymentReceipt}</p>}
-                </div>
-
-                <Button 
-                  type="submit" 
-                  className="w-full bg-crec-gold hover:bg-crec-gold/90 text-black"
-                  disabled={inscriptionMutation.isPending}
-                >
-                  {inscriptionMutation.isPending ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Inscription en cours...
-                    </>
-                  ) : (
-                    "Soumettre l'inscription"
-                  )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-
-          {/* Informations de paiement */}
-          <div className="space-y-6">
-            {/* Message de service indisponible */}
-            <Card className="border-amber-200 bg-amber-50">
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
-                  <div>
-                    <h3 className="font-semibold text-amber-800 mb-2">Service de paiement en ligne temporairement indisponible</h3>
-                    <p className="text-amber-700 text-sm mb-3">
-                      Nous travaillons actuellement sur l'amélioration de notre système de paiement en ligne. 
-                      En attendant, vous pouvez effectuer votre paiement via nos comptes bancaires ou Mobile Money.
-                    </p>
-                    <p className="text-amber-700 text-sm font-medium">
-                      Veuillez utiliser les informations de paiement ci-dessous :
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="w-5 h-5" />
-                  Informations de paiement CREC
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {selectedFormation && (
-                  <div className="bg-crec-light p-4 rounded-lg mb-6">
-                    <h3 className="font-semibold text-crec-dark mb-2">Formation sélectionnée :</h3>
-                    <p className="text-lg font-bold text-crec-gold">{selectedFormation.label}</p>
-                    <p className="text-2xl font-bold text-crec-dark">{selectedFormation.price} FCFA</p>
-                  </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Informations personnelles */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">Prénom *</Label>
+                <Input
+                  id="firstName"
+                  value={formData.firstName}
+                  onChange={(e) => handleInputChange('firstName', e.target.value)}
+                  placeholder="Votre prénom"
+                  className={errors.firstName ? 'border-red-500' : ''}
+                  disabled={loading}
+                />
+                {errors.firstName && (
+                  <p className="text-sm text-red-500">{errors.firstName}</p>
                 )}
+              </div>
 
-                <div className="space-y-4">
-                  {paymentMethods.map((method, index) => (
-                    <div key={index} className="border rounded-lg p-4">
-                      <h3 className="font-semibold mb-3 flex items-center gap-2">
-                        {method.type === "Mobile Money" ? (
-                          <Smartphone className="w-4 h-4" />
-                        ) : (
-                          <Building className="w-4 h-4" />
-                        )}
-                        {method.type}
-                      </h3>
-                      <div className="space-y-2">
-                        {method.accounts.map((account, idx) => (
-                          <div key={idx} className="bg-gray-50 p-3 rounded text-sm">
-                            <p className="font-medium">{account.name}</p>
-                            <p className="text-gray-600">Numéro : {account.number}</p>
-                            <p className="text-gray-600">Nom : {account.account}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Nom *</Label>
+                <Input
+                  id="lastName"
+                  value={formData.lastName}
+                  onChange={(e) => handleInputChange('lastName', e.target.value)}
+                  placeholder="Votre nom"
+                  className={errors.lastName ? 'border-red-500' : ''}
+                  disabled={loading}
+                />
+                {errors.lastName && (
+                  <p className="text-sm text-red-500">{errors.lastName}</p>
+                )}
+              </div>
+            </div>
 
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mt-6">
-                  <div className="flex items-start gap-2">
-                    <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
-                    <div>
-                      <h4 className="font-semibold text-amber-800 mb-2">Instructions de paiement :</h4>
-                      <ol className="text-sm text-amber-700 space-y-1">
-                        <li>1. Effectuez le paiement via l'un des comptes ci-dessus</li>
-                        <li>2. Prenez une capture d'écran du reçu de paiement</li>
-                        <li>3. Téléchargez le reçu dans le formulaire</li>
-                        <li>4. Soumettez votre inscription</li>
-                      </ol>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  placeholder="votre.email@exemple.com"
+                  className={errors.email ? 'border-red-500' : ''}
+                  disabled={loading}
+                />
+                {errors.email && (
+                  <p className="text-sm text-red-500">{errors.email}</p>
+                )}
+              </div>
 
-            
-      
-      {/* Modal de confirmation de succès */}
-      {showSuccess && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg max-w-md w-full mx-4">
-            <div className="text-center">
-              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Inscription soumise avec succès !</h3>
-              <p className="text-gray-600 mb-6">
-                Votre inscription a été envoyée à notre équipe. Nous examinerons votre dossier et vous contacterons sous 48h pour confirmer le début de votre formation.
-              </p>
-              <Button 
-                onClick={() => setShowSuccess(false)}
-                className="w-full bg-crec-gold hover:bg-crec-gold/90 text-black"
+              <div className="space-y-2">
+                <Label htmlFor="phone">Téléphone *</Label>
+                <Input
+                  id="phone"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  placeholder="+229 XX XX XX XX"
+                  className={errors.phone ? 'border-red-500' : ''}
+                  disabled={loading}
+                />
+                {errors.phone && (
+                  <p className="text-sm text-red-500">{errors.phone}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Formation et niveau */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="formation_slug">Formation *</Label>
+                <Select
+                  value={formData.formation_slug}
+                  onValueChange={(value) => handleInputChange('formation_slug', value)}
+                  disabled={loading || formationsLoading || formations.length === 0}
+                >
+                  <SelectTrigger className={errors.formation_slug ? 'border-red-500' : ''}>
+                    <SelectValue placeholder="Sélectionnez une formation" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {formations.map((formation) => (
+                      <SelectItem key={formation.slug} value={formation.slug}>
+                        {formation.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.formation_slug && (
+                  <p className="text-sm text-red-500">{errors.formation_slug}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="level">Niveau (optionnel)</Label>
+                <Select
+                  value={formData.level}
+                  onValueChange={(value) => handleInputChange('level', value)}
+                  disabled={loading}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionnez votre niveau" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(levelOptions).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Motivation */}
+            <div className="space-y-2">
+              <Label htmlFor="motivation">Motivation (optionnel)</Label>
+              <Textarea
+                id="motivation"
+                value={formData.motivation}
+                onChange={(e) => handleInputChange('motivation', e.target.value)}
+                placeholder="Pourquoi souhaitez-vous suivre cette formation ?"
+                rows={3}
+                disabled={loading}
+              />
+            </div>
+
+            {/* Reçu de paiement */}
+            <div className="space-y-2">
+              <Label>Reçu de paiement *</Label>
+              <DocumentFileUpload
+                onFileChange={handleFileChange}
+                accept={{
+                  'image/*': ['.jpg', '.jpeg', '.png'],
+                  'application/pdf': ['.pdf']
+                }}
+                maxSize={10 * 1024 * 1024} // 10MB
+                description="Téléchargez votre reçu de paiement (JPG, PNG ou PDF, max 10MB)"
+                disabled={loading}
+              />
+              {errors.paymentReceipt && (
+                <p className="text-sm text-red-500">{errors.paymentReceipt}</p>
+              )}
+            </div>
+
+            {/* Boutons */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-6">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate('/formations/open-formations')}
+                disabled={loading}
+                className="flex-1"
               >
-                Continuer
+                Annuler
+              </Button>
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="flex-1"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Soumission en cours...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Soumettre l'inscription
+                  </>
+                )}
               </Button>
             </div>
-          </div>
-        </div>
-      )}
-            </div>
-        </div>
-      </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };

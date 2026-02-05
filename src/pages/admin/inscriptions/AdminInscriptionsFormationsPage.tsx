@@ -1,568 +1,614 @@
+// src/pages/admin/inscriptions/AdminInscriptionsFormationsPage.tsx
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/components/ui/use-toast';
-import { useApi } from '@/hooks/useApi';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogFooter, 
-  DialogHeader, 
-  DialogTitle 
-} from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { 
   Eye, 
-  Check, 
-  X, 
-  FileText, 
-  Mail, 
+  CheckCircle, 
+  XCircle, 
+  Download, 
+  Filter,
   Search,
-  DollarSign
-} from 'lucide-react';
-import { format } from 'date-fns';
-
-interface FormationInscription {
-  id: string;
-  participantName: string;
-  email: string;
-  phone: string;
-  formationTitle: string;
-  formationType: string;
-  level: string;
-  motivation: string;
-  paymentMethod: string;
-  paymentReference?: string;
-  paymentStatus: 'pending' | 'paid' | 'failed';
-  paymentAmount: number;
-  documents: Array<{
-    id: string;
-    name: string;
-    url: string;
-    type: string;
-  }>;
-  status: 'pending' | 'approved' | 'rejected';
-  submittedAt: string;
-  reviewedAt?: string;
-  reviewedBy?: string;
-  notes?: string;
-}
+  Calendar,
+  User,
+  Mail,
+  Phone,
+  BookOpen,
+  TrendingUp
+} from "lucide-react";
+import { toast } from "sonner";
+import inscriptionService, { FormationInscription } from "@/services/inscription-service";
 
 const AdminInscriptionsFormationsPage: React.FC = () => {
   const [inscriptions, setInscriptions] = useState<FormationInscription[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedInscription, setSelectedInscription] = useState<FormationInscription | null>(null);
-  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
-  const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [currentTab, setCurrentTab] = useState('pending');
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [adminNotes, setAdminNotes] = useState('');
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [processing, setProcessing] = useState(false);
   
-  const { toast } = useToast();
-  const { get, put } = useApi();
+  // Filtres
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [formationFilter, setFormationFilter] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  // Charger les inscriptions aux formations ouvertes
+  const formationNames = {
+    'anglais': 'Anglais',
+    'francais': 'Français',
+    'informatique': 'Informatique de base',
+    'bureautique': 'Bureautique (Word, Excel, PowerPoint)',
+    'accompagnement': 'Accompagnement scolaire',
+    'entrepreneuriat': 'Entrepreneuriat'
+  };
+
+  const levelNames = {
+    'debutant': 'Débutant',
+    'intermediaire': 'Intermédiaire',
+    'avance': 'Avancé'
+  };
+
   useEffect(() => {
-    const loadInscriptions = async () => {
-      try {
-        const response = await get('/api/admin/inscriptions/formations');
-        setInscriptions(response.data || []);
-      } catch (error) {
-        console.error('Erreur lors du chargement:', error);
-        // Utiliser des données par défaut
-        setInscriptions([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchInscriptions();
+  }, [currentPage, statusFilter, formationFilter]);
 
-    loadInscriptions();
-  }, [get, toast]);
-
-  // Filtrer les inscriptions
-  const filteredInscriptions = inscriptions.filter(inscription => {
-    // Filtre par onglet
-    if (currentTab !== 'all' && inscription.status !== currentTab) {
-      return false;
-    }
-
-    // Filtre par terme de recherche
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      return (
-        inscription.participantName.toLowerCase().includes(term) ||
-        inscription.email.toLowerCase().includes(term) ||
-        inscription.formationTitle.toLowerCase().includes(term)
-      );
-    }
-
-    return true;
-  });
-
-  // Approuver une inscription
-  const handleApprove = async (inscription: FormationInscription) => {
+  const fetchInscriptions = async () => {
     try {
-      await put(`/api/admin/inscriptions/formations/${inscription.id}/approve`, {
-        status: 'approved',
-        reviewedAt: new Date().toISOString(),
-        sendEmail: true,
-      });
-
-      setInscriptions(prev => 
-        prev.map(item => 
-          item.id === inscription.id 
-            ? { ...item, status: 'approved' as const, reviewedAt: new Date().toISOString() }
-            : item
-        )
-      );
-
-      toast({
-        title: "Inscription approuvée",
-        description: `L'inscription de ${inscription.participantName} a été approuvée avec succès.`,
-      });
+      setLoading(true);
+      const params: any = {
+        page: currentPage,
+        per_page: 15,
+        ...(statusFilter !== 'all' && { status: statusFilter as any }),
+        ...(formationFilter !== 'all' && { formation: formationFilter })
+      };
+      const response = await inscriptionService.getInscriptionsByType('formations', params);
+      if (response.success) {
+        setInscriptions(response.data.data as FormationInscription[]);
+        setTotalPages(response.data.last_page);
+      } else {
+        setInscriptions([]);
+        setTotalPages(1);
+        toast.error('Erreur lors du chargement des inscriptions');
+      }
     } catch (error) {
-      console.error('Erreur lors de l\'approbation:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible d'approuver cette inscription",
-        variant: "destructive",
-      });
+      console.error('Erreur lors du chargement des inscriptions:', error);
+      toast.error('Erreur lors du chargement des inscriptions');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Refuser une inscription
-  const handleReject = async (inscription: FormationInscription, reason: string) => {
+  const handleViewDetails = (inscription: FormationInscription) => {
+    setSelectedInscription(inscription);
+    setShowDetailsModal(true);
+  };
+
+  const handleApprove = (inscription: FormationInscription) => {
+    setSelectedInscription(inscription);
+    setAdminNotes('');
+    setShowApproveModal(true);
+  };
+
+  const handleReject = (inscription: FormationInscription) => {
+    setSelectedInscription(inscription);
+    setAdminNotes('');
+    setRejectionReason('');
+    setShowRejectModal(true);
+  };
+
+  const handleDownloadReceipt = (inscription: FormationInscription) => {
+    const baseUrl = import.meta.env?.VITE_API_URL || 'http://localhost:8000/api';
+    // Extraire le type et le nom du fichier depuis le chemin
+    const pathParts = inscription.payment_receipt_path.split('/');
+    const filename = pathParts[pathParts.length - 1];
+    const type = pathParts.includes('fablab') ? 'fablab' : 'formations';
+    
+    window.open(`${baseUrl}/download/receipt/${type}/${filename}`, '_blank');
+  };
+
+  const confirmApproval = async () => {
+    if (!selectedInscription) return;
     try {
-      await put(`/api/admin/inscriptions/formations/${inscription.id}/reject`, {
-        status: 'rejected',
-        reviewedAt: new Date().toISOString(),
-        notes: reason,
-        rejectionReason: reason,
-        sendEmail: true,
-      });
-
-      setInscriptions(prev => 
-        prev.map(item => 
-          item.id === inscription.id 
-            ? { 
-                ...item, 
-                status: 'rejected' as const, 
-                reviewedAt: new Date().toISOString(),
-                notes: reason
-              }
-            : item
-        )
-      );
-
-      toast({
-        title: "Inscription refusée",
-        description: `L'inscription de ${inscription.participantName} a été refusée.`,
-      });
+      setProcessing(true);
+      const response = await inscriptionService.approveInscription('formations', selectedInscription.id, adminNotes);
+      if (response.success) {
+        toast.success('Inscription approuvée avec succès !');
+        setShowApproveModal(false);
+        fetchInscriptions();
+      } else {
+        toast.error(response.message || 'Erreur lors de l\'approbation');
+      }
     } catch (error) {
-      console.error('Erreur lors du refus:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de refuser cette inscription",
-        variant: "destructive",
-      });
+      console.error('Erreur lors de l\'approbation:', error);
+      toast.error('Erreur lors de l\'approbation');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const confirmRejection = async () => {
+    if (!selectedInscription || !rejectionReason.trim()) {
+      toast.error('Veuillez spécifier une raison de rejet');
+      return;
+    }
+    try {
+      setProcessing(true);
+      const response = await inscriptionService.rejectInscription('formations', selectedInscription.id, rejectionReason, adminNotes);
+      if (response.success) {
+        toast.success('Inscription rejetée avec succès !');
+        setShowRejectModal(false);
+        fetchInscriptions();
+      } else {
+        toast.error(response.message || 'Erreur lors du rejet');
+      }
+    } catch (error) {
+      console.error('Erreur lors du rejet:', error);
+      toast.error('Erreur lors du rejet');
+    } finally {
+      setProcessing(false);
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'pending':
-        return <Badge variant="outline" className="bg-yellow-100 text-yellow-800">En attente</Badge>;
       case 'approved':
-        return <Badge variant="outline" className="bg-green-100 text-green-800">Approuvé</Badge>;
+        return <Badge className="bg-green-100 text-green-800">Approuvée</Badge>;
       case 'rejected':
-        return <Badge variant="outline" className="bg-red-100 text-red-800">Refusé</Badge>;
+        return <Badge className="bg-red-100 text-red-800">Rejetée</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge className="bg-yellow-100 text-yellow-800">En attente</Badge>;
     }
   };
 
-  const getPaymentStatusBadge = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return <Badge variant="outline" className="bg-yellow-100 text-yellow-800">En attente</Badge>;
-      case 'paid':
-        return <Badge variant="outline" className="bg-green-100 text-green-800">Payé</Badge>;
-      case 'failed':
-        return <Badge variant="outline" className="bg-red-100 text-red-800">Échoué</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
+  const filteredInscriptions = inscriptions.filter(inscription => {
+    const matchesSearch = searchTerm === '' || 
+      inscription.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      inscription.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      inscription.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      inscription.phone.includes(searchTerm);
+    
+    return matchesSearch;
+  });
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="space-y-6">
+      {/* En-tête */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Gestion des Inscriptions - Formations</h1>
+          <p className="text-gray-600">Gérez les demandes d'inscription aux formations ouvertes</p>
+        </div>
+      </div>
+
+      {/* Filtres et recherche */}
       <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle>Validation des Inscriptions Formations Ouvertes</CardTitle>
-              <CardDescription>
-                Gérer et valider les inscriptions aux formations ouvertes
-              </CardDescription>
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Rechercher..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
             </div>
-            <div className="flex gap-2">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Rechercher..."
-                  className="pl-8"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
+            
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filtrer par statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les statuts</SelectItem>
+                <SelectItem value="pending">En attente</SelectItem>
+                <SelectItem value="approved">Approuvées</SelectItem>
+                <SelectItem value="rejected">Rejetées</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={formationFilter} onValueChange={setFormationFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filtrer par formation" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes les formations</SelectItem>
+                <SelectItem value="anglais">Anglais</SelectItem>
+                <SelectItem value="francais">Français</SelectItem>
+                <SelectItem value="informatique">Informatique</SelectItem>
+                <SelectItem value="bureautique">Bureautique</SelectItem>
+                <SelectItem value="accompagnement">Accompagnement scolaire</SelectItem>
+                <SelectItem value="entrepreneuriat">Entrepreneuriat</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Button 
+              variant="outline" 
+              onClick={fetchInscriptions}
+              className="flex items-center gap-2"
+            >
+              <Filter className="h-4 w-4" />
+              Actualiser
+            </Button>
           </div>
-        </CardHeader>
-
-        <CardContent>
-          <Tabs value={currentTab} onValueChange={setCurrentTab}>
-            <TabsList className="mb-4">
-              <TabsTrigger value="pending">En attente ({filteredInscriptions.filter(i => i.status === 'pending').length})</TabsTrigger>
-              <TabsTrigger value="approved">Approuvés ({filteredInscriptions.filter(i => i.status === 'approved').length})</TabsTrigger>
-              <TabsTrigger value="rejected">Refusés ({filteredInscriptions.filter(i => i.status === 'rejected').length})</TabsTrigger>
-              <TabsTrigger value="all">Tous ({filteredInscriptions.length})</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value={currentTab}>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Participant</TableHead>
-                      <TableHead>Formation</TableHead>
-                      <TableHead>Niveau</TableHead>
-                      <TableHead>Paiement</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Statut</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredInscriptions.length > 0 ? (
-                      filteredInscriptions.map((inscription) => (
-                        <TableRow key={inscription.id}>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">{inscription.participantName}</div>
-                              <div className="text-sm text-gray-500">{inscription.email}</div>
-                              <div className="text-sm text-gray-500">{inscription.phone}</div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">{inscription.formationTitle}</div>
-                              <div className="text-sm text-gray-500">{inscription.formationType}</div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline">{inscription.level}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="space-y-1">
-                              {getPaymentStatusBadge(inscription.paymentStatus)}
-                              <div className="flex items-center text-sm text-gray-500">
-                                <DollarSign className="mr-1 h-3 w-3" />
-                                ${inscription.paymentAmount}
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                {inscription.paymentMethod}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {format(new Date(inscription.submittedAt), 'dd/MM/yyyy HH:mm')}
-                          </TableCell>
-                          <TableCell>{getStatusBadge(inscription.status)}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedInscription(inscription);
-                                  setIsViewDialogOpen(true);
-                                }}
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedInscription(inscription);
-                                  setIsEmailDialogOpen(true);
-                                }}
-                              >
-                                <Mail className="h-4 w-4" />
-                              </Button>
-
-                              {inscription.status === 'pending' && (
-                                <>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="text-green-600 hover:text-green-700"
-                                    onClick={() => handleApprove(inscription)}
-                                  >
-                                    <Check className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="text-red-600 hover:text-red-700"
-                                    onClick={() => handleReject(inscription, 'Inscription refusée par l\'administrateur')}
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </>
-                              )}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center py-4">
-                          Aucune inscription trouvée.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </TabsContent>
-          </Tabs>
         </CardContent>
       </Card>
 
-      {/* Dialog de visualisation */}
-      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      {/* Tableau des inscriptions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Inscriptions aux Formations ({filteredInscriptions.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Candidat</TableHead>
+                  <TableHead>Formation</TableHead>
+                  <TableHead>Niveau</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Statut</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredInscriptions.map((inscription) => (
+                  <TableRow key={inscription.id}>
+                    <TableCell>
+                      <div className="font-medium">
+                        {inscription.firstName} {inscription.lastName}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <BookOpen className="h-4 w-4 text-blue-500" />
+                        {formationNames[inscription.formation as keyof typeof formationNames] || inscription.formation}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {inscription.level ? (
+                        <Badge variant="outline">
+                          {levelNames[inscription.level as keyof typeof levelNames] || inscription.level}
+                        </Badge>
+                      ) : (
+                        <span className="text-gray-500">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        <div className="flex items-center gap-1">
+                          <Mail className="h-3 w-3" />
+                          {inscription.email}
+                        </div>
+                        <div className="flex items-center gap-1 text-gray-500">
+                          <Phone className="h-3 w-3" />
+                          {inscription.phone}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1 text-sm">
+                        <Calendar className="h-3 w-3" />
+                        {new Date(inscription.created_at).toLocaleDateString('fr-FR')}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {getStatusBadge(inscription.status)}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewDetails(inscription)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDownloadReceipt(inscription)}
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                        {inscription.status === 'pending' && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleApprove(inscription)}
+                              className="text-green-600 hover:text-green-700"
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleReject(inscription)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <XCircle className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center gap-2 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                Précédent
+              </Button>
+              <span className="flex items-center px-4">
+                Page {currentPage} sur {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Suivant
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Modal Détails */}
+      <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Détails de l'inscription Formation</DialogTitle>
+            <DialogTitle>Détails de l'inscription</DialogTitle>
             <DialogDescription>
-              Informations complètes sur l'inscription de {selectedInscription?.participantName}
+              Informations complètes sur la demande d'inscription
             </DialogDescription>
           </DialogHeader>
-
+          
           {selectedInscription && (
             <div className="space-y-6">
               {/* Informations personnelles */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Informations personnelles</CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-4">
+              <div>
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Informations personnelles
+                </h3>
+                <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
                   <div>
-                    <label className="text-sm font-medium">Nom complet</label>
-                    <p>{selectedInscription.participantName}</p>
+                    <span className="font-medium">Nom complet:</span>
+                    <p>{selectedInscription.firstName} {selectedInscription.lastName}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Email</label>
+                    <span className="font-medium">Email:</span>
                     <p>{selectedInscription.email}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Téléphone</label>
+                    <span className="font-medium">Téléphone:</span>
                     <p>{selectedInscription.phone}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Statut</label>
-                    <p>{getStatusBadge(selectedInscription.status)}</p>
+                    <span className="font-medium">Date d'inscription:</span>
+                    <p>{new Date(selectedInscription.created_at).toLocaleDateString('fr-FR')}</p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              {/* Informations de formation */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Informations de formation</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              {/* Informations formation */}
+              <div>
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  Formation demandée
+                </h3>
+                <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium">Formation choisie</label>
-                      <p>{selectedInscription.formationTitle}</p>
+                      <span className="font-medium">Formation:</span>
+                      <p>{formationNames[selectedInscription.formation as keyof typeof formationNames] || selectedInscription.formation}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium">Type de formation</label>
-                      <p>{selectedInscription.formationType}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">Niveau</label>
-                      <p>{selectedInscription.level}</p>
+                      <span className="font-medium">Niveau:</span>
+                      <p>{selectedInscription.level ? levelNames[selectedInscription.level as keyof typeof levelNames] : 'Non spécifié'}</p>
                     </div>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium">Motivation</label>
-                    <p className="whitespace-pre-wrap border p-3 rounded bg-gray-50">
-                      {selectedInscription.motivation}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Informations de paiement */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Informations de paiement</CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium">Montant</label>
-                    <p className="flex items-center">
-                      <DollarSign className="mr-1 h-4 w-4" />
-                      {selectedInscription.paymentAmount}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Méthode de paiement</label>
-                    <p>{selectedInscription.paymentMethod}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Référence</label>
-                    <p>{selectedInscription.paymentReference || 'Non spécifiée'}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Statut du paiement</label>
-                    <p>{getPaymentStatusBadge(selectedInscription.paymentStatus)}</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Documents */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Documents soumis</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {selectedInscription.documents.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-2">
-                      {selectedInscription.documents.map((doc) => (
-                        <Button 
-                          key={doc.id} 
-                          variant="outline" 
-                          className="justify-start"
-                          onClick={() => window.open(doc.url, '_blank')}
-                        >
-                          <FileText className="mr-2 h-4 w-4" />
-                          {doc.name}
-                        </Button>
-                      ))}
+                  
+                  {selectedInscription.motivation && (
+                    <div className="mt-4">
+                      <span className="font-medium">Motivation:</span>
+                      <p className="mt-1 text-gray-700">{selectedInscription.motivation}</p>
                     </div>
-                  ) : (
-                    <p className="text-gray-500">Aucun document soumis</p>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              {/* Notes administratives */}
-              {selectedInscription.notes && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Notes administratives</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="whitespace-pre-wrap border p-3 rounded bg-gray-50">
-                      {selectedInscription.notes}
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
+              {/* Statut et traitement */}
+              <div>
+                <h3 className="font-semibold mb-3">Statut et traitement</h3>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="font-medium">Statut:</span>
+                    {getStatusBadge(selectedInscription.status)}
+                  </div>
+                  
+                  {selectedInscription.processed_at && (
+                    <div>
+                      <span className="font-medium">Traité le:</span>
+                      <p>{new Date(selectedInscription.processed_at).toLocaleDateString('fr-FR')}</p>
+                    </div>
+                  )}
+                  
+                  {selectedInscription.processedBy && (
+                    <div>
+                      <span className="font-medium">Traité par:</span>
+                      <p>{selectedInscription.processedBy.prenom} {selectedInscription.processedBy.nom}</p>
+                    </div>
+                  )}
+                  
+                  {selectedInscription.admin_notes && (
+                    <div className="mt-2">
+                      <span className="font-medium">Notes admin:</span>
+                      <p className="text-gray-700">{selectedInscription.admin_notes}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
-
+          
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setShowDetailsModal(false)}>
               Fermer
             </Button>
-            {selectedInscription?.status === 'pending' && (
-              <>
-                <Button 
-                  variant="destructive"
-                  onClick={() => {
-                    if (selectedInscription) {
-                      handleReject(selectedInscription, 'Inscription refusée après examen');
-                      setIsViewDialogOpen(false);
-                    }
-                  }}
-                >
-                  Refuser
-                </Button>
-                <Button
-                  onClick={() => {
-                    if (selectedInscription) {
-                      handleApprove(selectedInscription);
-                      setIsViewDialogOpen(false);
-                    }
-                  }}
-                >
-                  Approuver
-                </Button>
-              </>
+            {selectedInscription && (
+              <Button onClick={() => handleDownloadReceipt(selectedInscription)}>
+                <Download className="h-4 w-4 mr-2" />
+                Télécharger le reçu
+              </Button>
             )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Dialog d'envoi d'email */}
-      <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
+      {/* Modal Approbation */}
+      <Dialog open={showApproveModal} onOpenChange={setShowApproveModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Envoyer un email</DialogTitle>
+            <DialogTitle>Approuver l'inscription</DialogTitle>
             <DialogDescription>
-              Envoyer un email à {selectedInscription?.participantName}
+              Voulez-vous approuver cette inscription en formation ?
             </DialogDescription>
           </DialogHeader>
-
+          
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium">Sujet</label>
-              <Input placeholder="Sujet de l'email" />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Message</label>
-              <Textarea 
-                placeholder="Contenu de l'email..."
-                rows={6}
+              <label className="block text-sm font-medium mb-2">
+                Notes administratives (optionnel)
+              </label>
+              <Textarea
+                placeholder="Ajoutez des notes internes si nécessaire..."
+                value={adminNotes}
+                onChange={(e) => setAdminNotes(e.target.value)}
+                rows={3}
               />
             </div>
           </div>
-
+          
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEmailDialogOpen(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowApproveModal(false)}
+              disabled={processing}
+            >
               Annuler
             </Button>
-            <Button onClick={() => {
-              // Logique d'envoi d'email ici
-              setIsEmailDialogOpen(false);
-            }}>
-              Envoyer
+            <Button 
+              onClick={confirmApproval}
+              disabled={processing}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {processing ? 'Traitement...' : 'Approuver'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Rejet */}
+      <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rejeter l'inscription</DialogTitle>
+            <DialogDescription>
+              Veuillez spécifier la raison du rejet de cette inscription.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Raison du rejet *
+              </label>
+              <Textarea
+                placeholder="Expliquez pourquoi cette inscription est rejetée..."
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                rows={3}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Notes administratives internes (optionnel)
+              </label>
+              <Textarea
+                placeholder="Notes internes non visibles par le candidat..."
+                value={adminNotes}
+                onChange={(e) => setAdminNotes(e.target.value)}
+                rows={2}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowRejectModal(false)}
+              disabled={processing}
+            >
+              Annuler
+            </Button>
+            <Button 
+              onClick={confirmRejection}
+              disabled={processing || !rejectionReason.trim()}
+              variant="destructive"
+            >
+              {processing ? 'Traitement...' : 'Rejeter'}
             </Button>
           </DialogFooter>
         </DialogContent>

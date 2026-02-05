@@ -1,945 +1,1236 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Plus, 
-  PencilIcon, 
-  TrashIcon, 
-  Download,
+import React, { useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import {
+  Plus,
+  PencilIcon,
+  TrashIcon,
   Eye,
   Image,
-  Upload,
-  FolderOpen,
+  Video,
   Grid,
   List,
+  Star,
+  Upload,
   Search,
   Filter,
-  Star,
-  Calendar
+  Download,
+  MoreVertical,
+  Calendar,
+  MapPin,
+  Tag,
+  FileImage,
+  Play
 } from 'lucide-react';
-import { 
-  DataTable,
-  DeleteConfirmDialog,
-  FormDialog,
-  InfoPanel
-} from '../../../components/admin';
-import { Button } from '../../../components/ui/button';
-import { Input } from '../../../components/ui/input';
-import { Label } from '../../../components/ui/label';
-import { 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '../../../components/ui/select';
-import { Badge } from '../../../components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs';
-import { Textarea } from '../../../components/ui/textarea';
-import { Switch } from '../../../components/ui/switch';
-import { useApi } from '../../../hooks/useApi';
-import { useToast } from '../../../hooks/use-toast';
-import { handleApiError } from '@/services/apiServices';
+  SelectValue,
+} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { useGalleryManagement } from '@/hooks/useGallery';
+import { GalleryItem, GalleryItemCreateRequest, GalleryItemUpdateRequest, GalleryFilters } from '@/types/gallery.types';
 
-// Interface pour les éléments de galerie
-interface GalleryItem {
-  id: string;
-  title: string;
-  description: string;
-  imageUrl: string;
-  thumbnailUrl: string;
-  category: string;
-  tags: string[];
-  featured: boolean;
-  published: boolean;
-  fileSize: number;
-  dimensions: {
-    width: number;
-    height: number;
-  };
-  uploadedBy: string;
-  uploadedAt: string;
-  updatedAt: string;
-  views: number;
-  downloads: number;
-}
-
-// Interface pour les catégories
-interface GalleryCategory {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  imageCount: number;
-  featured: boolean;
-  order: number;
-  createdAt: string;
-}
-
-// Configuration des catégories par défaut
-const DEFAULT_CATEGORIES = [
-  { value: 'events', label: 'Événements', color: 'bg-blue-100 text-blue-800' },
-  { value: 'campus', label: 'Campus', color: 'bg-green-100 text-green-800' },
-  { value: 'students', label: 'Étudiants', color: 'bg-purple-100 text-purple-800' },
-  { value: 'fablab', label: 'FabLab', color: 'bg-orange-100 text-orange-800' },
-  { value: 'formations', label: 'Formations', color: 'bg-teal-100 text-teal-800' },
-  { value: 'achievements', label: 'Réalisations', color: 'bg-amber-100 text-amber-800' },
-  { value: 'partnerships', label: 'Partenariats', color: 'bg-rose-100 text-rose-800' }
+// Catégories avec configuration complète
+const CATEGORIES = [
+  { value: 'events', label: 'Événements', color: 'bg-blue-100 text-blue-800', icon: Calendar },
+  { value: 'campus', label: 'Campus', color: 'bg-green-100 text-green-800', icon: MapPin },
+  { value: 'students', label: 'Étudiants', color: 'bg-purple-100 text-purple-800', icon: Star },
+  { value: 'fablab', label: 'FabLab', color: 'bg-orange-100 text-orange-800', icon: Upload },
+  { value: 'formations', label: 'Formations', color: 'bg-teal-100 text-teal-800', icon: FileImage },
+  { value: 'achievements', label: 'Réalisations', color: 'bg-amber-100 text-amber-800', icon: Star },
+  { value: 'research', label: 'Recherche', color: 'bg-rose-100 text-rose-800', icon: Search },
+  { value: 'community', label: 'Communauté', color: 'bg-indigo-100 text-indigo-800', icon: Star },
 ];
 
-const AdminGaleriePage: React.FC = () => {
-  const { toast } = useToast();
-  
-  // État pour les éléments de galerie
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
-  const [isLoadingItems, setIsLoadingItems] = useState(true);
-  
-  // État pour les catégories
-  const [categories, setCategories] = useState<GalleryCategory[]>([]);
-  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
-  
-  // État pour les dialogues
+const AdminGalleryPage: React.FC = () => {
+  // États pour les filtres et la pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filters, setFilters] = useState<GalleryFilters>({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  // États pour les modals
   const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
-  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
-  
-  const [currentItem, setCurrentItem] = useState<GalleryItem | null>(null);
-  const [currentCategory, setCurrentCategory] = useState<GalleryCategory | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<'item' | 'category'>('item');
-  
-  const [activeTab, setActiveTab] = useState('gallery');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [featuredFilter, setFeaturedFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
 
-  // Colonnes pour le tableau (mode liste)
-  const itemColumns = [
-    { 
-      key: 'image', 
-      header: 'Aperçu',
-      renderCell: (item: GalleryItem) => (
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-lg bg-slate-100 flex items-center justify-center overflow-hidden">
-            <img 
-              src={item.thumbnailUrl} 
-              alt={item.title}
-              className="h-full w-full object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                target.parentElement!.innerHTML = '<div class="text-slate-400"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></div>';
-              }}
-            />
-          </div>
-          <div>
-            <p className="font-medium">{item.title}</p>
-            <p className="text-xs text-slate-500">{item.dimensions.width} × {item.dimensions.height} px</p>
-          </div>
-        </div>
-      )
-    },
-    { 
-      key: 'category', 
-      header: 'Catégorie',
-      renderCell: (item: GalleryItem) => {
-        const categoryConfig = DEFAULT_CATEGORIES.find(c => c.value === item.category);
-        return (
-          <Badge variant="outline" className={categoryConfig?.color || 'bg-slate-100 text-slate-800'}>
-            {categoryConfig?.label || item.category}
-          </Badge>
-        );
-      }
-    },
-    { 
-      key: 'tags', 
-      header: 'Tags',
-      renderCell: (item: GalleryItem) => (
-        <div className="flex flex-wrap gap-1">
-          {item.tags.slice(0, 2).map((tag, index) => (
-            <Badge key={index} variant="secondary" className="text-xs">
-              {tag}
-            </Badge>
-          ))}
-          {item.tags.length > 2 && (
-            <Badge variant="secondary" className="text-xs">
-              +{item.tags.length - 2}
-            </Badge>
-          )}
-        </div>
-      )
-    },
-    { 
-      key: 'status', 
-      header: 'Statut',
-      renderCell: (item: GalleryItem) => (
-        <div className="flex flex-col gap-1">
-          <Badge variant={item.published ? "default" : "secondary"}>
-            {item.published ? 'Publié' : 'Brouillon'}
-          </Badge>
-          {item.featured && (
-            <Badge variant="outline" className="text-xs bg-amber-100 text-amber-800">
-              <Star className="h-3 w-3 mr-1" />
-              Mis en avant
-            </Badge>
-          )}
-        </div>
-      )
-    },
-    { 
-      key: 'stats', 
-      header: 'Statistiques',
-      renderCell: (item: GalleryItem) => (
-        <div className="text-sm text-slate-600">
-          <p>{item.views} vues</p>
-          <p>{item.downloads} téléchargements</p>
-        </div>
-      )
-    },
-    { 
-      key: 'uploadedAt', 
-      header: 'Date d\'ajout',
-      renderCell: (item: GalleryItem) => (
-        <span className="text-slate-600">
-          {new Date(item.uploadedAt).toLocaleDateString('fr-FR')}
-        </span>
-      )
-    },
-    {
-      key: 'actions',
-      header: 'Actions',
-      renderCell: (item: GalleryItem) => (
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleViewItem(item)}
-            className="h-8 w-8 p-0"
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleEditItem(item)}
-            className="h-8 w-8 p-0"
-          >
-            <PencilIcon className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleDeleteItem(item)}
-            className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-          >
-            <TrashIcon className="h-4 w-4" />
-          </Button>
-        </div>
-      )
-    }
-  ];
+  // État du formulaire
+  const [formData, setFormData] = useState<Partial<GalleryItemCreateRequest & { customCategory?: string }>>({
+    title: '',
+    description: '',
+    category: '',
+    customCategory: '',
+    tags: [],
+    location: '',
+    capture_date: '',
+    is_published: true, // Publié par défaut
+    is_featured: false,
+    alt_text: '',
+  });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
-  // Colonnes pour les catégories
-  const categoryColumns = [
-    { 
-      key: 'name', 
-      header: 'Catégorie',
-      renderCell: (category: GalleryCategory) => (
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
-            <FolderOpen className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="font-medium">{category.name}</p>
-            <p className="text-xs text-slate-500">{category.description}</p>
-          </div>
-        </div>
-      )
-    },
-    { 
-      key: 'imageCount', 
-      header: 'Nombre d\'images',
-      renderCell: (category: GalleryCategory) => (
-        <Badge variant="secondary">
-          {category.imageCount} image{category.imageCount !== 1 ? 's' : ''}
-        </Badge>
-      )
-    },
-    { 
-      key: 'order', 
-      header: 'Ordre',
-      renderCell: (category: GalleryCategory) => (
-        <span className="text-slate-600">{category.order}</span>
-      )
-    },
-    { 
-      key: 'featured', 
-      header: 'Mise en avant',
-      renderCell: (category: GalleryCategory) => (
-        <Badge variant={category.featured ? "default" : "secondary"}>
-          {category.featured ? 'Oui' : 'Non'}
-        </Badge>
-      )
-    },
-    {
-      key: 'actions',
-      header: 'Actions',
-      renderCell: (category: GalleryCategory) => (
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleEditCategory(category)}
-            className="h-8 w-8 p-0"
-          >
-            <PencilIcon className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleDeleteCategory(category)}
-            className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-          >
-            <TrashIcon className="h-4 w-4" />
-          </Button>
-        </div>
-      )
-    }
-  ];
+  // Construire les filtres finaux
+  const finalFilters = useMemo(() => ({
+    ...filters,
+    search: searchQuery.trim() || undefined,
+  }), [filters, searchQuery]);
 
-  // Chargement des données
-  const loadGalleryItems = async () => {
-    try {
-      setIsLoadingItems(true);
+  // Hook principal pour la gestion de la galerie
+  const {
+    items,
+    pagination,
+    stats,
+    isLoading,
+    isLoadingStats,
+    error,
+    createItem,
+    updateItem,
+    deleteItem,
+    isCreating,
+    isUpdating,
+    isDeleting,
+  } = useGalleryManagement(currentPage, finalFilters);
+
+  // Gestion du formulaire
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      description: '',
+      category: '',
+      customCategory: '',
+      tags: [],
+      location: '',
+      capture_date: '',
+      is_published: true, // Publié par défaut
+      is_featured: false,
+      alt_text: '',
+    });
+    setSelectedFile(null);
+    setPreviewUrl('');
+    setSelectedItem(null);
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
       
-      // Remplacer par un appel API réel
-      // const response = await api.get('/gallery-items');
-      // setGalleryItems(response.data);
+      // Créer une URL de prévisualisation
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
       
-      // Pour l'instant, liste vide
-      setGalleryItems([]);
-      setIsLoadingItems(false);
-    } catch (error) {
-      handleApiError(error);
-      setIsLoadingItems(false);
+      // Nettoyer l'ancienne URL si elle existe
+      return () => URL.revokeObjectURL(url);
     }
   };
 
-  const loadCategories = async () => {
-    try {
-      setIsLoadingCategories(true);
-      
-      // Remplacer par un appel API réel
-      // const response = await api.get('/gallery-categories');
-      // setCategories(response.data);
-      
-      // Pour l'instant, liste vide
-      setCategories([]);
-      setIsLoadingCategories(false);
-    } catch (error) {
-      handleApiError(error);
-      setIsLoadingCategories(false);
-    }
-  };
-
-  useEffect(() => {
-    loadGalleryItems();
-    loadCategories();
-  }, [categoryFilter, featuredFilter, searchQuery]);
-
-  // Gestionnaires d'événements
-  const handleAddItem = () => {
-    setCurrentItem(null);
+  // Actions CRUD
+  const handleAdd = () => {
+    resetForm();
     setIsItemDialogOpen(true);
   };
 
-  const handleEditItem = (item: GalleryItem) => {
-    setCurrentItem(item);
+  const handleEdit = (item: GalleryItem) => {
+    setSelectedItem(item);
+    setFormData({
+      title: item.title,
+      description: item.description || '',
+      category: item.category,
+      tags: item.tags || [],
+      location: item.location || '',
+      capture_date: item.capture_date || '',
+      is_published: item.is_published,
+      is_featured: item.is_featured,
+      alt_text: item.alt_text || '',
+    });
+    setPreviewUrl(item.media_url);
     setIsItemDialogOpen(true);
   };
 
-  const handleViewItem = (item: GalleryItem) => {
-    setCurrentItem(item);
+  const handleDelete = (item: GalleryItem) => {
+    setSelectedItem(item);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleView = (item: GalleryItem) => {
+    setSelectedItem(item);
     setIsViewDialogOpen(true);
   };
 
-  const handleDeleteItem = (item: GalleryItem) => {
-    setCurrentItem(item);
-    setDeleteTarget('item');
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleEditCategory = (category: GalleryCategory) => {
-    setCurrentCategory(category);
-    setIsCategoryDialogOpen(true);
-  };
-
-  const handleDeleteCategory = (category: GalleryCategory) => {
-    setCurrentCategory(category);
-    setDeleteTarget('category');
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleSaveItem = async (itemData: Partial<GalleryItem>) => {
+  const handleSave = async () => {
     try {
-      if (currentItem) {
-        // Mise à jour
-        setGalleryItems(galleryItems.map(item => 
-          item.id === currentItem.id 
-            ? { ...item, ...itemData, updatedAt: new Date().toISOString() }
-            : item
-        ));
-        toast({
-          title: "Image modifiée",
-          description: "L'image a été modifiée avec succès."
+      setIsUploading(true);
+      setUploadProgress(0);
+      
+      // Simulation de progression pour les gros fichiers
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + 10;
         });
+      }, 200);
+      
+      // Traiter la catégorie personnalisée
+      let finalCategory = formData.category;
+      if (formData.category === 'custom' && formData.customCategory?.trim()) {
+        finalCategory = formData.customCategory.trim().toLowerCase().replace(/\s+/g, '-');
+      }
+
+      if (selectedItem) {
+        // Mise à jour
+        const updateData: GalleryItemUpdateRequest = {
+          ...formData,
+          category: finalCategory,
+          media_file: selectedFile || undefined,
+        };
+        // Exclure customCategory des données envoyées
+        delete (updateData as any).customCategory;
+        await updateItem({ id: selectedItem.id, data: updateData });
       } else {
         // Création
-        const newItem: GalleryItem = {
-          ...itemData as GalleryItem,
-          id: Date.now().toString(),
-          uploadedBy: 'Admin System',
-          uploadedAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          views: 0,
-          downloads: 0
+        if (!selectedFile) {
+          alert('Veuillez sélectionner un fichier');
+          return;
+        }
+        const createData: GalleryItemCreateRequest = {
+          ...formData as GalleryItemCreateRequest,
+          category: finalCategory!,
+          media_file: selectedFile,
         };
-        setGalleryItems([...galleryItems, newItem]);
-        toast({
-          title: "Image ajoutée",
-          description: "L'image a été ajoutée avec succès."
-        });
+        // Exclure customCategory des données envoyées
+        delete (createData as any).customCategory;
+        await createItem(createData);
       }
       
-      setIsItemDialogOpen(false);
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+      
+      setTimeout(() => {
+        setIsItemDialogOpen(false);
+        resetForm();
+        setIsUploading(false);
+        setUploadProgress(0);
+      }, 500);
+      
     } catch (error) {
-      handleApiError(error);
-    }
-  };
-
-  const handleSaveCategory = async (categoryData: Partial<GalleryCategory>) => {
-    try {
-      if (currentCategory) {
-        // Mise à jour
-        setCategories(categories.map(cat => 
-          cat.id === currentCategory.id ? { ...cat, ...categoryData } : cat
-        ));
-        toast({
-          title: "Catégorie modifiée",
-          description: "La catégorie a été modifiée avec succès."
-        });
+      console.error('Erreur lors de la sauvegarde:', error);
+      setIsUploading(false);
+      setUploadProgress(0);
+      
+      // Afficher une erreur plus spécifique
+      if (selectedFile && selectedFile.size > 200 * 1024 * 1024) {
+        alert('Fichier trop volumineux. Taille maximum : 200MB');
       } else {
-        // Création
-        const newCategory: GalleryCategory = {
-          ...categoryData as GalleryCategory,
-          id: Date.now().toString(),
-          createdAt: new Date().toISOString(),
-          imageCount: 0
-        };
-        setCategories([...categories, newCategory]);
-        toast({
-          title: "Catégorie créée",
-          description: "La catégorie a été créée avec succès."
-        });
+        alert('Erreur lors de l\'upload. Vérifiez votre connexion et réessayez.');
       }
-      
-      setIsCategoryDialogOpen(false);
-    } catch (error) {
-      handleApiError(error);
     }
   };
 
-  const confirmDelete = async () => {
-    try {
-      if (deleteTarget === 'item' && currentItem) {
-        setGalleryItems(galleryItems.filter(item => item.id !== currentItem.id));
-        toast({
-          title: "Image supprimée",
-          description: "L'image a été supprimée avec succès."
-        });
-      } else if (deleteTarget === 'category' && currentCategory) {
-        setCategories(categories.filter(cat => cat.id !== currentCategory.id));
-        toast({
-          title: "Catégorie supprimée",
-          description: "La catégorie a été supprimée avec succès."
-        });
+  const handleConfirmDelete = async () => {
+    if (selectedItem) {
+      try {
+        await deleteItem(selectedItem.id);
+        setIsDeleteDialogOpen(false);
+        setSelectedItem(null);
+      } catch (error) {
+        console.error('Erreur lors de la suppression:', error);
       }
-      
-      setIsDeleteDialogOpen(false);
-    } catch (error) {
-      handleApiError(error);
     }
   };
 
-  // Formulaires
-  const renderItemForm = () => (
-    <div className="space-y-4">
-      <div>
-        <Label htmlFor="itemTitle">Titre</Label>
-        <Input
-          id="itemTitle"
-          defaultValue={currentItem?.title || ''}
-          placeholder="Titre de l'image"
-        />
-      </div>
-      
-      <div>
-        <Label htmlFor="itemDescription">Description</Label>
-        <Textarea
-          id="itemDescription"
-          defaultValue={currentItem?.description || ''}
-          placeholder="Description de l'image"
-          rows={3}
-        />
-      </div>
-      
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="itemCategory">Catégorie</Label>
-          <Select defaultValue={currentItem?.category || ''}>
-            <SelectTrigger>
-              <SelectValue placeholder="Sélectionner une catégorie" />
-            </SelectTrigger>
-            <SelectContent>
-              {DEFAULT_CATEGORIES.map((category) => (
-                <SelectItem key={category.value} value={category.value}>
-                  {category.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label htmlFor="itemTags">Tags (séparés par des virgules)</Label>
-          <Input
-            id="itemTags"
-            defaultValue={currentItem?.tags.join(', ') || ''}
-            placeholder="tag1, tag2, tag3"
-          />
-        </div>
-      </div>
-      
-      <div className="flex items-center space-x-4">
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="itemPublished"
-            defaultChecked={currentItem?.published || false}
-          />
-          <Label htmlFor="itemPublished">Publié</Label>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="itemFeatured"
-            defaultChecked={currentItem?.featured || false}
-          />
-          <Label htmlFor="itemFeatured">Mis en avant</Label>
-        </div>
-      </div>
-      
-      <div>
-        <Label htmlFor="itemImage">Image</Label>
-        <div className="mt-2 border-2 border-dashed border-slate-300 rounded-lg p-6 text-center">
-          <Upload className="mx-auto h-12 w-12 text-slate-400" />
-          <p className="mt-2 text-sm text-slate-600">
-            Cliquez pour télécharger ou glissez-déposez
-          </p>
-          <p className="text-xs text-slate-500">PNG, JPG, WEBP jusqu'à 10MB</p>
-        </div>
-      </div>
-    </div>
-  );
+  // Gestion des filtres
+  const updateFilters = (key: keyof GalleryFilters, value: any) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value === 'all' ? undefined : value,
+    }));
+    setCurrentPage(1); // Reset à la première page
+  };
 
-  const renderCategoryForm = () => (
-    <div className="space-y-4">
-      <div>
-        <Label htmlFor="categoryName">Nom de la catégorie</Label>
-        <Input
-          id="categoryName"
-          defaultValue={currentCategory?.name || ''}
-          placeholder="Nom de la catégorie"
-        />
-      </div>
-      
-      <div>
-        <Label htmlFor="categorySlug">Slug (URL)</Label>
-        <Input
-          id="categorySlug"
-          defaultValue={currentCategory?.slug || ''}
-          placeholder="slug-de-la-categorie"
-        />
-      </div>
-      
-      <div>
-        <Label htmlFor="categoryDescription">Description</Label>
-        <Textarea
-          id="categoryDescription"
-          defaultValue={currentCategory?.description || ''}
-          placeholder="Description de la catégorie"
-          rows={3}
-        />
-      </div>
-      
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="categoryOrder">Ordre d'affichage</Label>
-          <Input
-            id="categoryOrder"
-            type="number"
-            defaultValue={currentCategory?.order || ''}
-            placeholder="Ordre"
-          />
-        </div>
-        <div className="flex items-center space-x-2 pt-6">
-          <Switch
-            id="categoryFeatured"
-            defaultChecked={currentCategory?.featured || false}
-          />
-          <Label htmlFor="categoryFeatured">Catégorie mise en avant</Label>
-        </div>
-      </div>
-    </div>
-  );
+  const clearFilters = () => {
+    setFilters({});
+    setSearchQuery('');
+    setCurrentPage(1);
+  };
 
-  // Statistiques
-  const stats = [
-    {
-      title: "Total images",
-      value: galleryItems.length,
-      iconComponent: Image,
-      color: "bg-blue-100"
-    },
-    {
-      title: "Images publiées",
-      value: galleryItems.filter(item => item.published).length,
-      iconComponent: Eye,
-      color: "bg-green-100"
-    },
-    {
-      title: "Images mises en avant",
-      value: galleryItems.filter(item => item.featured).length,
-      iconComponent: Star,
-      color: "bg-amber-100"
-    },
-    {
-      title: "Catégories",
-      value: categories.length,
-      iconComponent: FolderOpen,
-      color: "bg-purple-100"
-    }
-  ];
+  // Formatage des données
+  const formatFileSize = (bytes?: number) => {
+    if (!bytes) return 'N/A';
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+  };
+
+  const formatDuration = (seconds?: number) => {
+    if (!seconds) return null;
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  if (error) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-red-600 mb-4">Erreur lors du chargement des données</p>
+        <Button onClick={() => window.location.reload()}>Réessayer</Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      {/* En-tête */}
+    <div className="space-y-6 p-6">
+      {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Galerie</h1>
-          <p className="text-slate-500">Gérez les images et catégories de la galerie</p>
+          <h1 className="text-3xl font-bold text-gray-900">Gestion de la Galerie</h1>
+          <p className="text-gray-600 mt-1">
+            Gérez les images et vidéos de votre galerie multimédia
+          </p>
         </div>
-        <Button onClick={handleAddItem}>
+        <Button onClick={handleAdd} className="bg-crec-gold hover:bg-crec-gold/90">
           <Plus className="h-4 w-4 mr-2" />
-          Ajouter une image
+          Ajouter un média
         </Button>
       </div>
 
-      {/* Information */}
-      <InfoPanel
-        title="Gestion de la galerie"
-        icon={Image}
-        variant="info"
-      >
-        <p className="text-sm text-blue-800">
-          Organisez et gérez toutes les images du site. Créez des catégories pour organiser 
-          le contenu et mettez en avant les meilleures images.
-        </p>
-      </InfoPanel>
-
-      {/* Statistiques */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {stats.map((stat, index) => (
-          <Card key={index}>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${stat.color}`}>
-                  <stat.iconComponent className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{stat.value}</p>
-                  <p className="text-sm text-slate-600">{stat.title}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Médias</CardTitle>
+            <FileImage className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {isLoadingStats ? '...' : stats?.total_items || 0}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {stats?.total_images || 0} images, {stats?.total_videos || 0} vidéos
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Publiés</CardTitle>
+            <Eye className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {isLoadingStats ? '...' : stats?.published_items || 0}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Visibles au public
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">En Vedette</CardTitle>
+            <Star className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {isLoadingStats ? '...' : stats?.featured_items || 0}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Mis en avant
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Stockage</CardTitle>
+            <Upload className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {isLoadingStats ? '...' : formatFileSize(stats?.total_size)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Espace utilisé
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Onglets */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="gallery" className="flex items-center gap-2">
-            <Image className="h-4 w-4" />
-            Images
-          </TabsTrigger>
-          <TabsTrigger value="categories" className="flex items-center gap-2">
-            <FolderOpen className="h-4 w-4" />
-            Catégories
-          </TabsTrigger>
-        </TabsList>
+      {/* Filtres et contrôles */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+            {/* Recherche */}
+            <div className="flex-1 max-w-sm">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Rechercher un média..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
 
-        {/* Onglet Images */}
-        <TabsContent value="gallery" className="space-y-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-                <div>
-                  <CardTitle>Gestion des images</CardTitle>
-                  <CardDescription>
-                    Ajoutez, modifiez et organisez les images de la galerie
-                  </CardDescription>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                    <SelectTrigger className="w-40">
-                      <SelectValue placeholder="Catégorie" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Toutes les catégories</SelectItem>
-                      {DEFAULT_CATEGORIES.map((category) => (
-                        <SelectItem key={category.value} value={category.value}>
-                          {category.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  
-                  <Select value={featuredFilter} onValueChange={setFeaturedFilter}>
-                    <SelectTrigger className="w-40">
-                      <SelectValue placeholder="Mise en avant" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Toutes</SelectItem>
-                      <SelectItem value="featured">Mises en avant</SelectItem>
-                      <SelectItem value="not_featured">Pas mises en avant</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  
-                  <div className="flex gap-1 border rounded-md">
-                    <Button
-                      variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setViewMode('grid')}
-                      className="px-3"
-                    >
-                      <Grid className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant={viewMode === 'list' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setViewMode('list')}
-                      className="px-3"
-                    >
-                      <List className="h-4 w-4" />
-                    </Button>
+            {/* Filtres */}
+            <div className="flex flex-wrap gap-2 items-center">
+              <Select
+                value={filters.category || 'all'}
+                onValueChange={(value) => updateFilters('category', value)}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Catégorie" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toutes catégories</SelectItem>
+                  {CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={filters.media_type || 'all'}
+                onValueChange={(value) => updateFilters('media_type', value)}
+              >
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tout</SelectItem>
+                  <SelectItem value="image">Images</SelectItem>
+                  <SelectItem value="video">Vidéos</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={filters.is_published?.toString() || 'all'}
+                onValueChange={(value) => updateFilters('is_published', value === 'all' ? undefined : value === 'true')}
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Statut" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous</SelectItem>
+                  <SelectItem value="true">Publiés</SelectItem>
+                  <SelectItem value="false">Brouillons</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={filters.is_featured?.toString() || 'all'}
+                onValueChange={(value) => updateFilters('is_featured', value === 'all' ? undefined : value === 'true')}
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Vedette" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous</SelectItem>
+                  <SelectItem value="true">En vedette</SelectItem>
+                  <SelectItem value="false">Normal</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Mode d'affichage */}
+              <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                  className="h-8 w-8 p-0"
+                >
+                  <Grid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                  className="h-8 w-8 p-0"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {/* Clear filters */}
+              {(Object.keys(filters).length > 0 || searchQuery) && (
+                <Button variant="outline" size="sm" onClick={clearFilters}>
+                  Effacer
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Résultats */}
+          <div className="mt-4 flex justify-between items-center text-sm text-gray-600">
+            <span>
+              {pagination?.total || 0} {(pagination?.total || 0) === 1 ? 'élément' : 'éléments'}
+              {Object.keys(filters).length > 0 || searchQuery ? ' trouvé(s)' : ' au total'}
+            </span>
+            {pagination && pagination.total > pagination.per_page && (
+              <span>
+                Page {pagination.current_page} sur {pagination.last_page}
+              </span>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Liste des médias */}
+      {isLoading ? (
+        <div className="flex justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-crec-gold mx-auto mb-4"></div>
+            <p>Chargement des médias...</p>
+          </div>
+        </div>
+      ) : items.length === 0 ? (
+        <Card>
+          <CardContent className="text-center py-12">
+            <FileImage className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun média trouvé</h3>
+            <p className="text-gray-500 mb-4">
+              {Object.keys(filters).length > 0 || searchQuery 
+                ? 'Aucun média ne correspond à vos critères de recherche.'
+                : 'Commencez par ajouter votre premier média à la galerie.'
+              }
+            </p>
+            {Object.keys(filters).length === 0 && !searchQuery && (
+              <Button onClick={handleAdd} className="bg-crec-gold hover:bg-crec-gold/90">
+                <Plus className="h-4 w-4 mr-2" />
+                Ajouter un média
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      ) : viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {items.map((item) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="relative aspect-square">
+                  {item.media_type === 'image' ? (
+                    <img
+                      src={item.media_url}
+                      alt={item.alt_text || item.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/img/placeholder-gallery.jpg';
+                      }}
+                    />
+                  ) : (
+                    <div className="relative w-full h-full">
+                      <img
+                        src={item.thumbnail_url || '/img/video-placeholder.jpg'}
+                        alt={item.alt_text || item.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                        <div className="bg-white/90 rounded-full p-2">
+                          <Play className="h-6 w-6 text-gray-800" />
+                        </div>
+                      </div>
+                      {item.duration && (
+                        <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                          {formatDuration(item.duration)}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Badges */}
+                  <div className="absolute top-2 left-2 flex flex-col gap-1">
+                    {item.is_featured && (
+                      <Badge className="bg-crec-gold text-white">
+                        <Star className="h-3 w-3 mr-1" />
+                        Vedette
+                      </Badge>
+                    )}
+                    {!item.is_published && (
+                      <Badge variant="secondary">
+                        Brouillon
+                      </Badge>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="absolute top-2 right-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="bg-white/90 hover:bg-white">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleView(item)}>
+                          <Eye className="h-4 w-4 mr-2" />
+                          Voir
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEdit(item)}>
+                          <PencilIcon className="h-4 w-4 mr-2" />
+                          Modifier
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          onClick={() => handleDelete(item)}
+                          className="text-red-600"
+                        >
+                          <TrashIcon className="h-4 w-4 mr-2" />
+                          Supprimer
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {galleryItems.map((item) => (
-                    <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                      <div className="aspect-video bg-slate-100 relative">
-                        <img 
-                          src={item.thumbnailUrl} 
-                          alt={item.title}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                            target.parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center text-slate-400"><svg class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2v12a2 2 0 002 2z" /></svg></div>';
-                          }}
+
+                <CardContent className="p-4">
+                  <h3 className="font-semibold truncate mb-1">{item.title}</h3>
+                  {item.description && (
+                    <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                      {item.description}
+                    </p>
+                  )}
+                  
+                  <div className="flex items-center justify-between">
+                    {item.category && (
+                      <Badge 
+                        variant="outline" 
+                        className={CATEGORIES.find(c => c.value === item.category)?.color}
+                      >
+                        {CATEGORIES.find(c => c.value === item.category)?.label || item.category}
+                      </Badge>
+                    )}
+                    <span className="text-xs text-gray-500">
+                      {new Date(item.created_at).toLocaleDateString('fr-FR')}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      ) : (
+        // Vue liste
+        <Card>
+          <CardContent className="p-0">
+            <div className="divide-y">
+              {items.map((item) => (
+                <div key={item.id} className="p-4 flex items-center gap-4 hover:bg-gray-50">
+                  {/* Thumbnail */}
+                  <div className="relative w-16 h-16 flex-shrink-0">
+                    {item.media_type === 'image' ? (
+                      <img
+                        src={item.media_url}
+                        alt={item.alt_text || item.title}
+                        className="w-full h-full object-cover rounded"
+                      />
+                    ) : (
+                      <div className="relative w-full h-full">
+                        <img
+                          src={item.thumbnail_url || '/img/video-placeholder.jpg'}
+                          alt={item.alt_text || item.title}
+                          className="w-full h-full object-cover rounded"
                         />
-                        <div className="absolute top-2 right-2 flex gap-1">
-                          {item.featured && (
-                            <Badge className="bg-amber-500 text-white">
-                              <Star className="h-3 w-3" />
-                            </Badge>
+                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center rounded">
+                          <Play className="h-6 w-6 text-white" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Informations */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold truncate">{item.title}</h3>
+                        {item.description && (
+                          <p className="text-sm text-gray-600 line-clamp-1 mt-1">
+                            {item.description}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
+                          <span className="flex items-center">
+                            {item.media_type === 'image' ? (
+                              <Image className="h-3 w-3 mr-1" />
+                            ) : (
+                              <Video className="h-3 w-3 mr-1" />
+                            )}
+                            {item.media_type === 'image' ? 'Image' : 'Vidéo'}
+                          </span>
+                          {item.file_size && (
+                            <span>• {formatFileSize(item.file_size)}</span>
                           )}
-                          {!item.published && (
-                            <Badge variant="secondary">Brouillon</Badge>
+                          {item.dimensions && (
+                            <span>• {item.dimensions}</span>
+                          )}
+                          {item.duration && (
+                            <span>• {formatDuration(item.duration)}</span>
                           )}
                         </div>
                       </div>
-                      <CardContent className="p-3">
-                        <h3 className="font-medium text-sm line-clamp-2 mb-1">{item.title}</h3>
-                        <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
-                          <span>{DEFAULT_CATEGORIES.find(c => c.value === item.category)?.label}</span>
-                          <span>{item.views} vues</span>
+
+                      {/* Badges et actions */}
+                      <div className="flex items-center gap-2 ml-4">
+                        <div className="flex flex-col gap-1">
+                          {item.is_featured && (
+                            <Badge className="bg-crec-gold text-white text-xs">
+                              <Star className="h-3 w-3 mr-1" />
+                              Vedette
+                            </Badge>
+                          )}
+                          {!item.is_published && (
+                            <Badge variant="secondary" className="text-xs">
+                              Brouillon
+                            </Badge>
+                          )}
+                          {item.category && (
+                            <Badge 
+                              variant="outline" 
+                              className={`text-xs ${CATEGORIES.find(c => c.value === item.category)?.color}`}
+                            >
+                              {CATEGORIES.find(c => c.value === item.category)?.label || item.category}
+                            </Badge>
+                          )}
                         </div>
-                        <div className="flex gap-1">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleViewItem(item)}
-                            className="flex-1 h-7 text-xs"
-                          >
-                            <Eye className="h-3 w-3 mr-1" />
-                            Voir
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEditItem(item)}
-                            className="h-7 w-7 p-0"
-                          >
-                            <PencilIcon className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeleteItem(item)}
-                            className="h-7 w-7 p-0 text-red-600 hover:text-red-700"
-                          >
-                            <TrashIcon className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleView(item)}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              Voir
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEdit(item)}>
+                              <PencilIcon className="h-4 w-4 mr-2" />
+                              Modifier
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => handleDelete(item)}
+                              className="text-red-600"
+                            >
+                              <TrashIcon className="h-4 w-4 mr-2" />
+                              Supprimer
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <DataTable
-                  columns={itemColumns}
-                  data={galleryItems}
-                  keyField="id"
-                  isLoading={isLoadingItems}
-                  searchPlaceholder="Rechercher une image..."
-                  onSearch={setSearchQuery}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Onglet Catégories */}
-        <TabsContent value="categories" className="space-y-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle>Gestion des catégories</CardTitle>
-                  <CardDescription>
-                    Organisez les images par catégories
-                  </CardDescription>
-                </div>
-                <Button onClick={() => setIsCategoryDialogOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nouvelle catégorie
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <DataTable
-                columns={categoryColumns}
-                data={categories}
-                keyField="id"
-                isLoading={isLoadingCategories}
-                searchPlaceholder="Rechercher une catégorie..."
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Dialogues */}
-      <FormDialog
-        isOpen={isItemDialogOpen}
-        onClose={() => setIsItemDialogOpen(false)}
-        onSubmit={async () => {}}
-        title={currentItem ? "Modifier l'image" : "Ajouter une image"}
-        description={currentItem ? "Modifiez les détails de l'image" : "Ajoutez une nouvelle image à la galerie"}
-      >
-        {renderItemForm()}
-      </FormDialog>
-
-      <FormDialog
-        isOpen={isCategoryDialogOpen}
-        onClose={() => setIsCategoryDialogOpen(false)}
-        onSubmit={handleSaveCategory}
-        title={currentCategory ? "Modifier la catégorie" : "Nouvelle catégorie"}
-        description={currentCategory ? "Modifiez la catégorie" : "Créez une nouvelle catégorie"}
-      >
-        {renderCategoryForm()}
-      </FormDialog>
-
-      <FormDialog
-        isOpen={isViewDialogOpen}
-        onClose={() => setIsViewDialogOpen(false)}
-        title="Aperçu de l'image"
-        description="Détails complets de l'image"
-        onSubmit={async () => { setIsViewDialogOpen(false); }} // No-op or close dialog
-      >
-        {currentItem && (
-          <div className="space-y-4">
-            <div className="aspect-video bg-slate-100 rounded-lg overflow-hidden">
-              <img 
-                src={currentItem.imageUrl} 
-                alt={currentItem.title}
-                className="w-full h-full object-contain"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = currentItem.thumbnailUrl;
-                }}
-              />
+              ))}
             </div>
-            <div className="space-y-2">
-              <h3 className="font-medium">{currentItem.title}</h3>
-              <p className="text-sm text-slate-600">{currentItem.description}</p>
-              <div className="flex flex-wrap gap-2">
-                {currentItem.tags.map((tag, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
-                    {tag}
-                  </Badge>
-                ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Pagination */}
+      {pagination && pagination.last_page > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-700">
+            Affichage de {pagination.from} à {pagination.to} sur {pagination.total} éléments
+          </p>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Précédent
+            </Button>
+            <span className="text-sm">
+              Page {pagination.current_page} sur {pagination.last_page}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === pagination.last_page}
+            >
+              Suivant
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Dialog Ajout/Modification */}
+      <Dialog open={isItemDialogOpen} onOpenChange={setIsItemDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedItem ? 'Modifier le média' : 'Ajouter un média'}
+            </DialogTitle>
+            <DialogDescription>
+              Remplissez les informations du média à {selectedItem ? 'modifier' : 'ajouter'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Upload et prévisualisation */}
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="media_file">Fichier média *</Label>
+                <input
+                  id="media_file"
+                  type="file"
+                  accept="image/*,video/*"
+                  onChange={handleFileChange}
+                  title="Sélectionner un fichier média"
+                  className={`block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-crec-gold/10 file:text-crec-gold hover:file:bg-crec-gold/20 mt-1 ${
+                    (!selectedFile && !selectedItem) ? 'border border-red-300 rounded-md' : ''
+                  }`}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Images: JPG, PNG, GIF, WebP • Vidéos: MP4, WebM, MOV, AVI (max 200MB)
+                </p>
+                
+                {/* Avertissement pour les gros fichiers */}
+                {selectedFile && selectedFile.size > 50 * 1024 * 1024 && (
+                  <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-700">
+                    ⚠️ Fichier volumineux ({(selectedFile.size / (1024 * 1024)).toFixed(1)} MB) - 
+                    L'upload peut prendre plusieurs minutes. Veuillez patienter après avoir cliqué sur "Ajouter".
+                  </div>
+                )}
               </div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <Label className="text-slate-500">Dimensions</Label>
-                  <p>{currentItem.dimensions.width} × {currentItem.dimensions.height} px</p>
+
+              {/* Prévisualisation */}
+              {previewUrl && (
+                <div className="border rounded-lg p-4 bg-gray-50">
+                  <Label className="text-sm font-medium mb-2 block">Prévisualisation</Label>
+                  {selectedFile?.type.startsWith('video/') || (!selectedFile && selectedItem?.media_type === 'video') ? (
+                    <video
+                      src={previewUrl}
+                      controls
+                      className="w-full max-h-64 rounded"
+                    />
+                  ) : (
+                    <img
+                      src={previewUrl}
+                      alt="Prévisualisation"
+                      className="w-full max-h-64 object-contain rounded"
+                    />
+                  )}
                 </div>
-                <div>
-                  <Label className="text-slate-500">Taille</Label>
-                  <p>{(currentItem.fileSize / 1024 / 1024).toFixed(2)} MB</p>
+              )}
+            </div>
+
+            {/* Formulaire */}
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="title">Titre *</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="Titre du média"
+                  required
+                  className={!formData.title?.trim() ? 'border-red-300 focus:border-red-500' : ''}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Description du média"
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="category">Catégorie *</Label>
+                {/* Select HTML natif avec accessibilité complète */}
+                <select
+                  id="category"
+                  name="category"
+                  title="Sélectionner une catégorie pour le média"
+                  aria-label="Sélectionner une catégorie pour le média"
+                  aria-describedby="category-help"
+                  value={formData.category || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                  className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  required
+                >
+                  <option value="">Sélectionnez une catégorie</option>
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </option>
+                  ))}
+                  <option value="custom">✨ Créer une nouvelle catégorie</option>
+                </select>
+                
+                {/* Champ pour catégorie personnalisée */}
+                {formData.category === 'custom' && (
+                  <div className="mt-2">
+                    <Input
+                      placeholder="Nom de la nouvelle catégorie"
+                      value={formData.customCategory || ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, customCategory: e.target.value }))}
+                      className="w-full"
+                      aria-label="Nom de la nouvelle catégorie personnalisée"
+                    />
+                    <p className="text-xs text-gray-500 mt-1" id="category-help">
+                      Cette catégorie sera créée automatiquement
+                    </p>
+                  </div>
+                )}
+                
+                {/* Debug: Affichage du nombre de catégories */}
+                <div className="text-xs text-gray-500 mt-1" id="category-help">
+                  {CATEGORIES.length} catégories prédéfinies disponibles
                 </div>
+              </div>
+
+              <div>
+                <Label htmlFor="tags">Tags</Label>
+                <Input
+                  id="tags"
+                  value={Array.isArray(formData.tags) ? formData.tags.join(', ') : ''}
+                  onChange={(e) => {
+                    const tags = e.target.value.split(',').map(tag => tag.trim()).filter(Boolean);
+                    setFormData(prev => ({ ...prev, tags }));
+                  }}
+                  placeholder="tag1, tag2, tag3"
+                />
+                <p className="text-xs text-gray-500 mt-1">Séparez les tags par des virgules</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-slate-500">Vues</Label>
-                  <p>{currentItem.views}</p>
+                  <Label htmlFor="location">Lieu</Label>
+                  <Input
+                    id="location"
+                    value={formData.location}
+                    onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                    placeholder="Lieu de prise"
+                  />
                 </div>
+
                 <div>
-                  <Label className="text-slate-500">Téléchargements</Label>
-                  <p>{currentItem.downloads}</p>
+                  <Label htmlFor="capture_date">Date de capture</Label>
+                  <Input
+                    id="capture_date"
+                    type="date"
+                    value={formData.capture_date}
+                    onChange={(e) => setFormData(prev => ({ ...prev, capture_date: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="alt_text">Texte alternatif</Label>
+                <Input
+                  id="alt_text"
+                  value={formData.alt_text}
+                  onChange={(e) => setFormData(prev => ({ ...prev, alt_text: e.target.value }))}
+                  placeholder="Description pour l'accessibilité"
+                />
+                <p className="text-xs text-gray-500 mt-1">Recommandé pour l'accessibilité</p>
+              </div>
+
+              <div className="flex items-center space-x-6">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="is_published"
+                    checked={formData.is_published}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_published: checked }))}
+                  />
+                  <Label htmlFor="is_published">Publié</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="is_featured"
+                    checked={formData.is_featured}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_featured: checked }))}
+                  />
+                  <Label htmlFor="is_featured">En vedette</Label>
                 </div>
               </div>
             </div>
           </div>
-        )}
-      </FormDialog>
 
-      <DeleteConfirmDialog
-        isOpen={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
-        onConfirm={confirmDelete}
-        title={deleteTarget === 'item' ? "Supprimer l'image" : "Supprimer la catégorie"}
-        description={
-          deleteTarget === 'item' 
-            ? `Êtes-vous sûr de vouloir supprimer l'image "${currentItem?.title}" ? Cette action est irréversible.`
-            : `Êtes-vous sûr de vouloir supprimer la catégorie "${currentCategory?.name}" ? Cette action affectera toutes les images de cette catégorie.`
-        }
-      />
+          <DialogFooter>
+            {/* Message d'aide pour les champs requis */}
+            {(!formData.title?.trim() || 
+              !formData.category || 
+              (formData.category === 'custom' && !formData.customCategory?.trim()) ||
+              (!selectedFile && !selectedItem)) && (
+              <div className="w-full mb-4">
+                <div className="text-xs text-red-600 bg-red-50 p-2 rounded">
+                  Champs requis manquants : 
+                  {!formData.title?.trim() && ' Titre'}
+                  {!formData.category && ' Catégorie'}
+                  {formData.category === 'custom' && !formData.customCategory?.trim() && ' Nom de catégorie personnalisée'}
+                  {(!selectedFile && !selectedItem) && ' Fichier média'}
+                </div>
+              </div>
+            )}
+            
+            <Button variant="outline" onClick={() => setIsItemDialogOpen(false)}>
+              Annuler
+            </Button>
+            <Button 
+              onClick={handleSave} 
+              disabled={
+                isCreating || 
+                isUpdating || 
+                isUploading ||
+                !formData.title?.trim() || 
+                !formData.category || 
+                (formData.category === 'custom' && !formData.customCategory?.trim()) ||
+                (!selectedFile && !selectedItem)
+              }
+              className="bg-crec-gold hover:bg-crec-gold/90"
+            >
+              {isCreating || isUpdating || isUploading ? (
+                <>
+                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                  {isUploading ? `Upload... ${uploadProgress}%` : selectedItem ? 'Modification...' : 'Ajout...'}
+                </>
+              ) : (
+                selectedItem ? 'Modifier' : 'Ajouter'
+              )}
+            </Button>
+            
+            {/* Barre de progression pour les uploads */}
+            {isUploading && (
+              <div className="w-full mt-4">
+                <div className="flex justify-between text-sm text-gray-600 mb-1">
+                  <span>Upload en cours...</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-crec-gold h-2 rounded-full transition-all duration-300"
+                    {...{ style: { width: `${uploadProgress}%` } }}
+                  ></div>
+                </div>
+                {selectedFile && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    Fichier: {selectedFile.name} ({(selectedFile.size / (1024 * 1024)).toFixed(1)} MB)
+                  </div>
+                )}
+              </div>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Suppression */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer "{selectedItem?.title}" ? 
+              Cette action est irréversible et supprimera définitivement le fichier du serveur.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeleting ? (
+                <>
+                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                  Suppression...
+                </>
+              ) : (
+                'Supprimer'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Dialog Visualisation */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-5xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>{selectedItem?.title}</DialogTitle>
+            {selectedItem?.description && (
+              <DialogDescription>{selectedItem.description}</DialogDescription>
+            )}
+          </DialogHeader>
+
+          {selectedItem && (
+            <div className="space-y-6">
+              {/* Média */}
+              <div className="bg-black rounded-lg flex items-center justify-center min-h-[400px]">
+                {selectedItem.media_type === 'image' ? (
+                  <img
+                    src={selectedItem.media_url}
+                    alt={selectedItem.alt_text || selectedItem.title}
+                    className="max-w-full max-h-[400px] object-contain rounded"
+                  />
+                ) : (
+                  <video
+                    src={selectedItem.media_url}
+                    controls
+                    className="max-w-full max-h-[400px] rounded"
+                    poster={selectedItem.thumbnail_url}
+                  />
+                )}
+              </div>
+
+              {/* Informations détaillées */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                <div>
+                  <strong>Type:</strong> {selectedItem.media_type === 'image' ? 'Image' : 'Vidéo'}
+                </div>
+                <div>
+                  <strong>Catégorie:</strong> {CATEGORIES.find(c => c.value === selectedItem.category)?.label || selectedItem.category}
+                </div>
+                <div>
+                  <strong>Statut:</strong> {selectedItem.is_published ? 'Publié' : 'Brouillon'}
+                </div>
+                <div>
+                  <strong>En vedette:</strong> {selectedItem.is_featured ? 'Oui' : 'Non'}
+                </div>
+                {selectedItem.location && (
+                  <div>
+                    <strong>Lieu:</strong> {selectedItem.location}
+                  </div>
+                )}
+                {selectedItem.capture_date && (
+                  <div>
+                    <strong>Date:</strong> {new Date(selectedItem.capture_date).toLocaleDateString('fr-FR')}
+                  </div>
+                )}
+                {selectedItem.file_size && (
+                  <div>
+                    <strong>Taille:</strong> {formatFileSize(selectedItem.file_size)}
+                  </div>
+                )}
+                {selectedItem.dimensions && (
+                  <div>
+                    <strong>Dimensions:</strong> {selectedItem.dimensions}
+                  </div>
+                )}
+                {selectedItem.duration && (
+                  <div>
+                    <strong>Durée:</strong> {formatDuration(selectedItem.duration)}
+                  </div>
+                )}
+                <div>
+                  <strong>Créé le:</strong> {new Date(selectedItem.created_at).toLocaleDateString('fr-FR')}
+                </div>
+                <div>
+                  <strong>Modifié le:</strong> {new Date(selectedItem.updated_at).toLocaleDateString('fr-FR')}
+                </div>
+              </div>
+
+              {/* Tags */}
+              {selectedItem.tags && selectedItem.tags.length > 0 && (
+                <div>
+                  <strong>Tags:</strong>
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {selectedItem.tags.map((tag, index) => (
+                      <Badge key={index} variant="outline">
+                        <Tag className="h-3 w-3 mr-1" />
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* URL du média */}
+              <div>
+                <strong>URL du média:</strong>
+                <div className="flex items-center gap-2 mt-1">
+                  <Input
+                    value={selectedItem.media_url}
+                    readOnly
+                    className="font-mono text-xs"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigator.clipboard.writeText(selectedItem.media_url)}
+                  >
+                    Copier
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
+              Fermer
+            </Button>
+            <Button onClick={() => {
+              setIsViewDialogOpen(false);
+              if (selectedItem) handleEdit(selectedItem);
+            }}>
+              <PencilIcon className="h-4 w-4 mr-2" />
+              Modifier
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-export default AdminGaleriePage;
+export default AdminGalleryPage;

@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  FileText, 
-  GraduationCap, 
-  Wrench, 
-  BookOpen,
-  ArrowRight,
-  Edit3,
-  Settings,
-  PlusCircle
+  FileText, GraduationCap, Wrench, BookOpen, ArrowRight, Edit3, Settings, PlusCircle
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
@@ -17,29 +10,60 @@ import { Badge } from '../../../components/ui/badge';
 const AdminContenusIndexPage: React.FC = () => {
   const navigate = useNavigate();
 
-  // États pour les statistiques
-  const [stats, setStats] = useState({
-    istm: { programs: '0 programme', active: '0 actif', draft: '0 brouillon' },
-    formations: { programs: '0 formation', active: '0 active', draft: '0 en préparation' },
-    fablab: { programs: '0 équipement', active: '0 disponible', draft: '0 en maintenance' }
-  });
+  // États pour les statistiques (vrai initial = null, pas de valeurs fake)
+  const [stats, setStats] = useState<null | {
+    istm: { programs: string; active: string; draft: string };
+    formations: { programs: string; active: string; draft: string };
+    fablab: { programs: string; active: string; draft: string };
+    actifs: number;
+    edition: number;
+    total: number;
+  }>(null);
 
   // Charger les statistiques depuis l'API
   useEffect(() => {
     const loadStats = async () => {
       try {
-        // TODO: Remplacer par les vrais appels API
-        // const response = await fetch('/api/admin/contenus/stats');
-        // const data = await response.json();
-        // setStats(data);
-        
-        // Pour l'instant, garder les statistiques à zéro
+        // À ADAPTER : Change ces endpoints pour pointer vers tes vraies routes Laravel !
+        const [
+          istmRes,
+          formRes,
+          fablabRes
+        ] = await Promise.all([
+          // Pour l’exemple, remplace par tes vrais endpoints
+          fetch('/api/admin/contenus/istm-stats').then(r => r.json()),
+          fetch('/api/admin/contenus/formations-stats').then(r => r.json()),
+          fetch('/api/admin/contenus/fablab-stats').then(r => r.json())
+        ]);
+
+        // Ajoute tes vrais mappings selon ce que renvoie ton backend Laravel
+        setStats({
+          istm: {
+            programs: `${istmRes.total || 0} programme${istmRes.total > 1 ? 's' : ''}`,
+            active: `${istmRes.active || 0} actif${istmRes.active > 1 ? 's' : ''}`,
+            draft: `${istmRes.draft || 0} brouillon${istmRes.draft > 1 ? 's' : ''}`,
+          },
+          formations: {
+            programs: `${formRes.total || 0} formation${formRes.total > 1 ? 's' : ''}`,
+            active: `${formRes.active || 0} active${formRes.active > 1 ? 's' : ''}`,
+            draft: `${formRes.draft || 0} en préparation`,
+          },
+          fablab: {
+            programs: `${fablabRes.total || 0} équipement${fablabRes.total > 1 ? 's' : ''}`,
+            active: `${fablabRes.active || 0} disponible${fablabRes.active > 1 ? 's' : ''}`,
+            draft: `${fablabRes.draft || 0} en maintenance`,
+          },
+          actifs: (istmRes.active || 0) + (formRes.active || 0) + (fablabRes.active || 0),
+          edition: (istmRes.draft || 0) + (formRes.draft || 0) + (fablabRes.draft || 0),
+          total: (istmRes.total || 0) + (formRes.total || 0) + (fablabRes.total || 0),
+        });
+      } catch (error) {
         setStats({
           istm: { programs: '0 programme', active: '0 actif', draft: '0 brouillon' },
           formations: { programs: '0 formation', active: '0 active', draft: '0 en préparation' },
-          fablab: { programs: '0 équipement', active: '0 disponible', draft: '0 en maintenance' }
+          fablab: { programs: '0 équipement', active: '0 disponible', draft: '0 en maintenance' },
+          actifs: 0, edition: 0, total: 0
         });
-      } catch (error) {
         console.error('Erreur lors du chargement des statistiques:', error);
       }
     };
@@ -62,7 +86,7 @@ const AdminContenusIndexPage: React.FC = () => {
         'Configuration des frais d\'inscription',
         'Paramétrage de la rentrée scolaire'
       ],
-      stats: stats.istm
+      get stats() { return stats ? stats.istm : { programs: '...', active: '...', draft: '...' }; }
     },
     {
       id: 'formations',
@@ -78,7 +102,7 @@ const AdminContenusIndexPage: React.FC = () => {
         'Configuration des prérequis',
         'Planning et calendrier des sessions'
       ],
-      stats: stats.formations
+      get stats() { return stats ? stats.formations : { programs: '...', active: '...', draft: '...' }; }
     },
     {
       id: 'fablab',
@@ -94,7 +118,7 @@ const AdminContenusIndexPage: React.FC = () => {
         'Gestion des tarifs et abonnements',
         'Documentation et tutoriels'
       ],
-      stats: stats.fablab
+      get stats() { return stats ? stats.fablab : { programs: '...', active: '...', draft: '...' }; }
     }
   ];
 
@@ -124,13 +148,12 @@ const AdminContenusIndexPage: React.FC = () => {
                 <PlusCircle className="w-6 h-6 text-white" />
               </div>
               <div>
-                {/* <p className="text-2xl font-bold text-green-800">35</p> */}
+                <p className="text-2xl font-bold text-green-800">{stats ? stats.actifs : '...'}</p>
                 <p className="text-sm text-green-600">Contenus actifs</p>
               </div>
             </div>
           </CardContent>
         </Card>
-
         <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
@@ -138,13 +161,12 @@ const AdminContenusIndexPage: React.FC = () => {
                 <Edit3 className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-blue-800">7</p>
+                <p className="text-2xl font-bold text-blue-800">{stats ? stats.edition : '...'}</p>
                 <p className="text-sm text-blue-600">En cours d'édition</p>
               </div>
             </div>
           </CardContent>
         </Card>
-
         <Card className="bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
@@ -152,7 +174,7 @@ const AdminContenusIndexPage: React.FC = () => {
                 <Settings className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-purple-800">42</p>
+                <p className="text-2xl font-bold text-purple-800">{stats ? stats.total : '...'}</p>
                 <p className="text-sm text-purple-600">Total des éléments</p>
               </div>
             </div>
@@ -181,7 +203,6 @@ const AdminContenusIndexPage: React.FC = () => {
                 {section.description}
               </CardDescription>
             </CardHeader>
-
             <CardContent className="space-y-4">
               {/* Fonctionnalités */}
               <div className="space-y-2">
@@ -195,7 +216,6 @@ const AdminContenusIndexPage: React.FC = () => {
                   ))}
                 </ul>
               </div>
-
               {/* Statistiques */}
               <div className="flex flex-wrap gap-2 pt-2">
                 <Badge variant="secondary" className="text-xs">
@@ -208,7 +228,6 @@ const AdminContenusIndexPage: React.FC = () => {
                   {section.stats.draft}
                 </Badge>
               </div>
-
               {/* Bouton d'action */}
               <Button 
                 className="w-full mt-4 group-hover:bg-slate-700 transition-colors"
@@ -240,7 +259,6 @@ const AdminContenusIndexPage: React.FC = () => {
               <GraduationCap className="w-5 h-5 text-indigo-600" />
               <span className="text-sm">Nouveau programme ISTM</span>
             </Button>
-            
             <Button 
               variant="outline" 
               className="p-4 h-auto flex-col gap-2 border-indigo-200 hover:bg-indigo-50"
@@ -249,7 +267,6 @@ const AdminContenusIndexPage: React.FC = () => {
               <BookOpen className="w-5 h-5 text-indigo-600" />
               <span className="text-sm">Nouvelle formation</span>
             </Button>
-            
             <Button 
               variant="outline" 
               className="p-4 h-auto flex-col gap-2 border-indigo-200 hover:bg-indigo-50"
