@@ -11,7 +11,8 @@ import { toast } from "@/hooks/use-toast";
 import { Loader2, Upload, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import inscriptionService, { FormationInscriptionData } from '@/services/inscription-service';
-import formationService, { Formation } from '@/services/formation-service';
+import { formationService } from '@/services/formationsService';
+import { Formation } from '@/types/formations';
 import { DocumentFileUpload } from '@/components/common/DocumentFileUpload';
 
 
@@ -30,7 +31,7 @@ const OpenFormationsInscriptionPage: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
   const [formationsLoading, setFormationsLoading] = useState(true);
-  const [formations, setFormations] = useState<{slug: string, name: string}[]>([]);
+  const [formations, setFormations] = useState<{ slug: string, name: string }[]>([]);
   const [formData, setFormData] = useState<Omit<FormationInscriptionData, 'paymentReceipt' | 'formation'> & { formation_slug: string; paymentReceipt?: File }>({
     firstName: '',
     lastName: '',
@@ -49,16 +50,16 @@ const OpenFormationsInscriptionPage: React.FC = () => {
     const loadFormations = async () => {
       try {
         setFormationsLoading(true);
-        const formationsData = await formationService.getFormationsByType('open');
+        const formationsData = await formationService.getOpenFormations();
         const formationOptions = formationsData.map(f => ({
-          slug: f.slug,
-          name: f.title || f.slug
+          slug: f.slug || '',
+          name: f.name || f.slug || ''
         }));
         setFormations(formationOptions);
-        
+
         // Si aucune formation sélectionnée et qu'il y en a, prendre la première
         if (!selectedFormation && formationOptions.length > 0) {
-          setFormData(prev => ({ ...prev, formation_slug: formationOptions[0].slug }));
+          setFormData(prev => ({ ...prev, formation_slug: formationOptions[0].slug || '' }));
         }
       } catch (error) {
         console.error('Erreur lors du chargement des formations:', error);
@@ -119,7 +120,7 @@ const OpenFormationsInscriptionPage: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (field: keyof typeof formData, value: string) => {
+  const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
@@ -139,7 +140,7 @@ const OpenFormationsInscriptionPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       toast({
         title: "Erreur de validation",
@@ -174,19 +175,19 @@ const OpenFormationsInscriptionPage: React.FC = () => {
           description: "Votre inscription a été soumise avec succès. Vous recevrez un email de confirmation.",
         });
 
-        navigate('/formations/open-formations', { 
-          state: { 
+        navigate('/formations/open-formations', {
+          state: {
             inscriptionSuccess: true,
             inscriptionId: response.data.data.id,
             formation: response.data.data.formation
-          } 
+          }
         });
       }
     } catch (error: any) {
       console.error('Erreur inscription Formation:', error);
-      
+
       const errorMessage = error.response?.data?.message || 'Erreur lors de l\'inscription. Veuillez réessayer.';
-      
+
       if (error.response?.status === 422 && error.response?.data?.errors) {
         const backendErrors = error.response.data.errors;
         setErrors(backendErrors);
@@ -218,7 +219,7 @@ const OpenFormationsInscriptionPage: React.FC = () => {
           <Alert className="mb-6">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Assurez-vous d'avoir effectué le paiement avant de soumettre votre inscription. 
+              Assurez-vous d'avoir effectué le paiement avant de soumettre votre inscription.
               Le reçu de paiement est obligatoire pour valider votre inscription.
             </AlertDescription>
           </Alert>

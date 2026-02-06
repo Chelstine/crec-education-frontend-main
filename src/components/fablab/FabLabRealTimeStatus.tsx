@@ -5,7 +5,7 @@ import { Badge } from '../ui/badge';
 import { Progress } from '../ui/progress';
 import { Skeleton } from '../ui/skeleton';
 import { Clock, AlertTriangle, CheckCircle, XCircle, Settings, Activity } from 'lucide-react';
-import { useApi } from '@/hooks/useApi';
+import api from '@/services/api';
 import { cn } from '@/lib/utils';
 
 interface Machine {
@@ -35,18 +35,17 @@ interface FabLabStatus {
   };
 }
 
-export const FabLabRealTimeStatus: React.FC = () => {
+const FabLabRealTimeStatus: React.FC = () => {
   const [status, setStatus] = useState<FabLabStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshInterval, setRefreshInterval] = useState(60000); // 1 minute par défaut
-  const { get } = useApi();
 
   // Fonction pour charger les données
   const loadStatus = async () => {
     try {
       setLoading(true);
-      const response = await get('/api/public/fablab/status');
+      const response = await api.get('/api/public/fablab/status');
       if (response.data && typeof response.data === 'object' && 'machines' in response.data && 'stats' in response.data) {
         setStatus(response.data as FabLabStatus);
       } else {
@@ -77,7 +76,7 @@ export const FabLabRealTimeStatus: React.FC = () => {
 
   // Fonction pour obtenir le statut visuel d'une machine
   const getMachineStatusBadge = (status: string) => {
-    switch(status) {
+    switch (status) {
       case 'AVAILABLE':
         return <Badge variant="outline" className="bg-green-100 text-green-800">Disponible</Badge>;
       case 'IN_USE':
@@ -98,10 +97,10 @@ export const FabLabRealTimeStatus: React.FC = () => {
     const start = new Date(startTime).getTime();
     const end = new Date(endTime).getTime();
     const now = new Date().getTime();
-    
+
     if (now < start) return 0;
     if (now > end) return 100;
-    
+
     return Math.floor(((now - start) / (end - start)) * 100);
   };
 
@@ -174,8 +173,8 @@ export const FabLabRealTimeStatus: React.FC = () => {
           <div>
             <CardTitle>État Actuel du FabLab</CardTitle>
             <CardDescription>
-              {status ? 
-                `Dernière mise à jour: ${new Date(status.stats.lastUpdated).toLocaleTimeString()}` : 
+              {status ?
+                `Dernière mise à jour: ${new Date(status.stats.lastUpdated).toLocaleTimeString()}` :
                 "Statut en temps réel des machines"
               }
             </CardDescription>
@@ -187,7 +186,7 @@ export const FabLabRealTimeStatus: React.FC = () => {
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent>
         {/* Statistiques en haut */}
         {status && (
@@ -203,7 +202,7 @@ export const FabLabRealTimeStatus: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-blue-50">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
@@ -215,7 +214,7 @@ export const FabLabRealTimeStatus: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-amber-50">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
@@ -227,7 +226,7 @@ export const FabLabRealTimeStatus: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-red-50">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
@@ -241,11 +240,11 @@ export const FabLabRealTimeStatus: React.FC = () => {
             </Card>
           </div>
         )}
-        
+
         {/* Liste des machines */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {status && status.machines.map((machine) => (
-            <Card 
+            <Card
               key={machine.id}
               className={cn(
                 machine.status === 'AVAILABLE' && "border-green-200",
@@ -262,11 +261,11 @@ export const FabLabRealTimeStatus: React.FC = () => {
                   </div>
                   {getMachineStatusBadge(machine.status)}
                 </div>
-                
+
                 <div className="aspect-w-4 aspect-h-3 overflow-hidden rounded-md bg-gray-100">
                   {machine.imageUrl ? (
-                    <img 
-                      src={machine.imageUrl} 
+                    <img
+                      src={machine.imageUrl}
                       alt={machine.name}
                       className="object-cover h-32 w-full"
                     />
@@ -276,7 +275,7 @@ export const FabLabRealTimeStatus: React.FC = () => {
                     </div>
                   )}
                 </div>
-                
+
                 {machine.status === 'IN_USE' && machine.currentUsage && (
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm text-gray-500">
@@ -286,21 +285,21 @@ export const FabLabRealTimeStatus: React.FC = () => {
                       </span>
                       <span>{machine.currentUsage.userName || 'Utilisateur'}</span>
                     </div>
-                    
-                    <Progress 
+
+                    <Progress
                       value={calculateUsageProgress(
-                        machine.currentUsage.startedAt, 
+                        machine.currentUsage.startedAt,
                         machine.currentUsage.endsAt
                       )}
                     />
-                    
+
                     <div className="flex justify-between text-xs text-gray-400">
                       <span>Début: {new Date(machine.currentUsage.startedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       <span>Fin: {new Date(machine.currentUsage.endsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
                   </div>
                 )}
-                
+
                 <div className="flex justify-between items-center">
                   <Badge variant="outline">{machine.category}</Badge>
                 </div>
