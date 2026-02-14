@@ -1,4 +1,4 @@
-
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
 @import './styles/responsive.css';
 
 /* Tailwind CSS directives */
@@ -18,16 +18,19 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 81% 16%;
 
-    --primary: 222 55% 23%; /* CREC Dark Blue */
+    --primary: 222 55% 23%;
+    /* CREC Dark Blue */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 39 97% 53%; /* CREC Gold */
+    --secondary: 39 97% 53%;
+    /* CREC Gold */
     --secondary-foreground: 222 55% 23%;
 
     --muted: 0 0% 96%;
     --muted-foreground: 222 15% 45%;
 
-    --accent: 39 97% 53%; /* CREC Gold */
+    --accent: 39 97% 53%;
+    /* CREC Gold */
     --accent-foreground: 222 55% 23%;
 
     --destructive: 0 84.2% 60.2%;
@@ -103,8 +106,32 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: Cambria, serif;
-    font-size: 16pt;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Playfair Display', serif;
+  }
+
+  /* Glassmorphism Utilities */
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 }
 
@@ -124,7 +151,7 @@
     -webkit-line-clamp: 2;
     line-clamp: 2;
   }
-  
+
   .line-clamp-3 {
     overflow: hidden;
     display: -webkit-box;
@@ -256,35 +283,29 @@
 
   /* Additional hero overlays */
   .hero-overlay-dark {
-    background: linear-gradient(
-      to right,
-      rgba(0, 0, 0, 0.7),
-      rgba(0, 0, 0, 0.4),
-      rgba(0, 0, 0, 0.7)
-    );
+    background: linear-gradient(to right,
+        rgba(0, 0, 0, 0.7),
+        rgba(0, 0, 0, 0.4),
+        rgba(0, 0, 0, 0.7));
   }
 
   .hero-overlay-gradient {
-    background: linear-gradient(
-      45deg,
-      rgba(0, 0, 0, 0.8) 0%,
-      rgba(0, 0, 0, 0.6) 30%,
-      rgba(0, 0, 0, 0.4) 50%,
-      rgba(0, 0, 0, 0.6) 70%,
-      rgba(0, 0, 0, 0.8) 100%
-    );
+    background: linear-gradient(45deg,
+        rgba(0, 0, 0, 0.8) 0%,
+        rgba(0, 0, 0, 0.6) 30%,
+        rgba(0, 0, 0, 0.4) 50%,
+        rgba(0, 0, 0, 0.6) 70%,
+        rgba(0, 0, 0, 0.8) 100%);
   }
 
   /* Amélioration de l'overlay gradient */
   .hero-overlay {
-    background: linear-gradient(
-      45deg,
-      rgba(0, 0, 0, 0.8) 0%,
-      rgba(0, 0, 0, 0.6) 30%,
-      rgba(0, 0, 0, 0.4) 50%,
-      rgba(0, 0, 0, 0.6) 70%,
-      rgba(0, 0, 0, 0.8) 100%
-    );
+    background: linear-gradient(45deg,
+        rgba(0, 0, 0, 0.8) 0%,
+        rgba(0, 0, 0, 0.6) 30%,
+        rgba(0, 0, 0, 0.4) 50%,
+        rgba(0, 0, 0, 0.6) 70%,
+        rgba(0, 0, 0, 0.8) 100%);
   }
 
   /* Dynamic background image utility */
