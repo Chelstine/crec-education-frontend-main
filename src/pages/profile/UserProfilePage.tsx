@@ -25,8 +25,8 @@ const UserProfilePage: React.FC = () => {
   useEffect(() => {
     if (user) {
       setFormData({
-        firstName: user.firstname || '',
-        lastName: user.lastname || '',
+        firstName: (user as any).prenom || '',
+        lastName: (user as any).nom || '',
         email: user.email || '',
         phone: (user as any).phone || '', // Conversion de type temporaire pour éviter l'erreur
         organization: (user as any).organization || '', // Conversion de type temporaire pour éviter l'erreur
