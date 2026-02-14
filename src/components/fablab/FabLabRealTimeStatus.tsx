@@ -45,7 +45,7 @@ const FabLabRealTimeStatus: React.FC = () => {
   const loadStatus = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/api/public/fablab/status');
+      const response = await api.get('/public/fablab/status');
       if (response.data && typeof response.data === 'object' && 'machines' in response.data && 'stats' in response.data) {
         setStatus(response.data as FabLabStatus);
       } else {
