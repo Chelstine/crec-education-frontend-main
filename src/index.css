@@ -106,8 +106,8 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: 'Inter', sans-serif;
-    font-size: 16px;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 15px;
   }
 
   h1,
@@ -116,7 +116,7 @@
   h4,
   h5,
   h6 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Times New Roman', Times, serif;
   }
 
   /* Unified Glassmorphism Design System (UGDS) */

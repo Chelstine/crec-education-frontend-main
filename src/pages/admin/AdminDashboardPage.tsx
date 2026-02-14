@@ -180,34 +180,34 @@ const AdminDashboardPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      {/* En-tête de bienvenue Glassmorphism Refiné */}
-      <div className="glass-panel p-10 rounded-[2rem] relative overflow-hidden group border border-white/60 shadow-2xl">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-crec-gold/20 to-transparent rounded-full blur-[100px] transform translate-x-1/4 -translate-y-1/4"></div>
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* En-tête de bienvenue Glassmorphism Refiné - Compact */}
+      <div className="glass-panel p-6 rounded-2xl relative overflow-hidden group border border-white/60 shadow-lg">
+        <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-gradient-to-br from-crec-gold/20 to-transparent rounded-full blur-[80px] transform translate-x-1/4 -translate-y-1/4"></div>
 
         <div className="relative z-10">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="max-w-3xl">
-              <div className="flex items-center gap-3 mb-4">
-                <Badge className="bg-crec-gold/10 text-crec-gold border-crec-gold/20 hover:bg-crec-gold/20 px-4 py-1 rounded-full text-xs font-bold tracking-widest uppercase">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge className="bg-crec-gold/10 text-crec-gold border-crec-gold/20 hover:bg-crec-gold/20 px-3 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase">
                   Tableau de Bord Institutionnel
                 </Badge>
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold admin-title mb-4">
+              <h2 className="text-3xl font-bold admin-title mb-2">
                 {getGreeting()}, {user?.prenom}.
               </h2>
-              <p className="text-slate-600 text-xl font-medium leading-relaxed">
+              <p className="text-slate-600 text-base font-medium leading-relaxed">
                 Votre centre de contrôle est prêt. Le patrimoine académique du <span className="text-crec-darkblue font-bold">CREC</span> est sous votre supervision.
               </p>
             </div>
-            <div className="flex flex-col gap-3">
-              <div className="glass-card px-6 py-3 rounded-2xl flex items-center gap-4 bg-white/40 border-white/80">
-                <div className="w-10 h-10 bg-crec-gold/10 rounded-full flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-crec-gold" />
+            <div className="flex flex-col gap-2">
+              <div className="glass-card px-4 py-2 rounded-xl flex items-center gap-3 bg-white/40 border-white/80">
+                <div className="w-8 h-8 bg-crec-gold/10 rounded-full flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-crec-gold" />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase font-bold text-slate-400 tracking-tighter">Accès Autorisé</p>
-                  <p className="text-sm font-bold text-crec-darkblue leading-none">{getRoleDisplayName(user?.role || '')}</p>
+                  <p className="text-[9px] uppercase font-bold text-slate-400 tracking-tighter">Accès Autorisé</p>
+                  <p className="text-xs font-bold text-crec-darkblue leading-none">{getRoleDisplayName(user?.role || '')}</p>
                 </div>
               </div>
             </div>
@@ -215,82 +215,82 @@ const AdminDashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Statistiques rapides raffinées */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Statistiques rapides raffinées - Compact */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
-          <div key={index} className="glass-card rounded-2xl p-6 border border-white/60 hover:border-crec-gold/40">
-            <div className="flex items-center justify-between mb-6">
-              <div className="p-3 bg-white/60 rounded-xl shadow-inner border border-white/40">
-                <stat.icon className="h-6 w-6 text-crec-darkblue animate-pulse" />
+          <div key={index} className="glass-card rounded-xl p-4 border border-white/60 hover:border-crec-gold/40">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2 bg-white/60 rounded-lg shadow-inner border border-white/40">
+                <stat.icon className="h-5 w-5 text-crec-darkblue animate-pulse" />
               </div>
-              <Badge variant="secondary" className="bg-crec-darkblue/5 text-crec-darkblue border-crec-darkblue/10 font-bold">
+              <Badge variant="secondary" className="bg-crec-darkblue/5 text-crec-darkblue border-crec-darkblue/10 font-bold text-[10px] px-2 py-0.5">
                 {stat.change}
               </Badge>
             </div>
             <div>
-              <p className="admin-card-label">{stat.title}</p>
-              <h3 className="text-4xl font-bold text-slate-800 tracking-tighter">{stat.value}</h3>
-              <p className="text-sm text-slate-500 mt-2 font-medium">{stat.description}</p>
+              <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-500 mb-1">{stat.title}</p>
+              <h3 className="text-2xl font-bold text-slate-800 tracking-tighter">{stat.value}</h3>
+              <p className="text-xs text-slate-500 mt-1 font-medium">{stat.description}</p>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Graphique / Activité - Prestige Edition */}
-        <div className="lg:col-span-2 glass-panel rounded-[2rem] p-10 shadow-xl border border-white/60">
-          <div className="flex items-center justify-between mb-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Graphique / Activité - Compact */}
+        <div className="lg:col-span-2 glass-panel rounded-2xl p-6 shadow-lg border border-white/60">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-2xl font-bold admin-title flex items-center gap-3">
-                <TrendingUp className="w-6 h-6 text-crec-gold" />
+              <h3 className="text-xl font-bold admin-title flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-crec-gold" />
                 Vaisseau de Bord & Activité
               </h3>
-              <p className="text-slate-400 text-xs mt-1 uppercase tracking-widest font-bold">Flux de données en temps réel</p>
+              <p className="text-slate-400 text-[10px] mt-0.5 uppercase tracking-widest font-bold">Flux de données en temps réel</p>
             </div>
-            <Button variant="ghost" size="sm" className="glass-button rounded-full px-6">
+            <Button variant="ghost" size="sm" className="glass-button rounded-full px-4 h-8 text-xs">
               Archives
             </Button>
           </div>
-          <div className="h-80 flex flex-col items-center justify-center bg-white/30 rounded-3xl border border-white/40 shadow-inner group relative overflow-hidden">
+          <div className="h-64 flex flex-col items-center justify-center bg-white/30 rounded-xl border border-white/40 shadow-inner group relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-crec-darkblue/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="p-6 bg-white shadow-xl rounded-full mb-6 group-hover:scale-110 transition-transform duration-500">
-              <Zap className="w-10 h-10 text-crec-gold" />
+            <div className="p-4 bg-white shadow-lg rounded-full mb-4 group-hover:scale-110 transition-transform duration-500">
+              <Zap className="w-8 h-8 text-crec-gold" />
             </div>
-            <p className="text-crec-darkblue font-bold text-lg">Système d'Analyse en Préparation</p>
-            <p className="text-slate-500 text-sm mt-2 max-w-sm text-center px-4">Les indicateurs de performance et les flux d'activité seront déployés lors de la prochaine mise à jour de la gouvernance.</p>
+            <p className="text-crec-darkblue font-bold text-base">Système d'Analyse en Préparation</p>
+            <p className="text-slate-500 text-xs mt-1 max-w-sm text-center px-4">Les indicateurs de performance et les flux d'activité seront déployés lors de la prochaine mise à jour de la gouvernance.</p>
           </div>
         </div>
 
-        {/* Liens rapides - Prestige Edition */}
-        <div className="glass-panel rounded-[2rem] p-10 shadow-xl border border-white/60">
-          <div className="mb-10">
-            <h3 className="text-2xl font-bold admin-title flex items-center gap-3">
-              <Zap className="w-6 h-6 text-crec-gold" />
+        {/* Liens rapides - Compact */}
+        <div className="glass-panel rounded-2xl p-6 shadow-lg border border-white/60">
+          <div className="mb-6">
+            <h3 className="text-xl font-bold admin-title flex items-center gap-2">
+              <Zap className="w-5 h-5 text-crec-gold" />
               Accès Privilégiés
             </h3>
-            <p className="text-slate-400 text-xs mt-1 uppercase tracking-widest font-bold">Raccourcis de gestion</p>
+            <p className="text-slate-400 text-[10px] mt-0.5 uppercase tracking-widest font-bold">Raccourcis de gestion</p>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {quickLinks.map((link, index) => (
               <Button
                 key={index}
                 variant="outline"
-                className="w-full justify-start h-auto py-5 px-5 glass-card border-white/60 group relative overflow-hidden"
+                className="w-full justify-start h-auto py-3 px-4 glass-card border-white/60 group relative overflow-hidden"
                 onClick={() => navigate(link.path)}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-crec-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className={`mr-5 p-3 rounded-2xl bg-white shadow-sm group-hover:shadow-md transition-all border border-slate-100 ${link.color}`}>
-                  <link.icon className="h-6 w-6" />
+                <div className={`mr-4 p-2 rounded-xl bg-white shadow-sm group-hover:shadow-md transition-all border border-slate-100 ${link.color}`}>
+                  <link.icon className="h-5 w-5" />
                 </div>
                 <div className="text-left relative z-10 flex-1">
-                  <span className="font-bold text-slate-800 group-hover:text-crec-darkblue block text-base tracking-tight">
+                  <span className="font-bold text-slate-800 group-hover:text-crec-darkblue block text-sm tracking-tight">
                     {link.title}
                   </span>
-                  <span className="text-[10px] text-slate-400 group-hover:text-slate-600 font-bold uppercase tracking-widest mt-1 block">
+                  <span className="text-[9px] text-slate-400 group-hover:text-slate-600 font-bold uppercase tracking-widest mt-0.5 block">
                     {link.description}
                   </span>
                 </div>
-                <ChevronRight className="ml-2 h-5 w-5 text-slate-300 group-hover:text-crec-gold transition-colors transform group-hover:translate-x-1 duration-300" />
+                <ChevronRight className="ml-1 h-4 w-4 text-slate-300 group-hover:text-crec-gold transition-colors transform group-hover:translate-x-1 duration-300" />
               </Button>
             ))}
           </div>
