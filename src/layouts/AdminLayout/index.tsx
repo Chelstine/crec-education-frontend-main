@@ -83,93 +83,93 @@ const AdminLayout: React.FC = () => {
   const navItems: NavItem[] = [
     {
       path: '/admin/dashboard',
-      name: 'Tableau de bord',
+      name: 'Centre de Contrôle',
       iconComponent: LayoutDashboard
     },
     {
       path: '/admin/inscriptions',
-      name: 'Inscriptions',
+      name: 'Admissions & Candidatures',
       iconComponent: UserCheck,
       roles: ['super_admin', 'admin_inscription'],
       children: [
         {
           path: '/admin/inscriptions/university',
-          name: 'Université',
+          name: 'Faculté ISTM',
           roles: ['super_admin', 'admin_inscription']
         },
         {
           path: '/admin/inscriptions/formations',
-          name: 'Formations ouvertes',
+          name: 'Cursus Professionnels',
           roles: ['super_admin', 'admin_inscription']
         },
         {
           path: '/admin/inscriptions/fablab',
-          name: 'FabLab',
+          name: 'Laboratoire FabLab',
           roles: ['super_admin', 'admin_inscription']
         }
       ]
     },
     {
       path: '/admin/contenus',
-      name: 'Gestion du contenu',
+      name: 'Patrimoine Académique',
       iconComponent: BookOpen,
       roles: ['super_admin', 'admin_contenu'],
       children: [
         {
           path: '/admin/contenus/istm',
-          name: 'Programmes ISTM',
+          name: 'Programmes de la Faculté',
           roles: ['super_admin', 'admin_contenu']
         },
         {
           path: '/admin/contenus/formations',
-          name: 'Formations ouvertes',
+          name: 'Offre Certificateur',
           roles: ['super_admin', 'admin_contenu']
         },
         {
           path: '/admin/contenus/fablab',
-          name: 'Ressources FabLab',
+          name: 'Atelier & Ressources',
           roles: ['super_admin', 'admin_contenu']
         },
         {
           path: '/admin/contenus/evenements',
-          name: 'Événements',
+          name: 'Rayonnement & Événements',
           roles: ['super_admin', 'admin_contenu']
         },
         {
           path: '/admin/contenus/bibliotheque',
-          name: 'Bibliothèque',
+          name: 'Fonds Documentaire',
           roles: ['super_admin', 'admin_contenu']
         },
         {
           path: '/admin/contenus/galerie',
-          name: 'Galerie',
+          name: 'Archives Visuelles',
           roles: ['super_admin', 'admin_contenu']
         },
         {
           path: '/admin/contenus/partenaires',
-          name: 'Partenaires',
+          name: 'Alliance & Partenariats',
           roles: ['super_admin', 'admin_contenu']
         },
         {
           path: '/admin/reservations',
-          name: 'Réservations',
+          name: 'Flux de Réservations',
           roles: ['super_admin', 'admin_contenu']
         }
       ]
     },
     {
       path: '/admin/parametres',
-      name: 'Paramètres',
+      name: 'Gouvernance',
       iconComponent: Settings,
       children: [
         {
           path: '/admin/parametres/utilisateurs-roles',
-          name: 'Gestion des admins',
+          name: 'Membres du Cabinet',
           roles: ['super_admin']
         },
         {
           path: '/admin/profile',
-          name: 'Profil'
+          name: 'Mon Identité'
         }
       ]
     },
@@ -339,8 +339,8 @@ const AdminLayout: React.FC = () => {
                   <Link
                     to={item.path}
                     className={`flex items-center px-4 py-3 rounded-xl text-sm transition-all duration-200 ${isActive(item.path)
-                        ? "bg-gradient-to-r from-crec-darkblue to-blue-800 text-white shadow-md shadow-blue-900/20 font-medium"
-                        : "text-slate-600 hover:bg-white/60 hover:text-slate-900"
+                      ? "bg-gradient-to-r from-crec-darkblue to-blue-800 text-white shadow-md shadow-blue-900/20 font-medium"
+                      : "text-slate-600 hover:bg-white/60 hover:text-slate-900"
                       }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
@@ -356,8 +356,8 @@ const AdminLayout: React.FC = () => {
                             key={child.path}
                             to={child.path}
                             className={`flex items-center px-3 py-2 rounded-lg text-xs transition-colors ${location.pathname.startsWith(child.path)
-                                ? "text-crec-darkblue font-bold bg-blue-50"
-                                : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+                              ? "text-crec-darkblue font-bold bg-blue-50"
+                              : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
                               }`}
                             onClick={() => setMobileMenuOpen(false)}
                           >
@@ -410,8 +410,8 @@ const AdminLayout: React.FC = () => {
                           <Link
                             to={item.path}
                             className={`flex items-center px-3 py-3 rounded-xl text-sm transition-all duration-200 group ${isActive(item.path)
-                                ? "bg-gradient-to-r from-crec-darkblue to-blue-900 text-white shadow-lg shadow-blue-900/20 font-medium transform scale-[1.02]"
-                                : "text-slate-600 hover:bg-white/80 hover:text-crec-darkblue hover:shadow-sm"
+                              ? "bg-gradient-to-r from-crec-darkblue to-blue-900 text-white shadow-lg shadow-blue-900/20 font-medium transform scale-[1.02]"
+                              : "text-slate-600 hover:bg-white/80 hover:text-crec-darkblue hover:shadow-sm"
                               } ${sidebarCollapsed ? 'justify-center px-0' : ''}`}
                           >
                             <span className={`flex-shrink-0 transition-colors ${isActive(item.path) ? "text-crec-gold" : "text-slate-500 group-hover:text-crec-darkblue"}`}>
@@ -437,8 +437,8 @@ const AdminLayout: React.FC = () => {
                               key={child.path}
                               to={child.path}
                               className={`flex items-center px-3 py-2 rounded-lg text-xs transition-all ${location.pathname.startsWith(child.path)
-                                  ? "text-crec-darkblue font-bold bg-white/60 shadow-sm border border-white/50"
-                                  : "text-slate-500 hover:text-slate-900 hover:bg-white/40"
+                                ? "text-crec-darkblue font-bold bg-white/60 shadow-sm border border-white/50"
+                                : "text-slate-500 hover:text-slate-900 hover:bg-white/40"
                                 }`}
                             >
                               <div className={`w-1.5 h-1.5 rounded-full mr-2 ${location.pathname.startsWith(child.path) ? "bg-crec-gold" : "bg-slate-300"}`}></div>
@@ -472,17 +472,19 @@ const AdminLayout: React.FC = () => {
           </div>
         </div>
 
-        {/* Main content */}
         <div className="flex-1 overflow-auto">
           <main className="p-4 md:p-8 max-w-7xl mx-auto pb-20">
             <div className="hidden md:flex items-center justify-between mb-8">
-              <div>
-                <h1 className="text-3xl font-bold text-crec-darkblue font-serif">{getCurrentPageTitle()}</h1>
-                <p className="text-slate-500 text-sm mt-1">Espace d'administration sécurisé</p>
+              <div className="animate-in slide-in-from-top-4 duration-700">
+                <h1 className="text-4xl font-bold admin-title">{getCurrentPageTitle()}</h1>
+                <p className="text-slate-500 text-sm mt-2 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-crec-gold animate-pulse"></span>
+                  Centre de Commandement Institutionnel — Accès Sécurisé
+                </p>
               </div>
               <div className="flex gap-2">
-                <Badge variant="outline" className="px-3 py-1 bg-white/50 backdrop-blur-sm border-slate-200 shadow-sm">
-                  v1.0.2
+                <Badge variant="outline" className="px-3 py-1 glass-panel border-slate-200 shadow-sm text-crec-darkblue font-semibold">
+                  SST-OS v1.0.2
                 </Badge>
               </div>
             </div>

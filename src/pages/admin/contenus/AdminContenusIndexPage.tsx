@@ -116,182 +116,186 @@ const AdminContenusIndexPage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-8">
-      {/* En-tête */}
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="p-3 bg-green-100 rounded-full">
-            <FileText className="w-8 h-8 text-green-600" />
+    <div className="space-y-12 animate-in fade-in duration-700">
+      {/* En-tête Institutionnel Refiné */}
+      <div className="glass-panel p-10 rounded-[2.5rem] relative overflow-hidden group border border-white/60 shadow-2xl">
+        {/* Background Accents */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-crec-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-crec-gold/10 transition-all duration-700"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-crec-darkblue/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4"></div>
+
+        <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
+          <div className="p-6 bg-gradient-to-br from-crec-darkblue to-blue-900 rounded-[2rem] shadow-2xl border border-white/20 transform group-hover:scale-105 transition-transform duration-500">
+            <FileText className="w-10 h-10 text-crec-gold" />
           </div>
-          <h1 className="text-3xl font-bold text-slate-800">Gestion des Contenus</h1>
+          <div className="flex-1">
+            <h1 className="text-4xl md:text-5xl font-bold admin-title mb-4 tracking-tight leading-tight">
+              Patrimoine & <br className="hidden md:block" /> Contenus Académiques
+            </h1>
+            <p className="text-slate-600 font-medium max-w-2xl leading-relaxed text-sm md:text-base">
+              Gouvernance centralisée des ressources institutionnelles. Managez avec rigueur les programmes du
+              <span className="text-crec-darkblue font-bold px-1">Patrimoine ISTM</span>, les
+              <span className="text-crec-darkblue font-bold px-1">Offres Certificateurs</span>
+              et l'inventaire technologique du
+              <span className="text-crec-darkblue font-bold px-1">FabLab</span>.
+            </p>
+          </div>
         </div>
-        <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-          Créez, modifiez et organisez tous les contenus de votre établissement.
-          Gérez les programmes académiques, les formations professionnelles et
-          les équipements du FabLab depuis une interface centralisée.
-        </p>
       </div>
 
-      {/* Statistiques globales */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-gradient-to-r from-green-50 to-green-100 border-green-200">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-600 rounded-full">
-                <PlusCircle className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-green-800">{stats ? stats.actifs : '...'}</p>
-                <p className="text-sm text-green-600">Contenus actifs</p>
-              </div>
+      {/* Panorama Statistique Ultra-Refiné */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {[
+          {
+            label: "Ressources Actives",
+            value: stats ? stats.actifs : '...',
+            icon: PlusCircle,
+            color: "from-green-500/10 to-emerald-500/5",
+            iconColor: "text-emerald-600",
+            border: "border-emerald-500/20"
+          },
+          {
+            label: "En Rafinement",
+            value: stats ? stats.edition : '...',
+            icon: Edit3,
+            color: "from-crec-gold/10 to-amber-500/5",
+            iconColor: "text-crec-gold",
+            border: "border-crec-gold/20"
+          },
+          {
+            label: "Volume Patrimonial",
+            value: stats ? stats.total : '...',
+            icon: Settings,
+            color: "from-blue-500/10 to-indigo-500/5",
+            iconColor: "text-blue-600",
+            border: "border-blue-500/20"
+          }
+        ].map((stat, i) => (
+          <div key={i} className={`glass-card p-8 rounded-3xl border ${stat.border} hover:shadow-2xl transition-all duration-500 group overflow-hidden relative`}>
+            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+              <stat.icon className="w-16 h-16" />
             </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-600 rounded-full">
-                <Edit3 className="w-6 h-6 text-white" />
+            <div className="relative z-10">
+              <div className={`p-3 w-fit rounded-2xl bg-gradient-to-br ${stat.color} mb-6`}>
+                <stat.icon className={`w-6 h-6 ${stat.iconColor}`} />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-blue-800">{stats ? stats.edition : '...'}</p>
-                <p className="text-sm text-blue-600">En cours d'édition</p>
-              </div>
+              <p className="admin-card-label mb-1">{stat.label}</p>
+              <h3 className="text-4xl font-black text-slate-800 tracking-tighter">
+                {stat.value}
+              </h3>
             </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-600 rounded-full">
-                <Settings className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-purple-800">{stats ? stats.total : '...'}</p>
-                <p className="text-sm text-purple-600">Total des éléments</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Sections de contenu */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-        {contentSections.map((section) => (
-          <Card
-            key={section.id}
-            className={`${section.color} hover:shadow-lg transition-all duration-300 group cursor-pointer`}
-            onClick={() => navigate(section.path)}
-          >
-            <CardHeader className="pb-4">
-              <div className="flex items-center gap-3 mb-2">
-                <div className={`p-2 bg-white rounded-lg shadow-sm`}>
-                  <section.icon className={`w-6 h-6 ${section.iconColor}`} />
-                </div>
-                <CardTitle className="text-lg font-semibold text-slate-800">
-                  {section.title}
-                </CardTitle>
-              </div>
-              <CardDescription className="text-slate-600 leading-relaxed">
-                {section.description}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Fonctionnalités */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium text-slate-700">Fonctionnalités :</h4>
-                <ul className="space-y-1">
-                  {section.features.map((feature, index) => (
-                    <li key={index} className="text-xs text-slate-600 flex items-center gap-2">
-                      <div className="w-1 h-1 bg-slate-400 rounded-full"></div>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              {/* Statistiques */}
-              <div className="flex flex-wrap gap-2 pt-2">
-                <Badge variant="secondary" className="text-xs">
-                  {section.stats.programs}
-                </Badge>
-                <Badge variant="secondary" className="text-xs">
-                  {section.stats.active}
-                </Badge>
-                <Badge variant="outline" className="text-xs">
-                  {section.stats.draft}
-                </Badge>
-              </div>
-              {/* Bouton d'action */}
-              <Button
-                className="w-full mt-4 group-hover:bg-slate-700 transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(section.path);
-                }}
-              >
-                Gérer les contenus
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </CardContent>
-          </Card>
+          </div>
         ))}
       </div>
 
-      {/* Actions rapides */}
-      <Card className="bg-gradient-to-r from-indigo-50 to-indigo-100 border-indigo-200">
-        <CardHeader>
-          <CardTitle className="text-center text-indigo-800">Actions rapides</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button
-              variant="outline"
-              className="p-4 h-auto flex-col gap-2 border-indigo-200 hover:bg-indigo-50"
-              onClick={() => navigate('/admin/contenus/istm')}
-            >
-              <GraduationCap className="w-5 h-5 text-indigo-600" />
-              <span className="text-sm">Nouveau programme ISTM</span>
-            </Button>
-            <Button
-              variant="outline"
-              className="p-4 h-auto flex-col gap-2 border-indigo-200 hover:bg-indigo-50"
-              onClick={() => navigate('/admin/contenus/formations')}
-            >
-              <BookOpen className="w-5 h-5 text-indigo-600" />
-              <span className="text-sm">Nouvelle formation</span>
-            </Button>
-            <Button
-              variant="outline"
-              className="p-4 h-auto flex-col gap-2 border-indigo-200 hover:bg-indigo-50"
-              onClick={() => navigate('/admin/contenus/fablab')}
-            >
-              <Wrench className="w-5 h-5 text-indigo-600" />
-              <span className="text-sm">Ajouter équipement</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Section d'aide */}
-      <Card className="bg-gradient-to-r from-slate-50 to-slate-100 border-slate-200">
-        <CardContent className="p-6">
-          <div className="text-center space-y-3">
-            <h3 className="text-lg font-semibold text-slate-800">Besoin d'aide ?</h3>
-            <p className="text-slate-600 text-sm max-w-2xl mx-auto">
-              Consultez notre documentation pour apprendre à créer et gérer efficacement
-              vos contenus académiques et administratifs.
-            </p>
-            <div className="flex gap-3 justify-center mt-4">
-              <Button variant="outline" size="sm">
-                Documentation
-              </Button>
-              <Button variant="outline" size="sm">
-                Tutoriels vidéo
-              </Button>
+      {/* Sections de contenu Panorama */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+        {contentSections.map((section) => (
+          <div
+            key={section.id}
+            className="glass-card flex flex-col h-full rounded-[2.5rem] border border-white/60 p-8 hover:shadow-2xl transition-all duration-500 group cursor-pointer"
+            onClick={() => navigate(section.path)}
+          >
+            <div className="flex items-center gap-5 mb-8">
+              <div className="p-4 bg-crec-darkblue/5 rounded-2xl group-hover:bg-crec-gold/10 transition-colors duration-500">
+                <section.icon className={`w-8 h-8 ${section.iconColor}`} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold admin-title">
+                  {section.title}
+                </h3>
+                <p className="text-[10px] font-black text-crec-gold uppercase tracking-[0.2em] mt-1">
+                  Département {section.id.toUpperCase()}
+                </p>
+              </div>
             </div>
+
+            <p className="text-slate-500 text-sm leading-relaxed mb-8 flex-grow font-medium">
+              {section.description}
+            </p>
+
+            {/* Fonctionnalités Clés */}
+            <div className="space-y-3 mb-8 bg-white/40 p-5 rounded-2xl border border-white/60">
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Capacités de Gestion</h4>
+              <ul className="space-y-2">
+                {section.features.slice(0, 3).map((feature, index) => (
+                  <li key={index} className="text-xs text-crec-darkblue font-bold flex items-center gap-3">
+                    <div className="w-1.5 h-1.5 bg-crec-gold rounded-full"></div>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Indicateurs de Performance */}
+            <div className="flex flex-wrap gap-3 mb-8">
+              <div className="px-3 py-1.5 bg-white/60 rounded-full border border-white/80 text-[10px] font-black text-slate-600 uppercase tracking-tighter shadow-sm">
+                {section.stats.programs}
+              </div>
+              <div className="px-3 py-1.5 bg-green-500/10 rounded-full border border-green-500/20 text-[10px] font-black text-green-700 uppercase tracking-tighter shadow-sm">
+                {section.stats.active}
+              </div>
+            </div>
+
+            {/* Bouton d'Action Institutionnel */}
+            <Button
+              className="w-full h-14 glass-button bg-crec-darkblue text-white group-hover:bg-crec-gold transition-all duration-300"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(section.path);
+              }}
+            >
+              <span className="font-bold tracking-widest text-xs uppercase">Explorer le Patrimoine</span>
+              <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
+            </Button>
           </div>
-        </CardContent>
-      </Card>
+        ))}
+      </div>
+
+      {/* Actions de Gouvernance Rapides */}
+      <div className="glass-panel p-10 rounded-[2.5rem] border border-white/60 shadow-xl bg-gradient-to-br from-indigo-500/5 to-purple-500/5">
+        <div className="mb-8 text-center md:text-left">
+          <h3 className="text-2xl font-bold admin-title">Commandes de Gouvernance Rapides</h3>
+          <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Interventions immédiates sur le patrimoine</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            { label: "Nouveau Cursus", icon: GraduationCap, path: "/admin/contenus/istm" },
+            { label: "Ajouter Certification", icon: BookOpen, path: "/admin/contenus/formations" },
+            { label: "Enregistrer Ressource", icon: Wrench, path: "/admin/contenus/fablab" }
+          ].map((action, i) => (
+            <Button
+              key={i}
+              variant="outline"
+              className="h-24 glass-card bg-white/40 border-white/60 flex flex-col items-center justify-center gap-2 hover:bg-white/80 transition-all group rounded-2xl"
+              onClick={() => navigate(action.path)}
+            >
+              <action.icon className="w-6 h-6 text-crec-darkblue group-hover:text-crec-gold transition-colors" />
+              <span className="text-xs font-black uppercase tracking-widest text-crec-darkblue">{action.label}</span>
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* Support Institutionnel & Assistance */}
+      <div className="glass-panel p-10 rounded-[2.5rem] border border-white/60 shadow-xl bg-slate-900/5 overflow-hidden relative">
+        <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-crec-gold/5 rounded-full blur-3xl"></div>
+        <div className="text-center relative z-10">
+          <h3 className="text-2xl font-bold admin-title">Assistance de l'Institution</h3>
+          <p className="text-slate-500 font-medium text-sm mt-3 max-w-2xl mx-auto leading-relaxed">
+            Consultez les protocoles et guides de l'institution pour administrer avec efficacité
+            le patrimoine numérique du CREC. Nos délégués sont à votre service.
+          </p>
+          <div className="flex flex-wrap gap-4 justify-center mt-8">
+            <Button variant="outline" className="glass-button h-12 px-8 font-bold text-xs uppercase tracking-widest border-crec-darkblue/20">
+              Protocoles & Guides
+            </Button>
+            <Button variant="outline" className="glass-button h-12 px-8 font-bold text-xs uppercase tracking-widest border-crec-darkblue/20">
+              Assistance Technique
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

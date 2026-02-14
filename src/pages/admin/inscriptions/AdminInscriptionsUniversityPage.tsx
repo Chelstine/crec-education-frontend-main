@@ -243,142 +243,139 @@ const AdminInscriptionsUniversityPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
+    <div className="space-y-10 animate-in fade-in duration-700">
+      {/* En-tête Institutionnel & Navigation */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gestion des Inscriptions - Université University</h1>
-          <p className="text-gray-600">Gérez les demandes d'inscription universitaire</p>
+          <div className="flex items-center gap-2 mb-3 text-[10px] font-black uppercase tracking-[0.3em] text-crec-gold">
+            <GraduationCap className="w-3 h-3" />
+            <span>Patrimoine Académique / Admissions</span>
+          </div>
+          <h1 className="text-4xl font-bold admin-title tracking-tight">Registre des Candidatures ISTM</h1>
+          <p className="text-slate-500 font-medium text-sm mt-2">Gouvernance souveraine des dossiers d'admission de la Faculté.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={fetchInscriptions} className="glass-button h-11 border-crec-darkblue/10 bg-white/40">
+            <Filter className="h-4 w-4 mr-2 text-crec-darkblue" />
+            <span className="font-bold text-[10px] uppercase tracking-widest text-crec-darkblue">Actualiser</span>
+          </Button>
         </div>
       </div>
 
-      {/* Filters and Search */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Rechercher..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filtrer par statut" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="pending">En attente</SelectItem>
-                <SelectItem value="approved">Approuvées</SelectItem>
-                <SelectItem value="rejected">Rejetées</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={programFilter} onValueChange={setProgramFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filtrer par programme" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les programmes</SelectItem>
-                <SelectItem value="prog-1">Licence Développement Logiciel</SelectItem>
-                <SelectItem value="prog-2">Master Data Science</SelectItem>
-                <SelectItem value="prog-3">Licence Théologie</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button variant="outline" onClick={fetchInscriptions} className="flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              Actualiser
-            </Button>
+      {/* Barre de Contrôle & Filtres Glass */}
+      <div className="glass-panel p-6 rounded-[2rem] border border-white/60 shadow-xl">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+          <div className="md:col-span-5 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              placeholder="Rechercher un candidat (Nom, Email, Localisation)..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-12 h-12 bg-white/40 border-white/60 rounded-xl focus:ring-crec-gold/20 font-medium text-sm"
+            />
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Inscriptions Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Inscriptions Universitaires ({filteredInscriptions.length})</CardTitle>
-        </CardHeader>
+          <div className="md:col-span-3">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="h-12 bg-white/40 border-white/60 rounded-xl font-bold text-xs uppercase tracking-widest text-slate-600">
+                <SelectValue placeholder="État du Dossier" />
+              </SelectTrigger>
+              <SelectContent className="glass-panel border-white/60">
+                <SelectItem value="all">Tout le Registre</SelectItem>
+                <SelectItem value="pending">En Commission</SelectItem>
+                <SelectItem value="approved">Admis</SelectItem>
+                <SelectItem value="rejected">Refusés</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="md:col-span-4">
+            <Select value={programFilter} onValueChange={setProgramFilter}>
+              <SelectTrigger className="h-12 bg-white/40 border-white/60 rounded-xl font-bold text-xs uppercase tracking-widest text-slate-600">
+                <SelectValue placeholder="Spécialité Académique" />
+              </SelectTrigger>
+              <SelectContent className="glass-panel border-white/60">
+                <SelectItem value="all">Toutes les Spécialités</SelectItem>
+                <SelectItem value="prog-1">Dév. Logiciel (Licence)</SelectItem>
+                <SelectItem value="prog-2">Data Science (Master)</SelectItem>
+                <SelectItem value="prog-3">Théologie (Licence)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
+      {/* Table du Registre Prestidieuse */}
+      <div className="glass-panel rounded-[2rem] border border-white/60 shadow-2xl overflow-hidden bg-white/20">
+        <div className="p-8 border-b border-white/40 flex items-center justify-between">
+          <h3 className="text-xl font-bold text-crec-darkblue flex items-center gap-3">
+            <FileText className="w-5 h-5 text-crec-gold" />
+            Archives des Aspirants <span className="text-slate-400 font-medium ml-2 text-sm">({filteredInscriptions.length} dossiers)</span>
+          </h3>
+        </div>
         <CardContent>
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Candidat</TableHead>
-                  <TableHead>Programme</TableHead>
-                  <TableHead>Informations</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead>Actions</TableHead>
+              <TableHeader className="bg-crec-darkblue/5 border-b-2 border-crec-darkblue/10">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="font-black uppercase tracking-widest text-[10px] text-crec-darkblue py-5">Candidat</TableHead>
+                  <TableHead className="font-black uppercase tracking-widest text-[10px] text-crec-darkblue py-5">Programme</TableHead>
+                  <TableHead className="font-black uppercase tracking-widest text-[10px] text-crec-darkblue py-5">Informations</TableHead>
+                  <TableHead className="font-black uppercase tracking-widest text-[10px] text-crec-darkblue py-5">Contact</TableHead>
+                  <TableHead className="font-black uppercase tracking-widest text-[10px] text-crec-darkblue py-5">Date</TableHead>
+                  <TableHead className="font-black uppercase tracking-widest text-[10px] text-crec-darkblue py-5">Statut</TableHead>
+                  <TableHead className="font-black uppercase tracking-widest text-[10px] text-crec-darkblue py-5 text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredInscriptions.map((inscription) => (
-                  <TableRow key={inscription.id}>
-                    <TableCell>
-                      <div className="font-medium">
+                  <TableRow key={inscription.id} className="hover:bg-crec-gold/5 transition-colors border-b border-white/40">
+                    <TableCell className="py-6">
+                      <div className="font-bold text-crec-darkblue text-base">
                         {inscription.firstName} {inscription.lastName}
                       </div>
-                      <div className="text-sm text-gray-500">
-                        {calculateAge(inscription.dob)} ans, {genderNames[inscription.gender]}
+                      <div className="text-[10px] font-black uppercase text-slate-400 mt-1 tracking-tighter">
+                        <span className="text-crec-gold">{calculateAge(inscription.dob)} ANS</span> • {genderNames[inscription.gender]}
                       </div>
                     </TableCell>
                     <TableCell>{getProgramBadge(inscription.program)}</TableCell>
                     <TableCell>
-                      <div className="text-sm space-y-1">
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
+                      <div className="text-xs space-y-2">
+                        <div className="flex items-center gap-2 font-bold text-slate-600">
+                          <MapPin className="h-3 w-3 text-crec-gold" />
                           {inscription.city}
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Users className="h-3 w-3" />
+                        <div className="flex items-center gap-2 font-bold text-slate-600 uppercase tracking-tighter text-[10px]">
+                          <Users className="h-3 w-3 text-crec-gold" />
                           {inscription.nationality}
                         </div>
-                        {inscription.program === 'prog-2' ? (
-                          <div className="text-xs text-gray-500">
-                            Licence: {inscription.licenseYear} - {inscription.licenseUniversity}
-                          </div>
-                        ) : (
-                          <div className="text-xs text-gray-500">
-                            Bac: {inscription.graduationYear} -{' '}
-                            {inscription.bacMention ? mentionNames[inscription.bacMention as keyof typeof mentionNames] : ''}
-                          </div>
-                        )}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">
-                        <div className="flex items-center gap-1">
-                          <Mail className="h-3 w-3" />
+                      <div className="text-xs space-y-1.5">
+                        <div className="flex items-center gap-2 font-bold text-crec-darkblue">
+                          <Mail className="h-3 w-3 text-crec-gold" />
                           {inscription.email}
                         </div>
-                        <div className="flex items-center gap-1 text-gray-500">
-                          <Phone className="h-3 w-3" />
+                        <div className="flex items-center gap-2 font-bold text-slate-500">
+                          <Phone className="h-3 w-3 text-crec-gold" />
                           {inscription.phone}
-                        </div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          Parent: {inscription.parentNames}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1 text-sm">
-                        <Calendar className="h-3 w-3" />
+                      <div className="flex items-center gap-2 text-xs font-black text-crec-darkblue uppercase tracking-tighter">
+                        <Calendar className="h-3 w-3 text-crec-gold" />
                         {formatDate(inscription.created_at)}
                       </div>
                     </TableCell>
                     <TableCell>{getStatusBadge(inscription.status)}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => handleViewDetails(inscription)}>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => handleViewDetails(inscription)} className="hover:bg-crec-gold/10 text-crec-darkblue">
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleDownloadDocuments(inscription)}>
+                        <Button variant="ghost" size="sm" onClick={() => handleDownloadDocuments(inscription)} className="hover:bg-crec-gold/10 text-crec-darkblue">
                           <Download className="h-4 w-4" />
                         </Button>
                         {inscription.status === 'pending' && (
@@ -387,7 +384,7 @@ const AdminInscriptionsUniversityPage: React.FC = () => {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleApprove(inscription)}
-                              className="text-green-600 hover:text-green-700"
+                              className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                             >
                               <CheckCircle className="h-4 w-4" />
                             </Button>
@@ -395,7 +392,7 @@ const AdminInscriptionsUniversityPage: React.FC = () => {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleReject(inscription)}
-                              className="text-red-600 hover:text-red-700"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
                             >
                               <XCircle className="h-4 w-4" />
                             </Button>
@@ -409,21 +406,23 @@ const AdminInscriptionsUniversityPage: React.FC = () => {
             </Table>
           </div>
 
-          {/* Pagination */}
+          {/* Pagination Institutionnelle */}
           {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-6">
+            <div className="flex justify-center items-center gap-6 mt-10 pb-4">
               <Button
                 variant="outline"
+                className="glass-button h-10 px-6 border-crec-darkblue/10 font-bold text-[10px] uppercase tracking-widest"
                 onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
               >
                 Précédent
               </Button>
-              <span className="flex items-center px-4">
-                Page {currentPage} sur {totalPages}
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                Page <span className="text-crec-darkblue text-sm mx-1">{currentPage}</span> sur <span className="text-crec-darkblue text-sm mx-1">{totalPages}</span>
               </span>
               <Button
                 variant="outline"
+                className="glass-button h-10 px-6 border-crec-darkblue/10 font-bold text-[10px] uppercase tracking-widest"
                 onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
               >
@@ -432,7 +431,7 @@ const AdminInscriptionsUniversityPage: React.FC = () => {
             </div>
           )}
         </CardContent>
-      </Card>
+      </div>
 
       {/* Details Modal */}
       <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>

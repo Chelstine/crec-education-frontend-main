@@ -6,12 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  User as UserIcon, 
-  Mail, 
-  Shield, 
-  Calendar, 
-  Key, 
+import {
+  User as UserIcon,
+  Mail,
+  Shield,
+  Calendar,
+  Key,
   AlertTriangle,
   CheckCircle,
   Loader2,
@@ -35,21 +35,12 @@ interface ProfileFormData {
 }
 
 const ProfileHeader: React.FC<{ user: BackendUser; mustChangePassword: boolean }> = ({ user, mustChangePassword }) => {
-  const getRoleBadgeVariant = (role: AdminRole): "default" | "secondary" | "destructive" | "outline" => {
-    switch (role) {
-      case 'super_admin': return 'destructive';
-      case 'admin_contenu': return 'default';
-      case 'admin_inscription': return 'secondary';
-      default: return 'outline';
-    }
-  };
-
   const getRoleDisplayName = (role: AdminRole): string => {
     switch (role) {
       case 'super_admin': return 'Super Administrateur';
-      case 'admin_contenu': return 'Administrateur Contenu';
-      case 'admin_inscription': return 'Administrateur Inscription';
-      default: return 'Utilisateur';
+      case 'admin_contenu': return 'Délégué aux Contenus';
+      case 'admin_inscription': return 'Officier des Admissions';
+      default: return 'Membre de l\'Institution';
     }
   };
 
@@ -59,31 +50,51 @@ const ProfileHeader: React.FC<{ user: BackendUser; mustChangePassword: boolean }
     return `${firstInitial}${lastInitial}`;
   };
 
+  const formatDate = (dateString: string | null | undefined): string => {
+    if (!dateString) return 'Alpha-0.0';
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   return (
-    <div className="text-center mb-10">
-      <div className="flex justify-center">
-        <div className="w-20 h-20 bg-gradient-to-br from-crec-gold/20 to-crec-gold/10 rounded-full flex items-center justify-center shadow-md">
-          <span className="text-2xl font-semibold text-crec-gold">
+    <div className="glass-panel p-8 rounded-[2rem] border border-white/60 shadow-xl overflow-hidden relative group">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-crec-gold/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-crec-gold/20 transition-all duration-700"></div>
+
+      <div className="relative z-10 flex flex-col items-center">
+        <div className="w-24 h-24 bg-gradient-to-br from-crec-darkblue to-blue-900 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/40 mb-6">
+          <span className="text-3xl font-bold text-crec-gold tracking-widest">
             {getInitials(user)}
           </span>
         </div>
-      </div>
-      <h1 className="text-4xl font-semibold text-gray-900 tracking-tight mt-4">
-        {user.prenom} {user.nom}
-      </h1>
-      <div className="flex justify-center items-center gap-3 mt-3">
-        <Badge 
-          variant={getRoleBadgeVariant(user.role)} 
-          className="text-sm py-1 px-4"
-        >
+
+        <h2 className="text-2xl font-bold admin-title mb-1 text-center">
+          {user.prenom} {user.nom}
+        </h2>
+
+        <p className="text-crec-darkblue/60 text-xs font-bold uppercase tracking-[0.2em] mb-6">
           {getRoleDisplayName(user.role)}
-        </Badge>
-        {mustChangePassword && user.must_change_password && (
-          <Badge variant="outline" className="text-orange-600 border-orange-600 animate-pulse">
-            <AlertTriangle className="w-4 h-4 mr-1" />
-            Changement requis
-          </Badge>
-        )}
+        </p>
+
+        <div className="w-full space-y-3 pt-6 border-t border-white/30">
+          <div className="flex justify-between items-center text-xs">
+            <span className="text-slate-400 font-bold uppercase tracking-tighter">Statut</span>
+            <Badge className="bg-green-500/10 text-green-600 border-green-500/20 px-3 py-0.5 rounded-full text-[10px] font-bold">ACTIF</Badge>
+          </div>
+          <div className="flex justify-between items-center text-xs">
+            <span className="text-slate-400 font-bold uppercase tracking-tighter">Membre depuis</span>
+            <span className="text-crec-darkblue font-bold tracking-tight">{formatDate(user.created_at)}</span>
+          </div>
+          {mustChangePassword && (
+            <div className="mt-4 p-3 bg-red-500/10 rounded-xl border border-red-500/20">
+              <p className="text-[10px] text-red-600 font-black flex items-center gap-2">
+                <AlertTriangle className="w-3 h-3" /> SÉCURITÉ REQUISE
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -104,95 +115,71 @@ const ProfileEditForm: React.FC<{
   loading,
   error
 }) => {
-  return (
-    <motion.form
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.3 }}
-      onSubmit={handleProfileSubmit}
-      className="space-y-6"
-    >
-      <div>
-        <label htmlFor="prenom" className="block text-sm font-medium text-gray-700 mb-1.5">
-          Prénom
-        </label>
-        <Input
-          id="prenom"
-          type="text"
-          value={profileData.prenom}
-          onChange={(e) => setProfileData(prev => ({ ...prev, prenom: e.target.value }))}
-          placeholder="Votre prénom"
-          required
-          className="transition-all duration-200 focus:ring-2 focus:ring-crec-gold"
-        />
-      </div>
-      <div>
-        <label htmlFor="nom" className="block text-sm font-medium text-gray-700 mb-1.5">
-          Nom
-        </label>
-        <Input
-          id="nom"
-          type="text"
-          value={profileData.nom}
-          onChange={(e) => setProfileData(prev => ({ ...prev, nom: e.target.value }))}
-          placeholder="Votre nom"
-          required
-          className="transition-all duration-200 focus:ring-2 focus:ring-crec-gold"
-        />
-      </div>
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
-          Email
-        </label>
-        <Input
-          id="email"
-          type="email"
-          value={profileData.email}
-          onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
-          placeholder="votre.email@crec.com"
-          required
-          className="transition-all duration-200 focus:ring-2 focus:ring-crec-gold"
-        />
-      </div>
-      {error && (
-        <Alert className="border-red-300 bg-red-50">
-          <AlertTriangle className="h-4 w-4 text-red-600" />
-          <AlertDescription className="text-red-800">{error}</AlertDescription>
-        </Alert>
-      )}
-      <div className="flex gap-3 pt-2">
-        <Button 
-          type="submit" 
-          disabled={loading}
-          className="flex-1 bg-crec-gold hover:bg-crec-gold/90 transition-colors duration-200"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              Sauvegarde...
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4 mr-2" />
-              Sauvegarder
-            </>
-          )}
-        </Button>
-        <Button 
-          type="button" 
-          variant="outline" 
-          onClick={() => setEditMode(false)}
-          disabled={loading}
-          className="flex-1 hover:bg-gray-100 transition-colors duration-200"
-        >
-          <X className="w-4 h-4 mr-2" />
-          Annuler
-        </Button>
-      </div>
-    </motion.form>
-  );
-};
+    return (
+      <motion.form
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        onSubmit={handleProfileSubmit}
+        className="space-y-6"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="admin-card-label ml-1">Prénom</label>
+            <Input
+              value={profileData.prenom}
+              onChange={(e) => setProfileData(prev => ({ ...prev, prenom: e.target.value }))}
+              className="glass-input"
+              required
+            />
+          </div>
+          <div>
+            <label className="admin-card-label ml-1">Nom</label>
+            <Input
+              value={profileData.nom}
+              onChange={(e) => setProfileData(prev => ({ ...prev, nom: e.target.value }))}
+              className="glass-input"
+              required
+            />
+          </div>
+        </div>
+        <div>
+          <label className="admin-card-label ml-1">Adresse Email Institutionnelle</label>
+          <Input
+            type="email"
+            value={profileData.email}
+            onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
+            className="glass-input"
+            required
+          />
+        </div>
+
+        {error && (
+          <Alert className="bg-red-500/10 border-red-500/20 text-red-600 rounded-xl">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription className="font-bold text-xs">{error}</AlertDescription>
+          </Alert>
+        )}
+
+        <div className="flex gap-4 pt-4">
+          <Button
+            type="submit"
+            disabled={loading}
+            className="flex-1 glass-button bg-crec-gold text-white border-crec-gold/20"
+          >
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <> <Save className="w-4 h-4 mr-2" /> Enregistrer </>}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setEditMode(false)}
+            className="flex-1 glass-button"
+          >
+            <X className="w-4 h-4 mr-2" /> Annuler
+          </Button>
+        </div>
+      </motion.form>
+    );
+  };
 
 const PasswordForm: React.FC<{
   passwordData: PasswordFormData;
@@ -213,91 +200,70 @@ const PasswordForm: React.FC<{
 }) => {
   return (
     <motion.form
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.3 }}
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
       onSubmit={handlePasswordSubmit}
       className="space-y-6"
     >
+      <div className="bg-amber-500/5 p-4 rounded-2xl border border-amber-500/10 mb-6">
+        <p className="text-xs text-amber-700 font-medium leading-relaxed">
+          <Shield className="w-3 h-3 inline mr-2 text-amber-500" />
+          Votre nouveau mot de passe doit comporter au moins 8 caractères, incluant des lettres et des chiffres pour une sécurité optimale.
+        </p>
+      </div>
+
       <div>
-        <label htmlFor="current_password" className="block text-sm font-medium text-gray-700 mb-1.5">
-          Mot de passe actuel
-        </label>
+        <label className="admin-card-label ml-1">Mot de passe actuel</label>
         <Input
-          id="current_password"
           type="password"
           value={passwordData.current_password}
           onChange={(e) => setPasswordData(prev => ({ ...prev, current_password: e.target.value }))}
-          placeholder="Votre mot de passe actuel"
+          className="glass-input"
           required
-          className="transition-all duration-200 focus:ring-2 focus:ring-crec-gold"
         />
       </div>
       <div>
-        <label htmlFor="new_password" className="block text-sm font-medium text-gray-700 mb-1.5">
-          Nouveau mot de passe
-        </label>
+        <label className="admin-card-label ml-1">Nouveau mot de passe</label>
         <Input
-          id="new_password"
           type="password"
           value={passwordData.new_password}
           onChange={(e) => setPasswordData(prev => ({ ...prev, new_password: e.target.value }))}
-          placeholder="Min. 8 caractères"
+          className="glass-input"
           required
-          minLength={8}
-          className="transition-all duration-200 focus:ring-2 focus:ring-crec-gold"
         />
       </div>
       <div>
-        <label htmlFor="new_password_confirmation" className="block text-sm font-medium text-gray-700 mb-1.5">
-          Confirmer le nouveau mot de passe
-        </label>
+        <label className="admin-card-label ml-1">Confirmation du nouveau mot de passe</label>
         <Input
-          id="new_password_confirmation"
           type="password"
           value={passwordData.new_password_confirmation}
           onChange={(e) => setPasswordData(prev => ({ ...prev, new_password_confirmation: e.target.value }))}
-          placeholder="Confirmer le mot de passe"
+          className="glass-input"
           required
-          minLength={8}
-          className="transition-all duration-200 focus:ring-2 focus:ring-crec-gold"
         />
       </div>
+
       {passwordError && (
-        <Alert className="border-red-300 bg-red-50">
-          <AlertTriangle className="h-4 w-4 text-red-600" />
-          <AlertDescription className="text-red-800">{passwordError}</AlertDescription>
+        <Alert className="bg-red-500/10 border-red-500/20 text-red-600 rounded-xl">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription className="font-bold text-xs">{passwordError}</AlertDescription>
         </Alert>
       )}
-      <div className="flex gap-3 pt-2">
-        <Button 
-          type="submit" 
+
+      <div className="flex gap-4 pt-4">
+        <Button
+          type="submit"
           disabled={loading}
-          className="flex-1 bg-crec-gold hover:bg-crec-gold/90 transition-colors duration-200"
+          className="flex-1 glass-button bg-crec-darkblue text-white"
         >
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              Modification...
-            </>
-          ) : (
-            'Modifier le mot de passe'
-          )}
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Mettre à jour le secret"}
         </Button>
-        <Button 
-          type="button" 
-          variant="outline" 
-          onClick={() => {
-            setShowPasswordForm(false);
-            setPasswordData({
-              current_password: '',
-              new_password: '',
-              new_password_confirmation: ''
-            });
-          }}
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setShowPasswordForm(false)}
           disabled={mustChangePassword || loading}
-          className="flex-1 hover:bg-gray-100 transition-colors duration-200"
+          className="flex-1 glass-button"
         >
           Annuler
         </Button>
@@ -308,7 +274,7 @@ const PasswordForm: React.FC<{
 
 const AdminProfilePage: React.FC = () => {
   const { user, changePassword, mustChangePassword, clearError, getCurrentUser, updateProfile } = useAuth();
-  
+
   // États pour l'édition du profil
   const [editMode, setEditMode] = useState(false);
   const [profileData, setProfileData] = useState<ProfileFormData>({
@@ -316,7 +282,7 @@ const AdminProfilePage: React.FC = () => {
     prenom: user?.prenom || '',
     email: user?.email || ''
   });
-  
+
   // États pour le changement de mot de passe
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwordData, setPasswordData] = useState<PasswordFormData>({
@@ -324,7 +290,7 @@ const AdminProfilePage: React.FC = () => {
     new_password: '',
     new_password_confirmation: ''
   });
-  
+
   // États généraux
   const [loading, setLoading] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
@@ -380,19 +346,19 @@ const AdminProfilePage: React.FC = () => {
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setProfileError(null);
-    
+
     try {
       setProfileLoading(true);
-      
+
       // Appel à l'API pour mettre à jour le profil
       await updateProfile(profileData);
-      
+
       await getCurrentUser(); // Récupérer les données mises à jour
-      setSuccessMsg('Profil mis à jour avec succès !');
+      setSuccessMsg('Votre identité a été mise à jour avec succès.');
       setEditMode(false);
-      
+
     } catch (error: any) {
-      setProfileError(error.message || 'Erreur lors de la mise à jour du profil');
+      setProfileError(error.message || 'Échec de la mise à jour de l\'identité.');
     } finally {
       setProfileLoading(false);
     }
@@ -404,12 +370,12 @@ const AdminProfilePage: React.FC = () => {
     clearError();
 
     if (passwordData.new_password.length < 8) {
-      setPasswordError('Le mot de passe doit contenir au moins 8 caractères');
+      setPasswordError('Le secret doit comporter au moins 8 caractères.');
       return;
     }
 
     if (passwordData.new_password !== passwordData.new_password_confirmation) {
-      setPasswordError('Les mots de passe ne correspondent pas');
+      setPasswordError('Les secrets ne correspondent pas.');
       return;
     }
 
@@ -420,10 +386,10 @@ const AdminProfilePage: React.FC = () => {
         passwordData.new_password,
         passwordData.new_password_confirmation
       );
-      
+
       await getCurrentUser();
-      
-      setSuccessMsg('Mot de passe modifié avec succès !');
+
+      setSuccessMsg('Le secret de sécurité a été renouvelé.');
       setShowPasswordForm(false);
       setPasswordData({
         current_password: '',
@@ -432,14 +398,14 @@ const AdminProfilePage: React.FC = () => {
       });
       setActiveTab('info');
     } catch (error: any) {
-      setErrorMsg(error.message || 'Erreur lors du changement de mot de passe');
+      setErrorMsg(error.message || 'Échec de la mise à jour de sécurité.');
     } finally {
       setLoading(false);
     }
   };
 
   const formatDate = (dateString: string | null | undefined): string => {
-    if (!dateString) return 'Non disponible';
+    if (!dateString) return 'Alpha-0.0';
     try {
       return new Date(dateString).toLocaleDateString('fr-FR', {
         year: 'numeric',
@@ -449,37 +415,26 @@ const AdminProfilePage: React.FC = () => {
         minute: '2-digit'
       });
     } catch (error) {
-      return 'Date invalide';
+      return 'Donnée inconsistante';
     }
   };
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <Loader2 className="w-8 h-8 animate-spin text-crec-gold" />
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="w-12 h-12 animate-spin text-crec-gold" />
       </div>
     );
   }
 
-  // Check if we're in development mode (remove ID display in production)
-  const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-
   return (
-    <div className="container mx-auto px-4 py-12 max-w-4xl">
-      <ProfileHeader user={user} mustChangePassword={mustChangePassword} />
-
+    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-700">
       <AnimatePresence>
         {successMsg && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-            className="mb-6"
-          >
-            <Alert className="border-green-300 bg-green-50 shadow-sm">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-800">{successMsg}</AlertDescription>
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+            <Alert className="bg-green-500/10 border-green-500/20 text-green-700 rounded-2xl shadow-lg shadow-green-900/5">
+              <CheckCircle className="h-5 w-5" />
+              <AlertDescription className="font-bold">{successMsg}</AlertDescription>
             </Alert>
           </motion.div>
         )}
@@ -499,116 +454,88 @@ const AdminProfilePage: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <Tabs defaultValue="info" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6 bg-gray-100 rounded-lg p-1">
-          <TabsTrigger 
-            value="info" 
-            className="text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md transition-all"
-          >
-            Informations
-          </TabsTrigger>
-          <TabsTrigger 
-            value="security" 
-            className="text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md transition-all"
-          >
-            Sécurité
-          </TabsTrigger>
-          <TabsTrigger 
-            value="permissions" 
-            className="text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md transition-all"
-          >
-            Permissions
-          </TabsTrigger>
-        </TabsList>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Sidebar: Profile Summary */}
+        <div className="lg:col-span-4 sticky top-24">
+          <ProfileHeader user={user} mustChangePassword={mustChangePassword} />
+        </div>
 
-        <TabsContent value="info">
-          <Card className="shadow-md hover:shadow-lg transition-shadow duration-200">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <UserIcon className="w-5 h-5 text-crec-gold" />
-                Informations
-              </CardTitle>
-              {!editMode && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setEditMode(true)}
-                  className="gap-2"
-                >
-                  <Edit className="w-4 h-4" />
-                  Modifier
-                </Button>
-              )}
-            </CardHeader>
-            <CardContent>
-              <AnimatePresence mode="wait">
-                {!editMode ? (
-                  <motion.div
-                    key="profile-display"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="space-y-5"
-                  >
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Email</label>
-                      <p className="flex items-center gap-2 mt-1 text-gray-900">
-                        <Mail className="w-4 h-4 text-gray-400" />
-                        {user.email}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Prénom</label>
-                      <p className="mt-1 text-gray-900">{user.prenom}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Nom</label>
-                      <p className="mt-1 text-gray-900">{user.nom}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Nom complet</label>
-                      <p className="mt-1 text-gray-900">{user.nom_complet}</p>
-                    </div>
-                    
-                    {/* ID masqué en production */}
-                    {isDevelopment && (
-                      <div className="pt-4 border-t border-gray-100">
-                        <label className="text-xs font-medium text-gray-400">ID Utilisateur (dev only)</label>
-                        <p className="font-mono text-xs mt-1 text-gray-600">{String(user.id)}</p>
+        {/* Main Content Area */}
+        <div className="lg:col-span-8">
+          <div className="glass-panel p-8 rounded-[2rem] border border-white/60 shadow-xl min-h-[600px]">
+            <Tabs defaultValue="info" value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="bg-crec-darkblue/5 p-1.5 rounded-2xl mb-10 w-full md:w-auto overflow-hidden border border-white/40">
+                <TabsTrigger value="info" className="px-8 py-2.5 rounded-xl data-[state=active]:bg-crec-darkblue data-[state=active]:text-white data-[state=active]:shadow-lg text-sm font-bold transition-all">
+                  Identité
+                </TabsTrigger>
+                <TabsTrigger value="security" className="px-8 py-2.5 rounded-xl data-[state=active]:bg-crec-darkblue data-[state=active]:text-white data-[state=active]:shadow-lg text-sm font-bold transition-all">
+                  Sécurité
+                </TabsTrigger>
+                <TabsTrigger value="permissions" className="px-8 py-2.5 rounded-xl data-[state=active]:bg-crec-darkblue data-[state=active]:text-white data-[state=active]:shadow-lg text-sm font-bold transition-all">
+                  Habilitations
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="info" className="mt-0 focus-visible:outline-none">
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h3 className="text-2xl font-bold admin-title">Détails de l'Identité</h3>
+                    <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Informations authentifiées</p>
+                  </div>
+                  {!editMode && (
+                    <Button variant="outline" size="sm" onClick={() => setEditMode(true)} className="glass-button px-6">
+                      <Edit className="w-4 h-4 mr-2" /> Édition
+                    </Button>
+                  )}
+                </div>
+
+                <AnimatePresence mode="wait">
+                  {!editMode ? (
+                    <motion.div key="display" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                          <label className="admin-card-label">Adresse Email</label>
+                          <p className="flex items-center gap-3 mt-2 text-crec-darkblue font-bold">
+                            <Mail className="w-4 h-4 text-crec-gold" /> {user.email}
+                          </p>
+                        </div>
+                        <div>
+                          <label className="admin-card-label">Identifiant Unique</label>
+                          <p className="mt-2 font-mono text-xs text-slate-500 bg-white/40 p-2 rounded-lg border border-white/60">
+                            ID: {String(user.id)}
+                          </p>
+                        </div>
                       </div>
-                    )}
-                    
-                    <div className="pt-2">
-                      <label className="text-sm font-medium text-gray-500">Date de création</label>
-                      <p className="flex items-center gap-2 mt-1 text-sm text-gray-900">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        {formatDate(user.created_at)}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Dernière connexion</label>
-                      <p className="flex items-center gap-2 mt-1 text-sm text-gray-900">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        {formatDate(user.last_login || null)}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Dernier changement de mot de passe</label>
-                      <p className="flex items-center gap-2 mt-1 text-sm text-gray-900">
-                        <Key className="w-4 h-4 text-gray-400" />
-                        {formatDate(user.password_changed_at || null)}
-                      </p>
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="profile-edit"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-white/40">
+                        <div>
+                          <label className="admin-card-label">Surnom / Prénom</label>
+                          <p className="mt-2 text-slate-800 font-medium text-lg">{user.prenom}</p>
+                        </div>
+                        <div>
+                          <label className="admin-card-label">Nom de Famille</label>
+                          <p className="mt-2 text-slate-800 font-medium text-lg">{user.nom}</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4 pt-6 border-t border-white/40">
+                        <div className="flex items-center gap-4">
+                          <div className="p-2 bg-crec-gold/10 rounded-xl"><Calendar className="w-5 h-5 text-crec-gold" /></div>
+                          <div>
+                            <label className="admin-card-label text-[10px]">Dernière connexion enregistrée</label>
+                            <p className="text-sm font-bold text-crec-darkblue">{formatDate(user.last_login || null)}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="p-2 bg-crec-darkblue/5 rounded-xl"><Key className="w-5 h-5 text-crec-darkblue" /></div>
+                          <div>
+                            <label className="admin-card-label text-[10px]">Dernier hachage de sécurité</label>
+                            <p className="text-sm font-bold text-slate-600">{formatDate(user.password_changed_at || null)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : (
                     <ProfileEditForm
                       profileData={profileData}
                       setProfileData={setProfileData}
@@ -617,54 +544,35 @@ const AdminProfilePage: React.FC = () => {
                       loading={profileLoading}
                       error={profileError}
                     />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                  )}
+                </AnimatePresence>
+              </TabsContent>
 
-        <TabsContent value="security">
-          <Card className="shadow-md hover:shadow-lg transition-shadow duration-200">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <Key className="w-5 h-5 text-crec-gold" />
-                Sécurité
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <AnimatePresence mode="wait">
-                {!showPasswordForm ? (
-                  <motion.div
-                    key="password-button"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="space-y-4"
-                  >
-                    <p className="text-gray-600 text-sm leading-relaxed">
-                      {mustChangePassword 
-                        ? "Vous devez changer votre mot de passe pour continuer." 
-                        : "Modifiez votre mot de passe pour renforcer la sécurité de votre compte."
-                      }
-                    </p>
-                    <Button 
-                      onClick={() => setShowPasswordForm(true)}
-                      variant={mustChangePassword ? "destructive" : "default"}
-                      className="w-full bg-crec-gold hover:bg-crec-gold/90 transition-colors duration-200"
-                    >
-                      {mustChangePassword ? 'Changer le mot de passe (Obligatoire)' : 'Changer le mot de passe'}
-                    </Button>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="password-form"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
+              <TabsContent value="security" className="mt-0 focus-visible:outline-none">
+                <div className="mb-8">
+                  <h3 className="text-2xl font-bold admin-title">Gouvernance & Sécurité</h3>
+                  <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Protocole de protection du compte</p>
+                </div>
+
+                <AnimatePresence mode="wait">
+                  {!showPasswordForm ? (
+                    <motion.div key="security-view" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                      <div className="glass-card p-6 rounded-2xl border-crec-gold/20 bg-crec-gold/5">
+                        <p className="text-crec-darkblue/80 text-sm leading-relaxed font-medium">
+                          {mustChangePassword
+                            ? "Votre compte nécessite une intervention immédiate sur le secret de sécurité pour préserver l'intégrité de l'institution."
+                            : "Il est préconisé de renouveler vos secrets de sécurité de manière périodique afin de garantir un niveau de protection optimal."
+                          }
+                        </p>
+                      </div>
+                      <Button
+                        onClick={() => setShowPasswordForm(true)}
+                        className={`w-full h-14 text-lg font-bold rounded-2xl shadow-xl transition-all ${mustChangePassword ? "bg-red-600 hover:bg-red-700 animate-pulse" : "bg-crec-darkblue hover:bg-slate-900"}`}
+                      >
+                        {mustChangePassword ? 'RENFORCER LA SÉCURITÉ MAINTENANT' : 'RENOUVELER LE SECRET DE SÉCURITÉ'}
+                      </Button>
+                    </motion.div>
+                  ) : (
                     <PasswordForm
                       passwordData={passwordData}
                       setPasswordData={setPasswordData}
@@ -674,97 +582,55 @@ const AdminProfilePage: React.FC = () => {
                       loading={loading}
                       mustChangePassword={mustChangePassword}
                     />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                  )}
+                </AnimatePresence>
+              </TabsContent>
 
-        <TabsContent value="permissions">
-          <Card className="shadow-md hover:shadow-lg transition-shadow duration-200">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <Shield className="w-5 h-5 text-crec-gold" />
-                Permissions
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 text-sm">
-                {user.role === 'super_admin' && (
-                  <>
-                    <p className="text-green-600 flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" /> Gestion complète des administrateurs
-                    </p>
-                    <p className="text-green-600 flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" /> Accès à tous les contenus
-                    </p>
-                    <p className="text-green-600 flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" /> Gestion des inscriptions
-                    </p>
-                    <p className="text-green-600 flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" /> Configuration système
-                    </p>
-                  </>
-                )}
-                {user.role === 'admin_contenu' && (
-                  <>
-                    <p className="text-blue-600 flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" /> Gestion des formations
-                    </p>
-                    <p className="text-blue-600 flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" /> Gestion des programmes ISTM
-                    </p>
-                    <p className="text-blue-600 flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" /> Gestion FabLab
-                    </p>
-                    <p className="text-blue-600 flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" /> Gestion de la galerie
-                    </p>
-                    <p className="text-blue-600 flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" /> Gestion de la bibliothèque
-                    </p>
-                    <p className="text-blue-600 flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" /> Gestion des réservations
-                    </p>
-                    <p className="text-gray-500 flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4" /> Création d'administrateurs (interdite)
-                    </p>
-                  </>
-                )}
-                {user.role === 'admin_inscription' && (
-                  <>
-                    <p className="text-purple-600 flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" /> Validation inscriptions ISTM
-                    </p>
-                    <p className="text-purple-600 flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" /> Validation inscriptions FabLab
-                    </p>
-                    <p className="text-purple-600 flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" /> Validation inscriptions formations
-                    </p>
-                    <p className="text-gray-500 flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4" /> Gestion du contenu (interdite)
-                    </p>
-                    <p className="text-gray-500 flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4" /> Création d'administrateurs (interdite)
-                    </p>
-                  </>
-                )}
-              </div>
-              
-              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                <h4 className="font-medium text-gray-900 mb-2">Informations sur les rôles</h4>
-                <div className="text-xs text-gray-600 space-y-1">
-                  <p><strong>Super Admin:</strong> Accès complet à toutes les fonctionnalités</p>
-                  <p><strong>Admin Contenu:</strong> Gestion des contenus et ressources</p>
-                  <p><strong>Admin Inscription:</strong> Validation des inscriptions uniquement</p>
+              <TabsContent value="permissions" className="mt-0 focus-visible:outline-none">
+                <div className="mb-8">
+                  <h3 className="text-2xl font-bold admin-title">Habilitations Institutionnelles</h3>
+                  <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Portée de vos privilèges administratifs</p>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {user.role === 'super_admin' ? (
+                    ['Souveraineté Totale', 'Gouvernance des Membres', 'Arbitrage des Admissions', 'Gestion du Patrimoine'].map((p, i) => (
+                      <div key={i} className="flex items-center gap-3 p-4 bg-green-500/5 rounded-2xl border border-green-500/10">
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                        <span className="text-sm font-bold text-crec-darkblue">{p}</span>
+                      </div>
+                    ))
+                  ) : user.role === 'admin_contenu' ? (
+                    ['Patrimoine ISTM', 'Offre Certificateur', 'Ressources Laboratoire', 'Rayonnement Événementiel'].map((p, i) => (
+                      <div key={i} className="flex items-center gap-3 p-4 bg-crec-gold/5 rounded-2xl border border-crec-gold/10">
+                        <CheckCircle className="w-5 h-5 text-crec-gold" />
+                        <span className="text-sm font-bold text-crec-darkblue">{p}</span>
+                      </div>
+                    ))
+                  ) : (
+                    ['Flux des Admissions', 'Dossiers Candidats', 'Registres Académiques'].map((p, i) => (
+                      <div key={i} className="flex items-center gap-3 p-4 bg-blue-500/5 rounded-2xl border border-blue-500/10">
+                        <CheckCircle className="w-5 h-5 text-blue-600" />
+                        <span className="text-sm font-bold text-crec-darkblue">{p}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div className="mt-12 p-6 glass-card rounded-2xl border-white/60 bg-white/30">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Shield className="w-5 h-5 text-crec-darkblue" />
+                    <h4 className="font-bold text-crec-darkblue">Note de Gouvernance</h4>
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed font-bold uppercase tracking-tighter">
+                    Vos privilèges sont définis par le Cabinet du CREC. Pour toute extension de rôle ou demande d'habilitation supplémentaire, veuillez contacter le Super Administrateur.
+                  </p>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

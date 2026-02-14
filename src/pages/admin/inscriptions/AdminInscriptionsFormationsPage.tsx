@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "@/components/ui/select";
 import {
   Dialog,
@@ -28,11 +28,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { 
-  Eye, 
-  CheckCircle, 
-  XCircle, 
-  Download, 
+import {
+  Eye,
+  CheckCircle,
+  XCircle,
+  Download,
   Filter,
   Search,
   Calendar,
@@ -55,7 +55,7 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
   const [adminNotes, setAdminNotes] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [processing, setProcessing] = useState(false);
-  
+
   // Filtres
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [formationFilter, setFormationFilter] = useState<string>('all');
@@ -132,7 +132,7 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
     const pathParts = inscription.payment_receipt_path.split('/');
     const filename = pathParts[pathParts.length - 1];
     const type = pathParts.includes('fablab') ? 'fablab' : 'formations';
-    
+
     window.open(`${baseUrl}/download/receipt/${type}/${filename}`, '_blank');
   };
 
@@ -191,12 +191,12 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
   };
 
   const filteredInscriptions = inscriptions.filter(inscription => {
-    const matchesSearch = searchTerm === '' || 
+    const matchesSearch = searchTerm === '' ||
       inscription.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       inscription.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       inscription.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       inscription.phone.includes(searchTerm);
-    
+
     return matchesSearch;
   });
 
@@ -209,137 +209,144 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* En-tête */}
-      <div className="flex justify-between items-center">
+    <div className="space-y-10 animate-in fade-in duration-700">
+      {/* En-tête Institutionnel & Navigation */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gestion des Inscriptions - Formations</h1>
-          <p className="text-gray-600">Gérez les demandes d'inscription aux formations ouvertes</p>
+          <div className="flex items-center gap-2 mb-3 text-[10px] font-black uppercase tracking-[0.3em] text-crec-gold">
+            <TrendingUp className="w-3 h-3" />
+            <span>Offres Professionnelles / Inscriptions</span>
+          </div>
+          <h1 className="text-4xl font-bold admin-title tracking-tight">Registre des Formations Ouvertes</h1>
+          <p className="text-slate-500 font-medium text-sm mt-2">Gestion stratégique des parcours de renforcement des capacités professionnelles.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={fetchInscriptions} className="glass-button h-11 border-crec-darkblue/10 bg-white/40">
+            <Filter className="h-4 w-4 mr-2 text-crec-darkblue" />
+            <span className="font-bold text-[10px] uppercase tracking-widest text-crec-darkblue">Actualiser</span>
+          </Button>
         </div>
       </div>
 
-      {/* Filtres et recherche */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Rechercher..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filtrer par statut" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="pending">En attente</SelectItem>
-                <SelectItem value="approved">Approuvées</SelectItem>
-                <SelectItem value="rejected">Rejetées</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={formationFilter} onValueChange={setFormationFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filtrer par formation" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes les formations</SelectItem>
-                <SelectItem value="anglais">Anglais</SelectItem>
-                <SelectItem value="francais">Français</SelectItem>
-                <SelectItem value="informatique">Informatique</SelectItem>
-                <SelectItem value="bureautique">Bureautique</SelectItem>
-                <SelectItem value="accompagnement">Accompagnement scolaire</SelectItem>
-                <SelectItem value="entrepreneuriat">Entrepreneuriat</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button 
-              variant="outline" 
-              onClick={fetchInscriptions}
-              className="flex items-center gap-2"
-            >
-              <Filter className="h-4 w-4" />
-              Actualiser
-            </Button>
+      {/* Barre de Contrôle & Filtres Glass */}
+      <div className="glass-panel p-6 rounded-[2rem] border border-white/60 shadow-xl">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+          <div className="md:col-span-5 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              placeholder="Rechercher un candidat (Nom, Email, Contact)..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-12 h-12 bg-white/40 border-white/60 rounded-xl focus:ring-crec-gold/20 font-medium text-sm"
+            />
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Tableau des inscriptions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Inscriptions aux Formations ({filteredInscriptions.length})</CardTitle>
-        </CardHeader>
+          <div className="md:col-span-3">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="h-12 bg-white/40 border-white/60 rounded-xl font-bold text-xs uppercase tracking-widest text-slate-600">
+                <SelectValue placeholder="État d'Admission" />
+              </SelectTrigger>
+              <SelectContent className="glass-panel border-white/60">
+                <SelectItem value="all">Tout le Registre</SelectItem>
+                <SelectItem value="pending">En Examen</SelectItem>
+                <SelectItem value="approved">Validées</SelectItem>
+                <SelectItem value="rejected">Refusées</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="md:col-span-4">
+            <Select value={formationFilter} onValueChange={setFormationFilter}>
+              <SelectTrigger className="h-12 bg-white/40 border-white/60 rounded-xl font-bold text-xs uppercase tracking-widest text-slate-600">
+                <SelectValue placeholder="Catalogue de Formation" />
+              </SelectTrigger>
+              <SelectContent className="glass-panel border-white/60">
+                <SelectItem value="all">Toutes les Formations</SelectItem>
+                <SelectItem value="anglais">Langue : Anglais</SelectItem>
+                <SelectItem value="francais">Langue : Français</SelectItem>
+                <SelectItem value="informatique">Informatique Appliquée</SelectItem>
+                <SelectItem value="bureautique">Maîtrise Bureautique</SelectItem>
+                <SelectItem value="accompagnement">Soutien Académique</SelectItem>
+                <SelectItem value="entrepreneuriat">Leadership & Business</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
+      {/* Table du Registre Prestidieuse */}
+      <div className="glass-panel rounded-[2rem] border border-white/60 shadow-2xl overflow-hidden bg-white/20">
+        <div className="p-8 border-b border-white/40 flex items-center justify-between">
+          <h3 className="text-xl font-bold text-crec-darkblue flex items-center gap-3">
+            <BookOpen className="w-5 h-5 text-crec-gold" />
+            Archives des Apprenants <span className="text-slate-400 font-medium ml-2 text-sm">({filteredInscriptions.length} dossiers)</span>
+          </h3>
+        </div>
         <CardContent>
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Candidat</TableHead>
-                  <TableHead>Formation</TableHead>
-                  <TableHead>Niveau</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead>Actions</TableHead>
+              <TableHeader className="bg-crec-darkblue/5 border-b-2 border-crec-darkblue/10">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="font-black uppercase tracking-widest text-[10px] text-crec-darkblue py-5">Candidat</TableHead>
+                  <TableHead className="font-black uppercase tracking-widest text-[10px] text-crec-darkblue py-5">Formation</TableHead>
+                  <TableHead className="font-black uppercase tracking-widest text-[10px] text-crec-darkblue py-5">Niveau</TableHead>
+                  <TableHead className="font-black uppercase tracking-widest text-[10px] text-crec-darkblue py-5">Contact</TableHead>
+                  <TableHead className="font-black uppercase tracking-widest text-[10px] text-crec-darkblue py-5">Date</TableHead>
+                  <TableHead className="font-black uppercase tracking-widest text-[10px] text-crec-darkblue py-5">Statut</TableHead>
+                  <TableHead className="font-black uppercase tracking-widest text-[10px] text-crec-darkblue py-5 text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredInscriptions.map((inscription) => (
-                  <TableRow key={inscription.id}>
-                    <TableCell>
-                      <div className="font-medium">
+                  <TableRow key={inscription.id} className="hover:bg-crec-gold/5 transition-colors border-b border-white/40">
+                    <TableCell className="py-6">
+                      <div className="font-bold text-crec-darkblue text-base">
                         {inscription.firstName} {inscription.lastName}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <BookOpen className="h-4 w-4 text-blue-500" />
+                      <div className="flex items-center gap-2 font-bold text-slate-700">
+                        <BookOpen className="h-4 w-4 text-crec-gold" />
                         {formationNames[inscription.formation as keyof typeof formationNames] || inscription.formation}
                       </div>
                     </TableCell>
                     <TableCell>
                       {inscription.level ? (
-                        <Badge variant="outline">
+                        <Badge variant="outline" className="border-crec-darkblue/20 bg-crec-darkblue/5 text-crec-darkblue font-bold text-[10px] uppercase tracking-tighter">
                           {levelNames[inscription.level as keyof typeof levelNames] || inscription.level}
                         </Badge>
                       ) : (
-                        <span className="text-gray-500">-</span>
+                        <span className="text-slate-400 font-bold">-</span>
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">
-                        <div className="flex items-center gap-1">
-                          <Mail className="h-3 w-3" />
+                      <div className="text-xs space-y-1.5">
+                        <div className="flex items-center gap-2 font-bold text-crec-darkblue">
+                          <Mail className="h-3 w-3 text-crec-gold" />
                           {inscription.email}
                         </div>
-                        <div className="flex items-center gap-1 text-gray-500">
-                          <Phone className="h-3 w-3" />
+                        <div className="flex items-center gap-2 font-bold text-slate-500">
+                          <Phone className="h-3 w-3 text-crec-gold" />
                           {inscription.phone}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1 text-sm">
-                        <Calendar className="h-3 w-3" />
+                      <div className="flex items-center gap-2 text-xs font-black text-crec-darkblue uppercase tracking-tighter">
+                        <Calendar className="h-3 w-3 text-crec-gold" />
                         {new Date(inscription.created_at).toLocaleDateString('fr-FR')}
                       </div>
                     </TableCell>
                     <TableCell>
                       {getStatusBadge(inscription.status)}
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleViewDetails(inscription)}
+                          className="hover:bg-crec-gold/10 text-crec-darkblue"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -347,6 +354,7 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDownloadReceipt(inscription)}
+                          className="hover:bg-crec-gold/10 text-crec-darkblue"
                         >
                           <Download className="h-4 w-4" />
                         </Button>
@@ -356,7 +364,7 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleApprove(inscription)}
-                              className="text-green-600 hover:text-green-700"
+                              className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                             >
                               <CheckCircle className="h-4 w-4" />
                             </Button>
@@ -364,7 +372,7 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleReject(inscription)}
-                              className="text-red-600 hover:text-red-700"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
                             >
                               <XCircle className="h-4 w-4" />
                             </Button>
@@ -378,21 +386,23 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
             </Table>
           </div>
 
-          {/* Pagination */}
+          {/* Pagination Institutionnelle */}
           {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-6">
+            <div className="flex justify-center items-center gap-6 mt-10 pb-4">
               <Button
                 variant="outline"
+                className="glass-button h-10 px-6 border-crec-darkblue/10 font-bold text-[10px] uppercase tracking-widest"
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
               >
                 Précédent
               </Button>
-              <span className="flex items-center px-4">
-                Page {currentPage} sur {totalPages}
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                Page <span className="text-crec-darkblue text-sm mx-1">{currentPage}</span> sur <span className="text-crec-darkblue text-sm mx-1">{totalPages}</span>
               </span>
               <Button
                 variant="outline"
+                className="glass-button h-10 px-6 border-crec-darkblue/10 font-bold text-[10px] uppercase tracking-widest"
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
               >
@@ -401,7 +411,7 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
             </div>
           )}
         </CardContent>
-      </Card>
+      </div>
 
       {/* Modal Détails */}
       <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
@@ -412,7 +422,7 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
               Informations complètes sur la demande d'inscription
             </DialogDescription>
           </DialogHeader>
-          
+
           {selectedInscription && (
             <div className="space-y-6">
               {/* Informations personnelles */}
@@ -458,7 +468,7 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
                       <p>{selectedInscription.level ? levelNames[selectedInscription.level as keyof typeof levelNames] : 'Non spécifié'}</p>
                     </div>
                   </div>
-                  
+
                   {selectedInscription.motivation && (
                     <div className="mt-4">
                       <span className="font-medium">Motivation:</span>
@@ -476,21 +486,21 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
                     <span className="font-medium">Statut:</span>
                     {getStatusBadge(selectedInscription.status)}
                   </div>
-                  
+
                   {selectedInscription.processed_at && (
                     <div>
                       <span className="font-medium">Traité le:</span>
                       <p>{new Date(selectedInscription.processed_at).toLocaleDateString('fr-FR')}</p>
                     </div>
                   )}
-                  
+
                   {selectedInscription.processedBy && (
                     <div>
                       <span className="font-medium">Traité par:</span>
                       <p>{selectedInscription.processedBy.prenom} {selectedInscription.processedBy.nom}</p>
                     </div>
                   )}
-                  
+
                   {selectedInscription.admin_notes && (
                     <div className="mt-2">
                       <span className="font-medium">Notes admin:</span>
@@ -501,7 +511,7 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
               </div>
             </div>
           )}
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDetailsModal(false)}>
               Fermer
@@ -525,7 +535,7 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
               Voulez-vous approuver cette inscription en formation ?
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2">
@@ -539,16 +549,16 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
               />
             </div>
           </div>
-          
+
           <DialogFooter>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setShowApproveModal(false)}
               disabled={processing}
             >
               Annuler
             </Button>
-            <Button 
+            <Button
               onClick={confirmApproval}
               disabled={processing}
               className="bg-green-600 hover:bg-green-700"
@@ -568,7 +578,7 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
               Veuillez spécifier la raison du rejet de cette inscription.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2">
@@ -594,16 +604,16 @@ const AdminInscriptionsFormationsPage: React.FC = () => {
               />
             </div>
           </div>
-          
+
           <DialogFooter>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setShowRejectModal(false)}
               disabled={processing}
             >
               Annuler
             </Button>
-            <Button 
+            <Button
               onClick={confirmRejection}
               disabled={processing || !rejectionReason.trim()}
               variant="destructive"

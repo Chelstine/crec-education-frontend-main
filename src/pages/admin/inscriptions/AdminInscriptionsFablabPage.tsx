@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Eye, CheckCircle, XCircle, Download, Search, Calendar, Mail, FileText } from "lucide-react";
+import { Loader2, Eye, CheckCircle, XCircle, Download, Search, Calendar, Mail, FileText, TrendingUp } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
@@ -158,8 +158,8 @@ const AdminInscriptionsFablabPage: React.FC = () => {
   };
 
   const filteredInscriptions = inscriptions.filter(inscription =>
-    (`${inscription.firstName} ${inscription.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inscription.email.toLowerCase().includes(searchTerm.toLowerCase()))
+  (`${inscription.firstName} ${inscription.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    inscription.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   if (loading && currentPage === 1) {
@@ -179,184 +179,157 @@ const AdminInscriptionsFablabPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-6 py-8">
-      {/* En-tête */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Inscriptions FabLab
-        </h1>
-        <p className="text-gray-600">
-          Gérez les inscriptions aux abonnements FabLab et validez les reçus de paiement.
-        </p>
-      </div>
-
-      {/* Statistiques rapides */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>En attente</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-yellow-600">
-              {inscriptions.filter(i => i.status === 'pending').length}
-            </div>
-            <div className="text-sm text-gray-600">En attente</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Approuvées</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-green-600">
-              {inscriptions.filter(i => i.status === 'approved').length}
-            </div>
-            <div className="text-sm text-gray-600">Approuvées</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Rejetées</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-red-600">
-              {inscriptions.filter(i => i.status === 'rejected').length}
-            </div>
-            <div className="text-sm text-gray-600">Rejetées</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Total</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold">
-              {pagination?.total || 0}
-            </div>
-            <div className="text-sm text-gray-600">Total</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filtres et recherche */}
-      <Card className="mb-6">
-        <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <Label htmlFor="search">Rechercher</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="search"
-                  placeholder="Nom, email..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            <div>
-              <Label htmlFor="status">Statut</Label>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous</SelectItem>
-                  <SelectItem value="pending">En attente</SelectItem>
-                  <SelectItem value="approved">Approuvées</SelectItem>
-                  <SelectItem value="rejected">Rejetées</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+    <div className="space-y-10 animate-in fade-in duration-700 pb-10">
+      {/* En-tête Institutionnel & Navigation */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4 md:px-0">
+        <div>
+          <div className="flex items-center gap-2 mb-3 text-[10px] font-black uppercase tracking-[0.3em] text-crec-gold">
+            <TrendingUp className="w-3 h-3" />
+            <span>Innovation & Tech / FabLab Admissions</span>
           </div>
-        </CardContent>
-      </Card>
+          <h1 className="text-4xl font-bold admin-title tracking-tight text-crec-darkblue">Archives des Inscriptions FabLab</h1>
+          <p className="text-slate-500 font-medium text-sm mt-2">Gouvernance des accès au laboratoire d'innovation technologique.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={loadInscriptions} className="glass-button h-11 border-crec-darkblue/10 bg-white/40">
+            <Loader2 className={`h-4 w-4 mr-2 text-crec-darkblue ${loading ? 'animate-spin' : ''}`} />
+            <span className="font-bold text-[10px] uppercase tracking-widest text-crec-darkblue px-2">Actualiser</span>
+          </Button>
+        </div>
+      </div>
 
-      {/* Liste des inscriptions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Liste des inscriptions</CardTitle>
-          <CardDescription>
-            {pagination && `${pagination.total} inscription(s) au total`}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      {/* Statistiques Rapides Glass */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 px-4 md:px-0">
+        {[
+          { label: 'Examen', value: inscriptions.filter(i => i.status === 'pending').length, color: 'text-amber-600', bg: 'bg-amber-50' },
+          { label: 'Abonnés', value: inscriptions.filter(i => i.status === 'approved').length, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+          { label: 'Refusés', value: inscriptions.filter(i => i.status === 'rejected').length, color: 'text-rose-600', bg: 'bg-rose-50' },
+          { label: 'Dossiers', value: pagination?.total || 0, color: 'text-crec-darkblue', bg: 'bg-blue-50' },
+        ].map((stat, i) => (
+          <div key={i} className="glass-card p-6 rounded-[1.5rem] border border-white/60 shadow-lg group hover:border-crec-gold/30 transition-all">
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 truncate">{stat.label}</p>
+            <div className={`text-3xl font-bold ${stat.color} tracking-tighter`}>{stat.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Barre de Contrôle & Filtres Glass */}
+      <div className="mx-4 md:mx-0 glass-panel p-6 rounded-[2rem] border border-white/60 shadow-xl">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+          <div className="md:col-span-8 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              placeholder="Rechercher par nom, email d'aspirant..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-12 h-12 bg-white/40 border-white/60 rounded-xl focus:ring-crec-gold/20 font-medium text-sm"
+            />
+          </div>
+
+          <div className="md:col-span-4">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="h-12 bg-white/40 border-white/60 rounded-xl font-bold text-xs uppercase tracking-widest text-slate-600">
+                <SelectValue placeholder="État Dossier" />
+              </SelectTrigger>
+              <SelectContent className="glass-panel border-white/60">
+                <SelectItem value="all">Tout le Registre</SelectItem>
+                <SelectItem value="pending">En Commission</SelectItem>
+                <SelectItem value="approved">Validées</SelectItem>
+                <SelectItem value="rejected">Refusées</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
+      {/* Liste des Inscriptions Prestidigieuses */}
+      <div className="mx-4 md:mx-0 glass-panel rounded-[2rem] border border-white/60 shadow-2xl overflow-hidden bg-white/20">
+        <div className="p-8 border-b border-white/40 flex items-center justify-between">
+          <h3 className="text-xl font-bold text-crec-darkblue flex items-center gap-3 tracking-tight">
+            <FileText className="w-5 h-5 text-crec-gold" />
+            Registre des Adhésions <span className="text-slate-400 font-medium ml-2 text-sm italic">({pagination?.total || 0} archives)</span>
+          </h3>
+        </div>
+        <CardContent className="p-0">
           {filteredInscriptions.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              Aucune inscription trouvée.
+            <div className="text-center py-20 text-slate-400 font-medium italic">
+              Aucune archive numérique ne correspond à votre requête.
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="divide-y divide-white/40">
               {filteredInscriptions.map((inscription) => (
                 <div key={inscription.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                  className="flex flex-col md:flex-row md:items-center justify-between p-8 hover:bg-crec-gold/5 transition-all duration-300">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <Badge className={getStatusColor(inscription.status)}>
+                    <div className="flex items-center gap-3 mb-3">
+                      <Badge className={`${getStatusColor(inscription.status)} px-3 py-1 rounded-full font-black text-[9px] uppercase tracking-widest border-0 shadow-sm`}>
                         {getStatusText(inscription.status)}
                       </Badge>
-                      <span className="text-sm text-gray-500">
-                        #{inscription.id}
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
+                        DOSSIER ID: <span className="text-crec-darkblue font-bold">#{inscription.id}</span>
                       </span>
                     </div>
-                    <div className="font-medium">{inscription.firstName} {inscription.lastName}</div>
-                    <div className="text-sm text-gray-600 flex items-center gap-4">
-                      <span className="flex items-center gap-1">
-                        <Mail className="h-4 w-4" />
+                    <div className="font-bold text-xl text-crec-darkblue tracking-tight mb-2">
+                      {inscription.firstName} {inscription.lastName}
+                    </div>
+                    <div className="text-xs text-slate-500 font-bold flex flex-wrap items-center gap-6">
+                      <span className="flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-crec-gold" />
                         {inscription.email}
                       </span>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
+                      <span className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-crec-gold" />
                         {formatDate(inscription.created_at)}
                       </span>
-                    </div>
-                    <div className="text-sm text-blue-600 mt-1">
-                      {inscription.workshop}
+                      <span className="flex items-center gap-2 text-crec-darkblue font-black uppercase tracking-widest text-[10px]">
+                        <FileText className="h-4 w-4 text-crec-gold" />
+                        {inscription.workshop}
+                      </span>
                     </div>
                     {inscription.processedBy && (
-                      <div className="text-xs text-gray-500 mt-1">
-                        Traité par: {inscription.processedBy.prenom} {inscription.processedBy.nom}
+                      <div className="text-[10px] font-black uppercase text-slate-400 mt-3 tracking-widest border-l-2 border-crec-gold/40 pl-3 py-1">
+                        Officier de Traitement: <span className="text-crec-darkblue">{inscription.processedBy.prenom} {inscription.processedBy.nom}</span>
                       </div>
                     )}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 mt-6 md:mt-0">
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
+                      className="hover:bg-crec-gold/10 text-crec-darkblue font-bold px-4 h-10 rounded-xl"
                       onClick={() => {
                         setSelectedInscription(inscription);
                         setShowDetailsDialog(true);
                       }}
                     >
-                      <Eye className="w-4 h-4 mr-1" />
-                      Détails
+                      <Eye className="w-4 h-4 mr-2" />
+                      Auditer
                     </Button>
                     {inscription.status === 'pending' && (
                       <>
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
-                          className="text-green-600 hover:text-green-700"
+                          className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 font-bold px-4 h-10 rounded-xl"
                           onClick={() => {
                             setSelectedInscription(inscription);
                             setShowApproveDialog(true);
                           }}
                         >
-                          <CheckCircle className="w-4 h-4 mr-1" />
-                          Approuver
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Admettre
                         </Button>
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
-                          className="text-red-600 hover:text-red-700"
+                          className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 font-bold px-4 h-10 rounded-xl"
                           onClick={() => {
                             setSelectedInscription(inscription);
                             setShowRejectDialog(true);
                           }}
                         >
-                          <XCircle className="w-4 h-4 mr-1" />
-                          Rejeter
+                          <XCircle className="w-4 h-4 mr-2" />
+                          Refuser
                         </Button>
                       </>
                     )}
@@ -366,16 +339,17 @@ const AdminInscriptionsFablabPage: React.FC = () => {
             </div>
           )}
 
-          {/* Pagination */}
+          {/* Pagination Institutionnelle */}
           {pagination && pagination.last_page > 1 && (
-            <div className="flex items-center justify-between mt-6">
-              <div className="text-sm text-gray-500">
-                Page {pagination.current_page} sur {pagination.last_page}
+            <div className="flex flex-col md:flex-row items-center justify-between p-10 border-t border-white/40 gap-6">
+              <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                Segment <span className="text-crec-darkblue text-sm mx-1">{pagination.current_page}</span> sur <span className="text-crec-darkblue text-sm mx-1">{pagination.last_page}</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4">
                 <Button
                   variant="outline"
                   size="sm"
+                  className="glass-button h-11 px-8 border-crec-darkblue/10 font-bold text-[10px] uppercase tracking-widest"
                   disabled={pagination.current_page === 1}
                   onClick={() => setCurrentPage(pagination.current_page - 1)}
                 >
@@ -384,6 +358,7 @@ const AdminInscriptionsFablabPage: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
+                  className="glass-button h-11 px-8 border-crec-darkblue/10 font-bold text-[10px] uppercase tracking-widest"
                   disabled={pagination.current_page === pagination.last_page}
                   onClick={() => setCurrentPage(pagination.current_page + 1)}
                 >
@@ -393,7 +368,7 @@ const AdminInscriptionsFablabPage: React.FC = () => {
             </div>
           )}
         </CardContent>
-      </Card>
+      </div>
 
       {/* Dialog d'approbation */}
       <Dialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>

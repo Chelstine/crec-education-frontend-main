@@ -21,6 +21,7 @@ import {
   Settings,
   Monitor,
   AlertCircle,
+  Loader2,
 } from 'lucide-react';
 import {
   useFablabMachines,
@@ -148,112 +149,114 @@ const AdminReservationsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="p-2 bg-gray-100 rounded-lg">
-                <Settings className="w-6 h-6 text-gray-600" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-semibold text-gray-900">
-                  Administration FabLab
-                </h1>
-                <p className="text-sm text-gray-600 mt-1">
-                  Gestion des machines et réservations
-                </p>
-              </div>
-            </div>
-            <Button
-              className="bg-indigo-600 hover:bg-indigo-700 text-white transition-colors duration-200"
-              onClick={() => {/* Add new machine logic */ }}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Nouvelle machine
-            </Button>
+    <div className="space-y-10 animate-in fade-in duration-700 pb-10">
+      {/* En-tête Institutionnel */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4 md:px-0">
+        <div>
+          <div className="flex items-center gap-2 mb-3 text-[10px] font-black uppercase tracking-[0.3em] text-crec-gold">
+            <Monitor className="w-3 h-3" />
+            <span>Patrimoine Technique / FabLab</span>
           </div>
+          <h1 className="text-4xl font-bold admin-title tracking-tight text-crec-darkblue">Gouvernance des Équipements & Réservations</h1>
+          <p className="text-slate-500 font-medium text-sm mt-2">Supervision des ressources technologiques et du planning opérationnel.</p>
         </div>
-      </header>
+        <div className="flex items-center gap-3">
+          <Button
+            className="glass-button h-11 bg-crec-darkblue text-white hover:bg-crec-darkblue/90 border-0"
+            onClick={() => {/* Add new machine logic */ }}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            <span className="font-bold text-[10px] uppercase tracking-widest px-1">Nouvelle Unité</span>
+          </Button>
+        </div>
+      </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <section className="space-y-4">
-          <div className="flex items-center gap-3">
-            <Clock className="w-5 h-5 text-gray-600" />
-            <h2 className="text-lg font-medium text-gray-900">
-              Historique des réservations
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-10">
+        {/* Historique des Réservations Prestidieux */}
+        <section className="space-y-6">
+          <div className="px-4 md:px-0 flex items-center justify-between">
+            <h2 className="text-xl font-bold text-crec-darkblue flex items-center gap-3">
+              <Clock className="w-5 h-5 text-crec-gold" />
+              Journal des Réservations <span className="text-slate-400 font-medium ml-2 text-sm italic">({reservations.length} entrées)</span>
             </h2>
           </div>
-          <Card className="bg-white border border-gray-200 shadow-sm">
+
+          <div className="mx-4 md:mx-0 glass-panel rounded-[2rem] border border-white/60 shadow-2xl overflow-hidden bg-white/20">
             <CardContent className="p-0">
               {reservationsLoading ? (
-                <div className="p-6 text-center text-gray-500">
-                  Chargement des réservations...
+                <div className="p-20 text-center flex flex-col items-center gap-4">
+                  <Loader2 className="h-10 w-10 animate-spin text-crec-gold" />
+                  <p className="text-slate-400 font-medium italic">Extraction des registres temporels...</p>
                 </div>
               ) : reservations.length === 0 ? (
-                <div className="p-6 text-center text-gray-500">
-                  Aucune réservation trouvée.
+                <div className="p-20 text-center text-slate-400 font-medium italic">
+                  Aucun mouvement enregistré dans le journal des réservations.
                 </div>
               ) : (
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-white/40">
                   {reservations.map((reservation) => (
                     <div
                       key={reservation.id}
-                      className="p-6 hover:bg-gray-50 transition-colors duration-150 group"
+                      className="p-8 hover:bg-crec-gold/5 transition-all duration-300 group"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                            <Monitor className="w-5 h-5 text-gray-600" />
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="flex items-center gap-6">
+                          <div className="w-14 h-14 glass-card rounded-2xl flex items-center justify-center border border-white/60 shadow-inner">
+                            <Monitor className="w-6 h-6 text-crec-darkblue" />
                           </div>
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-3">
-                              <span className="font-medium text-gray-900">
-                                {reservation.machineName} {/* Changed to machineName */}
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-4">
+                              <span className="text-lg font-bold text-crec-darkblue tracking-tight">
+                                {reservation.machineName}
                               </span>
                               <Badge
                                 className={`${getStatusColor(
                                   reservation.status
-                                )} border text-xs font-normal`}
+                                )} px-3 py-1 rounded-full font-black text-[9px] uppercase tracking-widest border-0 shadow-sm`}
                               >
-                                {getStatusIcon(reservation.status)}
-                                <span className="ml-1.5">{reservation.status}</span>
+                                {reservation.status}
                               </Badge>
                             </div>
-                            <div className="flex items-center gap-6 text-sm text-gray-600">
-                              <div className="flex items-center gap-1.5">
-                                <Clock className="w-4 h-4" />
-                                <span>
-                                  {reservation.startTime} - {reservation.endTime}
+                            <div className="flex items-center gap-8 text-[11px] font-bold">
+                              <div className="flex items-center gap-2 text-slate-500">
+                                <Clock className="w-4 h-4 text-crec-gold" />
+                                <span className="uppercase tracking-tighter">
+                                  {reservation.startTime} — {reservation.endTime}
                                 </span>
                               </div>
                               {reservation.userName && (
-                                <div className="flex items-center gap-1.5">
-                                  <User className="w-4 h-4" />
+                                <div className="flex items-center gap-2 text-crec-darkblue font-black uppercase tracking-widest">
+                                  <User className="w-4 h-4 text-crec-gold" />
                                   <span>{reservation.userName}</span>
                                 </div>
                               )}
                             </div>
                           </div>
                         </div>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-50 hover:text-red-600"
-                          onClick={() => handleDeleteMachine(reservation.machineId)}
-                        >
-                          <Trash className="w-4 h-4" />
-                        </Button>
+                        <div className="flex items-center gap-3">
+                          <div className="text-right mr-4">
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Coût Total</p>
+                            <p className="font-bold text-crec-darkblue">{reservation.totalCost.toLocaleString()} FCFA</p>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-10 w-10 rounded-xl hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                            onClick={() => handleDeleteMachine(reservation.machineId)}
+                          >
+                            <Trash className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
             </CardContent>
-          </Card>
+          </div>
         </section>
 
-        <section className="space-y-4">
+        <section className="space-y-4 px-4 md:px-0">
           <div className="flex items-center gap-3">
             <Settings className="w-5 h-5 text-gray-600" />
             <h2 className="text-lg font-medium text-gray-900">
@@ -398,7 +401,7 @@ const AdminReservationsPage: React.FC = () => {
             </CardContent>
           </Card>
         </section>
-      </main>
+      </div>
     </div>
   );
 };
