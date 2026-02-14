@@ -1,31 +1,31 @@
 import { LoginResponse, BackendUser } from '../types';
 import api from './api'; // instance Axios
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+
 
 const authService = {
   // Connexion - VERSION CORRIGÉE
   login: async (email: string, password: string): Promise<LoginResponse> => {
     try {
-      const res = await api.post(`${API_URL}/admin/login`, { email, password });
+      const res = await api.post('/admin/login', { email, password });
       if (!res.data?.success) {
         throw new Error(res.data?.message || 'Erreur de connexion');
       }
-      
+
       // ✅ CORRECTION : Le token est dans res.data.data.token
       const token = res.data.data?.token;
       const adminData: BackendUser = res.data.data?.admin;
-      
+
       if (!token) {
         console.error('Structure de réponse:', res.data);
         throw new Error("Aucun token reçu depuis l'API");
       }
-      
+
       localStorage.setItem('auth_token', token);
       if (adminData) {
         localStorage.setItem('admin_info', JSON.stringify(adminData));
       }
-      
+
       return {
         success: true,
         message: res.data.message || 'Connexion réussie',
@@ -45,7 +45,7 @@ const authService = {
     const token = localStorage.getItem('auth_token');
     try {
       if (token) {
-        await api.post(`${API_URL}/admin/logout`, {}, {
+        await api.post('/admin/logout', {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }
@@ -83,16 +83,16 @@ const authService = {
     const token = localStorage.getItem('auth_token');
     if (!token) return null;
     try {
-      const res = await api.get(`${API_URL}/admin/me`, {
+      const res = await api.get('/admin/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.data?.success) {
         throw new Error(res.data?.message || 'Impossible de récupérer les informations utilisateur');
       }
-      
+
       // ✅ CORRECTION : Les données admin sont dans res.data.data
       const adminData: BackendUser = res.data.data;
-      
+
       if (adminData) {
         localStorage.setItem('admin_info', JSON.stringify(adminData));
       }
@@ -114,7 +114,7 @@ const authService = {
   // Demande de réinitialisation de mot de passe (mot de passe oublié)
   forgotPassword: async (email: string): Promise<void> => {
     try {
-      const response = await api.post(`${API_URL}/admin/forgot-password`, { email });
+      const response = await api.post('/admin/forgot-password', { email });
       if (!response.data?.success) {
         throw new Error(response.data?.message || 'Erreur lors de la demande de réinitialisation');
       }
@@ -140,13 +140,13 @@ const authService = {
         new_password: newPassword,
         new_password_confirmation: confirmPassword
       };
-      const res = await api.put(`${API_URL}/admin/change-password`, payload, {
+      const res = await api.put('/admin/change-password', payload, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.data?.success) {
         throw new Error(res.data?.message || 'Erreur lors du changement de mot de passe');
       }
-      
+
       // ✅ CORRECTION : Les données peuvent être dans res.data.data
       const adminData = res.data.data || res.data.admin;
       if (adminData) {
@@ -171,7 +171,7 @@ const authService = {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error('Aucun token d\'authentification');
     try {
-      const response = await api.put(`${API_URL}/admin/profile`, profileData, {
+      const response = await api.put('/admin/profile', profileData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data?.success) {
@@ -198,13 +198,13 @@ const authService = {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error('Aucun token d\'authentification');
     try {
-      const res = await api.get(`${API_URL}/admin/admins`, {
+      const res = await api.get('/admin/admins', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.data?.success) {
         throw new Error(res.data?.message || 'Erreur lors de la récupération des administrateurs');
       }
-      
+
       // ✅ CORRECTION : Priorité à res.data.data
       if (Array.isArray(res.data.data)) {
         return res.data.data;
@@ -234,7 +234,7 @@ const authService = {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error('Aucun token d\'authentification');
     try {
-      const res = await api.post(`${API_URL}/admin/admins`, adminData, {
+      const res = await api.post('/admin/admins', adminData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.data?.success) {
@@ -259,7 +259,7 @@ const authService = {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error('Aucun token d\'authentification');
     try {
-      const res = await api.put(`${API_URL}/admin/admins/${id}`, adminData, {
+      const res = await api.put(`/admin/admins/${id}`, adminData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.data?.success) {
@@ -279,7 +279,7 @@ const authService = {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error('Aucun token d\'authentification');
     try {
-      const res = await api.delete(`${API_URL}/admin/admins/${id}`, {
+      const res = await api.delete(`/admin/admins/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.data?.success) {
@@ -298,16 +298,16 @@ const authService = {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error('Aucun token d\'authentification');
     try {
-      const res = await api.post(`${API_URL}/admin/admins/${id}/reset-password`, {}, {
+      const res = await api.post(`/admin/admins/${id}/reset-password`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.data?.success) {
         throw new Error(res.data?.message || 'Erreur lors de la réinitialisation du mot de passe');
       }
-      
+
       // ✅ CORRECTION : Vérifier res.data.data aussi
       const tempPassword = res.data.data?.temporary_password || res.data.temporary_password;
-      
+
       return {
         temporary_password: tempPassword || ''
       };
@@ -322,11 +322,11 @@ const authService = {
   // Vérification du token de réinitialisation
   verifyResetToken: async (token: string, email: string): Promise<{ valid: boolean; message?: string }> => {
     try {
-      const response = await api.post(`${API_URL}/admin/verify-reset-token`, {
+      const response = await api.post('/admin/verify-reset-token', {
         token,
         email
       });
-      
+
       return {
         valid: response.data?.success || false,
         message: response.data?.message
@@ -344,8 +344,8 @@ const authService = {
     password_confirmation: string;
   }): Promise<void> => {
     try {
-      const response = await api.post(`${API_URL}/admin/reset-password`, data);
-      
+      const response = await api.post('/admin/reset-password', data);
+
       if (!response.data?.success) {
         throw new Error(response.data?.message || 'Erreur lors de la réinitialisation');
       }
