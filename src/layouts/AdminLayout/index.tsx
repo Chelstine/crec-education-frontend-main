@@ -43,9 +43,9 @@ const AdminLayout: React.FC = () => {
   // Redirection si l'utilisateur n'est pas authentifié
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      navigate('/admin/login', { 
+      navigate('/admin/login', {
         state: { from: location },
-        replace: true 
+        replace: true
       });
     }
   }, [isAuthenticated, loading, navigate, location]);
@@ -92,18 +92,18 @@ const AdminLayout: React.FC = () => {
       iconComponent: UserCheck,
       roles: ['super_admin', 'admin_inscription'],
       children: [
-        { 
-          path: '/admin/inscriptions/university', 
+        {
+          path: '/admin/inscriptions/university',
           name: 'Université',
           roles: ['super_admin', 'admin_inscription']
         },
-        { 
-          path: '/admin/inscriptions/formations', 
+        {
+          path: '/admin/inscriptions/formations',
           name: 'Formations ouvertes',
           roles: ['super_admin', 'admin_inscription']
         },
-        { 
-          path: '/admin/inscriptions/fablab', 
+        {
+          path: '/admin/inscriptions/fablab',
           name: 'FabLab',
           roles: ['super_admin', 'admin_inscription']
         }
@@ -115,43 +115,43 @@ const AdminLayout: React.FC = () => {
       iconComponent: BookOpen,
       roles: ['super_admin', 'admin_contenu'],
       children: [
-        { 
-          path: '/admin/contenus/istm', 
+        {
+          path: '/admin/contenus/istm',
           name: 'Programmes ISTM',
           roles: ['super_admin', 'admin_contenu']
         },
-        { 
-          path: '/admin/contenus/formations', 
+        {
+          path: '/admin/contenus/formations',
           name: 'Formations ouvertes',
           roles: ['super_admin', 'admin_contenu']
         },
-        { 
-          path: '/admin/contenus/fablab', 
+        {
+          path: '/admin/contenus/fablab',
           name: 'Ressources FabLab',
           roles: ['super_admin', 'admin_contenu']
         },
-        { 
-          path: '/admin/contenus/evenements', 
+        {
+          path: '/admin/contenus/evenements',
           name: 'Événements',
           roles: ['super_admin', 'admin_contenu']
         },
-        { 
-          path: '/admin/contenus/bibliotheque', 
+        {
+          path: '/admin/contenus/bibliotheque',
           name: 'Bibliothèque',
           roles: ['super_admin', 'admin_contenu']
         },
-        { 
-          path: '/admin/contenus/galerie', 
+        {
+          path: '/admin/contenus/galerie',
           name: 'Galerie',
           roles: ['super_admin', 'admin_contenu']
         },
-        { 
-          path: '/admin/contenus/partenaires', 
+        {
+          path: '/admin/contenus/partenaires',
           name: 'Partenaires',
           roles: ['super_admin', 'admin_contenu']
         },
-        { 
-          path: '/admin/reservations', 
+        {
+          path: '/admin/reservations',
           name: 'Réservations',
           roles: ['super_admin', 'admin_contenu']
         }
@@ -162,14 +162,14 @@ const AdminLayout: React.FC = () => {
       name: 'Paramètres',
       iconComponent: Settings,
       children: [
-        { 
-          path: '/admin/parametres/utilisateurs-roles', 
+        {
+          path: '/admin/parametres/utilisateurs-roles',
           name: 'Gestion des admins',
           roles: ['super_admin']
         },
-        { 
-          path: '/admin/profile', 
-          name: 'Profil' 
+        {
+          path: '/admin/profile',
+          name: 'Profil'
         }
       ]
     },
@@ -187,7 +187,7 @@ const AdminLayout: React.FC = () => {
   const getCurrentPageTitle = () => {
     const currentNavItem = filteredNavItems.find(item => location.pathname.startsWith(item.path));
     if (currentNavItem?.children) {
-      const currentChild = currentNavItem.children.find(child => 
+      const currentChild = currentNavItem.children.find(child =>
         location.pathname.startsWith(child.path)
       );
       return currentChild ? `${currentNavItem.name} - ${currentChild.name}` : currentNavItem.name;
@@ -232,9 +232,9 @@ const AdminLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col">
+    <div className="min-h-screen admin-bg-gradient flex flex-col font-sans">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
+      <header className="glass-header sticky top-0 z-30">
         <div className="flex items-center justify-between px-4 h-16">
           {/* Logo & Mobile menu button */}
           <div className="flex items-center">
@@ -246,27 +246,29 @@ const AdminLayout: React.FC = () => {
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
-            <Link to="/admin/dashboard" className="flex items-center gap-2">
-              <div className="bg-crec-gold rounded-md p-1">
+            <Link to="/admin/dashboard" className="flex items-center gap-2 group">
+              <div className="bg-gradient-to-br from-crec-gold to-amber-600 rounded-lg p-1.5 shadow-md group-hover:shadow-lg transition-all">
                 <School className="h-5 w-5 text-white" />
               </div>
-              <span className="font-semibold text-lg text-crec-darkblue">CREC Admin</span>
+              <span className="font-bold text-xl tracking-tight text-crec-darkblue " style={{ fontFamily: 'Playfair Display' }}>
+                CREC <span className="text-crec-gold">Admin</span>
+              </span>
             </Link>
           </div>
-          
+
           {/* Page title - visible on mobile */}
           <div className="md:hidden font-medium text-slate-800">
             {getCurrentPageTitle()}
           </div>
-          
+
           {/* User menu and notifications */}
           <div className="flex items-center gap-2">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative">
-                    <Bell className="h-5 w-5" />
-                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                  <Button variant="ghost" size="icon" className="relative hover:bg-slate-100/50">
+                    <Bell className="h-5 w-5 text-slate-600" />
+                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -274,22 +276,22 @@ const AdminLayout: React.FC = () => {
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-2 pl-2 pr-4">
-                  <Avatar className="h-8 w-8">
+                <Button variant="ghost" className="flex items-center gap-2 pl-2 pr-4 hover:bg-slate-100/50 rounded-full border border-transparent hover:border-slate-200 transition-all">
+                  <Avatar className="h-9 w-9 border-2 border-white shadow-sm">
                     <AvatarImage src={user?.avatar} />
-                    <AvatarFallback className="bg-crec-darkblue text-white">
+                    <AvatarFallback className="bg-gradient-to-br from-crec-darkblue to-blue-800 text-white">
                       {getInitials()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="hidden md:block text-left">
-                    <p className="text-sm font-medium">{user.prenom} {user.nom}</p>
-                    <div className="flex items-center gap-1">
-                      <Badge 
-                        variant={getRoleBadgeVariant(user.role)} 
-                        className="text-xs px-1 py-0"
+                    <p className="text-sm font-semibold text-slate-800 leading-none">{user.prenom} {user.nom}</p>
+                    <div className="flex items-center gap-1 mt-1">
+                      <Badge
+                        variant={getRoleBadgeVariant(user.role)}
+                        className="text-[10px] px-1.5 py-0 h-4"
                       >
                         {getRoleDisplayName(user.role)}
                       </Badge>
@@ -297,24 +299,24 @@ const AdminLayout: React.FC = () => {
                   </div>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="end" className="w-56 glass-panel">
                 <DropdownMenuLabel>
                   <div>
-                    <p>{user.prenom} {user.nom}</p>
+                    <p className="font-semibold">{user.prenom} {user.nom}</p>
                     <p className="text-xs text-slate-500 font-normal">{user.email}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/admin/profile')}>
+                <DropdownMenuItem onClick={() => navigate('/admin/profile')} className="cursor-pointer">
                   <User className="mr-2 h-4 w-4" />
                   <span>Profil</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/admin/parametres')}>
+                <DropdownMenuItem onClick={() => navigate('/admin/parametres')} className="cursor-pointer">
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Paramètres</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer focus:text-red-600 focus:bg-red-50">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Déconnexion</span>
                 </DropdownMenuItem>
@@ -324,55 +326,52 @@ const AdminLayout: React.FC = () => {
         </div>
       </header>
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 overflow-hidden">
         {/* Sidebar - Mobile version */}
         <div
-          className={`fixed inset-y-0 left-0 z-20 w-64 bg-white border-r border-slate-200 pt-16 transform transition-transform duration-300 md:hidden ${
-            mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+          className={`fixed inset-y-0 left-0 z-20 w-64 glass-sidebar pt-16 transform transition-transform duration-300 md:hidden ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
         >
-          <div className="px-3 py-4">
+          <div className="px-4 py-6">
             <nav className="space-y-1">
               {filteredNavItems.map((item) => (
-                <div key={item.path}>
+                <div key={item.path} className="mb-2">
                   <Link
                     to={item.path}
-                    className={`flex items-center px-3 py-2 rounded-md text-sm ${
-                      isActive(item.path)
-                        ? "bg-crec-darkblue/10 text-crec-darkblue font-medium"
-                        : "text-slate-600 hover:bg-slate-100"
-                    }`}
+                    className={`flex items-center px-4 py-3 rounded-xl text-sm transition-all duration-200 ${isActive(item.path)
+                        ? "bg-gradient-to-r from-crec-darkblue to-blue-800 text-white shadow-md shadow-blue-900/20 font-medium"
+                        : "text-slate-600 hover:bg-white/60 hover:text-slate-900"
+                      }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <item.iconComponent className="h-5 w-5" />
+                    <item.iconComponent className={`h-5 w-5 ${isActive(item.path) ? "text-crec-gold" : "text-slate-500"}`} />
                     <span className="ml-3">{item.name}</span>
                   </Link>
                   {item.children && isActive(item.path) && (
-                    <div className="ml-6 mt-1 space-y-1">
+                    <div className="ml-4 mt-1 space-y-1 border-l-2 border-slate-200 pl-3">
                       {item.children
                         .filter(child => !child.roles || hasRole(child.roles))
                         .map(child => (
-                        <Link
-                          key={child.path}
-                          to={child.path}
-                          className={`flex items-center px-3 py-2 rounded-md text-xs ${
-                            location.pathname.startsWith(child.path)
-                              ? "bg-crec-gold/10 text-crec-gold font-medium"
-                              : "text-slate-500 hover:bg-slate-100"
-                          }`}
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          <span>{child.name}</span>
-                        </Link>
-                      ))}
+                          <Link
+                            key={child.path}
+                            to={child.path}
+                            className={`flex items-center px-3 py-2 rounded-lg text-xs transition-colors ${location.pathname.startsWith(child.path)
+                                ? "text-crec-darkblue font-bold bg-blue-50"
+                                : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+                              }`}
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            <span>{child.name}</span>
+                          </Link>
+                        ))}
                     </div>
                   )}
                 </div>
               ))}
-              <Separator className="my-4" />
+              <Separator className="my-6 bg-slate-200/60" />
               <Button
                 variant="ghost"
-                className="w-full justify-start text-red-500 hover:bg-red-50 hover:text-red-600"
+                className="w-full justify-start text-red-500 hover:bg-red-50 hover:text-red-700 rounded-xl px-4 py-3"
                 onClick={handleLogout}
               >
                 <LogOut className="h-5 w-5 mr-3" />
@@ -384,13 +383,25 @@ const AdminLayout: React.FC = () => {
 
         {/* Sidebar - Desktop version */}
         <div
-          className={`hidden md:block bg-white border-r border-slate-200 transition-all duration-300 ${
-            sidebarCollapsed ? "w-16" : "w-64"
-          }`}
+          className={`hidden md:block glass-sidebar transition-all duration-300 ${sidebarCollapsed ? "w-20" : "w-72"
+            }`}
         >
           <div className="flex flex-col h-full">
-            <div className="flex-1 py-4">
-              <nav className="px-3 space-y-1">
+            <div className="flex-1 py-6 px-4 overflow-y-auto">
+              {/* Profile Card Mini in Sidebar */}
+              {!sidebarCollapsed && (
+                <div className="mb-6 p-4 glass-card rounded-2xl flex items-center gap-3 bg-gradient-to-br from-white/40 to-white/10">
+                  <div className="bg-blue-100 p-2 rounded-full">
+                    <UserCog className="w-5 h-5 text-crec-darkblue" />
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Rôle Actuel</p>
+                    <p className="text-sm font-bold text-crec-darkblue truncate">{getRoleDisplayName(user.role)}</p>
+                  </div>
+                </div>
+              )}
+
+              <nav className="space-y-2">
                 {filteredNavItems.map((item) => (
                   <div key={item.path}>
                     <TooltipProvider>
@@ -398,63 +409,62 @@ const AdminLayout: React.FC = () => {
                         <TooltipTrigger asChild>
                           <Link
                             to={item.path}
-                            className={`flex items-center px-3 py-2 rounded-md text-sm ${
-                              isActive(item.path)
-                                ? "bg-crec-darkblue/10 text-crec-darkblue font-medium"
-                                : "text-slate-600 hover:bg-slate-100"
-                            }`}
+                            className={`flex items-center px-3 py-3 rounded-xl text-sm transition-all duration-200 group ${isActive(item.path)
+                                ? "bg-gradient-to-r from-crec-darkblue to-blue-900 text-white shadow-lg shadow-blue-900/20 font-medium transform scale-[1.02]"
+                                : "text-slate-600 hover:bg-white/80 hover:text-crec-darkblue hover:shadow-sm"
+                              } ${sidebarCollapsed ? 'justify-center px-0' : ''}`}
                           >
-                            <span className="flex-shrink-0">
+                            <span className={`flex-shrink-0 transition-colors ${isActive(item.path) ? "text-crec-gold" : "text-slate-500 group-hover:text-crec-darkblue"}`}>
                               <item.iconComponent className="h-5 w-5" />
                             </span>
-                            {!sidebarCollapsed && <span className="ml-3">{item.name}</span>}
+                            {!sidebarCollapsed && <span className="ml-3 tracking-wide">{item.name}</span>}
                           </Link>
                         </TooltipTrigger>
                         {sidebarCollapsed && (
-                          <TooltipContent side="right">
+                          <TooltipContent side="right" className="glass-panel text-crec-darkblue font-medium ml-2">
                             <p>{item.name}</p>
                           </TooltipContent>
                         )}
                       </Tooltip>
                     </TooltipProvider>
-                    
+
                     {!sidebarCollapsed && item.children && isActive(item.path) && (
-                      <div className="ml-6 mt-1 space-y-1">
+                      <div className="ml-5 mt-2 space-y-1 border-l-2 border-slate-200/60 pl-3 mb-4 animate-in slide-in-from-left-2 duration-200">
                         {item.children
                           .filter(child => !child.roles || hasRole(child.roles))
                           .map(child => (
-                          <Link
-                            key={child.path}
-                            to={child.path}
-                            className={`flex items-center px-3 py-2 rounded-md text-xs ${
-                              location.pathname.startsWith(child.path)
-                                ? "bg-crec-gold/10 text-crec-gold font-medium"
-                                : "text-slate-500 hover:bg-slate-100"
-                            }`}
-                          >
-                            <span>{child.name}</span>
-                          </Link>
-                        ))}
+                            <Link
+                              key={child.path}
+                              to={child.path}
+                              className={`flex items-center px-3 py-2 rounded-lg text-xs transition-all ${location.pathname.startsWith(child.path)
+                                  ? "text-crec-darkblue font-bold bg-white/60 shadow-sm border border-white/50"
+                                  : "text-slate-500 hover:text-slate-900 hover:bg-white/40"
+                                }`}
+                            >
+                              <div className={`w-1.5 h-1.5 rounded-full mr-2 ${location.pathname.startsWith(child.path) ? "bg-crec-gold" : "bg-slate-300"}`}></div>
+                              <span>{child.name}</span>
+                            </Link>
+                          ))}
                       </div>
                     )}
                   </div>
                 ))}
               </nav>
             </div>
-            
-            <div className="p-3 mt-auto">
+
+            <div className="p-4 mt-auto border-t border-white/30">
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full flex justify-center"
+                className="w-full flex justify-center hover:bg-white/50"
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
               >
                 {sidebarCollapsed ? (
-                  <ChevronRight className="h-5 w-5" />
+                  <ChevronRight className="h-5 w-5 text-slate-500" />
                 ) : (
-                  <div className="flex items-center">
+                  <div className="flex items-center text-slate-500">
                     <ChevronLeft className="h-5 w-5 mr-2" />
-                    <span>Réduire</span>
+                    <span className="text-xs uppercase font-bold tracking-wider">Réduire le menu</span>
                   </div>
                 )}
               </Button>
@@ -464,14 +474,21 @@ const AdminLayout: React.FC = () => {
 
         {/* Main content */}
         <div className="flex-1 overflow-auto">
-          <main className="p-4 md:p-6 max-w-7xl mx-auto">
-            <div className="hidden md:flex items-center justify-between mb-6">
-              <h1 className="text-2xl font-bold text-slate-800">{getCurrentPageTitle()}</h1>
-              <Badge variant={getRoleBadgeVariant(user.role)} className="px-3 py-1">
-                {getRoleDisplayName(user.role)}
-              </Badge>
+          <main className="p-4 md:p-8 max-w-7xl mx-auto pb-20">
+            <div className="hidden md:flex items-center justify-between mb-8">
+              <div>
+                <h1 className="text-3xl font-bold text-crec-darkblue font-serif">{getCurrentPageTitle()}</h1>
+                <p className="text-slate-500 text-sm mt-1">Espace d'administration sécurisé</p>
+              </div>
+              <div className="flex gap-2">
+                <Badge variant="outline" className="px-3 py-1 bg-white/50 backdrop-blur-sm border-slate-200 shadow-sm">
+                  v1.0.2
+                </Badge>
+              </div>
             </div>
-            <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 md:p-6">
+
+            {/* Contenu de la page style "Glass" */}
+            <div className="animate-in fade-in duration-500 slide-in-from-bottom-4">
               <Outlet />
             </div>
           </main>
