@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
+import {
   FileText, GraduationCap, Wrench, BookOpen, ArrowRight, Edit3, Settings, PlusCircle
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card';
@@ -24,47 +24,40 @@ const AdminContenusIndexPage: React.FC = () => {
   useEffect(() => {
     const loadStats = async () => {
       try {
-        // À ADAPTER : Change ces endpoints pour pointer vers tes vraies routes Laravel !
-        const [
-          istmRes,
-          formRes,
-          fablabRes
-        ] = await Promise.all([
-          // Pour l’exemple, remplace par tes vrais endpoints
-          fetch('/api/admin/contenus/istm-stats').then(r => r.json()),
-          fetch('/api/admin/contenus/formations-stats').then(r => r.json()),
-          fetch('/api/admin/contenus/fablab-stats').then(r => r.json())
-        ]);
+        // Import dynamique pour éviter les erreurs de cycle si api est importé en haut
+        const api = (await import('@/services/api')).default;
 
-        // Ajoute tes vrais mappings selon ce que renvoie ton backend Laravel
+        const response = await api.get('/admin/content/stats');
+        const data = response.data;
+
         setStats({
           istm: {
-            programs: `${istmRes.total || 0} programme${istmRes.total > 1 ? 's' : ''}`,
-            active: `${istmRes.active || 0} actif${istmRes.active > 1 ? 's' : ''}`,
-            draft: `${istmRes.draft || 0} brouillon${istmRes.draft > 1 ? 's' : ''}`,
+            programs: `${data.istm.total || 0} programme${data.istm.total > 1 ? 's' : ''}`,
+            active: `${data.istm.active || 0} actif${data.istm.active > 1 ? 's' : ''}`,
+            draft: `${data.istm.draft || 0} brouillon${data.istm.draft > 1 ? 's' : ''}`,
           },
           formations: {
-            programs: `${formRes.total || 0} formation${formRes.total > 1 ? 's' : ''}`,
-            active: `${formRes.active || 0} active${formRes.active > 1 ? 's' : ''}`,
-            draft: `${formRes.draft || 0} en préparation`,
+            programs: `${data.formations.total || 0} formation${data.formations.total > 1 ? 's' : ''}`,
+            active: `${data.formations.active || 0} active${data.formations.active > 1 ? 's' : ''}`,
+            draft: `${data.formations.draft || 0} en préparation`,
           },
           fablab: {
-            programs: `${fablabRes.total || 0} équipement${fablabRes.total > 1 ? 's' : ''}`,
-            active: `${fablabRes.active || 0} disponible${fablabRes.active > 1 ? 's' : ''}`,
-            draft: `${fablabRes.draft || 0} en maintenance`,
+            programs: `${data.fablab.total || 0} élément${data.fablab.total > 1 ? 's' : ''}`,
+            active: `${data.fablab.active || 0} disponible${data.fablab.active > 1 ? 's' : ''}`,
+            draft: `${data.fablab.draft || 0} en maintenance`,
           },
-          actifs: (istmRes.active || 0) + (formRes.active || 0) + (fablabRes.active || 0),
-          edition: (istmRes.draft || 0) + (formRes.draft || 0) + (fablabRes.draft || 0),
-          total: (istmRes.total || 0) + (formRes.total || 0) + (fablabRes.total || 0),
+          actifs: (data.istm.active || 0) + (data.formations.active || 0) + (data.fablab.active || 0),
+          edition: (data.istm.draft || 0) + (data.formations.draft || 0) + (data.fablab.draft || 0),
+          total: (data.istm.total || 0) + (data.formations.total || 0) + (data.fablab.total || 0),
         });
       } catch (error) {
+        console.error('Erreur lors du chargement des statistiques:', error);
         setStats({
           istm: { programs: '0 programme', active: '0 actif', draft: '0 brouillon' },
           formations: { programs: '0 formation', active: '0 active', draft: '0 en préparation' },
           fablab: { programs: '0 équipement', active: '0 disponible', draft: '0 en maintenance' },
           actifs: 0, edition: 0, total: 0
         });
-        console.error('Erreur lors du chargement des statistiques:', error);
       }
     };
 
@@ -133,8 +126,8 @@ const AdminContenusIndexPage: React.FC = () => {
           <h1 className="text-3xl font-bold text-slate-800">Gestion des Contenus</h1>
         </div>
         <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-          Créez, modifiez et organisez tous les contenus de votre établissement. 
-          Gérez les programmes académiques, les formations professionnelles et 
+          Créez, modifiez et organisez tous les contenus de votre établissement.
+          Gérez les programmes académiques, les formations professionnelles et
           les équipements du FabLab depuis une interface centralisée.
         </p>
       </div>
@@ -185,8 +178,8 @@ const AdminContenusIndexPage: React.FC = () => {
       {/* Sections de contenu */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
         {contentSections.map((section) => (
-          <Card 
-            key={section.id} 
+          <Card
+            key={section.id}
             className={`${section.color} hover:shadow-lg transition-all duration-300 group cursor-pointer`}
             onClick={() => navigate(section.path)}
           >
@@ -229,7 +222,7 @@ const AdminContenusIndexPage: React.FC = () => {
                 </Badge>
               </div>
               {/* Bouton d'action */}
-              <Button 
+              <Button
                 className="w-full mt-4 group-hover:bg-slate-700 transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -251,24 +244,24 @@ const AdminContenusIndexPage: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="p-4 h-auto flex-col gap-2 border-indigo-200 hover:bg-indigo-50"
               onClick={() => navigate('/admin/contenus/istm')}
             >
               <GraduationCap className="w-5 h-5 text-indigo-600" />
               <span className="text-sm">Nouveau programme ISTM</span>
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="p-4 h-auto flex-col gap-2 border-indigo-200 hover:bg-indigo-50"
               onClick={() => navigate('/admin/contenus/formations')}
             >
               <BookOpen className="w-5 h-5 text-indigo-600" />
               <span className="text-sm">Nouvelle formation</span>
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="p-4 h-auto flex-col gap-2 border-indigo-200 hover:bg-indigo-50"
               onClick={() => navigate('/admin/contenus/fablab')}
             >
@@ -285,7 +278,7 @@ const AdminContenusIndexPage: React.FC = () => {
           <div className="text-center space-y-3">
             <h3 className="text-lg font-semibold text-slate-800">Besoin d'aide ?</h3>
             <p className="text-slate-600 text-sm max-w-2xl mx-auto">
-              Consultez notre documentation pour apprendre à créer et gérer efficacement 
+              Consultez notre documentation pour apprendre à créer et gérer efficacement
               vos contenus académiques et administratifs.
             </p>
             <div className="flex gap-3 justify-center mt-4">
