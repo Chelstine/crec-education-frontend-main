@@ -4,6 +4,7 @@ import MainLayout from '@/layouts/MainLayout';
 import ReservationLayout from '@/layouts/ReservationLayout';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
 import adminRoutes from './routes/adminRoutes';
+import universityRoutes from './routes/universityRoutes';
 
 // Loading component for lazy routes
 const LoadingSpinner = () => (
@@ -64,6 +65,9 @@ const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType<a
 const routes: RouteObject[] = [
   // Routes pour l'espace admin
   ...adminRoutes,
+  
+  // Routes pour l'ISTMR (université)
+  ...universityRoutes,
   
   // Routes principales du site
   {
