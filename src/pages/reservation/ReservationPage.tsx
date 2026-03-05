@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import {
   useFablabMachines,
-  useFablabSubscriptions,
+  useUserSubscriptionStatus,
 } from '@/hooks/useFablab';
 import {
   Machine,
@@ -90,11 +90,12 @@ const ReservationPage: React.FC = () => {
 
   const { data: machinesRes, isLoading: machinesLoading } = useFablabMachines();
   const { data: hourlyRatesResponse, isLoading: ratesLoading } = useMachineHourlyRates();
-  const { data: subscriptionsResponse, isLoading: subscriptionsLoading } = useFablabSubscriptions();
+
+  // ✅ SECURITY HARDENING Phase 4: Use Server-Side Validation
+  const { data: userSubStatusResponse, isLoading: subscriptionsLoading } = useUserSubscriptionStatus();
 
   let machines: Machine[] = [];
   let hourlyRates: MachineHourlyRate[] = [];
-  const subscriptions = Array.isArray(subscriptionsResponse) ? subscriptionsResponse : [];
 
   // Adaptation pour le type de retour des hooks
   if (machinesRes) {
@@ -127,10 +128,8 @@ const ReservationPage: React.FC = () => {
     ];
   }
 
-  // REMOVED: Mock test user logic for production security
-  const [testUserSubscription] = useState<any>(null);
-
-  const currentSubscription = testUserSubscription || subscriptions.find((sub: any) => sub.status === 'approved');
+  const hasActiveSubscription = userSubStatusResponse?.has_subscription || false;
+  const currentSubscription = userSubStatusResponse?.subscription_details || null;
   const { data: reservationsResponse, isLoading: reservationsLoading } = useUserReservations(currentSubscription?.id || '');
   const { data: usageReportResponse, isLoading: usageLoading } = useSubscriptionUsage(currentSubscription?.id || '');
 
@@ -151,7 +150,6 @@ const ReservationPage: React.FC = () => {
   const availableSlots = availableSlotsResponse || [];
   const createReservationMutation = useCreateFablabReservation();
   const cancelReservationMutation = useCancelReservation();
-  const hasActiveSubscription = !!currentSubscription;
 
   useEffect(() => {
     if (fromSubscription && subscriptionMessage) {
@@ -446,7 +444,7 @@ const ReservationPage: React.FC = () => {
                   <div className="h-8 w-8 bg-blue-500 rounded-full flex items-center justify-center">
                     <User className="h-4 w-4 text-white" />
                   </div>
-                  <span className="text-sm text-gray-700">{currentSubscription.userName}</span>
+                  <span className="text-sm text-gray-700">Utilisateur</span>
                 </div>
                 <Button
                   onClick={handleLogout}

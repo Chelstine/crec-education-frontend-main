@@ -1,11 +1,11 @@
 // hooks/useFablab.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fablabService } from '@/services/fablabService';
-import { 
-  Machine, 
-  Project, 
-  Subscription, 
-  Training, 
+import {
+  Machine,
+  Project,
+  Subscription,
+  Training,
   Service,
   CreateMachineData,
   CreateProjectData,
@@ -32,7 +32,7 @@ export const useFablabMachine = (id: number) => {
 
 export const useCreateMachine = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (data: CreateMachineData) => fablabService.createMachine(data),
     onSuccess: () => {
@@ -44,9 +44,9 @@ export const useCreateMachine = () => {
 
 export const useUpdateMachine = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<CreateMachineData> }) => 
+    mutationFn: ({ id, data }: { id: number; data: Partial<CreateMachineData> }) =>
       fablabService.updateMachine(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fablab', 'machines'] });
@@ -57,7 +57,7 @@ export const useUpdateMachine = () => {
 
 export const useDeleteMachine = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: number) => fablabService.deleteMachine(id),
     onSuccess: () => {
@@ -92,7 +92,7 @@ export const useFablabProject = (id: number) => {
 
 export const useCreateProject = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (data: CreateProjectData) => fablabService.createProject(data),
     onSuccess: () => {
@@ -104,9 +104,9 @@ export const useCreateProject = () => {
 
 export const useUpdateProject = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<CreateProjectData> }) => 
+    mutationFn: ({ id, data }: { id: number; data: Partial<CreateProjectData> }) =>
       fablabService.updateProject(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fablab', 'projects'] });
@@ -117,7 +117,7 @@ export const useUpdateProject = () => {
 
 export const useDeleteProject = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: number) => fablabService.deleteProject(id),
     onSuccess: () => {
@@ -142,9 +142,19 @@ export const useFablabActiveSubscriptions = () => {
   });
 };
 
+// ✅ SECURITY HARDENING Phase 4: Hook for server-side subscription validation
+export const useUserSubscriptionStatus = () => {
+  return useQuery({
+    queryKey: ['fablab', 'userSubscriptionStatus'],
+    queryFn: () => fablabService.getUserSubscriptionStatus(),
+    retry: 1,
+    staleTime: 5 * 60 * 1000 // 5 minutes
+  });
+};
+
 export const useCreateSubscription = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (data: CreateSubscriptionData) => fablabService.createSubscription(data),
     onSuccess: () => {
@@ -156,9 +166,9 @@ export const useCreateSubscription = () => {
 
 export const useUpdateSubscription = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<CreateSubscriptionData> }) => 
+    mutationFn: ({ id, data }: { id: number; data: Partial<CreateSubscriptionData> }) =>
       fablabService.updateSubscription(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fablab', 'subscriptions'] });
@@ -169,7 +179,7 @@ export const useUpdateSubscription = () => {
 
 export const useDeleteSubscription = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: number) => fablabService.deleteSubscription(id),
     onSuccess: () => {
@@ -196,7 +206,7 @@ export const useFablabActiveTrainings = () => {
 
 export const useCreateTraining = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (data: CreateTrainingData) => fablabService.createTraining(data),
     onSuccess: () => {
@@ -208,9 +218,9 @@ export const useCreateTraining = () => {
 
 export const useUpdateTraining = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<CreateTrainingData> }) => 
+    mutationFn: ({ id, data }: { id: number; data: Partial<CreateTrainingData> }) =>
       fablabService.updateTraining(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fablab', 'trainings'] });
@@ -221,7 +231,7 @@ export const useUpdateTraining = () => {
 
 export const useDeleteTraining = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: number) => fablabService.deleteTraining(id),
     onSuccess: () => {
@@ -248,7 +258,7 @@ export const useFablabActiveServices = () => {
 
 export const useCreateService = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (data: CreateServiceData) => fablabService.createService(data),
     onSuccess: () => {
@@ -260,9 +270,9 @@ export const useCreateService = () => {
 
 export const useUpdateService = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<CreateServiceData> }) => 
+    mutationFn: ({ id, data }: { id: number; data: Partial<CreateServiceData> }) =>
       fablabService.updateService(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fablab', 'services'] });
@@ -273,7 +283,7 @@ export const useUpdateService = () => {
 
 export const useDeleteService = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: number) => fablabService.deleteService(id),
     onSuccess: () => {

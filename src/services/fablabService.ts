@@ -1,11 +1,11 @@
 // services/fablabService.ts
 import { apiClient } from '../lib/api';
-import { 
-  Machine, 
-  Project, 
-  Subscription, 
-  Training, 
-  Service, 
+import {
+  Machine,
+  Project,
+  Subscription,
+  Training,
+  Service,
   FablabStats,
   CreateMachineData,
   CreateProjectData,
@@ -36,7 +36,7 @@ class FablabService {
     try {
       const response = await apiClient.get('/fablab/machines');
       const machines = response.data?.data || response.data || [];
-      
+
       // Ensure array fields are always arrays
       return machines.map((machine: any) => ({
         ...machine,
@@ -57,7 +57,7 @@ class FablabService {
 
   async createMachine(data: CreateMachineData): Promise<Machine> {
     const formData = new FormData();
-    
+
     Object.entries(data).forEach(([key, value]) => {
       this.appendFormData(formData, key, value);
     });
@@ -73,7 +73,7 @@ class FablabService {
   async updateMachine(id: number, data: Partial<CreateMachineData>): Promise<Machine> {
     const formData = new FormData();
     formData.append('_method', 'PUT');
-    
+
     Object.entries(data).forEach(([key, value]) => {
       this.appendFormData(formData, key, value);
     });
@@ -95,7 +95,7 @@ class FablabService {
     try {
       const response = await apiClient.get('/fablab/projects');
       const projects = response.data?.data || response.data || [];
-      
+
       // Ensure array fields are always arrays
       return projects.map((project: any) => ({
         ...project,
@@ -118,7 +118,7 @@ class FablabService {
     try {
       const response = await apiClient.get('/fablab/projects/published');
       const projects = response.data?.data || response.data || [];
-      
+
       // Ensure array fields are always arrays
       return projects.map((project: any) => ({
         ...project,
@@ -134,7 +134,7 @@ class FablabService {
 
   async createProject(data: CreateProjectData): Promise<Project> {
     const formData = new FormData();
-    
+
     Object.entries(data).forEach(([key, value]) => {
       this.appendFormData(formData, key, value);
     });
@@ -150,7 +150,7 @@ class FablabService {
   async updateProject(id: number, data: Partial<CreateProjectData>): Promise<Project> {
     const formData = new FormData();
     formData.append('_method', 'PUT');
-    
+
     Object.entries(data).forEach(([key, value]) => {
       this.appendFormData(formData, key, value);
     });
@@ -178,11 +178,22 @@ class FablabService {
     }
   }
 
+  // ✅ SECURITY HARDENING Phase 4: Server-side validation
+  async getUserSubscriptionStatus(): Promise<{ has_subscription: boolean; subscription_details: any }> {
+    try {
+      const response = await apiClient.get('/admin/fablab/user-subscription-status');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching user subscription status:', error);
+      return { has_subscription: false, subscription_details: null };
+    }
+  }
+
   async getActiveSubscriptions(): Promise<Subscription[]> {
     try {
       const response = await apiClient.get('/fablab/subscriptions/active');
       const subscriptions = response.data?.data || response.data || [];
-      
+
       // Ensure array fields are always arrays
       return subscriptions.map((subscription: any) => ({
         ...subscription,
@@ -232,7 +243,7 @@ class FablabService {
 
   async createTraining(data: CreateTrainingData): Promise<Training> {
     const formData = new FormData();
-    
+
     Object.entries(data).forEach(([key, value]) => {
       this.appendFormData(formData, key, value);
     });
@@ -248,7 +259,7 @@ class FablabService {
   async updateTraining(id: number, data: Partial<CreateTrainingData>): Promise<Training> {
     const formData = new FormData();
     formData.append('_method', 'PUT');
-    
+
     Object.entries(data).forEach(([key, value]) => {
       this.appendFormData(formData, key, value);
     });
@@ -288,7 +299,7 @@ class FablabService {
 
   async createService(data: CreateServiceData): Promise<Service> {
     const formData = new FormData();
-    
+
     Object.entries(data).forEach(([key, value]) => {
       this.appendFormData(formData, key, value);
     });
@@ -304,7 +315,7 @@ class FablabService {
   async updateService(id: number, data: Partial<CreateServiceData>): Promise<Service> {
     const formData = new FormData();
     formData.append('_method', 'PUT');
-    
+
     Object.entries(data).forEach(([key, value]) => {
       this.appendFormData(formData, key, value);
     });
