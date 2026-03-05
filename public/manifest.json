@@ -1,0 +1,21 @@
+{
+    "short_name": "CREC",
+    "name": "CREC Education - Excellence Académique",
+    "icons": [
+        {
+            "src": "/img/logo.png",
+            "sizes": "191x98",
+            "type": "image/png"
+        },
+        {
+            "src": "/img/logo.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "start_url": ".",
+    "display": "standalone",
+    "theme_color": "#0F172A",
+    "background_color": "#ffffff"
+}

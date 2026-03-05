@@ -1,0 +1,196 @@
+/* Mobile-specific improvements */
+
+/* Touch-friendly inputs */
+@media (max-width: 768px) {
+  /* Ensure inputs are at least 44px high for better touch targets */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  input[type="number"],
+  textarea,
+  select,
+  .touch-target {
+    min-height: 44px !important;
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+
+  /* Better spacing for form elements */
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  /* Touch-friendly buttons */
+  button,
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 16px;
+    font-size: 16px;
+  }
+
+  /* Improved card spacing on mobile */
+  .card {
+    margin: 0.5rem;
+    border-radius: 12px;
+  }
+
+  /* Better navigation for mobile */
+  .mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    z-index: 50;
+    padding: 8px;
+  }
+
+  /* Improved modal behavior */
+  .modal-content {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+  }
+
+  /* Better image handling */
+  .responsive-image {
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  /* Touch-friendly carousel controls */
+  .carousel-control {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Improved table responsiveness */
+  .responsive-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .responsive-table table {
+    min-width: 600px;
+  }
+}
+
+/* Landscape phone optimizations */
+@media (max-width: 896px) and (orientation: landscape) {
+  .hero-section {
+    min-height: 60vh;
+  }
+
+  .mobile-nav {
+    display: none;
+  }
+}
+
+/* Small devices specific */
+@media (max-width: 480px) {
+  /* Tighter spacing */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Smaller typography on very small screens */
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  /* Stack flex items on very small screens */
+  .flex-responsive {
+    flex-direction: column;
+  }
+
+  /* Full width buttons on small screens */
+  .btn-responsive {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Dark mode mobile adjustments */
+@media (prefers-color-scheme: dark) and (max-width: 768px) {
+  .mobile-nav {
+    background: #1f2937;
+    border-top-color: #374151;
+  }
+
+  .card {
+    background: #1f2937;
+    border-color: #374151;
+  }
+}
+
+/* Accessibility improvements for mobile */
+@media (max-width: 768px) {
+  /* Focus indicators */
+  button:focus,
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    button,
+    input,
+    textarea,
+    select {
+      border: 2px solid;
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Print styles for mobile */
+@media print {
+  .no-print,
+  .mobile-nav,
+  .carousel-control,
+  .sticky {
+    display: none !important;
+  }
+
+  body {
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+
+  .container {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}

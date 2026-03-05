@@ -1,0 +1,10 @@
+/* Diaporama hero background image class for HomePage */
+.hero-diaporama-bg {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  /* Use CSS variable for dynamic background image */
+  background-image: var(--hero-bg);
+}

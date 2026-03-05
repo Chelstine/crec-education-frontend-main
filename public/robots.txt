@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /profile
+Disallow: /reset-password
+Disallow: /forgotten-password
+
+Sitemap: https://crec-education.bj/sitemap.xml

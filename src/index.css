@@ -1,0 +1,489 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+@import './styles/responsive.css';
+
+/* Tailwind CSS directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* CREC Color Theme - Light Mode */
+    --background: 0 0% 100%;
+    --foreground: 222 81% 16%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 81% 16%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 81% 16%;
+
+    --primary: 222 55% 23%;
+    /* CREC Dark Blue */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 39 97% 53%;
+    /* CREC Gold */
+    --secondary-foreground: 222 55% 23%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 222 15% 45%;
+
+    --accent: 39 97% 53%;
+    /* CREC Gold */
+    --accent-foreground: 222 55% 23%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 222 55% 23%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 15px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Times New Roman', Times, serif;
+  }
+
+  /* Unified Glassmorphism Design System (UGDS) */
+  :root {
+    --glass-opacity: 0.15;
+    --glass-blur: 12px;
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --crec-gold-glow: 0 0 15px rgba(212, 175, 55, 0.4);
+  }
+
+  /* Base Glass Panel - High transparency for layout containers */
+  .glass-panel {
+    @apply backdrop-blur-[12px] bg-white/[0.15] border border-white/40 shadow-sm;
+  }
+
+  /* Glass Card - Higher contrast for content units */
+  .glass-card {
+    @apply backdrop-blur-[10px] bg-white/[0.25] border border-white/60 shadow-lg transition-all duration-300;
+  }
+
+  /* Glass Button - Glossy effect */
+  .glass-button {
+    @apply px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white backdrop-blur-md hover:bg-white/20 transition-all duration-300;
+  }
+
+  .font-academic {
+    font-family: "Times New Roman", Garamond, Georgia, serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .glass-card:hover {
+    @apply bg-white/[0.35] border-white/80 shadow-xl -translate-y-1;
+  }
+
+  /* Glass Input - Inner shadow and soft focus */
+  .glass-input {
+    @apply backdrop-blur-md bg-white/[0.4] border border-white/60 rounded-xl px-4 py-2 focus:bg-white/[0.6] focus:border-crec-gold/50 focus:ring-4 focus:ring-crec-gold/10 transition-all outline-none text-slate-700 placeholder:text-slate-400;
+  }
+
+  /* Glass Button - Glossy effect */
+  .glass-button {
+    @apply backdrop-blur-md bg-white/[0.3] border border-white/60 hover:bg-white/[0.5] active:scale-95 transition-all font-semibold flex items-center justify-center;
+  }
+
+  /* Sidebar Specific Glass */
+  .glass-sidebar {
+    @apply backdrop-blur-[20px] bg-white/[0.1] border-r border-white/20;
+  }
+
+  .glass-header {
+    @apply backdrop-blur-[16px] bg-white/[0.2] border-b border-white/30 sticky top-0 z-50;
+  }
+
+  /* Typography Refinement */
+  .admin-title {
+    @apply font-serif font-bold text-crec-darkblue tracking-tight;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
+  }
+
+  .gold-accent {
+    @apply text-crec-gold;
+    filter: drop-shadow(var(--crec-gold-glow));
+  }
+
+  .admin-card-label {
+    @apply text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-1;
+  }
+
+  .admin-bg-gradient {
+    @apply min-h-screen bg-slate-50;
+    background: radial-gradient(circle at top left, #f8fafc 0%, #f1f5f9 40%, #e2e8f0 100%);
+    background-attachment: fixed;
+  }
+}
+
+@layer utilities {
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+
+  /* Effet text-shadow pour améliorer la lisibilité sur les images */
+  .text-shadow-lg {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.6);
+  }
+
+  .text-shadow-md {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  }
+
+  /* Animation pour le diaporama */
+  .hero-slideshow {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: opacity 1s ease-in-out;
+  }
+
+  .hero-slide.active {
+    opacity: 1;
+  }
+
+  .hero-slide.inactive {
+    opacity: 0;
+  }
+
+  /* Styles pour les indicateurs du diaporama */
+  .slideshow-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .indicator-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .indicator-dot.active {
+    background-color: #f59e0b;
+    transform: scale(1.25);
+  }
+
+  .indicator-dot:hover {
+    background-color: rgba(255, 255, 255, 0.6);
+  }
+
+  /* Utility classes for background images and styles */
+  .hero-bg-about {
+    background-image: url('/img/a-propos.png');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .hero-bg-formations {
+    background-image: url('/img/formation.png');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .hero-bg-contact {
+    background-image: url('/img/com.png');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .hero-bg-campus {
+    background-image: url('/img/crec-campus-bg.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .iframe-no-border {
+    border: 0;
+  }
+
+  .z-index-minus-1 {
+    z-index: -1;
+  }
+
+  .preview-container {
+    max-width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+  }
+
+  /* Dynamic z-index utilities */
+  .z-dynamic-10 {
+    z-index: 10;
+  }
+
+  .z-dynamic-20 {
+    z-index: 20;
+  }
+
+  .z-dynamic-30 {
+    z-index: 30;
+  }
+
+  .z-dynamic-40 {
+    z-index: 40;
+  }
+
+  .z-dynamic-50 {
+    z-index: 50;
+  }
+
+  /* Additional hero overlays */
+  .hero-overlay-dark {
+    background: linear-gradient(to right,
+        rgba(0, 0, 0, 0.7),
+        rgba(0, 0, 0, 0.4),
+        rgba(0, 0, 0, 0.7));
+  }
+
+  .hero-overlay-gradient {
+    background: linear-gradient(45deg,
+        rgba(0, 0, 0, 0.8) 0%,
+        rgba(0, 0, 0, 0.6) 30%,
+        rgba(0, 0, 0, 0.4) 50%,
+        rgba(0, 0, 0, 0.6) 70%,
+        rgba(0, 0, 0, 0.8) 100%);
+  }
+
+  /* Amélioration de l'overlay gradient */
+  .hero-overlay {
+    background: linear-gradient(45deg,
+        rgba(0, 0, 0, 0.8) 0%,
+        rgba(0, 0, 0, 0.6) 30%,
+        rgba(0, 0, 0, 0.4) 50%,
+        rgba(0, 0, 0, 0.6) 70%,
+        rgba(0, 0, 0, 0.8) 100%);
+  }
+
+  /* Dynamic background image utility */
+  .bg-image-dynamic {
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* Background image classes to replace inline styles */
+  .bg-a-propos {
+    background-image: url('/img/a-propos.png');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .bg-formations-hub {
+    background-image: url('/img/formation.png');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .bg-open-formations {
+    background-image: url('/img/formation.png');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .bg-contact {
+    background-image: url('/img/contact.png');
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* Border utility classes */
+  .border-none-important {
+    border: 0 !important;
+  }
+
+  /* Transform utilities */
+  .transform-scale-hover:hover {
+    transform: scale(1.02);
+  }
+
+  .transform-rotate-6 {
+    transform: rotate(6deg);
+  }
+
+  /* Dynamic background image using CSS custom properties */
+  .bg-dynamic {
+    background-image: var(--bg-image);
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* Iframe utilities */
+  .iframe-borderless {
+    border: 0;
+  }
+
+  /* Progress bar utilities */
+  .progress-bar-dynamic {
+    width: var(--progress-width);
+  }
+
+  /* Hero section with dynamic colors */
+  .hero-dynamic {
+    background-color: var(--hero-bg-color, #1e3a8a);
+    color: var(--hero-text-color, #ffffff);
+  }
+
+  /* Hero section with default blue theme */
+  .hero-blue-theme {
+    background-color: #1e3a8a;
+    color: #ffffff;
+  }
+
+  /* Hero section with custom colors applied via CSS variables */
+  .hero-custom-colors {
+    background-color: var(--section-bg-color);
+    color: var(--section-text-color);
+  }
+
+  /* Progress bar width utility */
+  .progress-width-dynamic {
+    width: var(--progress-percentage, 0%);
+  }
+
+  /* Background utilities for banners */
+  .bg-image-dynamic {
+    background-image: var(--bg-url);
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* Utilitaire pour background dynamique sans style inline direct */
+  .dynamic-bg {
+    background-image: var(--bg-url);
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* Utilitaire pour section hero dynamique */
+  .dynamic-hero-section {
+    background-color: var(--hero-bg, #1e3a8a);
+    color: var(--hero-color, #ffffff);
+  }
+
+  .events-hero-bg {
+    background-image: url('/img/conference.png');
+    background-size: cover;
+    background-position: center;
+  }
+}
+
+/* ═══ ISTMR Module Animations ═══ */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
