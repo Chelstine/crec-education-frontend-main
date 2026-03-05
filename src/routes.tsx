@@ -4,7 +4,6 @@ import MainLayout from '@/layouts/MainLayout';
 import ReservationLayout from '@/layouts/ReservationLayout';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
 import adminRoutes from './routes/adminRoutes';
-import universityRoutes from './routes/universityRoutes';
 
 // Loading component for lazy routes
 const LoadingSpinner = () => (
@@ -28,10 +27,8 @@ const JesuitesPage = lazy(() => import('@/pages/about/JesuitesPage')); // Histoi
 const EquipePage = lazy(() => import('@/pages/about/EquipePage')); // Notre équipe
 
 // Pages Formations
-// Pages Formations
 const OpenFormationsPage = lazy(() => import('@/pages/formations/OpenFormationsPage'));
 const UniversityPage = lazy(() => import('@/pages/formations/UniversityPage'));
-const UniversityProgramPage = lazy(() => import('@/pages/formations/UniversityProgramPage'));
 const FablabPage = lazy(() => import('@/pages/formations/FablabPage'));
 const FablabInscriptionPage = lazy(() => import('@/pages/formations/FablabInscriptionPage'));
 const OpenFormationsInscriptionPage = lazy(() => import('@/pages/formations/OpenFormationsInscriptionPage'));
@@ -67,10 +64,7 @@ const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType<a
 const routes: RouteObject[] = [
   // Routes pour l'espace admin
   ...adminRoutes,
-
-  // Routes pour le module ISTMR (Université)
-  ...universityRoutes,
-
+  
   // Routes principales du site
   {
     path: '/',
@@ -109,7 +103,7 @@ const routes: RouteObject[] = [
         path: 'donate',
         element: withSuspense(DonatePage),
       },
-
+      
       // Pages d'authentification
       {
         path: 'login',
@@ -131,7 +125,7 @@ const routes: RouteObject[] = [
         path: 'fablab/login',
         element: withSuspense(FablabLoginPage),
       },
-
+      
       // Routes admin spécifiques
       {
         path: 'admin/forgot-password',
@@ -141,7 +135,7 @@ const routes: RouteObject[] = [
         path: 'admin/reset-password',
         element: withSuspense(ResetPasswordPage),
       },
-
+      
       // Pages utilisateur protégées
       {
         path: 'profile',
@@ -176,10 +170,6 @@ const routes: RouteObject[] = [
         element: withSuspense(UniversityPage),
       },
       {
-        path: 'formations/university/:id',
-        element: withSuspense(UniversityProgramPage),
-      },
-      {
         path: 'formations/university/inscription',
         element: withSuspense(InscriptionUniversitairePage),
       },
@@ -207,7 +197,7 @@ const routes: RouteObject[] = [
         path: 'events',
         element: withSuspense(EventsPage),
       },
-
+     
 
       // 404 - doit être en dernier
       {
@@ -237,11 +227,6 @@ const routes: RouteObject[] = [
   },
 ];
 
-const router = createBrowserRouter(routes, {
-  future: {
-    v7_startTransition: true,
-    v7_relativeSplatPath: true,
-  },
-});
+const router = createBrowserRouter(routes);
 
 export default router;
