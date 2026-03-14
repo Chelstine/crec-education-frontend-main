@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://crec-education.bj/</loc><priority>1.0</priority></url>
-  <url><loc>https://crec-education.bj/about</loc><priority>0.8</priority></url>
-  <url><loc>https://crec-education.bj/about/jesuites</loc><priority>0.7</priority></url>
-  <url><loc>https://crec-education.bj/about/equipe</loc><priority>0.6</priority></url>
-  <url><loc>https://crec-education.bj/contact</loc><priority>0.8</priority></url>
-  <url><loc>https://crec-education.bj/gallery</loc><priority>0.6</priority></url>
-  <url><loc>https://crec-education.bj/events</loc><priority>0.7</priority></url>
-  <url><loc>https://crec-education.bj/istmr</loc><priority>1.0</priority></url>
-  <url><loc>https://crec-education.bj/istmr/programmes</loc><priority>0.9</priority></url>
-  <url><loc>https://crec-education.bj/istmr/admissions</loc><priority>0.8</priority></url>
-  <url><loc>https://crec-education.bj/istmr/campus</loc><priority>0.7</priority></url>
-  <url><loc>https://crec-education.bj/istmr/a-propos</loc><priority>0.8</priority></url>
-  <url><loc>https://crec-education.bj/istmr/contact</loc><priority>0.7</priority></url>
-  <url><loc>https://crec-education.bj/formations/ouvertes</loc><priority>0.8</priority></url>
-  <url><loc>https://crec-education.bj/formations/fablab</loc><priority>0.8</priority></url>
+  <url><loc>https://www.crec-sj.org/</loc><priority>1.0</priority></url>
+  <url><loc>https://www.crec-sj.org/about</loc><priority>0.8</priority></url>
+  <url><loc>https://www.crec-sj.org/about/jesuites</loc><priority>0.7</priority></url>
+  <url><loc>https://www.crec-sj.org/about/equipe</loc><priority>0.6</priority></url>
+  <url><loc>https://www.crec-sj.org/contact</loc><priority>0.8</priority></url>
+  <url><loc>https://www.crec-sj.org/gallery</loc><priority>0.6</priority></url>
+  <url><loc>https://www.crec-sj.org/events</loc><priority>0.7</priority></url>
+  <url><loc>https://www.crec-sj.org/istmr</loc><priority>1.0</priority></url>
+  <url><loc>https://www.crec-sj.org/istmr/programmes</loc><priority>0.9</priority></url>
+  <url><loc>https://www.crec-sj.org/istmr/admissions</loc><priority>0.8</priority></url>
+  <url><loc>https://www.crec-sj.org/istmr/campus</loc><priority>0.7</priority></url>
+  <url><loc>https://www.crec-sj.org/istmr/a-propos</loc><priority>0.8</priority></url>
+  <url><loc>https://www.crec-sj.org/istmr/contact</loc><priority>0.7</priority></url>
+  <url><loc>https://www.crec-sj.org/formations/ouvertes</loc><priority>0.8</priority></url>
+  <url><loc>https://www.crec-sj.org/formations/fablab</loc><priority>0.8</priority></url>
 </urlset>
