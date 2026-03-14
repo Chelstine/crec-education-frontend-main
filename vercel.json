@@ -1,5 +1,20 @@
 
 {
+  "prerender": {
+    "expiration": 3600,
+    "routes": [
+      "/",
+      "/istmr",
+      "/contact",
+      "/about",
+      "/formations/ouvertes",
+      "/formations/university",
+      "/formations/fablab",
+      "/events",
+      "/library",
+      "/donate"
+    ]
+  },
   "rewrites": [
     {
       "source": "/(.*)",
