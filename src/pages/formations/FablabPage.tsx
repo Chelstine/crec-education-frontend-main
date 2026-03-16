@@ -46,6 +46,27 @@ const FablabPage = () => {
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
+  const resolveMediaUrl = (url?: string | null): string | undefined => {
+    if (!url) return undefined;
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+
+    // Prefer explicit storage URL when provided (e.g. https://api.example.com/storage)
+    if (url.startsWith('/storage/')) {
+      const storageBase = (import.meta.env.VITE_STORAGE_URL || '').replace(/\/$/, '');
+      if (storageBase) {
+        const normalizedPath = url.replace(/^\/storage\/?/, '');
+        return `${storageBase}/${normalizedPath}`;
+      }
+    }
+
+    // Fallback to backend origin derived from API URL
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+    const backendBase = apiUrl.replace(/\/api\/?$/, '').replace(/\/$/, '');
+    if (!backendBase) return url;
+
+    return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
   // Hooks pour récupérer les données
   const { data: machines = [], isLoading: machinesLoading, error: machinesError } = useFablabMachines();
   const { data: projects = [], isLoading: projectsLoading, error: projectsError } = useFablabPublishedProjects();
@@ -353,9 +374,9 @@ const FablabPage = () => {
                 >
                   <Card className="h-full bg-white shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 overflow-hidden">
                     <div className="relative overflow-hidden">
-                      {project.image_url ? (
+                      {resolveMediaUrl(project.image_url) ? (
                         <img
-                          src={project.image_url}
+                          src={resolveMediaUrl(project.image_url)}
                           alt={project.title}
                           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                         />
@@ -474,7 +495,7 @@ const FablabPage = () => {
                 <Card className="h-full hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden group">
                   <div className="relative overflow-hidden">
                     <img
-                      src={machine.image_url || "/img/placeholder-machine.jpg"}
+                      src={resolveMediaUrl(machine.image_url) || "/img/placeholder-machine.jpg"}
                       alt={machine.name}
                       className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={(e) => {
@@ -681,9 +702,9 @@ const FablabPage = () => {
               {trainings.map((training, index) => (
                 <Card key={training.id} className="bg-white shadow-lg hover:shadow-xl transition-shadow">
                   <div className="relative overflow-hidden">
-                    {training.image_url ? (
+                    {resolveMediaUrl(training.image_url) ? (
                       <img
-                        src={training.image_url}
+                        src={resolveMediaUrl(training.image_url)}
                         alt={training.name}
                         className="w-full h-48 object-cover"
                       />
@@ -778,9 +799,9 @@ const FablabPage = () => {
               {services.map((service, index) => (
                 <Card key={service.id} className="bg-white shadow-lg hover:shadow-xl transition-shadow">
                   <div className="relative overflow-hidden">
-                    {service.image_url ? (
+                    {resolveMediaUrl(service.image_url) ? (
                       <img
-                        src={service.image_url}
+                        src={resolveMediaUrl(service.image_url)}
                         alt={service.name}
                         className="w-full h-48 object-cover"
                       />
