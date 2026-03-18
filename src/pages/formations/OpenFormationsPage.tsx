@@ -261,6 +261,18 @@ const OpenFormationsPage = () => {
                                 <Clock className="w-3 h-3 mr-1" />
                                 {formatDuration(formation.duration)}
                               </Badge>
+                              {formation.start_date && (
+                                <Badge variant="outline" className="bg-white/80 border-crec-gold/30">
+                                  <Calendar className="w-3 h-3 mr-1 text-crec-gold" />
+                                  {new Date(formation.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                </Badge>
+                              )}
+                              {formation.schedule && (
+                                <Badge variant="outline" className="bg-white/80 border-blue-200">
+                                  <Clock className="w-3 h-3 mr-1 text-blue-500" />
+                                  {formation.schedule}
+                                </Badge>
+                              )}
                               <Badge variant="outline" className="bg-white/80">
                                 <Users className="w-3 h-3 mr-1" />
                                 {formation.max_participants || 'Illimité'} places
@@ -367,61 +379,6 @@ const OpenFormationsPage = () => {
           </div>
         </section>
 
-        {/* Section d'information sur la première promotion */}
-        <section className="py-16 px-4 bg-blue-50">
-          <div className="max-w-3xl mx-auto">
-            <motion.div
-              className="text-center mb-8"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <h2 className="text-2xl md:text-3xl font-bold text-crec-darkblue mb-3">Première promotion 2025-2026</h2>
-              <div className="w-16 h-0.5 bg-crec-gold mx-auto mb-4"></div>
-            </motion.div>
-
-            <motion.div
-              className="bg-white p-8 rounded-xl shadow-sm border border-blue-100"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <p className="text-gray-700 mb-4 leading-relaxed">
-                Nos formations ouvertes accueilleront leur première promotion pour l'année académique 2025-2026. 
-                En rejoignant cette première cohorte, vous bénéficierez d'une attention particulière et 
-                ferez partie des pionniers de ce nouveau programme éducatif au CREC.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-6 mt-6 text-sm">
-                <div className="flex items-start gap-2">
-                  <Calendar className="w-5 h-5 text-crec-gold mt-0.5" />
-                  <div>
-                    <p className="font-medium text-crec-darkblue">Début des cours</p>
-                    <p className="text-gray-600">Octobre 2025</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-2">
-                  <Users className="w-5 h-5 text-crec-gold mt-0.5" />
-                  <div>
-                    <p className="font-medium text-crec-darkblue">Taille des groupes</p>
-                    <p className="text-gray-600">15 à 20 participants</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-2">
-                  <Award className="w-5 h-5 text-crec-gold mt-0.5" />
-                  <div>
-                    <p className="font-medium text-crec-darkblue">Certification</p>
-                    <p className="text-gray-600">En fin de formation</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </section>
 
       </div>
     </ErrorBoundary>
