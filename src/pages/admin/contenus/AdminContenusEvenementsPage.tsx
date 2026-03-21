@@ -145,11 +145,18 @@ const AdminContenusEvenementsPage = () => {
       resetForm();
     } catch (error: any) {
       console.error('Erreur lors de la soumission:', error);
+      let errorMessage = error?.response?.data?.message || (editingEvent 
+        ? 'Erreur lors de la mise à jour de l\'événement'
+        : 'Erreur lors de la création de l\'événement');
+      
+      if (error?.response?.data?.errors) {
+        const validationErrors = Object.values(error.response.data.errors).flat().join(', ');
+        errorMessage = `${errorMessage} : ${validationErrors}`;
+      }
+
       toast({
         title: 'Erreur',
-        description: error?.response?.data?.message || (editingEvent 
-          ? 'Erreur lors de la mise à jour de l\'événement'
-          : 'Erreur lors de la création de l\'événement'),
+        description: errorMessage,
         variant: 'destructive'
       });
     }
