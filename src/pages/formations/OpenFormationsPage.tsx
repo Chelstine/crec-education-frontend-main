@@ -17,8 +17,7 @@ import {
   Clock,
   MapPin,
   CheckCircle,
-  Star,
-  DollarSign
+  Star
 } from "lucide-react";
 import { Formation } from "@/types/formations";
 import { useOpenFormations } from "@/hooks/useFormations";
@@ -36,11 +35,7 @@ const getFormationIcon = (name: string) => {
 // Fonction pour formater le prix
 const formatPrice = (price?: number) => {
   if (!price) return 'Gratuit';
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'XOF',
-    minimumFractionDigits: 0,
-  }).format(price);
+  return new Intl.NumberFormat('fr-FR').format(price) + ' CFA';
 };
 
 // Fonction pour formater la durée
@@ -343,7 +338,6 @@ const OpenFormationsPage = () => {
 
                           <div className="flex items-center justify-between pt-4 border-t">
                             <span className="text-lg font-bold text-crec-gold flex items-center gap-1">
-                              <DollarSign className="w-4 h-4" />
                               {formatPrice(formation.price)}
                             </span>
                             <div className="flex items-center gap-2">
