@@ -56,7 +56,7 @@ const HomePage = () => {
       id: 1,
       title: "Formation Universitaire",
       subtitle: "Institut Supérieur de Technologie Matteo Ricci",
-      description: "Une formation complète et rigoureuse dans les domaines technologiques avec une approche éthique et humaniste. Première promotion 2025-2026.",
+      description: "Une formation complète et rigoureuse dans les domaines technologiques avec une approche éthique et humaniste. Devenez les leaders de demain.",
       image: '/img/crec3.jpg',
       link: '/formations/university',
       icon: <GraduationCap className="h-12 w-12 text-amber-600" />,
@@ -403,18 +403,6 @@ const HomePage = () => {
 
         <div className="container mx-auto px-4 md:px-8 relative z-10">
           <div className="max-w-7xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true, margin: "-100px" }}
-              className="flex justify-center"
-            >
-              <div className="inline-flex items-center px-4 py-2 rounded-full bg-amber-50 text-amber-700 font-medium mb-6 shadow-sm border border-amber-100">
-                <span className="w-2 h-2 rounded-full bg-amber-500 mr-2 animate-pulse"></span>
-                <span>Première promotion 2025-2026</span>
-              </div>
-            </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 30 }}

@@ -372,8 +372,8 @@ const OpenFormationsPage = () => {
             {formationsArray.length === 0 && (
               <div className="text-center py-12">
                 <GraduationCap className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-medium text-gray-900 mb-2">Aucune formation disponible</h3>
-                <p className="text-gray-500">Les formations pour la première promotion 2025-2026 seront bientôt annoncées.</p>
+                <h3 className="text-xl font-medium text-gray-900 mb-2">Aucune formation disponible actuellement</h3>
+                <p className="text-gray-500">Revenez bientôt pour découvrir nos prochains programmes.</p>
               </div>
             )}
           </div>
