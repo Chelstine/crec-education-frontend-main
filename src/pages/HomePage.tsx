@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import { usePartners } from '@/hooks/useApi';
 import { Leaf, Gavel, Users, BookOpen, GraduationCap, Library, ChevronRight, Globe, Award, Mail } from 'lucide-react';
+import EventPopup from '@/components/common/EventPopup';
 
 
 const HomePage = () => {
@@ -207,6 +208,9 @@ const HomePage = () => {
             {/* Les indicateurs du diaporama ont été supprimés */}
           </motion.div>
         </div>
+
+        {/* Composant Popup d'événement */}
+        <EventPopup />
 
         {/* Wave divider */}
         <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-[5]">
