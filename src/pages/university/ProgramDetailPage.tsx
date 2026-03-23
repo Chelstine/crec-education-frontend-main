@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useUniversityPrograms } from '@/hooks/useUniversityPrograms';
-import { BookOpen, Clock, CheckCircle2, ChevronLeft, FileText, Users, Calendar, DollarSign, ArrowRight } from 'lucide-react';
+import { BookOpen, Clock, CheckCircle2, ChevronLeft, FileText, Users, Calendar, Coins, ArrowRight } from 'lucide-react';
 
 const ProgramDetailPage = () => {
     const { id } = useParams();
@@ -166,7 +166,7 @@ const ProgramDetailPage = () => {
                                     )}
                                     {program.tuition_fee && (
                                         <li className="flex items-center gap-3 text-sm text-[#1B2A4A]/50">
-                                            <DollarSign className="w-4 h-4 text-[#C5A55A]" /> Frais : <strong className="text-[#1B2A4A]">{Number(program.tuition_fee).toLocaleString()} {program.currency || 'FCFA'}/an</strong>
+                                            <Coins className="w-4 h-4 text-[#C5A55A]" /> Frais : <strong className="text-[#1B2A4A]">{Number(program.tuition_fee).toLocaleString()} {program.currency || 'FCFA'}/an</strong>
                                         </li>
                                     )}
                                     {program.registration_deadline && (

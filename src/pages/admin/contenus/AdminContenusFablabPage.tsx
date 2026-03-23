@@ -57,13 +57,15 @@ import { Machine, Project, Subscription, Training, Service, CreateMachineData, C
 import { toast } from 'sonner';
 import { 
   Loader2, Plus, Edit, Trash2, Wrench, Cpu, CircuitBoard, 
-  DollarSign, Clock, Settings, CheckCircle, XCircle, AlertTriangle, X,
+  Coins, Clock, Settings, CheckCircle, XCircle, AlertTriangle, X,
   BookOpen, Users, Calendar, Award, BarChart3, Target
 } from 'lucide-react';
 
 // Types étendus pour inclure les propriétés temporaires d'upload
-type MachineFormData = Partial<Machine> & { previewUrl?: string };
-type ProjectFormData = Partial<Project> & { previewUrl?: string };
+type MachineFormData = Partial<Machine> & { previewUrl?: string, imageFile?: File | null };
+type ProjectFormData = Partial<Project> & { previewUrl?: string, imageFile?: File | null };
+type TrainingFormData = Partial<Training> & { previewUrl?: string, imageFile?: File | null };
+type ServiceFormData = Partial<Service> & { previewUrl?: string, imageFile?: File | null };
 
 const AdminContenusFablabPage: React.FC = () => {
   // Hooks pour les données FabLab
@@ -170,7 +172,7 @@ const AdminContenusFablabPage: React.FC = () => {
     sort_order: 0,
   });
 
-  const [trainingData, setTrainingData] = useState<Partial<Training>>({
+  const [trainingData, setTrainingData] = useState<TrainingFormData>({
     name: '',
     slug: '',
     description: '',
@@ -188,7 +190,7 @@ const AdminContenusFablabPage: React.FC = () => {
     image_url: '',
   });
 
-  const [serviceData, setServiceData] = useState<Partial<Service>>({
+  const [serviceData, setServiceData] = useState<ServiceFormData>({
     name: '',
     slug: '',
     description: '',
@@ -603,6 +605,7 @@ const AdminContenusFablabPage: React.FC = () => {
         specifications: machineData.specifications || [],
         safety_instructions: machineData.safety_instructions || [],
         is_active: machineData.is_active ?? true,
+        image: machineData.imageFile ? machineData.imageFile : undefined,
       };
 
       if (editingMachine) {
@@ -656,6 +659,7 @@ const AdminContenusFablabPage: React.FC = () => {
         tags: projectData.tags || [],
         is_published: projectData.is_published ?? true,
         featured: projectData.featured ?? false,
+        image: projectData.imageFile ? projectData.imageFile : undefined,
       };
 
       if (editingProject) {
@@ -753,6 +757,7 @@ const AdminContenusFablabPage: React.FC = () => {
         instructor: trainingData.instructor,
         difficulty_level: trainingData.difficulty_level || 'Débutant',
         category: trainingData.category || '',
+        image: trainingData.imageFile ? trainingData.imageFile : undefined,
       };
 
       if (editingTraining) {
@@ -798,6 +803,7 @@ const AdminContenusFablabPage: React.FC = () => {
         deliverables: serviceData.deliverables || [],
         is_active: serviceData.is_active ?? true,
         sort_order: serviceData.sort_order || 0,
+        image: serviceData.imageFile ? serviceData.imageFile : undefined,
       };
 
       if (editingService) {
@@ -1030,7 +1036,7 @@ const AdminContenusFablabPage: React.FC = () => {
               Projets ({projects?.length || 0})
             </TabsTrigger>
             <TabsTrigger value="subscriptions" className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4" />
+              <Coins className="h-4 w-4" />
               Abonnements ({subscriptions?.length || 0})
             </TabsTrigger>
             <TabsTrigger value="trainings" className="flex items-center gap-2">
@@ -1155,7 +1161,7 @@ const AdminContenusFablabPage: React.FC = () => {
                           <TableCell>{machine.type || 'N/A'}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1">
-                              <DollarSign className="h-3 w-3" />
+                              <Coins className="h-3 w-3" />
                               <span>{formatPrice(machine.hourly_rate)}</span>
                             </div>
                           </TableCell>
@@ -1367,7 +1373,7 @@ const AdminContenusFablabPage: React.FC = () => {
                   
                   {(!subscriptions || subscriptions.length === 0) && (
                     <div className="text-center py-8">
-                      <DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <Coins className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                       <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun abonnement</h3>
                       <p className="text-gray-500 mb-4">Créez votre première formule d'abonnement.</p>
                       <Button onClick={() => setShowSubscriptionForm(true)}>

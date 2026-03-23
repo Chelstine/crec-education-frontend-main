@@ -19,7 +19,7 @@ import {
   PhoneCall,
   Mail,
   ExternalLink,
-  DollarSign,
+  Coins,
   CheckCircle,
   AlertTriangle,
   XCircle,
@@ -410,7 +410,7 @@ const FablabPage = () => {
                           {project.estimated_cost && (
                             <div className="flex items-center">
                               <Euro className="h-4 w-4 mr-1" />
-                              <span>{project.estimated_cost}€</span>
+                              <span>{project.estimated_cost} FCFA</span>
                             </div>
                           )}
                         </div>
@@ -733,7 +733,7 @@ const FablabPage = () => {
                         <span>Places: {training.max_participants}</span>
                       </div>
                       <div className="flex items-center text-sm text-gray-500">
-                        <DollarSign className="h-4 w-4 mr-2" />
+                        <Coins className="h-4 w-4 mr-2" />
                         <span className="font-semibold text-crec-gold">{formatPrice(training.price)}</span>
                       </div>
                     </div>

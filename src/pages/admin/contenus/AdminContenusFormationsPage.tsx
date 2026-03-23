@@ -32,7 +32,7 @@ import {
 import { useAdminFormations } from '@/hooks/useFormations';
 import { Formation } from '@/types/formations';
 import { toast } from 'sonner';
-import { Loader2, Plus, Edit, Trash2, GraduationCap, Users, Clock, DollarSign, Eye, EyeOff, X } from 'lucide-react';
+import { Loader2, Plus, Edit, Trash2, GraduationCap, Users, Clock, Coins, Eye, EyeOff, X } from 'lucide-react';
 
 const AdminContenusFormationsPage: React.FC = () => {
   const { data: formations, isLoading, createFormation, updateFormation, deleteFormation } = useAdminFormations();
@@ -320,7 +320,7 @@ const AdminContenusFormationsPage: React.FC = () => {
                   {formations?.filter(f => f.requires_payment).length || 0}
                 </p>
               </div>
-              <DollarSign className="h-8 w-8 text-yellow-600" />
+              <Coins className="h-8 w-8 text-yellow-600" />
             </div>
           </CardContent>
         </Card>
@@ -400,7 +400,7 @@ const AdminContenusFormationsPage: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
-                        <DollarSign className="h-3 w-3" />
+                        <Coins className="h-3 w-3" />
                         <span className={formation.requires_payment ? 'font-medium' : 'text-green-600'}>
                           {formatPrice(formation.price)}
                         </span>
