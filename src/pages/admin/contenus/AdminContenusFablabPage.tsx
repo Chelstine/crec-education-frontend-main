@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
@@ -218,6 +218,86 @@ const AdminContenusFablabPage: React.FC = () => {
   const [newSubscriptionFeature, setNewSubscriptionFeature] = useState('');
   const [newWorkshopRequirement, setNewWorkshopRequirement] = useState('');
   const [newWhatYouLearn, setNewWhatYouLearn] = useState('');
+  const [toolsInput, setToolsInput] = useState('');
+
+  // Sync Machine Data
+  useEffect(() => {
+    if (editingMachine) {
+      setMachineData({
+        ...editingMachine,
+        features: editingMachine.features || [],
+        specifications: editingMachine.specifications || [],
+        safety_instructions: editingMachine.safety_instructions || [],
+        previewUrl: undefined,
+        imageFile: null
+      });
+    } else {
+      resetMachineForm();
+    }
+  }, [editingMachine]);
+
+  // Sync Project Data
+  useEffect(() => {
+    if (editingProject) {
+      setProjectData({
+        ...editingProject,
+        materials_needed: editingProject.materials_needed || [],
+        tools_required: editingProject.tools_required || [],
+        tags: editingProject.tags || [],
+        previewUrl: undefined,
+        imageFile: null
+      });
+      setToolsInput(editingProject.tools_required?.join(', ') || '');
+    } else {
+      resetProjectForm();
+      setToolsInput('');
+    }
+  }, [editingProject]);
+
+  // Sync Subscription Data
+  useEffect(() => {
+    if (editingSubscription) {
+      setSubscriptionData({
+        ...editingSubscription,
+        features: editingSubscription.features || [],
+        machine_access: editingSubscription.machine_access || []
+      });
+    } else {
+      resetSubscriptionForm();
+    }
+  }, [editingSubscription]);
+
+  // Sync Training Data
+  useEffect(() => {
+    if (editingTraining) {
+      setTrainingData({
+        ...editingTraining,
+        requirements: editingTraining.requirements || [],
+        what_you_learn: editingTraining.what_you_learn || [],
+        materials_included: editingTraining.materials_included || [],
+        previewUrl: undefined,
+        imageFile: null
+      });
+    } else {
+      resetTrainingForm();
+    }
+  }, [editingTraining]);
+
+  // Sync Service Data
+  useEffect(() => {
+    if (editingService) {
+      setServiceData({
+        ...editingService,
+        requirements: editingService.requirements || [],
+        deliverables: editingService.deliverables || [],
+        previewUrl: undefined,
+        imageFile: null
+      });
+    } else {
+      resetServiceForm();
+    }
+  }, [editingService]);
+
 
   const resetMachineForm = () => {
     setMachineData({
@@ -266,6 +346,7 @@ const AdminContenusFablabPage: React.FC = () => {
     setEditingProject(null);
     setNewMaterial('');
     setNewTag('');
+    setToolsInput('');
   };
 
   const resetSubscriptionForm = () => {
@@ -653,7 +734,7 @@ const AdminContenusFablabPage: React.FC = () => {
         duration: projectData.duration,
         instructions: projectData.instructions,
         materials_needed: projectData.materials_needed || [],
-        tools_required: projectData.tools_required || [],
+        tools_required: toolsInput.split(',').map(tool => tool.trim()).filter(tool => tool),
         estimated_cost: projectData.estimated_cost,
         skill_level: projectData.skill_level || 'beginner',
         tags: projectData.tags || [],
@@ -1943,11 +2024,8 @@ const AdminContenusFablabPage: React.FC = () => {
                 <Label htmlFor="project-tools">Outils requis</Label>
                 <Input
                   id="project-tools"
-                  value={Array.isArray(projectData.tools_required) ? projectData.tools_required.join(', ') : projectData.tools_required || ''}
-                  onChange={(e) => setProjectData(prev => ({ 
-                    ...prev, 
-                    tools_required: e.target.value.split(',').map(tool => tool.trim()).filter(tool => tool)
-                  }))}
+                  value={toolsInput}
+                  onChange={(e) => setToolsInput(e.target.value)}
                   placeholder="Ex: Imprimante 3D, Découpeuse laser"
                 />
               </div>
