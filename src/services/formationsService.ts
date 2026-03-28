@@ -13,8 +13,25 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 secondes
+  // Timeout plus permissif pour absorber les cold starts Render
+  timeout: 25000,
 });
+
+// Petit helper de retry avec backoff
+const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
+const withRetry = async <T>(fn: () => Promise<T>, retries = 2, backoffMs = 700): Promise<T> => {
+  let attempt = 0;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (attempt >= retries) throw error;
+      attempt += 1;
+      await sleep(backoffMs * attempt);
+    }
+  }
+};
 
 // Ajout d'intercepteurs pour le debug
 apiClient.interceptors.request.use(
@@ -49,11 +66,19 @@ class FormationService {
   async getOpenFormations(): Promise<Formation[]> {
     try {
       console.log('🔄 Fetching open formations...');
-      const response = await apiClient.get<FormationResponse>('/formations/public');
+      const response = await withRetry(
+        () => apiClient.get<FormationResponse>('/formations/public'),
+        2,
+        800
+      );
       console.log('✅ Formations fetched:', response.data.data.length);
       return response.data.data;
     } catch (error) {
       console.error('❌ Error fetching formations:', error);
+      // Message plus clair pour l’UI en cas de délai dépassé ou serveur lent
+      if (axios.isAxiosError(error) && error.code === 'ECONNABORTED') {
+        throw new Error('Le serveur met plus de temps à répondre. Merci de réessayer dans un instant.');
+      }
       throw error;
     }
   }
